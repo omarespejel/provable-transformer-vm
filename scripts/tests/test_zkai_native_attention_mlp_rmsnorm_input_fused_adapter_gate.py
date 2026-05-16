@@ -1,4 +1,6 @@
 import copy
+import pathlib
+import tempfile
 import unittest
 
 from scripts import zkai_native_attention_mlp_rmsnorm_input_fused_adapter_gate as gate
@@ -53,6 +55,29 @@ class RmsnormInputFusedAdapterGateTests(unittest.TestCase):
 
         with self.assertRaisesRegex(gate.RmsnormInputFusedAdapterGateError, "proof_sha256"):
             gate.build_payload(context)
+
+    def test_extra_typed_group_is_rejected(self) -> None:
+        context = gate.build_context()
+        accounting = copy.deepcopy(context["accounting"])
+        groups = accounting["rows"][0]["local_binary_accounting"]["grouped_reconstruction"]
+        groups["unexpected_group"] = 1
+        context["accounting"] = accounting
+
+        with self.assertRaisesRegex(gate.RmsnormInputFusedAdapterGateError, "key drift"):
+            gate.build_payload(context)
+
+    def test_outputs_are_written_atomically(self) -> None:
+        context = gate.build_context()
+        payload = gate.build_payload(context)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            json_path = pathlib.Path(tmpdir) / "gate.json"
+            tsv_path = pathlib.Path(tmpdir) / "gate.tsv"
+            gate.write_outputs(payload, json_path, tsv_path)
+
+            self.assertTrue(json_path.exists())
+            self.assertTrue(tsv_path.exists())
+            self.assertFalse(json_path.with_suffix(".json.tmp").exists())
+            self.assertFalse(tsv_path.with_suffix(".tsv.tmp").exists())
 
     def test_duplicate_accounting_row_path_is_rejected(self) -> None:
         context = gate.build_context()
