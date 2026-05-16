@@ -81,8 +81,9 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 70. `docs/engineering/zkai-attention-derived-d128-native-gate-value-projection-2026-05-16.md`
 71. `docs/engineering/zkai-attention-derived-d128-native-activation-swiglu-2026-05-16.md`
 72. `docs/engineering/zkai-attention-derived-d128-native-down-projection-2026-05-16.md`
-73. `docs/engineering/reproducibility.md`
-74. `git status --short --branch`
+73. `docs/engineering/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05-17.md`
+74. `docs/engineering/reproducibility.md`
+75. `git status --short --branch`
 
 ## Current lane split
 
@@ -293,6 +294,39 @@ Preprocessed output-anchor reproducibility metadata:
   `docs/engineering/evidence/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05.tsv`.
 - Gate command:
   `python3 scripts/zkai_native_attention_mlp_preprocessed_output_anchor_adapter_frontier_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05.tsv`.
+
+Latest RMSNorm-input fused adapter frontier: issue `#641` now has a checked
+proof-shape no-go for the boundary-fusion attack. The fused route removes the
+separate adapter base trace entirely (`0` adapter base cells) and proves the
+attention-to-d128 adapter equation inside the existing d128 RMSNorm input
+component. It proves and verifies, but grows to `118,378` JSON proof bytes /
+`41,428` local typed bytes. That is `616` typed bytes heavier than the compact
+selector and `728` typed bytes heavier than the `40,700` typed-byte two-proof
+frontier. The useful lesson is that semantic boundary fusion is possible, but
+this transcript shape still pays more in FRI and trace decommitments than it
+saves in queried values. Next attack: opening/decommitment geometry, not
+adapter base-cell count alone. See
+`docs/engineering/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05-17.md`.
+
+RMSNorm-input fused adapter reproducibility metadata:
+
+- Backend binary: `zkai_native_attention_mlp_single_proof`.
+- Backend version:
+  `stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-adapter-v1`.
+- Timing mode: proof-size accounting only; no timing or median-of-5 claim.
+- PCS/profile note: publication-v1 PCS with explicit lifting log size `19`.
+- Checked surface: native attention-plus-MLP single proof over d8 fused
+  attention and d128 RMSNorm-MLP, with the adapter equation fused into the
+  RMSNorm input component and `0` adapter base cells.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.input.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-binary-accounting-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.json`,
+  and
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.tsv`.
+- Gate command:
+  `python3 scripts/zkai_native_attention_mlp_rmsnorm_input_fused_adapter_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.tsv`.
 
 Reproducibility metadata:
 
