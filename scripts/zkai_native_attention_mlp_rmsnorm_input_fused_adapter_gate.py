@@ -192,6 +192,12 @@ def require_bool(value: Any, label: str) -> bool:
     return value
 
 
+def require_sha256_hex(value: Any, label: str) -> str:
+    if not isinstance(value, str) or len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value):
+        raise RmsnormInputFusedAdapterGateError(f"{label} must be 64-character lowercase hex SHA-256")
+    return value
+
+
 def build_context() -> dict[str, Any]:
     return {
         "compact_input": require_dict(read_json(COMPACT_INPUT_PATH), "compact input"),
@@ -253,6 +259,8 @@ def variant_payload(name: str, context: dict[str, Any], rows: dict[str, dict[str
         raise RmsnormInputFusedAdapterGateError(f"{name} typed size drift")
     if accounting.get("record_stream_sha256") != expected["record_stream_sha256"]:
         raise RmsnormInputFusedAdapterGateError(f"{name} accounting record stream drift")
+    proof_sha256 = require_sha256_hex(row.get("proof_sha256"), f"{name} proof_sha256")
+    envelope_sha256 = require_sha256_hex(row.get("envelope_sha256"), f"{name} envelope_sha256")
 
     return {
         "name": name,
@@ -267,8 +275,8 @@ def variant_payload(name: str, context: dict[str, Any], rows: dict[str, dict[str
         "typed_size_estimate_bytes": typed_size,
         "typed_groups": groups,
         "record_stream_sha256": accounting["record_stream_sha256"],
-        "proof_sha256": row.get("proof_sha256"),
-        "envelope_sha256": row.get("envelope_sha256"),
+        "proof_sha256": proof_sha256,
+        "envelope_sha256": envelope_sha256,
     }
 
 
@@ -344,7 +352,7 @@ def build_payload(context: dict[str, Any] | None = None, *, include_mutations: b
     }
     refresh_payload_commitment(payload)
     if include_mutations:
-        payload["mutation_result"] = mutation_result(payload)
+        payload["mutation_result"] = mutation_result(payload, context=context)
         refresh_payload_commitment(payload)
     return payload
 
@@ -365,19 +373,25 @@ def validate_payload(payload: dict[str, Any], *, context: dict[str, Any] | None 
     if require_bool(comparisons["fused_vs_nanozk_reported_row"]["nanozk_win_claimed"], "NANOZK claim"):
         raise RmsnormInputFusedAdapterGateError("NANOZK win overclaim")
 
-    expected = copy.deepcopy(payload)
-    expected.pop("mutation_result", None)
-    expected.pop("payload_commitment", None)
+    has_mutation_result = "mutation_result" in payload
+    provided_mutation_result = payload.get("mutation_result")
+    actual = copy.deepcopy(payload)
+    actual.pop("mutation_result", None)
+    actual.pop("payload_commitment", None)
     expected_payload = build_payload(context, include_mutations=False)
-    expected_payload.pop("mutation_result", None)
-    expected_payload.pop("payload_commitment", None)
-    if expected != expected_payload:
+    expected_core = copy.deepcopy(expected_payload)
+    expected_core.pop("payload_commitment", None)
+    if actual != expected_core:
         raise RmsnormInputFusedAdapterGateError("payload body drift")
+    if has_mutation_result and provided_mutation_result != mutation_result(expected_payload, context=context):
+        raise RmsnormInputFusedAdapterGateError("mutation result drift")
     if payload.get("payload_commitment") != payload_commitment(payload):
         raise RmsnormInputFusedAdapterGateError("payload commitment drift")
 
 
-def mutation_result(payload: dict[str, Any]) -> dict[str, Any]:
+def mutation_result(payload: dict[str, Any], *, context: dict[str, Any] | None = None) -> dict[str, Any]:
+    if context is None:
+        context = build_context()
     cases = []
     for name in MUTATION_NAMES:
         candidate = copy.deepcopy(payload)
@@ -404,7 +418,7 @@ def mutation_result(payload: dict[str, Any]) -> dict[str, Any]:
             refresh_payload_commitment(candidate)
         rejected = False
         try:
-            validate_payload(candidate)
+            validate_payload(candidate, context=context)
         except RmsnormInputFusedAdapterGateError:
             rejected = True
         cases.append({"name": name, "rejected": rejected})

@@ -35,6 +35,25 @@ class RmsnormInputFusedAdapterGateTests(unittest.TestCase):
         with self.assertRaises(gate.RmsnormInputFusedAdapterGateError):
             gate.validate_payload(candidate, context=context)
 
+    def test_mutation_result_drift_is_rejected(self) -> None:
+        context = gate.build_context()
+        payload = gate.build_payload(context)
+        candidate = copy.deepcopy(payload)
+        candidate["mutation_result"]["cases"][0]["rejected"] = False
+        gate.refresh_payload_commitment(candidate)
+
+        with self.assertRaisesRegex(gate.RmsnormInputFusedAdapterGateError, "mutation result drift"):
+            gate.validate_payload(candidate, context=context)
+
+    def test_malformed_accounting_hash_is_rejected(self) -> None:
+        context = gate.build_context()
+        accounting = copy.deepcopy(context["accounting"])
+        accounting["rows"][0]["proof_sha256"] = "not-a-sha256"
+        context["accounting"] = accounting
+
+        with self.assertRaisesRegex(gate.RmsnormInputFusedAdapterGateError, "proof_sha256"):
+            gate.build_payload(context)
+
     def test_duplicate_accounting_row_path_is_rejected(self) -> None:
         context = gate.build_context()
         accounting = copy.deepcopy(context["accounting"])
