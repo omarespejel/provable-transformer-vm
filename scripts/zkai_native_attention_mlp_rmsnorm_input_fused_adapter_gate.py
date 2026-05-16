@@ -76,6 +76,10 @@ EXPECTED_VARIANTS = {
         "record_stream_sha256": "2f7f36ee6000173dea41ab684dab9a20f36f95277eeb7c9a749a98c185583d91",
     },
 }
+VARIANT_CONTEXT_PREFIX = {
+    "compact_selector": "compact",
+    "rmsnorm_input_fused": "fused",
+}
 
 EXPECTED_GROUP_DELTAS_FUSED_MINUS_COMPACT = {
     "fixed_overhead": 0,
@@ -221,8 +225,12 @@ def accounting_rows_by_path(accounting: dict[str, Any]) -> dict[str, dict[str, A
 
 def variant_payload(name: str, context: dict[str, Any], rows: dict[str, dict[str, Any]]) -> dict[str, Any]:
     expected = EXPECTED_VARIANTS[name]
-    input_payload = context[f"{name.split('_selector')[0]}_input"] if name == "compact_selector" else context["fused_input"]
-    envelope = context[f"{name.split('_selector')[0]}_envelope"] if name == "compact_selector" else context["fused_envelope"]
+    try:
+        context_prefix = VARIANT_CONTEXT_PREFIX[name]
+    except KeyError as err:
+        raise RmsnormInputFusedAdapterGateError(f"missing context prefix for variant: {name}") from err
+    input_payload = context[f"{context_prefix}_input"]
+    envelope = context[f"{context_prefix}_envelope"]
     row = rows[expected["accounting_relative_path"]]
     accounting = require_dict(row.get("local_binary_accounting"), f"{name} local accounting")
     groups = require_dict(accounting.get("grouped_reconstruction"), f"{name} groups")
@@ -344,17 +352,6 @@ def build_payload(context: dict[str, Any] | None = None, *, include_mutations: b
 def validate_payload(payload: dict[str, Any], *, context: dict[str, Any] | None = None) -> None:
     if context is None:
         context = build_context()
-    expected = copy.deepcopy(payload)
-    expected.pop("mutation_result", None)
-    expected.pop("payload_commitment", None)
-    expected_payload = build_payload(context, include_mutations=False)
-    expected_payload.pop("mutation_result", None)
-    expected_payload.pop("payload_commitment", None)
-    if expected != expected_payload:
-        raise RmsnormInputFusedAdapterGateError("payload body drift")
-    if payload.get("payload_commitment") != payload_commitment(payload):
-        raise RmsnormInputFusedAdapterGateError("payload commitment drift")
-
     summary = require_dict(payload.get("summary"), "summary")
     comparisons = require_dict(payload.get("comparisons"), "comparisons")
     if summary["fused_typed_bytes"] <= summary["compact_typed_bytes"]:
@@ -367,6 +364,17 @@ def validate_payload(payload: dict[str, Any], *, context: dict[str, Any] | None 
         raise RmsnormInputFusedAdapterGateError("frontier win overclaim")
     if require_bool(comparisons["fused_vs_nanozk_reported_row"]["nanozk_win_claimed"], "NANOZK claim"):
         raise RmsnormInputFusedAdapterGateError("NANOZK win overclaim")
+
+    expected = copy.deepcopy(payload)
+    expected.pop("mutation_result", None)
+    expected.pop("payload_commitment", None)
+    expected_payload = build_payload(context, include_mutations=False)
+    expected_payload.pop("mutation_result", None)
+    expected_payload.pop("payload_commitment", None)
+    if expected != expected_payload:
+        raise RmsnormInputFusedAdapterGateError("payload body drift")
+    if payload.get("payload_commitment") != payload_commitment(payload):
+        raise RmsnormInputFusedAdapterGateError("payload commitment drift")
 
 
 def mutation_result(payload: dict[str, Any]) -> dict[str, Any]:

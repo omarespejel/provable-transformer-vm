@@ -59,6 +59,11 @@ The gate rejects `8 / 8` mutation cases covering metric drift, relabeling, zero-
 ## Reproduction
 
 ```sh
+# Backend: zkai_native_attention_mlp_single_proof / stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-adapter-v1.
+# Toolchain: cargo +nightly-2025-07-14 --locked --features stwo-backend.
+# Timing mode: proof-size accounting only; no prove/verify timing or median-of-5 claim.
+# Checked surface: one native Stwo object over d8 fused attention, 128 adapter rows, and 197,504 d128 RMSNorm-MLP rows.
+# Evidence outputs: the input, envelope, accounting, gate JSON, and gate TSV paths listed above.
 cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-rmsnorm-fused docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.input.json
 cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json
 cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json

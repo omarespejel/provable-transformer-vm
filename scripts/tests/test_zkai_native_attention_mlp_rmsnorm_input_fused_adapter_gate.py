@@ -19,19 +19,19 @@ class RmsnormInputFusedAdapterGateTests(unittest.TestCase):
 
     def test_frontier_overclaim_is_rejected(self) -> None:
         context = gate.build_context()
-        payload = gate.build_payload(context)
-        candidate = copy.deepcopy(payload)
+        expected = gate.build_payload(context)
+        candidate = copy.deepcopy(expected)
         candidate["comparisons"]["fused_vs_two_proof_frontier"]["frontier_win_claimed"] = True
-        candidate["payload_commitment"] = gate.payload_commitment(candidate)
+        candidate["payload_commitment"] = expected["payload_commitment"]
         with self.assertRaises(gate.RmsnormInputFusedAdapterGateError):
             gate.validate_payload(candidate, context=context)
 
     def test_compact_win_overclaim_is_rejected(self) -> None:
         context = gate.build_context()
-        payload = gate.build_payload(context)
-        candidate = copy.deepcopy(payload)
+        expected = gate.build_payload(context)
+        candidate = copy.deepcopy(expected)
         candidate["comparisons"]["fused_vs_compact"]["proof_size_improvement_claimed"] = True
-        candidate["payload_commitment"] = gate.payload_commitment(candidate)
+        candidate["payload_commitment"] = expected["payload_commitment"]
         with self.assertRaises(gate.RmsnormInputFusedAdapterGateError):
             gate.validate_payload(candidate, context=context)
 
