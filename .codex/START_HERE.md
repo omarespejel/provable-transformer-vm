@@ -117,8 +117,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 111. `docs/engineering/zkai-native-attention-mlp-transcript-stable-comparison-2026-05-16.md`
 112. `docs/engineering/zkai-native-attention-mlp-variant-invariant-reprove-preflight-2026-05-16.md`
 113. `docs/engineering/zkai-native-attention-mlp-source-backed-adapter-selector-2026-05-17.md`
-114. `docs/engineering/reproducibility.md`
-115. `git status --short --branch`
+114. `docs/engineering/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05-17.md`
+115. `docs/engineering/reproducibility.md`
+116. `git status --short --branch`
 
 ## What this repository is now
 
@@ -172,6 +173,18 @@ This repository currently has three live lanes.
      typed bytes (`83.0333%`). Treat this as a narrow one-proof-object
      feasibility result, not a compression breakthrough or NANOZK win; see
      `docs/engineering/zkai-native-attention-mlp-single-proof-object-2026-05-16.md`.
+   - The current source-backed adapter frontier is a correctness GO and a
+     proof-shape learning result, not a compression breakthrough. The compact
+     selector verifies at `40,812` local typed bytes, only `112` typed bytes
+     above the `40,700` typed-byte two-proof frontier. The follow-up
+     preprocessed output-anchor route proves and verifies with only `128`
+     adapter base cells, but it grows to `41,704` local typed bytes because FRI
+     and trace decommitments get worse. Treat this as evidence that the next
+     attack must optimize opening/decommitment shape or fuse boundaries, not
+     just reduce adapter base columns; see
+     `docs/engineering/zkai-native-attention-mlp-source-backed-adapter-selector-2026-05-17.md`
+     and
+     `docs/engineering/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05-17.md`.
    - The current attention-to-RMSNorm/MLP boundary is a checked NO-GO for one
      value-connected native proof object: the attention-derived d128 statement
      chain has `199,553` accounted rows (`1.010374x` the MLP fused surface),
