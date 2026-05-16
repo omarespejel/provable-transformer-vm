@@ -63,8 +63,9 @@ use super::d128_native_rmsnorm_mlp_fused_proof::{
     ZKAI_D128_RMSNORM_MLP_FUSED_PROOF_VERSION,
 };
 use super::d128_native_rmsnorm_public_row_proof::{
-    zkai_d128_rmsnorm_public_row_component_with_allocator,
+    zkai_d128_rmsnorm_public_row_component_with_optional_input_adapter_allocator,
     zkai_d128_rmsnorm_public_row_preprocessed_column_ids, zkai_d128_rmsnorm_public_row_trace,
+    ZkAiD128RmsnormInputAdapterBinding,
 };
 use super::d128_native_rmsnorm_to_projection_bridge_proof::{
     zkai_d128_rmsnorm_to_projection_bridge_component_with_allocator,
@@ -113,6 +114,8 @@ const ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_TRACE_COLUMNS: usize =
     ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_VALUE_COLUMNS;
 const ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_TRACE_CELLS: usize =
     ADAPTER_WIDTH * ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_TRACE_COLUMNS;
+const ADAPTER_RMSNORM_INPUT_FUSED_BASE_VALUE_COLUMNS: usize = 0;
+const ADAPTER_RMSNORM_INPUT_FUSED_BASE_TRACE_CELLS: usize = 0;
 const ATTENTION_ROWS: usize = 8;
 const ATTENTION_WIDTH: usize = 8;
 const ATTENTION_FLAT_CELLS: usize = ATTENTION_ROWS * ATTENTION_WIDTH;
@@ -140,6 +143,8 @@ const EXPECTED_COMPACT_ADAPTER_STATUS: &str =
     "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_COMPACT_BASE_REFERENCED_FIXED_COLUMNS";
 const EXPECTED_PREPROCESSED_OUTPUT_ANCHOR_ADAPTER_STATUS: &str =
     "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_PREPROCESSED_FIXED_COLUMNS_WITH_OUTPUT_ANCHOR";
+const EXPECTED_RMSNORM_INPUT_FUSED_ADAPTER_STATUS: &str =
+    "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_FUSED_INTO_RMSNORM_INPUT_COMPONENT";
 const ADAPTER_COLUMN_IDS: [&str; ADAPTER_TRACE_COLUMNS] = [
     "zkai/native-attention-mlp/adapter/row-index",
     "zkai/native-attention-mlp/adapter/primary-source-index",
@@ -162,6 +167,8 @@ const COMPACT_ADAPTER_BACKEND_VERSION: &str =
     "stwo-native-attention-mlp-single-proof-object-compact-adapter-selector-v1";
 const PREPROCESSED_OUTPUT_ANCHOR_ADAPTER_BACKEND_VERSION: &str =
     "stwo-native-attention-mlp-single-proof-object-preprocessed-output-anchor-adapter-v1";
+const RMSNORM_INPUT_FUSED_ADAPTER_BACKEND_VERSION: &str =
+    "stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-adapter-v1";
 const EXPECTED_NON_CLAIMS: &[&str] = &[
     "not proof-size savings",
     "not a full transformer block",
@@ -228,6 +235,19 @@ const EXPECTED_PREPROCESSED_OUTPUT_ANCHOR_VALIDATION_COMMANDS: &[&str] = &[
     "just gate-fast",
     "just gate",
 ];
+const EXPECTED_RMSNORM_INPUT_FUSED_VALIDATION_COMMANDS: &[&str] = &[
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-rmsnorm-fused docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json > docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-binary-accounting-2026-05.json",
+    "python3 scripts/zkai_native_attention_mlp_rmsnorm_input_fused_adapter_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.tsv",
+    "python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_input_fused_adapter_gate",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_fused_adapter --lib",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_attention_mlp_single_proof --lib",
+    "git diff --check",
+    "just gate-fast",
+    "just gate",
+];
 const EXPECTED_DUPLICATE_SELECTOR_VALIDATION_COMMANDS: &[&str] = &[
     "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-duplicate-selector docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.input.json",
     "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.envelope.json",
@@ -251,6 +271,8 @@ pub enum ZkAiNativeAttentionMlpAdapterMode {
     CompactBaseReferencedFixed,
     #[serde(rename = "preprocessed_output_anchor_fixed_v1")]
     PreprocessedOutputAnchorFixed,
+    #[serde(rename = "rmsnorm_input_fused_fixed_v1")]
+    RmsnormInputFusedFixed,
 }
 
 impl Default for ZkAiNativeAttentionMlpAdapterMode {
@@ -269,6 +291,7 @@ impl ZkAiNativeAttentionMlpAdapterMode {
             Self::PreprocessedOutputAnchorFixed => {
                 EXPECTED_PREPROCESSED_OUTPUT_ANCHOR_ADAPTER_STATUS
             }
+            Self::RmsnormInputFusedFixed => EXPECTED_RMSNORM_INPUT_FUSED_ADAPTER_STATUS,
         }
     }
 
@@ -280,6 +303,7 @@ impl ZkAiNativeAttentionMlpAdapterMode {
             Self::PreprocessedOutputAnchorFixed => {
                 PREPROCESSED_OUTPUT_ANCHOR_ADAPTER_BACKEND_VERSION
             }
+            Self::RmsnormInputFusedFixed => RMSNORM_INPUT_FUSED_ADAPTER_BACKEND_VERSION,
         }
     }
 
@@ -292,6 +316,7 @@ impl ZkAiNativeAttentionMlpAdapterMode {
             Self::PreprocessedOutputAnchorFixed => {
                 ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_VALUE_COLUMNS
             }
+            Self::RmsnormInputFusedFixed => ADAPTER_RMSNORM_INPUT_FUSED_BASE_VALUE_COLUMNS,
         }
     }
 
@@ -304,6 +329,7 @@ impl ZkAiNativeAttentionMlpAdapterMode {
             Self::PreprocessedOutputAnchorFixed => {
                 ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_TRACE_CELLS
             }
+            Self::RmsnormInputFusedFixed => ADAPTER_RMSNORM_INPUT_FUSED_BASE_TRACE_CELLS,
         }
     }
 
@@ -317,6 +343,7 @@ impl ZkAiNativeAttentionMlpAdapterMode {
             Self::PreprocessedOutputAnchorFixed => {
                 EXPECTED_PREPROCESSED_OUTPUT_ANCHOR_VALIDATION_COMMANDS
             }
+            Self::RmsnormInputFusedFixed => EXPECTED_RMSNORM_INPUT_FUSED_VALIDATION_COMMANDS,
         }
     }
 
@@ -326,6 +353,10 @@ impl ZkAiNativeAttentionMlpAdapterMode {
 
     fn uses_preprocessed_output_anchor_trace(self) -> bool {
         self == Self::PreprocessedOutputAnchorFixed
+    }
+
+    fn uses_rmsnorm_input_fused_adapter(self) -> bool {
+        self == Self::RmsnormInputFusedFixed
     }
 }
 
@@ -935,7 +966,7 @@ fn validate_single_input(input: &ZkAiNativeAttentionMlpSingleProofInput) -> Resu
         &proof_native_parameter_commitment(&input.statement_commitment, input.adapter_mode)?,
         "proof-native parameter commitment",
     )?;
-    let ids = combined_preprocessed_column_ids()?;
+    let ids = combined_preprocessed_column_ids(input.adapter_mode)?;
     if ids.is_empty() {
         return Err(single_error("combined preprocessed column IDs are empty"));
     }
@@ -1008,18 +1039,29 @@ fn prove_single_proof(input: &ZkAiNativeAttentionMlpSingleProofInput) -> Result<
         )?;
     let attention_base =
         zkai_attention_kv_native_d8_fused_softmax_table_base_trace(&input.attention_source_input)?;
-    let preprocessed_ids = combined_preprocessed_column_ids()?;
+    let preprocessed_ids = combined_preprocessed_column_ids(input.adapter_mode)?;
     let mut allocator = TraceLocationAllocator::new_with_preprocessed_columns(&preprocessed_ids);
     let attention_placeholder =
         zkai_attention_kv_native_d8_fused_softmax_table_component_with_allocator(
             &mut allocator,
             AttentionKvD8FusedSoftmaxTableRelation::dummy(),
         );
-    let adapter_component = zkai_native_attention_mlp_adapter_component_with_allocator(
-        &mut allocator,
-        input.adapter_mode,
-    );
-    let rmsnorm_component = zkai_d128_rmsnorm_public_row_component_with_allocator(&mut allocator);
+    let adapter_component = if input.adapter_mode.uses_rmsnorm_input_fused_adapter() {
+        None
+    } else {
+        Some(zkai_native_attention_mlp_adapter_component_with_allocator(
+            &mut allocator,
+            input.adapter_mode,
+        ))
+    };
+    let rmsnorm_component =
+        zkai_d128_rmsnorm_public_row_component_with_optional_input_adapter_allocator(
+            &mut allocator,
+            input
+                .adapter_mode
+                .uses_rmsnorm_input_fused_adapter()
+                .then(rmsnorm_input_adapter_binding),
+        );
     let bridge_component =
         zkai_d128_rmsnorm_to_projection_bridge_component_with_allocator(&mut allocator);
     let gate_value_component =
@@ -1030,13 +1072,17 @@ fn prove_single_proof(input: &ZkAiNativeAttentionMlpSingleProofInput) -> Result<
     let residual_add_component = zkai_d128_residual_add_component_with_allocator(&mut allocator);
     let max_constraint_log_degree_bound = attention_placeholder
         .max_constraint_log_degree_bound()
-        .max(adapter_component.max_constraint_log_degree_bound())
         .max(rmsnorm_component.max_constraint_log_degree_bound())
         .max(bridge_component.max_constraint_log_degree_bound())
         .max(gate_value_component.max_constraint_log_degree_bound())
         .max(activation_component.max_constraint_log_degree_bound())
         .max(down_projection_component.max_constraint_log_degree_bound())
         .max(residual_add_component.max_constraint_log_degree_bound());
+    let max_constraint_log_degree_bound = if let Some(adapter_component) = &adapter_component {
+        max_constraint_log_degree_bound.max(adapter_component.max_constraint_log_degree_bound())
+    } else {
+        max_constraint_log_degree_bound
+    };
     let config = single_pcs_config(input.adapter_mode)?;
     let twiddles = SimdBackend::precompute_twiddles(
         CanonicCoset::new(
@@ -1098,11 +1144,22 @@ fn prove_single_proof(input: &ZkAiNativeAttentionMlpSingleProofInput) -> Result<
             &mut allocator,
             lookup_elements,
         );
-    let adapter_component = zkai_native_attention_mlp_adapter_component_with_allocator(
-        &mut allocator,
-        input.adapter_mode,
-    );
-    let rmsnorm_component = zkai_d128_rmsnorm_public_row_component_with_allocator(&mut allocator);
+    let adapter_component = if input.adapter_mode.uses_rmsnorm_input_fused_adapter() {
+        None
+    } else {
+        Some(zkai_native_attention_mlp_adapter_component_with_allocator(
+            &mut allocator,
+            input.adapter_mode,
+        ))
+    };
+    let rmsnorm_component =
+        zkai_d128_rmsnorm_public_row_component_with_optional_input_adapter_allocator(
+            &mut allocator,
+            input
+                .adapter_mode
+                .uses_rmsnorm_input_fused_adapter()
+                .then(rmsnorm_input_adapter_binding),
+        );
     let bridge_component =
         zkai_d128_rmsnorm_to_projection_bridge_component_with_allocator(&mut allocator);
     let gate_value_component =
@@ -1111,16 +1168,18 @@ fn prove_single_proof(input: &ZkAiNativeAttentionMlpSingleProofInput) -> Result<
     let down_projection_component =
         zkai_d128_down_projection_component_with_allocator(&mut allocator);
     let residual_add_component = zkai_d128_residual_add_component_with_allocator(&mut allocator);
-    let components: Vec<&dyn ComponentProver<SimdBackend>> = vec![
-        &attention_component,
-        &adapter_component,
-        &rmsnorm_component,
+    let mut components: Vec<&dyn ComponentProver<SimdBackend>> = vec![&attention_component];
+    if let Some(adapter_component) = &adapter_component {
+        components.push(adapter_component);
+    }
+    components.extend([
+        &rmsnorm_component as &dyn ComponentProver<SimdBackend>,
         &bridge_component,
         &gate_value_component,
         &activation_component,
         &down_projection_component,
         &residual_add_component,
-    ];
+    ]);
     let stark_proof =
         prove::<SimdBackend, Blake2sM31MerkleChannel>(&components, channel, commitment_scheme)
             .map_err(|error| {
@@ -1141,7 +1200,7 @@ fn verify_single_proof(
         serde_json::from_slice(proof).map_err(|error| VmError::Serialization(error.to_string()))?;
     let stark_proof = payload.stark_proof;
     let config = validate_pcs_config(stark_proof.config, input.adapter_mode)?;
-    let preprocessed_ids = combined_preprocessed_column_ids()?;
+    let preprocessed_ids = combined_preprocessed_column_ids(input.adapter_mode)?;
     let sizes = combined_column_log_sizes(&preprocessed_ids, input.adapter_mode);
     if sizes.len() != EXPECTED_TRACE_COMMITMENT_TREES {
         return Err(single_error(format!(
@@ -1210,7 +1269,7 @@ fn single_commitment_roots(
         )?;
     let attention_base =
         zkai_attention_kv_native_d8_fused_softmax_table_base_trace(&input.attention_source_input)?;
-    let preprocessed_ids = combined_preprocessed_column_ids()?;
+    let preprocessed_ids = combined_preprocessed_column_ids(input.adapter_mode)?;
     let sizes = combined_column_log_sizes(&preprocessed_ids, input.adapter_mode);
     let max_constraint_log_degree_bound =
         combined_max_constraint_log_degree_bound(&preprocessed_ids, input.adapter_mode);
@@ -1302,7 +1361,11 @@ fn combined_preprocessed_trace(
         CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>,
     >,
 ) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
-    attention_preprocessed.extend(adapter_trace(input)?);
+    if input.adapter_mode.uses_rmsnorm_input_fused_adapter() {
+        attention_preprocessed.extend(adapter_rmsnorm_input_fused_preprocessed_trace(input)?);
+    } else {
+        attention_preprocessed.extend(adapter_trace(input)?);
+    }
     attention_preprocessed.extend(mlp_trace(input)?);
     Ok(attention_preprocessed)
 }
@@ -1322,6 +1385,7 @@ fn combined_base_trace(
         ZkAiNativeAttentionMlpAdapterMode::PreprocessedOutputAnchorFixed => {
             attention_base.extend(adapter_preprocessed_output_anchor_base_trace(input)?);
         }
+        ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedFixed => {}
     }
     attention_base.extend(mlp_trace(input)?);
     Ok(attention_base)
@@ -1348,6 +1412,63 @@ fn adapter_preprocessed_column_id_array() -> [PreProcessedColumnId; ADAPTER_TRAC
 
 fn adapter_preprocessed_column_ids() -> Vec<PreProcessedColumnId> {
     adapter_preprocessed_column_id_array().into()
+}
+
+fn adapter_rmsnorm_input_fused_preprocessed_column_ids() -> Vec<PreProcessedColumnId> {
+    [
+        ADAPTER_COLUMN_IDS[3],
+        ADAPTER_COLUMN_IDS[4],
+        ADAPTER_COLUMN_IDS[5],
+        ADAPTER_COLUMN_IDS[9],
+        ADAPTER_COLUMN_IDS[10],
+        ADAPTER_COLUMN_IDS[11],
+    ]
+    .map(preprocessed_column_id)
+    .into()
+}
+
+fn rmsnorm_input_adapter_binding() -> ZkAiD128RmsnormInputAdapterBinding {
+    let ids = adapter_preprocessed_column_id_array();
+    ZkAiD128RmsnormInputAdapterBinding {
+        primary_q8_column_id: ids[3].clone(),
+        mix_q8_column_id: ids[4].clone(),
+        bias_q8_column_id: ids[5].clone(),
+        remainder_bit_column_ids: [ids[9].clone(), ids[10].clone(), ids[11].clone()],
+        primary_coeff: ADAPTER_PRIMARY_COEFF as u32,
+        mix_coeff: ADAPTER_MIX_COEFF as u32,
+        denominator: ADAPTER_DENOMINATOR as u32,
+    }
+}
+
+fn adapter_rmsnorm_input_fused_preprocessed_trace(
+    input: &ZkAiNativeAttentionMlpSingleProofInput,
+) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
+    let domain = CanonicCoset::new(ADAPTER_LOG_SIZE).circle_domain();
+    let rows = attention_adapter_rows(input)?;
+    let columns: Vec<Vec<BaseField>> = vec![
+        rows.iter().map(|row| field_i64(row.primary_q8)).collect(),
+        rows.iter().map(|row| field_i64(row.mix_q8)).collect(),
+        rows.iter().map(|row| field_i64(row.bias_q8)).collect(),
+        rows.iter()
+            .map(|row| field_usize((row.floor_remainder_q8 & 1) as usize))
+            .collect(),
+        rows.iter()
+            .map(|row| field_usize(((row.floor_remainder_q8 >> 1) & 1) as usize))
+            .collect(),
+        rows.iter()
+            .map(|row| field_usize(((row.floor_remainder_q8 >> 2) & 1) as usize))
+            .collect(),
+    ];
+    Ok(columns
+        .into_iter()
+        .map(|column| {
+            CircleEvaluation::<SimdBackend, BaseField, NaturalOrder>::new(
+                domain,
+                BaseColumn::from_iter(column),
+            )
+            .bit_reverse()
+        })
+        .collect())
 }
 
 fn adapter_trace(
@@ -1532,9 +1653,15 @@ fn mlp_trace(
     Ok(trace)
 }
 
-fn combined_preprocessed_column_ids() -> Result<Vec<PreProcessedColumnId>> {
+fn combined_preprocessed_column_ids(
+    adapter_mode: ZkAiNativeAttentionMlpAdapterMode,
+) -> Result<Vec<PreProcessedColumnId>> {
     let mut ids = zkai_attention_kv_native_d8_fused_softmax_table_preprocessed_column_ids();
-    ids.extend(adapter_preprocessed_column_ids());
+    if adapter_mode.uses_rmsnorm_input_fused_adapter() {
+        ids.extend(adapter_rmsnorm_input_fused_preprocessed_column_ids());
+    } else {
+        ids.extend(adapter_preprocessed_column_ids());
+    }
     ids.extend(zkai_d128_rmsnorm_public_row_preprocessed_column_ids());
     ids.extend(zkai_d128_rmsnorm_to_projection_bridge_preprocessed_column_ids());
     ids.extend(zkai_d128_gate_value_projection_preprocessed_column_ids());
@@ -1600,13 +1727,24 @@ fn combined_component_boxes(
             lookup_elements,
         ),
     );
-    let adapter_component = Box::new(zkai_native_attention_mlp_adapter_component_with_allocator(
-        &mut allocator,
-        adapter_mode,
-    ));
-    let rmsnorm_component = Box::new(zkai_d128_rmsnorm_public_row_component_with_allocator(
-        &mut allocator,
-    ));
+    let adapter_component = if adapter_mode.uses_rmsnorm_input_fused_adapter() {
+        None
+    } else {
+        Some(
+            Box::new(zkai_native_attention_mlp_adapter_component_with_allocator(
+                &mut allocator,
+                adapter_mode,
+            )) as Box<dyn Component>,
+        )
+    };
+    let rmsnorm_component = Box::new(
+        zkai_d128_rmsnorm_public_row_component_with_optional_input_adapter_allocator(
+            &mut allocator,
+            adapter_mode
+                .uses_rmsnorm_input_fused_adapter()
+                .then(rmsnorm_input_adapter_binding),
+        ),
+    );
     let bridge_component =
         Box::new(zkai_d128_rmsnorm_to_projection_bridge_component_with_allocator(&mut allocator));
     let gate_value_component = Box::new(zkai_d128_gate_value_projection_component_with_allocator(
@@ -1621,16 +1759,19 @@ fn combined_component_boxes(
     let residual_add_component = Box::new(zkai_d128_residual_add_component_with_allocator(
         &mut allocator,
     ));
-    vec![
-        attention_component as Box<dyn Component>,
-        adapter_component as Box<dyn Component>,
+    let mut components = vec![attention_component as Box<dyn Component>];
+    if let Some(adapter_component) = adapter_component {
+        components.push(adapter_component);
+    }
+    components.extend([
         rmsnorm_component as Box<dyn Component>,
         bridge_component as Box<dyn Component>,
         gate_value_component as Box<dyn Component>,
         activation_component as Box<dyn Component>,
         down_projection_component as Box<dyn Component>,
         residual_add_component as Box<dyn Component>,
-    ]
+    ]);
+    components
 }
 
 fn validate_pcs_config(
@@ -1654,7 +1795,7 @@ fn validate_pcs_config(
 }
 
 fn single_pcs_config(adapter_mode: ZkAiNativeAttentionMlpAdapterMode) -> Result<PcsConfig> {
-    let preprocessed_ids = combined_preprocessed_column_ids()?;
+    let preprocessed_ids = combined_preprocessed_column_ids(adapter_mode)?;
     let max_constraint_log_degree_bound =
         combined_max_constraint_log_degree_bound(&preprocessed_ids, adapter_mode);
     let mut config = publication_v1_pcs_config();
@@ -2026,6 +2167,61 @@ mod tests {
     }
 
     #[test]
+    fn rmsnorm_input_fused_adapter_input_uses_no_adapter_base_columns_and_validates() {
+        let input =
+            fixture_input_with_mode(ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedFixed);
+        assert_eq!(
+            input.adapter_mode,
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedFixed
+        );
+        assert_eq!(
+            input.adapter_status,
+            EXPECTED_RMSNORM_INPUT_FUSED_ADAPTER_STATUS
+        );
+        assert_eq!(
+            input.adapter_value_columns,
+            ADAPTER_RMSNORM_INPUT_FUSED_BASE_VALUE_COLUMNS
+        );
+        assert_eq!(
+            input.adapter_trace_cells,
+            ADAPTER_RMSNORM_INPUT_FUSED_BASE_TRACE_CELLS
+        );
+        validate_single_input(&input).expect("RMSNorm-input fused adapter input validates");
+
+        let attention_base = zkai_attention_kv_native_d8_fused_softmax_table_base_trace(
+            &input.attention_source_input,
+        )
+        .expect("attention base");
+        let attention_base_len = attention_base.len();
+        let base = combined_base_trace(&input, attention_base).expect("combined base");
+        let mlp = mlp_trace(&input).expect("MLP trace");
+        assert_eq!(base.len(), attention_base_len + mlp.len());
+    }
+
+    #[test]
+    fn rmsnorm_input_fused_adapter_round_trip_verifies_and_rejects_relabeling() {
+        let input =
+            fixture_input_with_mode(ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedFixed);
+        let envelope =
+            prove_zkai_native_attention_mlp_single_proof_envelope(&input).expect("fused prove");
+        assert!(
+            verify_zkai_native_attention_mlp_single_proof_envelope(&envelope)
+                .expect("fused verify")
+        );
+
+        let mut proof_tampered = envelope.clone();
+        proof_tampered.proof[0] ^= 1;
+        let proof_tamper_result =
+            verify_zkai_native_attention_mlp_single_proof_envelope(&proof_tampered);
+        assert!(matches!(proof_tamper_result, Ok(false) | Err(_)));
+
+        let mut relabeled = envelope;
+        relabeled.input.adapter_mode =
+            ZkAiNativeAttentionMlpAdapterMode::PreprocessedOutputAnchorFixed;
+        assert!(verify_zkai_native_attention_mlp_single_proof_envelope(&relabeled).is_err());
+    }
+
+    #[test]
     fn legacy_json_without_adapter_mode_defaults_to_duplicate() {
         let input = fixture_input();
         let mut value = serde_json::to_value(&input).expect("input JSON value");
@@ -2082,9 +2278,17 @@ mod tests {
 
     #[test]
     fn combined_preprocessed_columns_are_unique() {
-        let ids = combined_preprocessed_column_ids().expect("ids");
-        let unique = ids.iter().map(|id| id.id.clone()).collect::<BTreeSet<_>>();
-        assert_eq!(ids.len(), unique.len());
+        for mode in [
+            ZkAiNativeAttentionMlpAdapterMode::DuplicateBasePreprocessed,
+            ZkAiNativeAttentionMlpAdapterMode::DuplicateBasePreprocessedSelector,
+            ZkAiNativeAttentionMlpAdapterMode::CompactBaseReferencedFixed,
+            ZkAiNativeAttentionMlpAdapterMode::PreprocessedOutputAnchorFixed,
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedFixed,
+        ] {
+            let ids = combined_preprocessed_column_ids(mode).expect("ids");
+            let unique = ids.iter().map(|id| id.id.clone()).collect::<BTreeSet<_>>();
+            assert_eq!(ids.len(), unique.len());
+        }
     }
 
     #[test]

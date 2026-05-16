@@ -131,6 +131,18 @@ const EXPECTED_VALIDATION_COMMANDS: &[&str] = &[
 #[derive(Debug, Clone)]
 struct D128RmsnormPublicRowEval {
     log_size: u32,
+    input_adapter_binding: Option<ZkAiD128RmsnormInputAdapterBinding>,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct ZkAiD128RmsnormInputAdapterBinding {
+    pub primary_q8_column_id: PreProcessedColumnId,
+    pub mix_q8_column_id: PreProcessedColumnId,
+    pub bias_q8_column_id: PreProcessedColumnId,
+    pub remainder_bit_column_ids: [PreProcessedColumnId; 3],
+    pub primary_coeff: u32,
+    pub mix_coeff: u32,
+    pub denominator: u32,
 }
 
 impl FrameworkEval for D128RmsnormPublicRowEval {
@@ -237,6 +249,31 @@ impl FrameworkEval for D128RmsnormPublicRowEval {
                 .expect("norm remainder gap bit weight");
             norm_remainder_gap_bits =
                 norm_remainder_gap_bits + bit * E::F::from(BaseField::from(bit_weight));
+        }
+
+        if let Some(binding) = &self.input_adapter_binding {
+            let primary_q8 = eval.get_preprocessed_column(binding.primary_q8_column_id.clone());
+            let mix_q8 = eval.get_preprocessed_column(binding.mix_q8_column_id.clone());
+            let bias_q8 = eval.get_preprocessed_column(binding.bias_q8_column_id.clone());
+            let adapter_bit_0 =
+                eval.get_preprocessed_column(binding.remainder_bit_column_ids[0].clone());
+            let adapter_bit_1 =
+                eval.get_preprocessed_column(binding.remainder_bit_column_ids[1].clone());
+            let adapter_bit_2 =
+                eval.get_preprocessed_column(binding.remainder_bit_column_ids[2].clone());
+
+            for bit in [&adapter_bit_0, &adapter_bit_1, &adapter_bit_2] {
+                eval.add_constraint(bit.clone() * (bit.clone() - one.clone()));
+            }
+            eval.add_constraint(
+                E::F::from(BaseField::from(binding.primary_coeff)) * primary_q8
+                    + E::F::from(BaseField::from(binding.mix_coeff)) * mix_q8
+                    + bias_q8
+                    - E::F::from(BaseField::from(binding.denominator)) * input_q8.clone()
+                    - adapter_bit_0
+                    - E::F::from(BaseField::from(2u32)) * adapter_bit_1
+                    - E::F::from(BaseField::from(4u32)) * adapter_bit_2,
+            );
         }
 
         let q8_scale = E::F::from(BaseField::from(D128_Q8_SCALE as u32));
@@ -881,6 +918,7 @@ fn public_row_component() -> FrameworkComponent<D128RmsnormPublicRowEval> {
         &mut TraceLocationAllocator::new_with_preprocessed_columns(&preprocessed_column_ids()),
         D128RmsnormPublicRowEval {
             log_size: D128_RMSNORM_LOG_SIZE,
+            input_adapter_binding: None,
         },
         SecureField::zero(),
     )
@@ -889,10 +927,18 @@ fn public_row_component() -> FrameworkComponent<D128RmsnormPublicRowEval> {
 pub(crate) fn zkai_d128_rmsnorm_public_row_component_with_allocator(
     allocator: &mut TraceLocationAllocator,
 ) -> impl ComponentProver<SimdBackend> {
+    zkai_d128_rmsnorm_public_row_component_with_optional_input_adapter_allocator(allocator, None)
+}
+
+pub(crate) fn zkai_d128_rmsnorm_public_row_component_with_optional_input_adapter_allocator(
+    allocator: &mut TraceLocationAllocator,
+    input_adapter_binding: Option<ZkAiD128RmsnormInputAdapterBinding>,
+) -> impl ComponentProver<SimdBackend> {
     FrameworkComponent::new(
         allocator,
         D128RmsnormPublicRowEval {
             log_size: D128_RMSNORM_LOG_SIZE,
+            input_adapter_binding,
         },
         SecureField::zero(),
     )

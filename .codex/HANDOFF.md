@@ -1544,6 +1544,14 @@ Validate with
     reducing adapter base cells from `1,024` to `128` increased typed bytes to
     `41,704`. The next attack should target opening/decommitment shape or
     boundary fusion, not base-column removal alone.
+20. The RMSNorm-input fused adapter attempt for issue `#641` is a checked
+    no-go for proof size but a useful correctness result: it removes the
+    separate adapter base trace entirely (`0` adapter base cells), proves the
+    adapter equation inside the d128 RMSNorm input component, and verifies
+    locally at `118,378` JSON proof bytes / `41,428` local typed bytes. That is
+    `616` typed bytes heavier than the compact selector and `728` typed bytes
+    above the two-proof frontier. The next attack must target
+    opening/decommitment geometry, not adapter base-cell count alone.
 
 ## Resume protocol
 
