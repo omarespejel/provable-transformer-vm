@@ -71,6 +71,10 @@ cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_p
 python3 scripts/zkai_native_attention_mlp_rmsnorm_input_fused_adapter_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.tsv
 python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_input_fused_adapter_gate
 cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_fused_adapter --lib
+cargo +nightly-2025-07-14 test --locked --features stwo-backend native_attention_mlp_single_proof --lib
+git diff --check
+just gate-fast
+just gate
 ```
 
 ## Next Attack
