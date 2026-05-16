@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import copy
 import csv
 import hashlib
@@ -11,6 +12,7 @@ import io
 import json
 import os
 import pathlib
+import tempfile
 from typing import Any
 
 
@@ -138,6 +140,12 @@ TSV_COLUMNS = (
     "compact_adapter_trace_cells",
     "fused_adapter_trace_cells",
     "fused_json_delta_vs_compact_bytes",
+    "fused_group_delta_fixed_overhead_bytes",
+    "fused_group_delta_fri_decommitments_bytes",
+    "fused_group_delta_fri_samples_bytes",
+    "fused_group_delta_oods_samples_bytes",
+    "fused_group_delta_queries_values_bytes",
+    "fused_group_delta_trace_decommitments_bytes",
 )
 
 
@@ -375,15 +383,26 @@ def validate_payload(payload: dict[str, Any], *, context: dict[str, Any] | None 
         context = build_context()
     summary = require_dict(payload.get("summary"), "summary")
     comparisons = require_dict(payload.get("comparisons"), "comparisons")
-    if summary["fused_typed_bytes"] <= summary["compact_typed_bytes"]:
+    fused_vs_compact = require_dict(comparisons.get("fused_vs_compact"), "fused_vs_compact")
+    fused_vs_frontier = require_dict(
+        comparisons.get("fused_vs_two_proof_frontier"),
+        "fused_vs_two_proof_frontier",
+    )
+    fused_vs_nanozk = require_dict(
+        comparisons.get("fused_vs_nanozk_reported_row"),
+        "fused_vs_nanozk_reported_row",
+    )
+    fused_typed_bytes = require_int(summary.get("fused_typed_bytes"), "summary fused_typed_bytes")
+    compact_typed_bytes = require_int(summary.get("compact_typed_bytes"), "summary compact_typed_bytes")
+    if fused_typed_bytes <= compact_typed_bytes:
         raise RmsnormInputFusedAdapterGateError("fused proof-size win is not supported")
-    if summary["fused_typed_bytes"] <= TWO_PROOF_FRONTIER_TYPED_BYTES:
+    if fused_typed_bytes <= TWO_PROOF_FRONTIER_TYPED_BYTES:
         raise RmsnormInputFusedAdapterGateError("two-proof frontier win is not supported")
-    if require_bool(comparisons["fused_vs_compact"]["proof_size_improvement_claimed"], "compact claim"):
+    if require_bool(fused_vs_compact.get("proof_size_improvement_claimed"), "compact claim"):
         raise RmsnormInputFusedAdapterGateError("compact win overclaim")
-    if require_bool(comparisons["fused_vs_two_proof_frontier"]["frontier_win_claimed"], "frontier claim"):
+    if require_bool(fused_vs_frontier.get("frontier_win_claimed"), "frontier claim"):
         raise RmsnormInputFusedAdapterGateError("frontier win overclaim")
-    if require_bool(comparisons["fused_vs_nanozk_reported_row"]["nanozk_win_claimed"], "NANOZK claim"):
+    if require_bool(fused_vs_nanozk.get("nanozk_win_claimed"), "NANOZK claim"):
         raise RmsnormInputFusedAdapterGateError("NANOZK win overclaim")
 
     has_mutation_result = "mutation_result" in payload
@@ -449,6 +468,12 @@ def write_outputs(payload: dict[str, Any], json_path: pathlib.Path | None, tsv_p
         row = {column: payload["summary"].get(column, payload.get(column, "")) for column in TSV_COLUMNS}
         row["decision"] = payload["decision"]
         row["result"] = payload["result"]
+        group_deltas = require_dict(
+            payload["summary"].get("fused_group_deltas_vs_compact"),
+            "fused_group_deltas_vs_compact",
+        )
+        for key in EXPECTED_TYPED_GROUP_KEYS:
+            row[f"fused_group_delta_{key}_bytes"] = require_int(group_deltas.get(key), f"group delta {key}")
         buffer = io.StringIO(newline="")
         writer = csv.DictWriter(
             buffer,
@@ -462,18 +487,27 @@ def write_outputs(payload: dict[str, Any], json_path: pathlib.Path | None, tsv_p
 
 
 def write_text_atomically(path: pathlib.Path, text: str) -> None:
-    tmp = path.with_suffix(path.suffix + ".tmp")
+    if path.is_symlink():
+        raise RmsnormInputFusedAdapterGateError(f"refusing to overwrite symlink: {path}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp: pathlib.Path | None = None
     try:
-        with tmp.open("w", encoding="utf-8", newline="") as handle:
+        fd, tmp_name = tempfile.mkstemp(
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            text=True,
+        )
+        tmp = pathlib.Path(tmp_name)
+        with os.fdopen(fd, "w", encoding="utf-8", newline="") as handle:
             handle.write(text)
             handle.flush()
             os.fsync(handle.fileno())
         os.replace(tmp, path)
     except OSError as err:
-        try:
-            tmp.unlink()
-        except OSError:
-            pass
+        if tmp is not None:
+            with contextlib.suppress(OSError):
+                tmp.unlink()
         raise RmsnormInputFusedAdapterGateError(f"failed to write {path}: {err}") from err
 
 

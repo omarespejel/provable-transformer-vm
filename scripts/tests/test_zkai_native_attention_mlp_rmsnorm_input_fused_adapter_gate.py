@@ -1,4 +1,5 @@
 import copy
+import os
 import pathlib
 import tempfile
 import unittest
@@ -34,6 +35,26 @@ class RmsnormInputFusedAdapterGateTests(unittest.TestCase):
         candidate = copy.deepcopy(expected)
         candidate["comparisons"]["fused_vs_compact"]["proof_size_improvement_claimed"] = True
         candidate["payload_commitment"] = expected["payload_commitment"]
+        with self.assertRaises(gate.RmsnormInputFusedAdapterGateError):
+            gate.validate_payload(candidate, context=context)
+
+    def test_malformed_nested_comparison_is_rejected(self) -> None:
+        context = gate.build_context()
+        payload = gate.build_payload(context)
+        candidate = copy.deepcopy(payload)
+        candidate["comparisons"]["fused_vs_compact"] = None
+        gate.refresh_payload_commitment(candidate)
+
+        with self.assertRaises(gate.RmsnormInputFusedAdapterGateError):
+            gate.validate_payload(candidate, context=context)
+
+    def test_malformed_summary_value_is_rejected(self) -> None:
+        context = gate.build_context()
+        payload = gate.build_payload(context)
+        candidate = copy.deepcopy(payload)
+        candidate["summary"]["fused_typed_bytes"] = "41428"
+        gate.refresh_payload_commitment(candidate)
+
         with self.assertRaises(gate.RmsnormInputFusedAdapterGateError):
             gate.validate_payload(candidate, context=context)
 
@@ -76,8 +97,25 @@ class RmsnormInputFusedAdapterGateTests(unittest.TestCase):
 
             self.assertTrue(json_path.exists())
             self.assertTrue(tsv_path.exists())
-            self.assertFalse(json_path.with_suffix(".json.tmp").exists())
-            self.assertFalse(tsv_path.with_suffix(".tsv.tmp").exists())
+            tsv_header = tsv_path.read_text(encoding="utf-8").splitlines()[0]
+            self.assertIn("fused_group_delta_fri_decommitments_bytes", tsv_header)
+            self.assertFalse(any(path.name.endswith(".tmp") for path in pathlib.Path(tmpdir).iterdir()))
+
+    def test_symlink_output_path_is_rejected(self) -> None:
+        context = gate.build_context()
+        payload = gate.build_payload(context)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            directory = pathlib.Path(tmpdir)
+            target = directory / "target.json"
+            symlink = directory / "gate.json"
+            target.write_text("{}", encoding="utf-8")
+            try:
+                os.symlink(target, symlink)
+            except (OSError, NotImplementedError):
+                self.skipTest("symlink creation unavailable")
+
+            with self.assertRaisesRegex(gate.RmsnormInputFusedAdapterGateError, "symlink"):
+                gate.write_outputs(payload, symlink, None)
 
     def test_duplicate_accounting_row_path_is_rejected(self) -> None:
         context = gate.build_context()
