@@ -68,6 +68,16 @@ class RmsnormInputFusedAdapterGateTests(unittest.TestCase):
         with self.assertRaisesRegex(gate.RmsnormInputFusedAdapterGateError, "mutation result drift"):
             gate.validate_payload(candidate, context=context)
 
+    def test_missing_mutation_result_is_rejected(self) -> None:
+        context = gate.build_context()
+        payload = gate.build_payload(context)
+        candidate = copy.deepcopy(payload)
+        candidate.pop("mutation_result")
+        gate.refresh_payload_commitment(candidate)
+
+        with self.assertRaisesRegex(gate.RmsnormInputFusedAdapterGateError, "mutation_result"):
+            gate.validate_payload(candidate, context=context)
+
     def test_malformed_accounting_hash_is_rejected(self) -> None:
         context = gate.build_context()
         accounting = copy.deepcopy(context["accounting"])

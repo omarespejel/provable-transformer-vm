@@ -378,7 +378,12 @@ def build_payload(context: dict[str, Any] | None = None, *, include_mutations: b
     return payload
 
 
-def validate_payload(payload: dict[str, Any], *, context: dict[str, Any] | None = None) -> None:
+def validate_payload(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+    require_mutation_result: bool = True,
+) -> None:
     if context is None:
         context = build_context()
     summary = require_dict(payload.get("summary"), "summary")
@@ -405,8 +410,9 @@ def validate_payload(payload: dict[str, Any], *, context: dict[str, Any] | None 
     if require_bool(fused_vs_nanozk.get("nanozk_win_claimed"), "NANOZK claim"):
         raise RmsnormInputFusedAdapterGateError("NANOZK win overclaim")
 
-    has_mutation_result = "mutation_result" in payload
-    provided_mutation_result = payload.get("mutation_result")
+    provided_mutation_result = (
+        require_dict(payload.get("mutation_result"), "mutation_result") if require_mutation_result else None
+    )
     actual = copy.deepcopy(payload)
     actual.pop("mutation_result", None)
     actual.pop("payload_commitment", None)
@@ -415,7 +421,7 @@ def validate_payload(payload: dict[str, Any], *, context: dict[str, Any] | None 
     expected_core.pop("payload_commitment", None)
     if actual != expected_core:
         raise RmsnormInputFusedAdapterGateError("payload body drift")
-    if has_mutation_result and provided_mutation_result != mutation_result(expected_payload, context=context):
+    if require_mutation_result and provided_mutation_result != mutation_result(expected_payload, context=context):
         raise RmsnormInputFusedAdapterGateError("mutation result drift")
     if payload.get("payload_commitment") != payload_commitment(payload):
         raise RmsnormInputFusedAdapterGateError("payload commitment drift")
@@ -450,7 +456,7 @@ def mutation_result(payload: dict[str, Any], *, context: dict[str, Any] | None =
             refresh_payload_commitment(candidate)
         rejected = False
         try:
-            validate_payload(candidate, context=context)
+            validate_payload(candidate, context=context, require_mutation_result=False)
         except RmsnormInputFusedAdapterGateError:
             rejected = True
         cases.append({"name": name, "rejected": rejected})
@@ -504,11 +510,26 @@ def write_text_atomically(path: pathlib.Path, text: str) -> None:
             handle.flush()
             os.fsync(handle.fileno())
         os.replace(tmp, path)
+        fsync_parent_dir(path)
     except OSError as err:
         if tmp is not None:
             with contextlib.suppress(OSError):
                 tmp.unlink()
         raise RmsnormInputFusedAdapterGateError(f"failed to write {path}: {err}") from err
+
+
+def fsync_parent_dir(path: pathlib.Path) -> None:
+    if os.name == "nt":
+        return
+    dir_fd: int | None = None
+    try:
+        dir_fd = os.open(path.parent, os.O_RDONLY)
+        os.fsync(dir_fd)
+    except OSError as err:
+        raise RmsnormInputFusedAdapterGateError(f"failed to fsync parent directory for {path}: {err}") from err
+    finally:
+        if dir_fd is not None:
+            os.close(dir_fd)
 
 
 def main() -> int:
