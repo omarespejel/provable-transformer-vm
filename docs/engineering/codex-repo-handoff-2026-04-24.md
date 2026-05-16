@@ -260,6 +260,20 @@ Source-backed selector reproducibility metadata:
   and
   `docs/engineering/evidence/zkai-native-attention-mlp-source-backed-adapter-selector-2026-05.tsv`.
 
+Latest preprocessed output-anchor adapter frontier: issue `#639` now has a
+checked no-go for the simplest final-112-byte attack. The output-anchor variant
+keeps the verifier-recomputed adapter preprocessed columns but proves only one
+`output_q8` adapter base column, reducing adapter base cells from `1,024` to
+`128`. It proves and verifies, but grows to `119,360` JSON proof bytes /
+`41,704` local typed bytes. That is `892` typed bytes heavier than the compact
+selector and `1,004` typed bytes heavier than the `40,700` typed-byte two-proof
+frontier. The useful lesson is proof-shape, not proof-size: direct opened
+values improve by `196` bytes, but FRI/trace decommitments get `1,088` bytes
+worse. Next attack should optimize opening/decommitment shape or fuse the
+adapter constraints into an existing boundary; do not just remove base columns.
+See
+`docs/engineering/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05-17.md`.
+
 Reproducibility metadata:
 
 - Backend binary/version: `zkai_native_attention_mlp_single_proof` with

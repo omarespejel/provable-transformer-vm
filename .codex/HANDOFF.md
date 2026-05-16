@@ -186,6 +186,20 @@ Source-backed selector reproducibility metadata:
   and
   `docs/engineering/evidence/zkai-native-attention-mlp-source-backed-adapter-selector-2026-05.tsv`.
 
+Latest preprocessed output-anchor adapter frontier: issue `#639` now has a
+checked no-go for the simplest final-112-byte attack. The output-anchor variant
+keeps the verifier-recomputed adapter preprocessed columns but proves only one
+`output_q8` adapter base column, reducing adapter base cells from `1,024` to
+`128`. It proves and verifies, but grows to `119,360` JSON proof bytes /
+`41,704` local typed bytes. That is `892` typed bytes heavier than the compact
+selector and `1,004` typed bytes heavier than the `40,700` typed-byte two-proof
+frontier. The useful lesson is proof-shape, not proof-size: direct opened
+values improve by `196` bytes, but FRI/trace decommitments get `1,088` bytes
+worse. Next attack should optimize opening/decommitment shape or fuse the
+adapter constraints into an existing boundary; do not just remove base columns.
+See
+`docs/engineering/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05-17.md`.
+
 Single-proof object reproducibility metadata:
 
 - Backend binary/version: `zkai_native_attention_mlp_single_proof` with
@@ -1501,6 +1515,15 @@ Validate with
     next breakthrough PR must add source-backed variant selection and then
     emit per-variant proof artifacts/fingerprints before any compact frontier
     promotion is considered.
+18. The source-backed compact selector is now a real verifying proof artifact:
+    compact proves `1,024` adapter base cells, saves `2,416` typed bytes versus
+    the duplicate selector, and lands at `40,812` typed bytes. It is still
+    `112` typed bytes above the `40,700` two-proof frontier, so it is a
+    mechanism GO and a frontier NO-GO.
+19. The preprocessed output-anchor attempt for issue `#639` is a checked no-go:
+    reducing adapter base cells from `1,024` to `128` increased typed bytes to
+    `41,704`. The next attack should target opening/decommitment shape or
+    boundary fusion, not base-column removal alone.
 
 ## Resume protocol
 

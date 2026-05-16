@@ -108,6 +108,11 @@ const ADAPTER_COMPACT_BASE_VALUE_COLUMNS: usize = 5;
 const ADAPTER_COMPACT_BASE_TRACE_COLUMNS: usize =
     ADAPTER_COMPACT_BASE_VALUE_COLUMNS + ADAPTER_REMAINDER_BIT_COLUMNS;
 const ADAPTER_COMPACT_BASE_TRACE_CELLS: usize = ADAPTER_WIDTH * ADAPTER_COMPACT_BASE_TRACE_COLUMNS;
+const ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_VALUE_COLUMNS: usize = 1;
+const ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_TRACE_COLUMNS: usize =
+    ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_VALUE_COLUMNS;
+const ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_TRACE_CELLS: usize =
+    ADAPTER_WIDTH * ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_TRACE_COLUMNS;
 const ATTENTION_ROWS: usize = 8;
 const ATTENTION_WIDTH: usize = 8;
 const ATTENTION_FLAT_CELLS: usize = ATTENTION_ROWS * ATTENTION_WIDTH;
@@ -133,6 +138,8 @@ const PROOF_NATIVE_PARAMETER_DOMAIN: &str =
 const EXPECTED_ADAPTER_STATUS: &str = "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER";
 const EXPECTED_COMPACT_ADAPTER_STATUS: &str =
     "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_COMPACT_BASE_REFERENCED_FIXED_COLUMNS";
+const EXPECTED_PREPROCESSED_OUTPUT_ANCHOR_ADAPTER_STATUS: &str =
+    "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_PREPROCESSED_FIXED_COLUMNS_WITH_OUTPUT_ANCHOR";
 const ADAPTER_COLUMN_IDS: [&str; ADAPTER_TRACE_COLUMNS] = [
     "zkai/native-attention-mlp/adapter/row-index",
     "zkai/native-attention-mlp/adapter/primary-source-index",
@@ -153,6 +160,8 @@ const DUPLICATE_SELECTOR_ADAPTER_BACKEND_VERSION: &str =
     "stwo-native-attention-mlp-single-proof-object-duplicate-adapter-selector-v1";
 const COMPACT_ADAPTER_BACKEND_VERSION: &str =
     "stwo-native-attention-mlp-single-proof-object-compact-adapter-selector-v1";
+const PREPROCESSED_OUTPUT_ANCHOR_ADAPTER_BACKEND_VERSION: &str =
+    "stwo-native-attention-mlp-single-proof-object-preprocessed-output-anchor-adapter-v1";
 const EXPECTED_NON_CLAIMS: &[&str] = &[
     "not proof-size savings",
     "not a full transformer block",
@@ -207,6 +216,18 @@ const EXPECTED_COMPACT_VALIDATION_COMMANDS: &[&str] = &[
     "just gate-fast",
     "just gate",
 ];
+const EXPECTED_PREPROCESSED_OUTPUT_ANCHOR_VALIDATION_COMMANDS: &[&str] = &[
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-preprocessed-anchor docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-preprocessed-output-anchor-adapter-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-source-backed-preprocessed-output-anchor-adapter-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-preprocessed-output-anchor-adapter-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-source-backed-preprocessed-output-anchor-adapter-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-preprocessed-output-anchor-adapter-2026-05.envelope.json > docs/engineering/evidence/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-binary-accounting-2026-05.json",
+    "python3 scripts/zkai_native_attention_mlp_preprocessed_output_anchor_adapter_frontier_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05.tsv",
+    "python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_preprocessed_output_anchor_adapter_frontier_gate",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_attention_mlp_single_proof --lib",
+    "git diff --check",
+    "just gate-fast",
+    "just gate",
+];
 const EXPECTED_DUPLICATE_SELECTOR_VALIDATION_COMMANDS: &[&str] = &[
     "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-duplicate-selector docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.input.json",
     "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.envelope.json",
@@ -228,6 +249,8 @@ pub enum ZkAiNativeAttentionMlpAdapterMode {
     DuplicateBasePreprocessedSelector,
     #[serde(rename = "compact_base_referenced_fixed_v1")]
     CompactBaseReferencedFixed,
+    #[serde(rename = "preprocessed_output_anchor_fixed_v1")]
+    PreprocessedOutputAnchorFixed,
 }
 
 impl Default for ZkAiNativeAttentionMlpAdapterMode {
@@ -243,6 +266,9 @@ impl ZkAiNativeAttentionMlpAdapterMode {
                 EXPECTED_ADAPTER_STATUS
             }
             Self::CompactBaseReferencedFixed => EXPECTED_COMPACT_ADAPTER_STATUS,
+            Self::PreprocessedOutputAnchorFixed => {
+                EXPECTED_PREPROCESSED_OUTPUT_ANCHOR_ADAPTER_STATUS
+            }
         }
     }
 
@@ -251,6 +277,9 @@ impl ZkAiNativeAttentionMlpAdapterMode {
             Self::DuplicateBasePreprocessed => DUPLICATE_ADAPTER_BACKEND_VERSION,
             Self::DuplicateBasePreprocessedSelector => DUPLICATE_SELECTOR_ADAPTER_BACKEND_VERSION,
             Self::CompactBaseReferencedFixed => COMPACT_ADAPTER_BACKEND_VERSION,
+            Self::PreprocessedOutputAnchorFixed => {
+                PREPROCESSED_OUTPUT_ANCHOR_ADAPTER_BACKEND_VERSION
+            }
         }
     }
 
@@ -260,6 +289,9 @@ impl ZkAiNativeAttentionMlpAdapterMode {
                 ADAPTER_VALUE_COLUMNS
             }
             Self::CompactBaseReferencedFixed => ADAPTER_COMPACT_BASE_VALUE_COLUMNS,
+            Self::PreprocessedOutputAnchorFixed => {
+                ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_VALUE_COLUMNS
+            }
         }
     }
 
@@ -269,6 +301,9 @@ impl ZkAiNativeAttentionMlpAdapterMode {
                 ADAPTER_TRACE_CELLS
             }
             Self::CompactBaseReferencedFixed => ADAPTER_COMPACT_BASE_TRACE_CELLS,
+            Self::PreprocessedOutputAnchorFixed => {
+                ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_TRACE_CELLS
+            }
         }
     }
 
@@ -279,11 +314,18 @@ impl ZkAiNativeAttentionMlpAdapterMode {
                 EXPECTED_DUPLICATE_SELECTOR_VALIDATION_COMMANDS
             }
             Self::CompactBaseReferencedFixed => EXPECTED_COMPACT_VALIDATION_COMMANDS,
+            Self::PreprocessedOutputAnchorFixed => {
+                EXPECTED_PREPROCESSED_OUTPUT_ANCHOR_VALIDATION_COMMANDS
+            }
         }
     }
 
     fn uses_compact_base_trace(self) -> bool {
         self == Self::CompactBaseReferencedFixed
+    }
+
+    fn uses_preprocessed_output_anchor_trace(self) -> bool {
+        self == Self::PreprocessedOutputAnchorFixed
     }
 }
 
@@ -333,7 +375,23 @@ impl FrameworkEval for D128AttentionAdapterEval {
         let remainder_bit_1;
         let remainder_bit_2;
 
-        if !self.adapter_mode.uses_compact_base_trace() {
+        if self.adapter_mode.uses_preprocessed_output_anchor_trace() {
+            primary_q8 = primary_q8_public;
+            mix_q8 = mix_q8_public;
+            numerator_q8 = numerator_q8_public;
+            output_q8 = eval.next_trace_mask();
+            floor_remainder_q8 = floor_remainder_q8_public;
+            remainder_bit_0 = bit_0_public;
+            remainder_bit_1 = bit_1_public;
+            remainder_bit_2 = bit_2_public;
+
+            let _ = (
+                row_index_public,
+                primary_source_index_public,
+                mix_source_index_public,
+            );
+            eval.add_constraint(output_q8.clone() - output_q8_public);
+        } else if !self.adapter_mode.uses_compact_base_trace() {
             let row_index = eval.next_trace_mask();
             let primary_source_index = eval.next_trace_mask();
             let mix_source_index = eval.next_trace_mask();
@@ -1261,6 +1319,9 @@ fn combined_base_trace(
         ZkAiNativeAttentionMlpAdapterMode::CompactBaseReferencedFixed => {
             attention_base.extend(adapter_compact_base_trace(input)?);
         }
+        ZkAiNativeAttentionMlpAdapterMode::PreprocessedOutputAnchorFixed => {
+            attention_base.extend(adapter_preprocessed_output_anchor_base_trace(input)?);
+        }
     }
     attention_base.extend(mlp_trace(input)?);
     Ok(attention_base)
@@ -1355,6 +1416,25 @@ fn adapter_compact_base_trace(
             .map(|row| field_usize(((row.floor_remainder_q8 >> 2) & 1) as usize))
             .collect(),
     ];
+    Ok(columns
+        .into_iter()
+        .map(|column| {
+            CircleEvaluation::<SimdBackend, BaseField, NaturalOrder>::new(
+                domain,
+                BaseColumn::from_iter(column),
+            )
+            .bit_reverse()
+        })
+        .collect())
+}
+
+fn adapter_preprocessed_output_anchor_base_trace(
+    input: &ZkAiNativeAttentionMlpSingleProofInput,
+) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
+    let domain = CanonicCoset::new(ADAPTER_LOG_SIZE).circle_domain();
+    let rows = attention_adapter_rows(input)?;
+    let columns: Vec<Vec<BaseField>> =
+        vec![rows.iter().map(|row| field_i64(row.output_q8)).collect()];
     Ok(columns
         .into_iter()
         .map(|column| {
@@ -1870,6 +1950,78 @@ mod tests {
         let mut relabeled = envelope;
         relabeled.input.adapter_mode =
             ZkAiNativeAttentionMlpAdapterMode::DuplicateBasePreprocessedSelector;
+        assert!(verify_zkai_native_attention_mlp_single_proof_envelope(&relabeled).is_err());
+    }
+
+    #[test]
+    fn preprocessed_output_anchor_adapter_input_uses_one_base_column_and_validates() {
+        let input = fixture_input_with_mode(
+            ZkAiNativeAttentionMlpAdapterMode::PreprocessedOutputAnchorFixed,
+        );
+        assert_eq!(
+            input.adapter_mode,
+            ZkAiNativeAttentionMlpAdapterMode::PreprocessedOutputAnchorFixed
+        );
+        assert_eq!(
+            input.adapter_status,
+            EXPECTED_PREPROCESSED_OUTPUT_ANCHOR_ADAPTER_STATUS
+        );
+        assert_eq!(
+            input.adapter_value_columns,
+            ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_VALUE_COLUMNS
+        );
+        assert_eq!(
+            input.adapter_trace_cells,
+            ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_TRACE_CELLS
+        );
+        validate_single_input(&input).expect("preprocessed output-anchor input validates");
+
+        let preprocessed = adapter_trace(&input).expect("adapter preprocessed");
+        let output_anchor =
+            adapter_preprocessed_output_anchor_base_trace(&input).expect("output anchor base");
+        let attention_summary =
+            zkai_attention_kv_native_d8_fused_softmax_table_summary(&input.attention_source_input)
+                .expect("attention summary");
+        let attention_base = zkai_attention_kv_native_d8_fused_softmax_table_base_trace(
+            &input.attention_source_input,
+        )
+        .expect("attention base");
+        let attention_base_len = attention_base.len();
+        let base = combined_base_trace(&input, attention_base).expect("combined base");
+        let mlp = mlp_trace(&input).expect("MLP trace");
+        assert_eq!(preprocessed.len(), ADAPTER_TRACE_COLUMNS);
+        assert_eq!(
+            output_anchor.len(),
+            ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_TRACE_COLUMNS
+        );
+        assert_eq!(
+            base.len(),
+            attention_base_len + output_anchor.len() + mlp.len()
+        );
+        assert_eq!(attention_summary.table_rows, input.attention_table_rows);
+    }
+
+    #[test]
+    fn preprocessed_output_anchor_adapter_round_trip_verifies_and_rejects_relabeling() {
+        let input = fixture_input_with_mode(
+            ZkAiNativeAttentionMlpAdapterMode::PreprocessedOutputAnchorFixed,
+        );
+        let envelope = prove_zkai_native_attention_mlp_single_proof_envelope(&input)
+            .expect("preprocessed output-anchor prove");
+        assert!(
+            verify_zkai_native_attention_mlp_single_proof_envelope(&envelope)
+                .expect("preprocessed output-anchor verify")
+        );
+
+        let mut proof_tampered = envelope.clone();
+        proof_tampered.proof[0] ^= 1;
+        let proof_tamper_result =
+            verify_zkai_native_attention_mlp_single_proof_envelope(&proof_tampered);
+        assert!(matches!(proof_tamper_result, Ok(false) | Err(_)));
+
+        let mut relabeled = envelope;
+        relabeled.input.adapter_mode =
+            ZkAiNativeAttentionMlpAdapterMode::CompactBaseReferencedFixed;
         assert!(verify_zkai_native_attention_mlp_single_proof_envelope(&relabeled).is_err());
     }
 
