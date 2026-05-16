@@ -7,7 +7,9 @@ import argparse
 import copy
 import csv
 import hashlib
+import io
 import json
+import os
 import pathlib
 from typing import Any
 
@@ -89,6 +91,7 @@ EXPECTED_GROUP_DELTAS_FUSED_MINUS_COMPACT = {
     "queries_values": -168,
     "trace_decommitments": 256,
 }
+EXPECTED_TYPED_GROUP_KEYS = tuple(EXPECTED_GROUP_DELTAS_FUSED_MINUS_COMPACT)
 
 NON_CLAIMS = (
     "not a proof-size improvement",
@@ -198,6 +201,16 @@ def require_sha256_hex(value: Any, label: str) -> str:
     return value
 
 
+def require_typed_groups(value: Any, label: str) -> dict[str, int]:
+    groups = require_dict(value, label)
+    expected_keys = set(EXPECTED_TYPED_GROUP_KEYS)
+    if set(groups) != expected_keys:
+        raise RmsnormInputFusedAdapterGateError(
+            f"{label} key drift: got {sorted(groups)}, expected {sorted(expected_keys)}"
+        )
+    return {key: require_int(groups[key], f"{label} {key}") for key in EXPECTED_TYPED_GROUP_KEYS}
+
+
 def build_context() -> dict[str, Any]:
     return {
         "compact_input": require_dict(read_json(COMPACT_INPUT_PATH), "compact input"),
@@ -239,7 +252,7 @@ def variant_payload(name: str, context: dict[str, Any], rows: dict[str, dict[str
     envelope = context[f"{context_prefix}_envelope"]
     row = rows[expected["accounting_relative_path"]]
     accounting = require_dict(row.get("local_binary_accounting"), f"{name} local accounting")
-    groups = require_dict(accounting.get("grouped_reconstruction"), f"{name} groups")
+    groups = require_typed_groups(accounting.get("grouped_reconstruction"), f"{name} groups")
     typed_size = require_int(accounting.get("component_sum_bytes"), f"{name} typed bytes")
     proof_json_size = require_int(row.get("proof_json_size_bytes"), f"{name} proof JSON bytes")
 
@@ -431,20 +444,37 @@ def mutation_result(payload: dict[str, Any], *, context: dict[str, Any] | None =
 
 def write_outputs(payload: dict[str, Any], json_path: pathlib.Path | None, tsv_path: pathlib.Path | None) -> None:
     if json_path is not None:
-        json_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        write_text_atomically(json_path, json.dumps(payload, indent=2, sort_keys=True) + "\n")
     if tsv_path is not None:
         row = {column: payload["summary"].get(column, payload.get(column, "")) for column in TSV_COLUMNS}
         row["decision"] = payload["decision"]
         row["result"] = payload["result"]
-        with tsv_path.open("w", encoding="utf-8", newline="") as handle:
-            writer = csv.DictWriter(
-                handle,
-                fieldnames=TSV_COLUMNS,
-                dialect="excel-tab",
-                lineterminator="\n",
-            )
-            writer.writeheader()
-            writer.writerow(row)
+        buffer = io.StringIO(newline="")
+        writer = csv.DictWriter(
+            buffer,
+            fieldnames=TSV_COLUMNS,
+            dialect="excel-tab",
+            lineterminator="\n",
+        )
+        writer.writeheader()
+        writer.writerow(row)
+        write_text_atomically(tsv_path, buffer.getvalue())
+
+
+def write_text_atomically(path: pathlib.Path, text: str) -> None:
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    try:
+        with tmp.open("w", encoding="utf-8", newline="") as handle:
+            handle.write(text)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp, path)
+    except OSError as err:
+        try:
+            tmp.unlink()
+        except OSError:
+            pass
+        raise RmsnormInputFusedAdapterGateError(f"failed to write {path}: {err}") from err
 
 
 def main() -> int:
