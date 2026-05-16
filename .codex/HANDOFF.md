@@ -200,6 +200,26 @@ adapter constraints into an existing boundary; do not just remove base columns.
 See
 `docs/engineering/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05-17.md`.
 
+Preprocessed output-anchor reproducibility metadata:
+
+- Backend binary: `zkai_native_attention_mlp_single_proof`.
+- Backend version:
+  `stwo-native-attention-mlp-single-proof-object-preprocessed-output-anchor-adapter-v1`.
+- Timing mode: proof-size accounting only; no timing or median-of-5 claim.
+- PCS/profile note: publication-v1 PCS with explicit lifting log size `19`.
+- Checked surface: native attention-plus-MLP single proof over d8 fused
+  attention and d128 RMSNorm-MLP, with a `128`-row adapter and one
+  output-anchor base column.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-attention-mlp-source-backed-preprocessed-output-anchor-adapter-2026-05.input.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-source-backed-preprocessed-output-anchor-adapter-2026-05.envelope.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-binary-accounting-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05.json`,
+  and
+  `docs/engineering/evidence/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05.tsv`.
+- Gate command:
+  `python3 scripts/zkai_native_attention_mlp_preprocessed_output_anchor_adapter_frontier_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05.tsv`.
+
 Single-proof object reproducibility metadata:
 
 - Backend binary/version: `zkai_native_attention_mlp_single_proof` with
