@@ -82,8 +82,9 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 71. `docs/engineering/zkai-attention-derived-d128-native-activation-swiglu-2026-05-16.md`
 72. `docs/engineering/zkai-attention-derived-d128-native-down-projection-2026-05-16.md`
 73. `docs/engineering/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05-17.md`
-74. `docs/engineering/reproducibility.md`
-75. `git status --short --branch`
+74. `docs/engineering/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05-17.md`
+75. `docs/engineering/reproducibility.md`
+76. `git status --short --branch`
 
 ## Current lane split
 
@@ -327,6 +328,36 @@ RMSNorm-input fused adapter reproducibility metadata:
   `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.tsv`.
 - Gate command:
   `python3 scripts/zkai_native_attention_mlp_rmsnorm_input_fused_adapter_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.tsv`.
+
+Latest adapter opening-geometry budget: issue `#641` now has a checked
+attack-budget gate over the current adapter variants. The compact selector is
+still the smallest current one-proof object at `40,812` local typed bytes,
+`112` typed bytes above the `40,700` typed-byte two-proof frontier. Among the
+semantic-fusion variants, `rmsnorm_input_fused` is the best next attack: it is
+`728` typed bytes above the frontier and needs a `729` typed-byte reduction to
+beat it, while carrying `1,008` typed bytes of path-opening overhang versus
+compact. The concrete next target is not more base-cell removal; it is reducing
+FRI samples, FRI decommitments, or trace decommitments while preserving source
+binding and the adapter equation. See
+`docs/engineering/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05-17.md`.
+The separate RMSNorm-input opening-layout follow-up tracks that narrow attack.
+
+Adapter opening-geometry budget reproducibility metadata:
+
+- Timing mode: proof-size accounting only; no proof regeneration, timing, or
+  median-of-5 claim.
+- Checked surface: already verified adapter proof objects plus their
+  binary-accounting artifacts.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05.tsv`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-source-backed-adapter-selector-binary-accounting-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-binary-accounting-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-binary-accounting-2026-05.json`,
+  and
+  `docs/engineering/evidence/zkai-native-attention-mlp-single-proof-binary-accounting-2026-05.json`.
+- Gate command:
+  `python3 scripts/zkai_native_attention_mlp_adapter_opening_geometry_budget_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05.tsv`.
 
 Reproducibility metadata:
 
