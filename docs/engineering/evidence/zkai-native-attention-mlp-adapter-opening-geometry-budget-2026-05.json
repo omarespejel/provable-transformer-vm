@@ -1,0 +1,361 @@
+{
+  "claim_boundary": "CURRENT_ADAPTER_VARIANTS_SHOW_THAT_OPENING_AND_DECOMMITMENT_GEOMETRY_IS_THE_NEXT_ATTACK_SURFACE;_NO_VARIANT_BEATS_THE_COMPACT_SELECTOR_OR_TWO_PROOF_FRONTIER",
+  "decision": "GO_OPENING_GEOMETRY_BUDGET_PINNED",
+  "frontier": {
+    "nanozk_reported_d128_block_proof_bytes": 6900,
+    "nanozk_win_claimed": false,
+    "nanozk_workload_matched": false,
+    "two_proof_frontier_json_bytes": 116258,
+    "two_proof_frontier_typed_bytes": 40700,
+    "two_proof_frontier_win_claimed": false
+  },
+  "interpretation": {
+    "human_read": "The compact selector is still the smallest current one-proof object at 40,812 typed bytes, 112 typed bytes above the two-proof frontier. Among semantic-fusion attacks, the RMSNorm-input fused route is the best next target: it is 728 typed bytes above the frontier, but carries 1,008 bytes of path-opening overhang versus compact, so removing 729 bytes of that overhang would beat the current two-proof target.",
+    "next_attack": "Do not add another adapter variant unless it explicitly reduces FRI samples, FRI decommitments, or trace decommitments. The first concrete target is the RMSNorm-input fused route with a transcript/opening layout that removes at least 729 typed bytes."
+  },
+  "issue": "rmsnorm-input opening-layout follow-up tracked separately",
+  "mutation_result": {
+    "cases": [
+      {
+        "name": "compact_typed_bytes_drift",
+        "rejected": true
+      },
+      {
+        "name": "rmsnorm_path_opening_budget_drift",
+        "rejected": true
+      },
+      {
+        "name": "anchor_path_opening_budget_drift",
+        "rejected": true
+      },
+      {
+        "name": "semantic_attack_rank_drift",
+        "rejected": true
+      },
+      {
+        "name": "frontier_win_overclaim",
+        "rejected": true
+      },
+      {
+        "name": "nanozk_overclaim",
+        "rejected": true
+      },
+      {
+        "name": "source_gate_commitment_drift",
+        "rejected": true
+      },
+      {
+        "name": "source_gate_raw_digest_drift",
+        "rejected": true
+      },
+      {
+        "name": "payload_commitment_drift",
+        "rejected": true
+      }
+    ],
+    "mutation_count": 9,
+    "rejected_count": 9
+  },
+  "non_claims": [
+    "not a proof-size improvement over the compact selector",
+    "not a two-proof frontier beat",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not timing evidence",
+    "not a full transformer block proof",
+    "not production-ready zkML"
+  ],
+  "payload_commitment": "blake2b-256:31c536bdb12c664fd6cd0ecfc448ba5e4be5c3b34c8954314e734575fa6989c8",
+  "recorded_verifier_outputs": [
+    {
+      "adapter_mode": "duplicate_base_preprocessed_selector_v1",
+      "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER",
+      "adapter_trace_cells": 1536,
+      "envelope_path": "docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.envelope.json",
+      "mode": "verify",
+      "pcs_lifting_log_size": 19,
+      "proof_size_bytes": 124585,
+      "schema": "zkai-native-attention-mlp-single-proof-cli-summary-v1",
+      "verified": true
+    },
+    {
+      "adapter_mode": "compact_base_referenced_fixed_v1",
+      "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_COMPACT_BASE_REFERENCED_FIXED_COLUMNS",
+      "adapter_trace_cells": 1024,
+      "envelope_path": "docs/engineering/evidence/zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json",
+      "mode": "verify",
+      "pcs_lifting_log_size": 19,
+      "proof_size_bytes": 116091,
+      "schema": "zkai-native-attention-mlp-single-proof-cli-summary-v1",
+      "verified": true
+    },
+    {
+      "adapter_mode": "preprocessed_output_anchor_fixed_v1",
+      "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_PREPROCESSED_FIXED_COLUMNS_WITH_OUTPUT_ANCHOR",
+      "adapter_trace_cells": 128,
+      "envelope_path": "docs/engineering/evidence/zkai-native-attention-mlp-source-backed-preprocessed-output-anchor-adapter-2026-05.envelope.json",
+      "mode": "verify",
+      "pcs_lifting_log_size": 19,
+      "proof_size_bytes": 119360,
+      "schema": "zkai-native-attention-mlp-single-proof-cli-summary-v1",
+      "verified": true
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_fixed_v1",
+      "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_FUSED_INTO_RMSNORM_INPUT_COMPONENT",
+      "adapter_trace_cells": 0,
+      "envelope_path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json",
+      "mode": "verify",
+      "pcs_lifting_log_size": 19,
+      "proof_size_bytes": 118378,
+      "schema": "zkai-native-attention-mlp-single-proof-cli-summary-v1",
+      "verified": true
+    },
+    {
+      "adapter_mode": "duplicate_base_preprocessed_v1",
+      "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER",
+      "adapter_trace_cells": 1536,
+      "envelope_path": "docs/engineering/evidence/zkai-native-attention-mlp-single-proof-2026-05.envelope.json",
+      "mode": "verify",
+      "pcs_lifting_log_size": 19,
+      "proof_size_bytes": 119790,
+      "schema": "zkai-native-attention-mlp-single-proof-cli-summary-v1",
+      "verified": true
+    }
+  ],
+  "result": "RMSNORM_INPUT_FUSED_IS_BEST_SEMANTIC_FUSION_ATTACK_BUT_NO_PROOF_SIZE_WIN",
+  "schema": "zkai-native-attention-mlp-adapter-opening-geometry-budget-gate-v1",
+  "source_artifacts": [
+    {
+      "decision": "NARROW_CLAIM_SOURCE_BACKED_COMPACT_ADAPTER_SELECTOR_VERIFIES",
+      "name": "source_backed_selector",
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-source-backed-adapter-selector-2026-05.json",
+      "payload_commitment": "blake2b-256:d3e06d3edb7f62ea1d268a77c574354fcf2166c12cad010390d1f2bfb28fca5f",
+      "raw_digest": "68c5440aaf94b02e39bc17c8447bf734215a8e14bb22bea8e741bd358fa3ec65",
+      "result": "GO_SOURCE_BACKED_COMPACT_ARTIFACT_NO_GO_TWO_PROOF_FRONTIER_BEAT",
+      "schema": "zkai-native-attention-mlp-source-backed-adapter-selector-gate-v1",
+      "sha256": "68c5440aaf94b02e39bc17c8447bf734215a8e14bb22bea8e741bd358fa3ec65"
+    },
+    {
+      "decision": "NO_GO_PREPROCESSED_OUTPUT_ANCHOR_ADAPTER_FRONTIER",
+      "name": "preprocessed_output_anchor",
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05.json",
+      "payload_commitment": "blake2b-256:5ce0738ac2a1ccdcdf8f0ba9a25e4b80a60be3cdb0ddb7a576b5cdc0256064fa",
+      "raw_digest": "da18c0b7a0f003fda4ce0b5a1f7060fec399b9459ad29d21766a0ba9c2a7f536",
+      "result": "NO_GO_FEWER_ADAPTER_BASE_CELLS_INCREASE_TYPED_PROOF_BYTES",
+      "schema": "zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-gate-v1",
+      "sha256": "da18c0b7a0f003fda4ce0b5a1f7060fec399b9459ad29d21766a0ba9c2a7f536"
+    },
+    {
+      "decision": "NO_GO_RMSNORM_INPUT_FUSED_ADAPTER_PROOF_SIZE_FRONTIER",
+      "name": "rmsnorm_input_fused",
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.json",
+      "payload_commitment": "blake2b-256:d7ad10fd1b454668f33dcafb1b6fab2a7d245aa18239deb495ca67e7a4fc7ebe",
+      "raw_digest": "74de86d0f2a4c0588a64a19bb34e5f1fded0b24315e7fdc071552480e51a278d",
+      "result": "NO_GO_ZERO_ADAPTER_BASE_COLUMNS_STILL_INCREASE_TYPED_PROOF_BYTES",
+      "schema": "zkai-native-attention-mlp-rmsnorm-input-fused-adapter-gate-v1",
+      "sha256": "74de86d0f2a4c0588a64a19bb34e5f1fded0b24315e7fdc071552480e51a278d"
+    },
+    {
+      "decision": "GO_NATIVE_ATTENTION_MLP_SINGLE_STWO_PROOF_OBJECT_VERIFIES",
+      "name": "native_adapter_air",
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-single-proof-2026-05.json",
+      "payload_commitment": "sha256:57c3aa505ceabcd86903abaca1127c680b21a7a1771c75d26bcff50163852dd7",
+      "raw_digest": "7e68dac61d177b61b98468d1ad788756af7e06890585fa726fa3a5fdfbaade4c",
+      "result": "NARROW_CLAIM_NATIVE_ADAPTER_AIR_VERIFIES_WITH_TYPED_SIZE_COST",
+      "schema": "zkai-native-attention-mlp-single-proof-object-gate-v1",
+      "sha256": "7e68dac61d177b61b98468d1ad788756af7e06890585fa726fa3a5fdfbaade4c"
+    }
+  ],
+  "summary": {
+    "best_current_one_proof_delta_to_frontier_bytes": 112,
+    "best_current_one_proof_reduction_to_beat_frontier_bytes": 113,
+    "best_current_one_proof_typed_bytes": 40812,
+    "best_current_one_proof_variant": "compact_selector",
+    "best_semantic_fusion_attack": "rmsnorm_input_fused",
+    "best_semantic_fusion_delta_to_frontier_bytes": 728,
+    "best_semantic_fusion_opening_removal_fraction_to_beat_frontier": 0.723214,
+    "best_semantic_fusion_path_opening_overhang_bytes": 1008,
+    "best_semantic_fusion_reduction_to_beat_frontier_bytes": 729,
+    "best_semantic_fusion_typed_bytes": 41428
+  },
+  "validation_commands": [
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-source-backed-preprocessed-output-anchor-adapter-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-single-proof-2026-05.envelope.json",
+    "python3 scripts/zkai_native_attention_mlp_adapter_opening_geometry_budget_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05.tsv",
+    "python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_adapter_opening_geometry_budget_gate",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ],
+  "variants": {
+    "compact_selector": {
+      "envelope_sha256": "7c45e4bdc16c330bac25fbe93884569cd578f8ec988efc4f29723ec490750263",
+      "evidence_relative_path": "zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json",
+      "name": "compact_selector",
+      "opening_removal_fraction_to_beat_frontier": null,
+      "path_opening_overhang_vs_compact_bytes": 0,
+      "proof_json_size_bytes": 116091,
+      "proof_sha256": "fba78004f082a1799ba784ce4fd539bb8659be225804136e5dab723dd121ca9e",
+      "record_stream_sha256": "8ed8db52bfb240a2b742df9877aa8d01ece09334616540771812e28081c5d996",
+      "reduction_to_beat_two_proof_frontier_bytes": 113,
+      "reduction_to_match_two_proof_frontier_bytes": 112,
+      "semantic_fusion_attack": false,
+      "typed_delta_vs_compact_bytes": 0,
+      "typed_delta_vs_two_proof_frontier_bytes": 112,
+      "typed_group_deltas_vs_compact": {
+        "fixed_overhead": 0,
+        "fri_decommitments": 0,
+        "fri_samples": 0,
+        "oods_samples": 0,
+        "queries_values": 0,
+        "trace_decommitments": 0
+      },
+      "typed_groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 12448,
+        "fri_samples": 784,
+        "oods_samples": 12176,
+        "queries_values": 9084,
+        "trace_decommitments": 6272
+      },
+      "typed_size_estimate_bytes": 40812,
+      "value_group_delta_vs_compact_bytes": 0
+    },
+    "native_adapter_air": {
+      "envelope_sha256": "f3391f213531957e1dc0522e2415b3783b9e0eb759c1a52f17b1415cfe4e7585",
+      "evidence_relative_path": "zkai-native-attention-mlp-single-proof-2026-05.envelope.json",
+      "name": "native_adapter_air",
+      "opening_removal_fraction_to_beat_frontier": 1.223214,
+      "path_opening_overhang_vs_compact_bytes": 1008,
+      "proof_json_size_bytes": 119790,
+      "proof_sha256": "853b0ec34805c9c41874659b3e6188670066229acc633f1d2a5dd616c438ba9f",
+      "record_stream_sha256": "4f1b230afc4f7fec71ce632faa2b0b9512276467aa9dd05f48cd1fba4ba581f4",
+      "reduction_to_beat_two_proof_frontier_bytes": 1233,
+      "reduction_to_match_two_proof_frontier_bytes": 1232,
+      "semantic_fusion_attack": false,
+      "typed_delta_vs_compact_bytes": 1120,
+      "typed_delta_vs_two_proof_frontier_bytes": 1232,
+      "typed_group_deltas_vs_compact": {
+        "fixed_overhead": 0,
+        "fri_decommitments": 736,
+        "fri_samples": 16,
+        "oods_samples": 64,
+        "queries_values": 48,
+        "trace_decommitments": 256
+      },
+      "typed_groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 13184,
+        "fri_samples": 800,
+        "oods_samples": 12240,
+        "queries_values": 9132,
+        "trace_decommitments": 6528
+      },
+      "typed_size_estimate_bytes": 41932,
+      "value_group_delta_vs_compact_bytes": 112
+    },
+    "preprocessed_output_anchor": {
+      "envelope_sha256": "876211e34bd0ad7cb1806634f460c766d0495816cfa502bf9c339d7d73f2c6e2",
+      "evidence_relative_path": "zkai-native-attention-mlp-source-backed-preprocessed-output-anchor-adapter-2026-05.envelope.json",
+      "name": "preprocessed_output_anchor",
+      "opening_removal_fraction_to_beat_frontier": 0.923713,
+      "path_opening_overhang_vs_compact_bytes": 1088,
+      "proof_json_size_bytes": 119360,
+      "proof_sha256": "239690dc960e4a09776c39b53a3b53ed674dbeee4ea82b875cb8c80d6dcc09fa",
+      "record_stream_sha256": "a3f5c710b3a7799beffa40085ecd9e1dcf392492dacb56a2e0d6ecdc568afe88",
+      "reduction_to_beat_two_proof_frontier_bytes": 1005,
+      "reduction_to_match_two_proof_frontier_bytes": 1004,
+      "semantic_fusion_attack": true,
+      "typed_delta_vs_compact_bytes": 892,
+      "typed_delta_vs_two_proof_frontier_bytes": 1004,
+      "typed_group_deltas_vs_compact": {
+        "fixed_overhead": 0,
+        "fri_decommitments": 800,
+        "fri_samples": 32,
+        "oods_samples": -112,
+        "queries_values": -84,
+        "trace_decommitments": 256
+      },
+      "typed_groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 13248,
+        "fri_samples": 816,
+        "oods_samples": 12064,
+        "queries_values": 9000,
+        "trace_decommitments": 6528
+      },
+      "typed_size_estimate_bytes": 41704,
+      "value_group_delta_vs_compact_bytes": -196
+    },
+    "rmsnorm_input_fused": {
+      "envelope_sha256": "d55310b92a1d5e2e8512ca561739f8b997c9c777b05983dbf30743f87fbad3d6",
+      "evidence_relative_path": "zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json",
+      "name": "rmsnorm_input_fused",
+      "opening_removal_fraction_to_beat_frontier": 0.723214,
+      "path_opening_overhang_vs_compact_bytes": 1008,
+      "proof_json_size_bytes": 118378,
+      "proof_sha256": "1dee6c17a18d4179a8a49646a575d0ec22e5f2442d229c6f8a748df53ac34816",
+      "record_stream_sha256": "2f7f36ee6000173dea41ab684dab9a20f36f95277eeb7c9a749a98c185583d91",
+      "reduction_to_beat_two_proof_frontier_bytes": 729,
+      "reduction_to_match_two_proof_frontier_bytes": 728,
+      "semantic_fusion_attack": true,
+      "typed_delta_vs_compact_bytes": 616,
+      "typed_delta_vs_two_proof_frontier_bytes": 728,
+      "typed_group_deltas_vs_compact": {
+        "fixed_overhead": 0,
+        "fri_decommitments": 736,
+        "fri_samples": 16,
+        "oods_samples": -224,
+        "queries_values": -168,
+        "trace_decommitments": 256
+      },
+      "typed_groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 13184,
+        "fri_samples": 800,
+        "oods_samples": 11952,
+        "queries_values": 8916,
+        "trace_decommitments": 6528
+      },
+      "typed_size_estimate_bytes": 41428,
+      "value_group_delta_vs_compact_bytes": -392
+    },
+    "source_backed_duplicate": {
+      "envelope_sha256": "8e687006dc13dba216bd18bc06260e5272739d9da96544379a08dcdc7659ba04",
+      "evidence_relative_path": "zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.envelope.json",
+      "name": "source_backed_duplicate",
+      "opening_removal_fraction_to_beat_frontier": 1.097656,
+      "path_opening_overhang_vs_compact_bytes": 2304,
+      "proof_json_size_bytes": 124585,
+      "proof_sha256": "1bc12802bbd06279135026921d0ff369cdfbd546c3bb67635bc8d723bbbcf023",
+      "record_stream_sha256": "d5e901818d55d538f03adfefb910e3e52f34a13eb1465dfd3af76d746f141154",
+      "reduction_to_beat_two_proof_frontier_bytes": 2529,
+      "reduction_to_match_two_proof_frontier_bytes": 2528,
+      "semantic_fusion_attack": false,
+      "typed_delta_vs_compact_bytes": 2416,
+      "typed_delta_vs_two_proof_frontier_bytes": 2528,
+      "typed_group_deltas_vs_compact": {
+        "fixed_overhead": 0,
+        "fri_decommitments": 1728,
+        "fri_samples": 64,
+        "oods_samples": 64,
+        "queries_values": 48,
+        "trace_decommitments": 512
+      },
+      "typed_groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 14176,
+        "fri_samples": 848,
+        "oods_samples": 12240,
+        "queries_values": 9132,
+        "trace_decommitments": 6784
+      },
+      "typed_size_estimate_bytes": 43228,
+      "value_group_delta_vs_compact_bytes": 112
+    }
+  }
+}

@@ -1,0 +1,6 @@
+variant	typed_size_estimate_bytes	proof_json_size_bytes	typed_delta_vs_two_proof_frontier_bytes	reduction_to_match_frontier_bytes	reduction_to_beat_frontier_bytes	typed_delta_vs_compact_bytes	path_opening_overhang_vs_compact_bytes	value_group_delta_vs_compact_bytes	opening_removal_fraction_to_beat_frontier	semantic_fusion_attack
+compact_selector	40812	116091	112	112	113	0	0	0		False
+native_adapter_air	41932	119790	1232	1232	1233	1120	1008	112	1.223214	False
+preprocessed_output_anchor	41704	119360	1004	1004	1005	892	1088	-196	0.923713	True
+rmsnorm_input_fused	41428	118378	728	728	729	616	1008	-392	0.723214	True
+source_backed_duplicate	43228	124585	2528	2528	2529	2416	2304	112	1.097656	False

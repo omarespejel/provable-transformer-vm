@@ -119,8 +119,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 113. `docs/engineering/zkai-native-attention-mlp-source-backed-adapter-selector-2026-05-17.md`
 114. `docs/engineering/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05-17.md`
 115. `docs/engineering/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05-17.md`
-116. `docs/engineering/reproducibility.md`
-117. `git status --short --branch`
+116. `docs/engineering/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05-17.md`
+117. `docs/engineering/reproducibility.md`
+118. `git status --short --branch`
 
 ## What this repository is now
 
@@ -184,13 +185,21 @@ This repository currently has three live lanes.
      removes the separate adapter base trace entirely (`0` adapter base cells)
      and proves the adapter equation inside the existing d128 RMSNorm input
      component, but it still grows to `41,428` local typed bytes / `118,378`
-     JSON proof bytes. Treat these as evidence that the next attack must
+     JSON proof bytes. The follow-up opening-geometry budget pins the next
+     concrete attack: the compact selector is still the smallest current
+     one-proof object at `40,812` typed bytes, while the RMSNorm-input fused
+     route is the best semantic-fusion attack surface and needs to remove
+     `729` typed bytes from `1,008` bytes of path-opening overhang to beat the
+     two-proof frontier; a separate RMSNorm-input opening-layout follow-up
+     tracks that narrow route.
+     Treat these as evidence that the next attack must
      optimize opening/decommitment shape or fuse boundaries without worsening
      the transcript, not just reduce adapter base columns; see
      `docs/engineering/zkai-native-attention-mlp-source-backed-adapter-selector-2026-05-17.md`,
      `docs/engineering/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05-17.md`,
+     `docs/engineering/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05-17.md`,
      and
-     `docs/engineering/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05-17.md`.
+     `docs/engineering/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05-17.md`.
    - The current attention-to-RMSNorm/MLP boundary is a checked NO-GO for one
      value-connected native proof object: the attention-derived d128 statement
      chain has `199,553` accounted rows (`1.010374x` the MLP fused surface),
