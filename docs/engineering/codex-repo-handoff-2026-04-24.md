@@ -646,12 +646,12 @@ numbers are: Stwo two-proof frontier `40,700` typed bytes, NANOZK paper row
 `6,900` bytes, GKR tiny `Gemm` sidecar `11,645` proof bytes, GKR tiny
 residual-add `56,054` proof bytes, GKR tiny LayerNorm-like shape `52,080` proof
 bytes, and worst-label RMSNorm opening-layout required reduction `1,401` typed
-bytes. The gate rejects `15 / 15` overclaim mutations covering compact
+bytes. The gate rejects `16 / 16` overclaim mutations covering compact
 statement promotion, NANOZK local-reproduction drift, Jolt proof-size
 promotion, GKR matched-d128 promotion, missing object class, missing timing
 policy, unqualified timing policy, favorable-label promotion, global and
-row-level non-claim removal, external native equivalence, missing proof-size
-policy, and source digest drift. Treat this as
+row-level non-claim removal, unlisted local source-status promotion, external
+native equivalence, missing proof-size policy, and source digest drift. Treat this as
 `GO_ADVERSARIAL_ZKML_CLAIM_AUDIT_NO_GO_UNTYPED_COMPARISONS`: it is a
 claim-boundary hardening result, not a performance result. See
 `docs/engineering/zkai-claim-audit-comparison-artifacts-2026-05-17.md`.

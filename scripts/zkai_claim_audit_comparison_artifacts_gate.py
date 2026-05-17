@@ -109,6 +109,13 @@ EXTERNAL_SOURCE_STATUSES = (
     "source_context",
 )
 
+LOCAL_SOURCE_STATUSES = {
+    "local_checked",
+    "LOCAL_COMPONENT_FRONTIER",
+    "GO_CURRENT_COMPARISON_FRONTIER_NOT_ONE_PROOF",
+    "GO_STATEMENT_BOUNDARY_NOT_PROOF_OBJECT",
+}
+
 REQUIRED_ROW_NON_CLAIMS = {
     "nanozk_paper_reported_context": (
         "not a NANOZK proof-size win",
@@ -595,6 +602,12 @@ def is_external_source_status(source_status: str) -> bool:
     return source_status.startswith(EXTERNAL_SOURCE_STATUSES)
 
 
+def is_local_source_status(source_status: str, object_class: str) -> bool:
+    if source_status in LOCAL_SOURCE_STATUSES:
+        return True
+    return source_status == "GO" and object_class.startswith("local_external_gkr")
+
+
 def validate_non_claim_inventory(payload: dict[str, Any]) -> None:
     claims = non_claims_from(payload)
     claim_set = set(claims)
@@ -635,8 +648,7 @@ def validate_row(row: dict[str, Any]) -> None:
         raise ClaimAuditError(f"{row_id} claim boundary too weak")
     if is_external_source_status(source_status) and locally_reproduced:
         raise ClaimAuditError(f"{row_id} external source marked local")
-    local_like_status = source_status.startswith(("local", "GO")) or source_status == "LOCAL_COMPONENT_FRONTIER"
-    if not local_like_status and locally_reproduced:
+    if not is_local_source_status(source_status, object_class) and locally_reproduced:
         raise ClaimAuditError(f"{row_id} non-local status marked reproduced")
     if "statement" in object_class and (native_equivalent or proof_size_comparable):
         raise ClaimAuditError(f"{row_id} compact statement promoted as proof")
@@ -822,6 +834,10 @@ def mutate_remove_gkr_row_non_claim(payload: dict[str, Any]) -> None:
     row_by_id(payload["audit_rows"], "gkr_tiny_gemm_sidecar")["non_claims"].remove("not a GKR matched d128 proof-size win")
 
 
+def mutate_unlisted_local_source_status(payload: dict[str, Any]) -> None:
+    row_by_id(payload["audit_rows"], "local_stwo_two_proof_frontier")["source_status"] = "GO_UNLISTED_LOCAL_BYPASS"
+
+
 def mutate_external_native_equivalence(payload: dict[str, Any]) -> None:
     row_by_id(payload["audit_rows"], "gkr_tiny_gemm_sidecar")["native_proof_equivalent"] = True
 
@@ -848,6 +864,7 @@ MUTATIONS: tuple[tuple[str, Callable[[dict[str, Any]], None]], ...] = (
     ("remove_jolt_non_claim", mutate_remove_jolt_non_claim),
     ("remove_gkr_non_claim", mutate_remove_gkr_non_claim),
     ("remove_gkr_row_non_claim", mutate_remove_gkr_row_non_claim),
+    ("unlisted_local_source_status", mutate_unlisted_local_source_status),
     ("external_native_equivalence", mutate_external_native_equivalence),
     ("missing_proof_size_policy", mutate_missing_proof_size_policy),
     ("source_artifact_digest", mutate_source_artifact_digest),
