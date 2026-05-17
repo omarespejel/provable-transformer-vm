@@ -128,8 +128,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 122. `docs/engineering/zkai-gkr-dense-sidecar-baseline-2026-05-17.md`
 123. `docs/engineering/zkai-jolt-atlas-lookup-tensor-comparison-2026-05-17.md`
 124. `docs/engineering/zkai-tablero-hybrid-zkml-boundary-2026-05-17.md`
-125. `docs/engineering/reproducibility.md`
-126. `git status --short --branch`
+125. `docs/engineering/zkai-claim-audit-comparison-artifacts-2026-05-17.md`
+126. `docs/engineering/reproducibility.md`
+127. `git status --short --branch`
 
 ## What this repository is now
 

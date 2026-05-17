@@ -1,0 +1,443 @@
+{
+  "audit_rows": [
+    {
+      "claim_boundary": "current honest frontier is two proof objects, not one block proof",
+      "locally_reproduced": true,
+      "matched_workload": false,
+      "native_proof_equivalent": false,
+      "non_claims": [
+        "not one native full-block proof",
+        "not a NANOZK proof-size win"
+      ],
+      "object_class": "local_two_proof_target",
+      "primary_metric": "two_proof_frontier_typed_bytes",
+      "primary_value": 40700,
+      "proof_size_comparable": false,
+      "proof_size_policy": "internal frontier only; two proof objects, not external-comparable",
+      "row_id": "local_stwo_two_proof_frontier",
+      "source_artifact": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+      "source_status": "GO_CURRENT_COMPARISON_FRONTIER_NOT_ONE_PROOF",
+      "system": "Stwo/STARK",
+      "timing_policy": "no median-of-5 timing claim",
+      "workload": "INTERNAL_FRONTIER_ONLY"
+    },
+    {
+      "claim_boundary": "binds the object to a statement chain; does not prove the whole block natively",
+      "locally_reproduced": true,
+      "matched_workload": false,
+      "native_proof_equivalent": false,
+      "non_claims": [
+        "not a proof object",
+        "not native verifier execution"
+      ],
+      "object_class": "local_statement_artifact",
+      "primary_metric": "statement_chain_rows",
+      "primary_value": 199553,
+      "proof_size_comparable": false,
+      "proof_size_policy": "not comparable to native proof bytes",
+      "row_id": "compact_statement_chain_not_proof",
+      "source_artifact": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+      "source_status": "GO_STATEMENT_BOUNDARY_NOT_PROOF_OBJECT",
+      "system": "statement artifact",
+      "timing_policy": "no timing claim",
+      "workload": "STATEMENT_VALIDITY_SURFACE_NOT_PROOF_SIZE_ROW"
+    },
+    {
+      "claim_boundary": "paper-reported context only",
+      "locally_reproduced": false,
+      "matched_workload": false,
+      "native_proof_equivalent": false,
+      "non_claims": [
+        "not a NANOZK proof-size win",
+        "not locally reproduced"
+      ],
+      "object_class": "paper_reported_external_context",
+      "primary_metric": "reported_proof_size_bytes",
+      "primary_value": 6900,
+      "proof_size_comparable": false,
+      "proof_size_policy": "paper context only; not local reproduction and not matched workload",
+      "row_id": "nanozk_paper_reported_context",
+      "source_artifact": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+      "source_status": "paper_reported_not_locally_reproduced",
+      "system": "NANOZK",
+      "timing_policy": "not reported in this local audit",
+      "workload": "CONTEXT_ONLY_NOT_LOCAL_REPRODUCTION_NOT_MATCHED_WORKLOAD"
+    },
+    {
+      "claim_boundary": "TINY_LINEAR_PROJECTION_ONLY_NOT_D128_MLP",
+      "locally_reproduced": true,
+      "matched_workload": false,
+      "native_proof_equivalent": false,
+      "non_claims": [
+        "not a matched d128 transformer-block proof",
+        "not a NANOZK proof-size win"
+      ],
+      "object_class": "local_external_gkr_fixture",
+      "primary_metric": "proof_bytes",
+      "primary_value": 11645,
+      "proof_size_comparable": false,
+      "proof_size_policy": "tiny fixture proof bytes; not matched d128 transformer-layer proof bytes",
+      "row_id": "gkr_tiny_gemm_sidecar",
+      "source_artifact": "docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.json",
+      "source_status": "GO",
+      "system": "JSTprove/Remainder-GKR-sumcheck",
+      "timing_policy": "fixture timing only, not paper timing",
+      "workload": "Gemm"
+    },
+    {
+      "claim_boundary": "TINY_RESIDUAL_ADD_SHAPE_NOT_D128_MLP",
+      "locally_reproduced": true,
+      "matched_workload": false,
+      "native_proof_equivalent": false,
+      "non_claims": [
+        "not a matched d128 transformer-block proof",
+        "not a GKR matched d128 proof-size win"
+      ],
+      "object_class": "local_external_gkr_fixture",
+      "primary_metric": "proof_bytes",
+      "primary_value": 56054,
+      "proof_size_comparable": false,
+      "proof_size_policy": "tiny residual shape only; heavier than the local Stwo dense substitute",
+      "row_id": "gkr_tiny_residual_add_heavier_shape",
+      "source_artifact": "docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.json",
+      "source_status": "GO",
+      "system": "JSTprove/Remainder-GKR-sumcheck",
+      "timing_policy": "fixture timing only, not paper timing",
+      "workload": "Gemm(width-preserving) -> Add(input)"
+    },
+    {
+      "claim_boundary": "TINY_NORMALIZATION_SHAPE_NOT_OUR_RMSNORM_COMPONENT",
+      "locally_reproduced": true,
+      "matched_workload": false,
+      "native_proof_equivalent": false,
+      "non_claims": [
+        "not a matched d128 transformer-block proof",
+        "not a GKR matched d128 proof-size win"
+      ],
+      "object_class": "local_external_gkr_fixture",
+      "primary_metric": "proof_bytes",
+      "primary_value": 52080,
+      "proof_size_comparable": false,
+      "proof_size_policy": "tiny normalization-like shape only; not our RMSNorm component",
+      "row_id": "gkr_tiny_layernorm_heavier_shape",
+      "source_artifact": "docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.json",
+      "source_status": "GO",
+      "system": "JSTprove/Remainder-GKR-sumcheck",
+      "timing_policy": "fixture timing only, not paper timing",
+      "workload": "Gemm(width-preserving) -> LayerNormalization"
+    },
+    {
+      "claim_boundary": "TIMING_CONTEXT_ONLY_NOT_LOCAL_AND_NOT_PROOF_SIZE",
+      "locally_reproduced": false,
+      "matched_workload": false,
+      "native_proof_equivalent": false,
+      "non_claims": [
+        "not a timing win over Jolt Atlas",
+        "not locally reproduced"
+      ],
+      "object_class": "external_lookup_tensor_zkml_repo_benchmark",
+      "primary_metric": "readme_proof_time_seconds",
+      "primary_value": "14.889",
+      "proof_size_comparable": false,
+      "proof_size_policy": "not_reported_in_readme_row",
+      "row_id": "jolt_atlas_repo_gpt2_timing_context",
+      "source_artifact": "docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.json",
+      "source_status": "repo_reported_not_locally_reproduced",
+      "system": "Jolt Atlas",
+      "timing_policy": "repo_reported_macbook_m3_16gb_not_local",
+      "workload": "GPT-2 125M ONNX inference"
+    },
+    {
+      "claim_boundary": "NOT_IMPLEMENTED_BASELINE",
+      "locally_reproduced": false,
+      "matched_workload": false,
+      "native_proof_equivalent": false,
+      "non_claims": [
+        "not a local reproduction of Jolt Atlas",
+        "not a Jolt Atlas proof-size win"
+      ],
+      "object_class": "external_lookup_tensor_zkml_reproduction_target",
+      "primary_metric": "example_command",
+      "primary_value": "cargo run --release --package jolt-atlas-core --example transformer",
+      "proof_size_comparable": false,
+      "proof_size_policy": "not_reported_until_local_run",
+      "row_id": "jolt_atlas_self_attention_reproduction_target",
+      "source_artifact": "docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.json",
+      "source_status": "repo_command_available_not_locally_reproduced",
+      "system": "Jolt Atlas",
+      "timing_policy": "not_reported_until_local_run",
+      "workload": "single self-attention block example"
+    },
+    {
+      "claim_boundary": "local proof-size accounting over two verified Stwo proof objects",
+      "locally_reproduced": true,
+      "matched_workload": false,
+      "native_proof_equivalent": true,
+      "non_claims": [
+        "not one native full-block proof",
+        "not external benchmark comparable",
+        "not exact transformer arithmetic"
+      ],
+      "object_class": "local_two_proof_transformer_block_frontier",
+      "primary_metric": "two_proof_frontier_typed_bytes",
+      "primary_value": 40700,
+      "proof_size_comparable": false,
+      "proof_size_policy": "typed proof-field accounting, local only, not external comparable",
+      "row_id": "tablero_native_frontier_boundary",
+      "source_artifact": "docs/engineering/evidence/zkai-tablero-hybrid-zkml-boundary-2026-05.json",
+      "source_status": "local_checked",
+      "system": "Stwo/STARK",
+      "timing_policy": "no median-of-5 timing claim",
+      "workload": "INTERNAL_FRONTIER_ONLY"
+    },
+    {
+      "claim_boundary": "statement binding and object classification only",
+      "locally_reproduced": true,
+      "matched_workload": false,
+      "native_proof_equivalent": false,
+      "non_claims": [
+        "not a proof object",
+        "not native verifier execution",
+        "not proof-size comparable"
+      ],
+      "object_class": "local_statement_artifact",
+      "primary_metric": "statement_chain_rows",
+      "primary_value": 199553,
+      "proof_size_comparable": false,
+      "proof_size_policy": "not comparable to native proof bytes",
+      "row_id": "tablero_compact_statement_boundary",
+      "source_artifact": "docs/engineering/evidence/zkai-tablero-hybrid-zkml-boundary-2026-05.json",
+      "source_status": "local_checked",
+      "system": "Tablero statement boundary",
+      "timing_policy": "no timing claim",
+      "workload": "STATEMENT_VALIDITY_SURFACE_NOT_PROOF_SIZE_ROW"
+    },
+    {
+      "claim_boundary": "favorable label cannot replace worst-label policy",
+      "locally_reproduced": true,
+      "matched_workload": false,
+      "native_proof_equivalent": false,
+      "non_claims": [
+        "not a two-proof frontier beat",
+        "not a proof-size win"
+      ],
+      "object_class": "local_native_stwo_proof_object_attempt_label_policy",
+      "primary_metric": "best_observed_label_typed_bytes",
+      "primary_value": 40836,
+      "proof_size_comparable": false,
+      "proof_size_policy": "single best label rejected; worst-label inventory required",
+      "row_id": "rmsnorm_single_best_label_rejected",
+      "source_artifact": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05.json",
+      "source_status": "local_checked",
+      "system": "Stwo/STARK",
+      "timing_policy": "no timing claim",
+      "workload": "RMSNorm-input opening layout label probe"
+    },
+    {
+      "claim_boundary": "CONDITIONAL_GO_IF_STRUCTURAL_OVERHANG_REMOVAL_EXISTS",
+      "locally_reproduced": true,
+      "matched_workload": false,
+      "native_proof_equivalent": false,
+      "non_claims": [
+        "not a proof-size win",
+        "not a new proof object"
+      ],
+      "object_class": "local_native_stwo_opening_layout_target",
+      "primary_metric": "worst_label_required_reduction_to_beat_frontier_bytes",
+      "primary_value": 1401,
+      "proof_size_comparable": false,
+      "proof_size_policy": "target only; no proof object currently removes the required opening bytes",
+      "row_id": "rmsnorm_worst_label_opening_target",
+      "source_artifact": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05.json",
+      "source_status": "local_checked",
+      "system": "Stwo/STARK",
+      "timing_policy": "no timing claim",
+      "workload": "label_probe_b"
+    },
+    {
+      "claim_boundary": "RMSNORM_INPUT_ADJACENT_FIXED_COLUMN_LAYOUT_IS_A_REAL_OPENING_LAYOUT_LEVER_BUT_DOES_NOT_SATISFY_WORST_LABEL_FRONTIER_PROMOTION",
+      "locally_reproduced": true,
+      "matched_workload": false,
+      "native_proof_equivalent": false,
+      "non_claims": [
+        "not a two-proof frontier beat",
+        "not a proof-size win",
+        "not a NANOZK proof-size win",
+        "not a matched external zkML benchmark",
+        "not a full transformer block proof",
+        "not timing evidence",
+        "not production-ready zkML",
+        "does not close issue 644"
+      ],
+      "object_class": "local_native_stwo_proof_object_attempt",
+      "primary_metric": "adjacent_worst_label_typed_bytes",
+      "primary_value": 42724,
+      "proof_size_comparable": false,
+      "proof_size_policy": "NO-GO under worst-label policy",
+      "row_id": "adjacent_layout_worst_label_no_go",
+      "source_artifact": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.json",
+      "source_status": "local_checked",
+      "system": "Stwo/STARK",
+      "timing_policy": "no timing claim",
+      "workload": "adjacent RMSNorm-input layout under worst-label policy"
+    }
+  ],
+  "decision": "GO_ADVERSARIAL_ZKML_CLAIM_AUDIT_NO_GO_UNTYPED_COMPARISONS",
+  "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/653",
+  "mutation_count": 13,
+  "mutation_results": [
+    {
+      "accepted": false,
+      "name": "compact_statement_as_native",
+      "reason": "tablero_compact_statement_boundary compact statement promoted as proof"
+    },
+    {
+      "accepted": false,
+      "name": "nanozk_marked_local",
+      "reason": "nanozk_paper_reported_context paper-reported row promoted"
+    },
+    {
+      "accepted": false,
+      "name": "jolt_proof_size_comparable",
+      "reason": "jolt_atlas_self_attention_reproduction_target external lookup row promoted"
+    },
+    {
+      "accepted": false,
+      "name": "gkr_matched_d128",
+      "reason": "gkr_tiny_gemm_sidecar GKR fixture promoted to matched workload"
+    },
+    {
+      "accepted": false,
+      "name": "missing_object_class",
+      "reason": "row field drift: local_stwo_two_proof_frontier"
+    },
+    {
+      "accepted": false,
+      "name": "missing_timing_policy",
+      "reason": "jolt_atlas_repo_gpt2_timing_context timing policy must be a non-empty string"
+    },
+    {
+      "accepted": false,
+      "name": "single_best_label_promoted",
+      "reason": "favorable-label policy drift"
+    },
+    {
+      "accepted": false,
+      "name": "remove_nanozk_non_claim",
+      "reason": "global non-claim drift: not a NANOZK proof-size win"
+    },
+    {
+      "accepted": false,
+      "name": "remove_jolt_non_claim",
+      "reason": "global non-claim drift: not a Jolt Atlas proof-size win"
+    },
+    {
+      "accepted": false,
+      "name": "remove_gkr_non_claim",
+      "reason": "global non-claim drift: not a GKR matched d128 proof-size win"
+    },
+    {
+      "accepted": false,
+      "name": "external_native_equivalence",
+      "reason": "gkr_tiny_gemm_sidecar native equivalence overclaim"
+    },
+    {
+      "accepted": false,
+      "name": "missing_proof_size_policy",
+      "reason": "local_stwo_two_proof_frontier proof-size policy must be a non-empty string"
+    },
+    {
+      "accepted": false,
+      "name": "source_artifact_digest",
+      "reason": "source artifact file digest drift"
+    }
+  ],
+  "mutations_rejected": 13,
+  "non_claims": [
+    "not a NANOZK proof-size win",
+    "not a Jolt Atlas proof-size win",
+    "not a GKR matched d128 proof-size win",
+    "not a local reproduction of paper-reported external rows",
+    "not a compact statement-binding proof-size comparison",
+    "not a full transformer block proof",
+    "not timing evidence unless timing_policy is explicit"
+  ],
+  "payload_commitment": "blake2b-256:984b45d8de15177a33029de8b59df7971378848545d860df29ce86a15cc8fd1a",
+  "result": "COMPARISON_MATRIX_REJECTS_OBJECT_CLASS_AND_REPRODUCTION_OVERCLAIMS",
+  "schema": "zkai-claim-audit-comparison-artifacts-v1",
+  "source_artifacts": [
+    {
+      "decision": "GO_MINIMAL_BLOCK_BENCHMARK_CONTRACT_NO_GO_MATCHED_PROOF_CLAIM",
+      "file_sha256": "300ac6886019e7670e4a1dbb25a70803e9605dffd71907d8c1220fad1ba6436f",
+      "path": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+      "payload_sha256": "c5c9e6381c8a1ffe176552fc93fa64cd1421630045628dc22f07228967e358e1",
+      "schema": "zkai-minimal-transformer-block-benchmark-v1"
+    },
+    {
+      "decision": "GO_GKR_SIDECAR_BASELINE_NO_GO_MATCHED_D128_DENSE_LAYER_COMPARISON",
+      "file_sha256": "06c1d45d97fd027faf59d4d1a827bfa5b93218edb87cb9711ad233f865dc47b8",
+      "path": "docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.json",
+      "payload_sha256": "a434ca1ffdb09dfed4fbf89b5e2bd001aae49dc42f9b53481a8a84871879936d",
+      "schema": "zkai-gkr-dense-sidecar-baseline-v1"
+    },
+    {
+      "decision": "GO_JOLT_ATLAS_SOURCE_BACKED_COMPARISON_NO_GO_LOCAL_REPRODUCTION",
+      "file_sha256": "4f8ba12387cfba96a54af3391013c0b3bbbe5dbc47bdd520fe09f2653139b34e",
+      "path": "docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.json",
+      "payload_sha256": "e5b54ec59baeb72b5a87ad842333086a0357bc17e820fd31dd1506e8f2347996",
+      "schema": "zkai-jolt-atlas-lookup-tensor-comparison-v1"
+    },
+    {
+      "decision": "GO_TABLERO_TYPED_BOUNDARIES_FOR_HYBRID_ZKML_OBJECTS",
+      "file_sha256": "78ae9230f7d8c46d5e3de3d999fa73258a85d1df51698372142e2c92c44e35a5",
+      "path": "docs/engineering/evidence/zkai-tablero-hybrid-zkml-boundary-2026-05.json",
+      "payload_sha256": "9c2f1ab0a924946340be0c3bdc62ce39a4ad675280ee8ce5cc898dff02a0fcce",
+      "schema": "zkai-tablero-hybrid-zkml-boundary-v1"
+    },
+    {
+      "decision": "NO_GO_MULTI_LABEL_FRONTIER_PROMOTION",
+      "file_sha256": "484bbddc65f7f4b34241b3ec3c5979d81ffbcef16a8ca6af88aee5c96da58642",
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05.json",
+      "payload_sha256": "ce9b095a3167a48f29a42c74a7f14dca2b9b7600e1e67afefe03684b267aa564",
+      "schema": "zkai-native-attention-mlp-rmsnorm-label-policy-gate-v1"
+    },
+    {
+      "decision": "CONDITIONAL_GO_OPENING_OVERHANG_ATTACK_WITH_STRICT_WORST_LABEL_TARGET",
+      "file_sha256": "3499ae08f18676db8ea7927755a14e9cbb6b81bcce68fab9b4798d73e2db1b25",
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05.json",
+      "payload_sha256": "dac07eef2428158c40cf3f89d688a91e0b7d6e46e467314b12bd9b08e05d23b9",
+      "schema": "zkai-native-attention-mlp-rmsnorm-opening-budget-route-gate-v1"
+    },
+    {
+      "decision": "NO_GO_WORST_LABEL_FRONTIER_PROMOTION_BUT_GO_LAYOUT_LEVER",
+      "file_sha256": "002141cd6dc9a5216cb1f6236863e9c55b6030a73b99d2c0a81b1f55183b5fea",
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.json",
+      "payload_sha256": "3510b65d4a81512e03a43bf1839969bb63a32f7784a1335b8e1cf4d7da5de178",
+      "schema": "zkai-native-attention-mlp-rmsnorm-adjacent-layout-gate-v1"
+    }
+  ],
+  "summary": {
+    "audit_row_count": 13,
+    "claim_audit_role": "prevent_false_cross_object_class_comparisons",
+    "external_or_source_reported_rows": 3,
+    "gkr_tiny_gemm_proof_bytes": 11645,
+    "gkr_tiny_layernorm_proof_bytes": 52080,
+    "gkr_tiny_residual_add_proof_bytes": 56054,
+    "locally_reproduced_rows": 10,
+    "nanozk_paper_reported_bytes": 6900,
+    "native_equivalent_rows": 1,
+    "object_class_count": 10,
+    "proof_size_comparable_rows": 0,
+    "stwo_two_proof_frontier_typed_bytes": 40700,
+    "worst_label_required_reduction_bytes": 1401
+  },
+  "validation_commands": [
+    "python3 scripts/zkai_claim_audit_comparison_artifacts_gate.py --write-json docs/engineering/evidence/zkai-claim-audit-comparison-artifacts-2026-05.json --write-tsv docs/engineering/evidence/zkai-claim-audit-comparison-artifacts-2026-05.tsv",
+    "python3 -m py_compile scripts/zkai_claim_audit_comparison_artifacts_gate.py scripts/tests/test_zkai_claim_audit_comparison_artifacts_gate.py",
+    "python3 -m unittest scripts.tests.test_zkai_claim_audit_comparison_artifacts_gate",
+    "python3 scripts/research_issue_lint.py --repo-root .",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}
