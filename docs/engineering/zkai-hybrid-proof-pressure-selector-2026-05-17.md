@@ -27,7 +27,7 @@ Checked selector output:
 - attack-next routes: `2`
 - no-go-now routes: `2`
 - proof-size-comparable rows: `0`
-- overclaim mutations rejected: `11 / 11`
+- overclaim mutations rejected: `12 / 12`
 
 ## Good Signal
 
@@ -104,6 +104,8 @@ python3 -m py_compile \
 
 python3 -m unittest scripts.tests.test_zkai_hybrid_proof_pressure_selector_gate
 ```
+
+Timing mode: validation-only; no proof generation or benchmark timing claim.
 
 Full local readiness should also include:
 

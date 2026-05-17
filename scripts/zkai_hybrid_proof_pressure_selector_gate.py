@@ -38,6 +38,23 @@ EXPECTED_GKR_RESIDUAL_ADD_BYTES = 56_054
 EXPECTED_GKR_LAYERNORM_BYTES = 52_080
 EXPECTED_CLAIM_AUDIT_COMPARABLE_ROWS = 0
 EXPECTED_CLAIM_AUDIT_MUTATIONS = 16
+EXPECTED_ROUTE_IDS = {
+    "local_stwo_two_proof_frontier",
+    "gkr_dense_linear_scaling_candidate",
+    "gkr_residual_add_no_go_now",
+    "gkr_layernorm_no_go_now",
+    "native_d128_block_object_blocker",
+    "tablero_statement_boundary_guardrail",
+    "nanozk_paper_context_only",
+    "jolt_atlas_lookup_tensor_context",
+}
+SOURCE_ARTIFACT_PATHS = {
+    CLAIM_AUDIT.relative_to(ROOT).as_posix(),
+    GKR_BASELINE.relative_to(ROOT).as_posix(),
+    MINIMAL_BLOCK.relative_to(ROOT).as_posix(),
+    JOLT_ATLAS.relative_to(ROOT).as_posix(),
+    TABLERO_BOUNDARY.relative_to(ROOT).as_posix(),
+}
 
 NON_CLAIMS = (
     "not a NANOZK proof-size win",
@@ -159,6 +176,7 @@ def route(
     source_artifact: pathlib.Path,
     non_claims: tuple[str, ...],
 ) -> dict[str, Any]:
+    row_non_claims = list(dict.fromkeys((*non_claims, *NON_CLAIMS)))
     return {
         "route_id": route_id,
         "proof_system": proof_system,
@@ -173,7 +191,7 @@ def route(
         "selector_decision": selector_decision,
         "next_action": next_action,
         "source_artifact": source_artifact.relative_to(ROOT).as_posix(),
-        "non_claims": list(non_claims),
+        "non_claims": row_non_claims,
     }
 
 
@@ -409,6 +427,8 @@ def validate_route(row: dict[str, Any]) -> None:
         raise HybridSelectorError(f"{route_id} missing non-claims")
     if any(not isinstance(claim, str) or not claim for claim in row["non_claims"]):
         raise HybridSelectorError(f"{route_id} invalid non-claim")
+    if not set(NON_CLAIMS).issubset(set(row["non_claims"])):
+        raise HybridSelectorError(f"{route_id} row non-claim inventory drift")
     if proof_size_comparable:
         raise HybridSelectorError(f"{route_id} proof-size comparability overclaim")
     if object_class == "local_external_gkr_fixture" and (row["matched_workload"] or row["native_equivalent"]):
@@ -440,18 +460,29 @@ def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
         if route_id in seen:
             raise HybridSelectorError(f"duplicate route id: {route_id}")
         seen.add(route_id)
+    if seen != EXPECTED_ROUTE_IDS:
+        raise HybridSelectorError("selector route inventory drift")
     summary = payload.get("summary")
     if not isinstance(summary, dict):
         raise HybridSelectorError("summary missing")
+    attack_next_routes = [row["route_id"] for row in rows if row["selector_decision"].startswith("ATTACK_NEXT")]
+    no_go_now_routes = [row["route_id"] for row in rows if row["selector_decision"].startswith("NO_GO_NOW")]
+    comparable_routes = [row["route_id"] for row in rows if row["proof_size_comparable"]]
     expect_equal(summary.get("selector_row_count"), len(rows), "selector row count")
-    expect_equal(summary.get("proof_size_comparable_rows"), 0, "selector proof comparable rows")
+    expect_equal(summary.get("attack_next_count"), len(attack_next_routes), "attack-next count")
+    expect_equal(summary.get("attack_next_routes"), attack_next_routes, "attack-next routes")
+    expect_equal(summary.get("no_go_now_count"), len(no_go_now_routes), "no-go-now count")
+    expect_equal(summary.get("no_go_now_routes"), no_go_now_routes, "no-go-now routes")
+    expect_equal(summary.get("proof_size_comparable_rows"), len(comparable_routes), "selector proof comparable rows")
     expect_equal(summary.get("claim_audit_proof_size_comparable_rows"), 0, "claim audit proof comparable rows")
     expect_equal(summary.get("stwo_two_proof_frontier_typed_bytes"), EXPECTED_STWO_FRONTIER_TYPED_BYTES, "summary frontier")
     expect_equal(summary.get("nanozk_paper_reported_bytes"), EXPECTED_NANOZK_REPORTED_BYTES, "summary NANOZK")
-    if summary.get("attack_next_count", 0) < 1:
+    if not attack_next_routes:
         raise HybridSelectorError("selector has no attack-next route")
-    if summary.get("no_go_now_count", 0) < 1:
+    if not no_go_now_routes:
         raise HybridSelectorError("selector has no no-go-now route")
+    if comparable_routes:
+        raise HybridSelectorError("selector proof comparability overclaim")
     if summary.get("go_gate") != "GO_SELECTOR_HAS_ATTACK_NEXT_AND_NO_GO_NOW_WITH_ZERO_COMPARABLE_ROWS":
         raise HybridSelectorError("GO gate drift")
     if not isinstance(payload.get("source_artifacts"), list) or len(payload["source_artifacts"]) != 5:
@@ -459,7 +490,10 @@ def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
     for descriptor in payload["source_artifacts"]:
         if not isinstance(descriptor, dict):
             raise HybridSelectorError("source artifact descriptor must be an object")
-        path = ROOT / require_str(descriptor.get("path"), "source artifact path")
+        rel_path = require_str(descriptor.get("path"), "source artifact path")
+        if rel_path not in SOURCE_ARTIFACT_PATHS:
+            raise HybridSelectorError("source artifact path outside allowlist")
+        path = ROOT / rel_path
         if descriptor != source_descriptor(path):
             raise HybridSelectorError("source artifact descriptor drift")
     if "mutation_results" in payload:
@@ -578,6 +612,10 @@ def mutate_claim_audit_comparable(payload: dict[str, Any]) -> None:
     payload["summary"]["claim_audit_proof_size_comparable_rows"] = 1
 
 
+def mutate_summary_attack_route_drift(payload: dict[str, Any]) -> None:
+    payload["summary"]["attack_next_routes"] = []
+
+
 def mutate_stwo_frontier_drift(payload: dict[str, Any]) -> None:
     payload["summary"]["stwo_two_proof_frontier_typed_bytes"] = 39_999
 
@@ -599,6 +637,7 @@ MUTATIONS: tuple[tuple[str, Callable[[dict[str, Any]], None]], ...] = (
     ("remove_attack_next", mutate_remove_attack_next),
     ("remove_no_go_now", mutate_remove_no_go_now),
     ("claim_audit_comparable", mutate_claim_audit_comparable),
+    ("summary_attack_route_drift", mutate_summary_attack_route_drift),
     ("stwo_frontier_drift", mutate_stwo_frontier_drift),
     ("source_artifact_digest", mutate_source_artifact_digest),
     ("payload_commitment", mutate_payload_commitment),
@@ -643,7 +682,7 @@ def tsv_text(payload: dict[str, Any]) -> str:
 def require_output_path(path: pathlib.Path | None, suffix: str, label: str) -> pathlib.Path | None:
     if path is None:
         return None
-    resolved = path.resolve()
+    resolved = path.resolve() if path.is_absolute() else (ROOT / path).resolve()
     evidence_root = EVIDENCE_DIR.resolve()
     if evidence_root not in resolved.parents:
         raise HybridSelectorError(f"{label} output must stay under {EVIDENCE_DIR.relative_to(ROOT).as_posix()}")
@@ -651,17 +690,19 @@ def require_output_path(path: pathlib.Path | None, suffix: str, label: str) -> p
         raise HybridSelectorError(f"{label} output must use {suffix}")
     if resolved in {CLAIM_AUDIT.resolve(), GKR_BASELINE.resolve(), MINIMAL_BLOCK.resolve(), JOLT_ATLAS.resolve(), TABLERO_BOUNDARY.resolve()}:
         raise HybridSelectorError(f"{label} output cannot overwrite a source artifact")
-    return path
+    return resolved
 
 
 def write_outputs(payload: dict[str, Any], json_path: pathlib.Path | None, tsv_path: pathlib.Path | None) -> None:
     json_path = require_output_path(json_path, ".json", "JSON")
     tsv_path = require_output_path(tsv_path, ".tsv", "TSV")
     if json_path is not None:
+        json_path.parent.mkdir(parents=True, exist_ok=True)
         tmp = json_path.with_suffix(json_path.suffix + ".tmp")
         tmp.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         tmp.replace(json_path)
     if tsv_path is not None:
+        tsv_path.parent.mkdir(parents=True, exist_ok=True)
         tmp = tsv_path.with_suffix(tsv_path.suffix + ".tmp")
         tmp.write_text(tsv_text(payload), encoding="utf-8")
         tmp.replace(tsv_path)

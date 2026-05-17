@@ -1,7 +1,7 @@
 {
   "decision": "GO_HYBRID_PROOF_PRESSURE_SELECTOR_NO_GO_MATCHED_EXTERNAL_COMPARISON",
   "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/661",
-  "mutation_count": 11,
+  "mutation_count": 12,
   "mutation_results": [
     {
       "accepted": false,
@@ -45,6 +45,11 @@
     },
     {
       "accepted": false,
+      "name": "summary_attack_route_drift",
+      "reason": "attack-next routes drift: expected ['gkr_dense_linear_scaling_candidate', 'native_d128_block_object_blocker'], got []"
+    },
+    {
+      "accepted": false,
       "name": "stwo_frontier_drift",
       "reason": "summary frontier drift: expected 40700, got 39999"
     },
@@ -59,7 +64,7 @@
       "reason": "payload commitment drift"
     }
   ],
-  "mutations_rejected": 11,
+  "mutations_rejected": 12,
   "non_claims": [
     "not a NANOZK proof-size win",
     "not a matched local reproduction of NANOZK",
@@ -68,7 +73,7 @@
     "not a timing claim",
     "not production zkML"
   ],
-  "payload_commitment": "blake2b-256:4766500db370f95a053f06622785026361921c6acd1ee40bc541d5675d7ffd0a",
+  "payload_commitment": "blake2b-256:0771a78daf01f51cfb43220642a1717f680b98e6ac35e78501d6bc6cdbd54772",
   "result": "ROUTE_SELECTOR_IDENTIFIES_DENSE_LINEAR_ATTACK_AND_REJECTS_FALSE_COMPARABILITY",
   "schema": "zkai-hybrid-proof-pressure-selector-v1",
   "selector_rows": [
@@ -78,7 +83,12 @@
       "next_action": "compress_or_replace_only_after_native_block_object_path_is_explicit",
       "non_claims": [
         "not one native full-block proof",
-        "not a NANOZK proof-size win"
+        "not a NANOZK proof-size win",
+        "not a matched local reproduction of NANOZK",
+        "not evidence that GKR replaces STARKs",
+        "not a full transformer block proof",
+        "not a timing claim",
+        "not production zkML"
       ],
       "object_class": "local_two_proof_target",
       "primary_metric": "typed_proof_field_bytes",
@@ -97,7 +107,12 @@
       "next_action": "scale_gkr_gemm_to_d128_projection_shape_and_bind_with_tablero_statement_boundary",
       "non_claims": [
         "not a matched d128 transformer-block proof",
-        "not evidence that GKR replaces STARKs"
+        "not evidence that GKR replaces STARKs",
+        "not a NANOZK proof-size win",
+        "not a matched local reproduction of NANOZK",
+        "not a full transformer block proof",
+        "not a timing claim",
+        "not production zkML"
       ],
       "object_class": "local_external_gkr_fixture",
       "primary_metric": "proof_bytes",
@@ -116,7 +131,13 @@
       "next_action": "do_not_spend_next_pr_on_gkr_residual_until_dense_scaling_succeeds",
       "non_claims": [
         "not a matched d128 transformer-block proof",
-        "not a GKR matched d128 proof-size win"
+        "not a GKR matched d128 proof-size win",
+        "not a NANOZK proof-size win",
+        "not a matched local reproduction of NANOZK",
+        "not evidence that GKR replaces STARKs",
+        "not a full transformer block proof",
+        "not a timing claim",
+        "not production zkML"
       ],
       "object_class": "local_external_gkr_fixture",
       "primary_metric": "proof_bytes",
@@ -135,7 +156,13 @@
       "next_action": "keep_rmsnorm_on_stark_native_path_until_a_matched_gkr_norm_route_exists",
       "non_claims": [
         "not a matched d128 transformer-block proof",
-        "not a GKR matched d128 proof-size win"
+        "not a GKR matched d128 proof-size win",
+        "not a NANOZK proof-size win",
+        "not a matched local reproduction of NANOZK",
+        "not evidence that GKR replaces STARKs",
+        "not a full transformer block proof",
+        "not a timing claim",
+        "not production zkML"
       ],
       "object_class": "local_external_gkr_fixture",
       "primary_metric": "proof_bytes",
@@ -154,7 +181,13 @@
       "next_action": "construct_or_spike_the_native_d128_block_proof_object_before_external_proof_size_claims",
       "non_claims": [
         "not a proof-size result",
-        "not a NANOZK comparison row"
+        "not a NANOZK comparison row",
+        "not a NANOZK proof-size win",
+        "not a matched local reproduction of NANOZK",
+        "not evidence that GKR replaces STARKs",
+        "not a full transformer block proof",
+        "not a timing claim",
+        "not production zkML"
       ],
       "object_class": "missing_native_block_proof_object",
       "primary_metric": "missing_backend_flag",
@@ -173,7 +206,13 @@
       "next_action": "use_to_bind_hybrid_routes_and_prevent_object_class_confusion",
       "non_claims": [
         "not a proof object",
-        "not proof-size comparable"
+        "not proof-size comparable",
+        "not a NANOZK proof-size win",
+        "not a matched local reproduction of NANOZK",
+        "not evidence that GKR replaces STARKs",
+        "not a full transformer block proof",
+        "not a timing claim",
+        "not production zkML"
       ],
       "object_class": "local_statement_artifact",
       "primary_metric": "statement_chain_rows",
@@ -192,7 +231,13 @@
       "next_action": "keep_as_paper_context_until_local_reproduction_or_matched_object_exists",
       "non_claims": [
         "not locally reproduced",
-        "not a local benchmark"
+        "not a local benchmark",
+        "not a NANOZK proof-size win",
+        "not a matched local reproduction of NANOZK",
+        "not evidence that GKR replaces STARKs",
+        "not a full transformer block proof",
+        "not a timing claim",
+        "not production zkML"
       ],
       "object_class": "paper_reported_external_context",
       "primary_metric": "reported_proof_size_bytes",
@@ -211,7 +256,13 @@
       "next_action": "reproduce_only_if_we_need_lookup_tensor_timing_or_architecture_baseline",
       "non_claims": [
         "not a proof-size row",
-        "not locally reproduced"
+        "not locally reproduced",
+        "not a NANOZK proof-size win",
+        "not a matched local reproduction of NANOZK",
+        "not evidence that GKR replaces STARKs",
+        "not a full transformer block proof",
+        "not a timing claim",
+        "not production zkML"
       ],
       "object_class": "external_lookup_tensor_zkml_repo_benchmark",
       "primary_metric": "readme_proof_time_seconds",
