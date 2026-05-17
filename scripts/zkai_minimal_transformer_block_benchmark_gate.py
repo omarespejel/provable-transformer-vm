@@ -507,6 +507,7 @@ def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True)
     if not isinstance(rows, list) or len(rows) != 10:
         raise MinimalBlockBenchmarkError("component row inventory drift")
     expected_row_keys = set(TSV_COLUMNS)
+    component_rows: list[dict[str, Any]] = []
     for row in rows:
         if not isinstance(row, dict):
             raise MinimalBlockBenchmarkError("component row must be an object")
@@ -514,9 +515,10 @@ def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True)
             raise MinimalBlockBenchmarkError("component row key drift")
         if not isinstance(row["component"], str) or not row["component"]:
             raise MinimalBlockBenchmarkError("component row name drift")
-    if any(row.get("comparability") == "MATCHED_EXTERNAL_BENCHMARK" for row in rows if isinstance(row, dict)):
+        component_rows.append(row)
+    if any(row["comparability"] == "MATCHED_EXTERNAL_BENCHMARK" for row in component_rows):
         raise MinimalBlockBenchmarkError("external comparability overclaim")
-    native_row = next((row for row in rows if row["component"] == "native_full_block_proof_object"), None)
+    native_row = next((row for row in component_rows if row["component"] == "native_full_block_proof_object"), None)
     if native_row is None:
         raise MinimalBlockBenchmarkError("native_full_block_proof_object row missing")
     if native_row["object_class"] != "missing_native_proof_object" or native_row["primary_value"] is not None:
@@ -525,7 +527,7 @@ def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True)
         raise MinimalBlockBenchmarkError("missing native block summary drift")
     if payload["summary"]["adjacent_worst_label_gap_typed_bytes"] <= 0:
         raise MinimalBlockBenchmarkError("worst-label frontier overclaim")
-    if rows != expected["component_rows"]:
+    if component_rows != expected["component_rows"]:
         raise MinimalBlockBenchmarkError("component_rows drift")
     approximation_policy = payload["benchmark_spec"]["approximation_policy"]
     for required in ("attention", "normalization", "activation", "quantization"):
