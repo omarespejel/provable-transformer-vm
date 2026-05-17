@@ -243,7 +243,7 @@
   ],
   "decision": "GO_TABLERO_TYPED_BOUNDARIES_FOR_HYBRID_ZKML_OBJECTS",
   "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/652",
-  "mutation_count": 10,
+  "mutation_count": 12,
   "mutation_results": [
     {
       "name": "compact_statement_as_native_overclaim",
@@ -268,6 +268,16 @@
     {
       "name": "atlas_marked_local",
       "reason": "external source marked local",
+      "rejected": true
+    },
+    {
+      "name": "atlas_marked_creative_local",
+      "reason": "external source marked local",
+      "rejected": true
+    },
+    {
+      "name": "native_equivalent_external_backend",
+      "reason": "native proof equivalence backend overclaim",
       "rejected": true
     },
     {
@@ -296,7 +306,7 @@
       "rejected": true
     }
   ],
-  "mutations_rejected": 10,
+  "mutations_rejected": 12,
   "non_claims": [
     "not a recursive composition proof",
     "not a claim that Tablero verifies external proofs itself",
@@ -307,7 +317,7 @@
     "not a full transformer block proof",
     "not exact real-valued transformer arithmetic"
   ],
-  "payload_commitment": "blake2b-256:ab5096e60024637a33d7b02ea57085adcc1c94ad9adca311b07457b1ddf55a74",
+  "payload_commitment": "blake2b-256:62dcf294c0b1a36bfb657f8599ebeb08994357c1ba7688b05a37b98d7254c1b6",
   "result": "TYPED_BOUNDARY_SCHEMA_REJECTS_HYBRID_OBJECT_CLASS_CONFUSION",
   "schema": "zkai-tablero-hybrid-zkml-boundary-v1",
   "source_artifacts": [

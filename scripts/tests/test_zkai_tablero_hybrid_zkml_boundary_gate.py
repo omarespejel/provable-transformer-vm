@@ -21,8 +21,8 @@ class TableroHybridZkmlBoundaryGateTest(unittest.TestCase):
         self.assertFalse(payload["summary"]["jolt_atlas_local_reproduced"])
         self.assertFalse(payload["summary"]["jolt_atlas_proof_size_available"])
         self.assertEqual(payload["summary"]["tablero_role"], "typed_statement_boundary_not_external_verifier")
-        self.assertEqual(payload["mutation_count"], 10)
-        self.assertEqual(payload["mutations_rejected"], 10)
+        self.assertEqual(payload["mutation_count"], 12)
+        self.assertEqual(payload["mutations_rejected"], 12)
 
     def test_boundary_examples_keep_object_classes_separate(self) -> None:
         rows = {row["statement_id"]: row for row in gate.build_payload()["boundary_examples"]}
@@ -82,6 +82,20 @@ class TableroHybridZkmlBoundaryGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.TableroHybridBoundaryError, "external source marked local"):
             gate.validate_payload(payload)
 
+    def test_rejects_atlas_marked_creative_local(self) -> None:
+        payload = gate.build_payload()
+        gate.mark_atlas_creative_local(payload)
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaisesRegex(gate.TableroHybridBoundaryError, "external source marked local"):
+            gate.validate_payload(payload)
+
+    def test_rejects_native_equivalent_external_backend(self) -> None:
+        payload = gate.build_payload()
+        gate.mark_native_equivalent_external_backend(payload)
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaisesRegex(gate.TableroHybridBoundaryError, "native proof equivalence backend overclaim"):
+            gate.validate_payload(payload)
+
     def test_rejects_statement_commitment_drift(self) -> None:
         payload = gate.build_payload()
         gate.mutate_statement_commitment(payload)
@@ -122,6 +136,27 @@ class TableroHybridZkmlBoundaryGateTest(unittest.TestCase):
         payload["payload_commitment"] = "blake2b-256:" + "0" * 64
         with self.assertRaisesRegex(gate.TableroHybridBoundaryError, "payload commitment drift"):
             gate.validate_payload(payload)
+
+    def test_rejects_pinned_source_artifact_drift(self) -> None:
+        payload = gate.build_payload()
+        payload["source_artifacts"][0]["file_sha256"] = "0" * 64
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaisesRegex(gate.TableroHybridBoundaryError, "source_artifacts drift"):
+            gate.validate_payload(payload)
+
+    def test_rejects_duplicate_component_rows(self) -> None:
+        sources = gate.load_sources()
+        rows = sources["minimal"]["component_rows"]
+        rows.append(copy.deepcopy(gate.row_by_component(rows, "two_proof_frontier")))
+        with self.assertRaisesRegex(gate.TableroHybridBoundaryError, "duplicate component row"):
+            gate.build_boundary_examples(sources)
+
+    def test_rejects_duplicate_row_ids(self) -> None:
+        sources = gate.load_sources()
+        rows = sources["gkr"]["rows"]
+        rows.append(copy.deepcopy(gate.row_by_id(rows, "tiny_gemm")))
+        with self.assertRaisesRegex(gate.TableroHybridBoundaryError, "duplicate row"):
+            gate.build_boundary_examples(sources)
 
     def test_mutation_inventory_is_strict(self) -> None:
         payload = gate.build_payload()

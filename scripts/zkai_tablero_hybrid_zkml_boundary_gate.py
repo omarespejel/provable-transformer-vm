@@ -109,6 +109,244 @@ BASELINE_KEYS = (
     "validation_commands",
 )
 
+PINNED_BOUNDARY_CONTRACT_FIELDS = (
+    "statement_id",
+    "object_class",
+    "proof_system",
+    "backend",
+    "backend_version",
+    "workload",
+    "source_status",
+    "approximation_policy",
+    "quantization_policy",
+    "verifier_semantics",
+    "proof_size_policy",
+    "timing_policy",
+    "native_proof_equivalent",
+    "primary_metric",
+    "primary_value",
+    "non_claims",
+)
+
+NATIVE_PROOF_EQUIVALENT_OBJECT_CLASSES = frozenset({"local_two_proof_transformer_block_frontier"})
+
+PINNED_BASELINE = {
+    "schema": "zkai-tablero-hybrid-zkml-boundary-v1",
+    "decision": "GO_TABLERO_TYPED_BOUNDARIES_FOR_HYBRID_ZKML_OBJECTS",
+    "result": "TYPED_BOUNDARY_SCHEMA_REJECTS_HYBRID_OBJECT_CLASS_CONFUSION",
+    "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/652",
+    "typed_statement_schema": {
+        "schema": "tablero-hybrid-zkml-typed-statement-v1",
+        "required_fields": [
+            "statement_id",
+            "statement_schema",
+            "object_class",
+            "proof_system",
+            "backend",
+            "backend_version",
+            "workload",
+            "source_status",
+            "model_binding",
+            "input_binding",
+            "output_binding",
+            "proof_object_binding",
+            "approximation_policy",
+            "quantization_policy",
+            "verifier_semantics",
+            "proof_size_policy",
+            "timing_policy",
+            "native_proof_equivalent",
+            "non_claims",
+        ],
+        "binding_object_fields": ["availability", "commitment", "source", "reason"],
+        "native_proof_equivalent_rule": "only actual local native proof objects may set true",
+        "unavailable_digest_rule": "unavailable external fields must be explicit binding objects, never omitted",
+        "comparison_rule": "proof-size and timing comparisons require matched workload, object class, source status, and policy",
+    },
+    "boundary_examples": [
+        {
+            "statement_id": "stwo_two_proof_frontier_boundary",
+            "object_class": "local_two_proof_transformer_block_frontier",
+            "proof_system": "Stwo/STARK",
+            "backend": "stwo-native",
+            "backend_version": "minimal-transformer-block-benchmark-v1",
+            "workload": "INTERNAL_FRONTIER_ONLY",
+            "source_status": "local_checked",
+            "approximation_policy": "bounded quantized attention plus d128 RMSNorm/SwiGLU substitute; not exact Softmax, LayerNorm, or GELU",
+            "quantization_policy": "quantized integer fixture policy from checked local evidence",
+            "verifier_semantics": "local proof-size accounting over two verified Stwo proof objects",
+            "proof_size_policy": "typed proof-field accounting, local only, not external comparable",
+            "timing_policy": "no median-of-5 timing claim",
+            "native_proof_equivalent": True,
+            "primary_metric": "two_proof_frontier_typed_bytes",
+            "primary_value": 40700,
+            "non_claims": ["not one native full-block proof", "not external benchmark comparable", "not exact transformer arithmetic"],
+        },
+        {
+            "statement_id": "compact_statement_chain_boundary",
+            "object_class": "local_statement_artifact",
+            "proof_system": "Tablero statement boundary",
+            "backend": "statement-binding",
+            "backend_version": "minimal-transformer-block-benchmark-v1",
+            "workload": "STATEMENT_VALIDITY_SURFACE_NOT_PROOF_SIZE_ROW",
+            "source_status": "local_checked",
+            "approximation_policy": "inherits the local benchmark approximation policy; statement-validity only",
+            "quantization_policy": "inherits checked local quantized fixture policy",
+            "verifier_semantics": "statement binding and object classification only",
+            "proof_size_policy": "not comparable to native proof bytes",
+            "timing_policy": "no timing claim",
+            "native_proof_equivalent": False,
+            "primary_metric": "statement_chain_rows",
+            "primary_value": 199553,
+            "non_claims": ["not a proof object", "not native verifier execution", "not proof-size comparable"],
+        },
+        {
+            "statement_id": "jstprove_statement_envelope_boundary",
+            "object_class": "external_sidecar_statement_envelope",
+            "proof_system": "JSTprove/Remainder-GKR-sumcheck",
+            "backend": "jstprove-statement-envelope",
+            "backend_version": "zkai-jstprove-statement-envelope-benchmark-v1",
+            "workload": "tiny Gemm statement-envelope adapter",
+            "source_status": "local_checked_external_fixture",
+            "approximation_policy": "tiny Gemm external fixture, not transformer-block arithmetic",
+            "quantization_policy": "external fixture policy, not model-faithful transformer quantization",
+            "verifier_semantics": "statement-envelope rejects relabeling; does not make Tablero an external verifier",
+            "proof_size_policy": "statement-envelope binding, not native Stwo proof-size comparison",
+            "timing_policy": "no timing claim",
+            "native_proof_equivalent": False,
+            "primary_metric": "mutations_rejected",
+            "primary_value": 13,
+            "non_claims": ["not native Stwo proof", "not d128 transformer block", "not Tablero verifying external proof internally"],
+        },
+        {
+            "statement_id": "gkr_dense_sidecar_boundary",
+            "object_class": "local_external_gkr_sidecar_fixture",
+            "proof_system": "JSTprove/Remainder-GKR-sumcheck",
+            "backend": "jstprove-gkr-sidecar",
+            "backend_version": "zkai-gkr-dense-sidecar-baseline-v1",
+            "workload": "Gemm",
+            "source_status": "local_checked_external_fixture",
+            "approximation_policy": "tiny projection-shaped dense arithmetic only",
+            "quantization_policy": "fixture-local arithmetic policy, not d128 model-faithful attention",
+            "verifier_semantics": "sidecar/baseline context, not Stwo replacement",
+            "proof_size_policy": "local fixture proof bytes, not matched transformer-layer proof bytes",
+            "timing_policy": "fixture timing only, not paper timing",
+            "native_proof_equivalent": False,
+            "primary_metric": "proof_bytes",
+            "primary_value": 11645,
+            "non_claims": ["not Stwo replacement", "not matched d128 dense-layer proof", "not Atlas or NANOZK comparison"],
+        },
+        {
+            "statement_id": "jolt_atlas_self_attention_source_boundary",
+            "object_class": "external_lookup_tensor_zkml_reproduction_target",
+            "proof_system": "Jolt Atlas",
+            "backend": "jolt-atlas",
+            "backend_version": "53b7c873a6662cdc79d9818dececf337bb27d7d0",
+            "workload": "single self-attention block example",
+            "source_status": "repo_command_available_not_locally_reproduced",
+            "approximation_policy": "external ONNX/tensor semantics unknown locally until reproduction",
+            "quantization_policy": "external repository policy unavailable locally until reproduction",
+            "verifier_semantics": "source-context row only; no local Atlas verifier execution",
+            "proof_size_policy": "not reported until local run",
+            "timing_policy": "not reported until local run",
+            "native_proof_equivalent": False,
+            "primary_metric": "example_command",
+            "primary_value": "cargo run --release --package jolt-atlas-core --example transformer",
+            "non_claims": ["not locally reproduced", "not proof-size comparable", "not timing comparable"],
+        },
+    ],
+    "summary": {
+        "boundary_example_count": 5,
+        "object_class_count": 5,
+        "object_classes": [
+            "external_lookup_tensor_zkml_reproduction_target",
+            "external_sidecar_statement_envelope",
+            "local_external_gkr_sidecar_fixture",
+            "local_statement_artifact",
+            "local_two_proof_transformer_block_frontier",
+        ],
+        "local_or_local_external_rows": 4,
+        "non_native_equivalent_rows": 4,
+        "native_equivalent_rows": 1,
+        "required_binding_fields": [
+            "statement_id",
+            "statement_schema",
+            "object_class",
+            "proof_system",
+            "backend",
+            "backend_version",
+            "workload",
+            "source_status",
+            "model_binding",
+            "input_binding",
+            "output_binding",
+            "proof_object_binding",
+            "approximation_policy",
+            "quantization_policy",
+            "verifier_semantics",
+            "proof_size_policy",
+            "timing_policy",
+            "native_proof_equivalent",
+            "non_claims",
+        ],
+        "binding_object_fields": ["availability", "commitment", "source", "reason"],
+        "jstprove_statement_envelope_mutations_rejected": 13,
+        "jstprove_statement_envelope_mutation_count": 13,
+        "jolt_atlas_local_reproduced": False,
+        "jolt_atlas_proof_size_available": False,
+        "tablero_role": "typed_statement_boundary_not_external_verifier",
+        "hybrid_architecture_status": "GO_TYPED_BOUNDARIES_NO_GO_FALSE_EQUIVALENCE",
+    },
+    "source_artifacts": [
+        {
+            "path": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+            "file_sha256": "300ac6886019e7670e4a1dbb25a70803e9605dffd71907d8c1220fad1ba6436f",
+            "payload_sha256": "c5c9e6381c8a1ffe176552fc93fa64cd1421630045628dc22f07228967e358e1",
+            "schema": "zkai-minimal-transformer-block-benchmark-v1",
+            "decision": "GO_MINIMAL_BLOCK_BENCHMARK_CONTRACT_NO_GO_MATCHED_PROOF_CLAIM",
+        },
+        {
+            "path": "docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.json",
+            "file_sha256": "06c1d45d97fd027faf59d4d1a827bfa5b93218edb87cb9711ad233f865dc47b8",
+            "payload_sha256": "a434ca1ffdb09dfed4fbf89b5e2bd001aae49dc42f9b53481a8a84871879936d",
+            "schema": "zkai-gkr-dense-sidecar-baseline-v1",
+            "decision": "GO_GKR_SIDECAR_BASELINE_NO_GO_MATCHED_D128_DENSE_LAYER_COMPARISON",
+        },
+        {
+            "path": "docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.json",
+            "file_sha256": "4f8ba12387cfba96a54af3391013c0b3bbbe5dbc47bdd520fe09f2653139b34e",
+            "payload_sha256": "e5b54ec59baeb72b5a87ad842333086a0357bc17e820fd31dd1506e8f2347996",
+            "schema": "zkai-jolt-atlas-lookup-tensor-comparison-v1",
+            "decision": "GO_JOLT_ATLAS_SOURCE_BACKED_COMPARISON_NO_GO_LOCAL_REPRODUCTION",
+        },
+        {
+            "path": "docs/engineering/evidence/zkai-jstprove-statement-envelope-benchmark-2026-05.json",
+            "file_sha256": "1ddbd75355003ad6313dd4b1d521bb1f1de96be6546cc35a0156267a8be5ea37",
+            "payload_sha256": "41df8f5d6c6762bec3127632a81ca4905981862d4e3f7631cdd8fa9c11f79025",
+            "schema": "zkai-jstprove-statement-envelope-benchmark-v1",
+        },
+    ],
+    "non_claims": [
+        "not a recursive composition proof",
+        "not a claim that Tablero verifies external proofs itself",
+        "not a claim that a statement receipt proves underlying native verifier execution",
+        "not a proof-size win over NANOZK",
+        "not a proof-size win over Jolt Atlas",
+        "not a local Jolt Atlas reproduction",
+        "not a full transformer block proof",
+        "not exact real-valued transformer arithmetic",
+    ],
+    "validation_commands": [
+        "python3 scripts/zkai_tablero_hybrid_zkml_boundary_gate.py --write-json docs/engineering/evidence/zkai-tablero-hybrid-zkml-boundary-2026-05.json --write-tsv docs/engineering/evidence/zkai-tablero-hybrid-zkml-boundary-2026-05.tsv",
+        "python3 -m py_compile scripts/zkai_tablero_hybrid_zkml_boundary_gate.py scripts/tests/test_zkai_tablero_hybrid_zkml_boundary_gate.py",
+        "python3 -m unittest scripts.tests.test_zkai_tablero_hybrid_zkml_boundary_gate",
+        "python3 scripts/research_issue_lint.py --repo-root .",
+        "git diff --check",
+        "just gate-fast",
+        "just gate",
+    ],
+}
+
 
 class TableroHybridBoundaryError(ValueError):
     pass
@@ -214,16 +452,20 @@ def require_str(value: Any, label: str) -> str:
 
 
 def row_by_component(rows: list[Any], component: str) -> dict[str, Any]:
-    for row in rows:
-        if isinstance(row, dict) and row.get("component") == component:
-            return row
+    matches = [row for row in rows if isinstance(row, dict) and row.get("component") == component]
+    if len(matches) > 1:
+        raise TableroHybridBoundaryError(f"duplicate component row: {component}")
+    if matches:
+        return matches[0]
     raise TableroHybridBoundaryError(f"missing component row: {component}")
 
 
 def row_by_id(rows: list[Any], row_id: str) -> dict[str, Any]:
-    for row in rows:
-        if isinstance(row, dict) and row.get("row_id") == row_id:
-            return row
+    matches = [row for row in rows if isinstance(row, dict) and row.get("row_id") == row_id]
+    if len(matches) > 1:
+        raise TableroHybridBoundaryError(f"duplicate row: {row_id}")
+    if matches:
+        return matches[0]
     raise TableroHybridBoundaryError(f"missing row: {row_id}")
 
 
@@ -547,17 +789,35 @@ def validate_boundary_statement(row: Any) -> None:
         raise TableroHybridBoundaryError("approximation policy missing")
     if not isinstance(statement["native_proof_equivalent"], bool):
         raise TableroHybridBoundaryError("native proof equivalence must be boolean")
-    if statement["native_proof_equivalent"] is True and not statement["object_class"].startswith("local_two_proof"):
-        raise TableroHybridBoundaryError("native proof equivalence overclaim")
+    if statement["native_proof_equivalent"] is True:
+        if statement["object_class"] not in NATIVE_PROOF_EQUIVALENT_OBJECT_CLASSES:
+            raise TableroHybridBoundaryError("native proof equivalence overclaim")
+        if not statement["source_status"].startswith("local"):
+            raise TableroHybridBoundaryError("native proof equivalence provenance overclaim")
+        if statement["backend"] != "stwo-native" or statement["proof_system"] != "Stwo/STARK":
+            raise TableroHybridBoundaryError("native proof equivalence backend overclaim")
     if statement["native_proof_equivalent"] is False and "native proof" in statement["proof_size_policy"].lower() and "not" not in statement["proof_size_policy"].lower():
         raise TableroHybridBoundaryError("false proof-size equivalence")
-    if statement["source_status"] == "local_checked" and statement["backend"] == "jolt-atlas":
+    if statement["source_status"].startswith("local") and statement["backend"] == "jolt-atlas":
         raise TableroHybridBoundaryError("external source marked local")
     non_claims = require_list(statement.get("non_claims"), "statement non-claims")
     if not non_claims:
         raise TableroHybridBoundaryError("statement non-claims missing")
     if statement["statement_commitment"] != statement_commitment(statement):
         raise TableroHybridBoundaryError("statement commitment drift")
+
+
+def boundary_contract(row: dict[str, Any]) -> dict[str, Any]:
+    return {field: row[field] for field in PINNED_BOUNDARY_CONTRACT_FIELDS}
+
+
+def validate_pinned_baseline(payload: dict[str, Any]) -> None:
+    for key in ("schema", "decision", "result", "issue", "typed_statement_schema", "summary", "source_artifacts", "non_claims", "validation_commands"):
+        if payload[key] != PINNED_BASELINE[key]:
+            raise TableroHybridBoundaryError(f"{key} drift")
+    contracts = [boundary_contract(row) for row in payload["boundary_examples"]]
+    if contracts != PINNED_BASELINE["boundary_examples"]:
+        raise TableroHybridBoundaryError("boundary_examples drift")
 
 
 def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True) -> None:
@@ -590,10 +850,7 @@ def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True)
         raise TableroHybridBoundaryError("Tablero non-claim drift")
     if "not a claim that a statement receipt proves underlying native verifier execution" not in payload["non_claims"]:
         raise TableroHybridBoundaryError("statement receipt non-claim drift")
-    expected = base_payload()
-    for key in BASELINE_KEYS:
-        if payload[key] != expected[key]:
-            raise TableroHybridBoundaryError(f"{key} drift")
+    validate_pinned_baseline(payload)
     if require_mutations:
         validate_mutations(payload["mutation_results"])
         if payload["mutation_count"] != len(MUTATIONS) or payload["mutations_rejected"] != len(MUTATIONS):
@@ -625,6 +882,14 @@ def mark_atlas_local(payload: dict[str, Any]) -> None:
     payload["boundary_examples"][4]["source_status"] = "local_checked"
 
 
+def mark_atlas_creative_local(payload: dict[str, Any]) -> None:
+    payload["boundary_examples"][4]["source_status"] = "local_checked_external_fixture"
+
+
+def mark_native_equivalent_external_backend(payload: dict[str, Any]) -> None:
+    payload["boundary_examples"][0]["backend"] = "jstprove-gkr-sidecar"
+
+
 def mutate_statement_commitment(payload: dict[str, Any]) -> None:
     payload["boundary_examples"][3]["statement_commitment"] = "blake2b-256:" + "0" * 64
 
@@ -651,6 +916,8 @@ MUTATIONS = (
     ("missing_approximation_policy", erase_approximation_policy),
     ("backend_version_drift", mutate_backend_version),
     ("atlas_marked_local", mark_atlas_local),
+    ("atlas_marked_creative_local", mark_atlas_creative_local),
+    ("native_equivalent_external_backend", mark_native_equivalent_external_backend),
     ("statement_commitment_drift", mutate_statement_commitment),
     ("unavailable_binding_field_removed", remove_unavailable_output_binding),
     ("atlas_proof_size_overclaim", promote_atlas_proof_size),
