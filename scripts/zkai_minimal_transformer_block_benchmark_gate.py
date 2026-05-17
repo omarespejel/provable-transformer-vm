@@ -73,6 +73,20 @@ TSV_COLUMNS = (
     "claim_boundary",
 )
 
+COMPONENT_ORDER = (
+    "attention_boundary_and_softmax_lookup",
+    "rmsnorm_mlp_residual_substitute",
+    "attention_to_d128_adapter_layout",
+    "two_proof_frontier",
+    "typed_public_statement_chain",
+    "external_statement_receipt",
+    "native_full_block_proof_object",
+    "nanozk_context_row",
+    "gkr_hyrax_sidecar_lane",
+    "jolt_atlas_lookup_tensor_lane",
+)
+COMPONENT_ORDER_INDEX = {component: index for index, component in enumerate(COMPONENT_ORDER)}
+
 BASELINE_KEYS = (
     "schema",
     "decision",
@@ -105,14 +119,27 @@ def canonical_json_bytes(value: Any) -> bytes:
 def payload_commitment(payload: dict[str, Any]) -> str:
     material = copy.deepcopy(payload)
     material.pop("payload_commitment", None)
-    rows = material.get("component_rows")
-    if isinstance(rows, list) and all(isinstance(row, dict) and isinstance(row.get("component"), str) for row in rows):
-        material["component_rows"] = sorted(rows, key=lambda row: row["component"])
+    canonicalize_component_rows(material)
     digest = hashlib.blake2b(digest_size=32)
     digest.update(PAYLOAD_DOMAIN.encode("ascii"))
     digest.update(b"\0")
     digest.update(canonical_json_bytes(material))
     return f"blake2b-256:{digest.hexdigest()}"
+
+
+def canonicalize_component_rows(material: dict[str, Any]) -> None:
+    rows = material.get("component_rows")
+    if isinstance(rows, list) and all(isinstance(row, dict) and isinstance(row.get("component"), str) for row in rows):
+        material["component_rows"] = sorted(
+            rows,
+            key=lambda row: (COMPONENT_ORDER_INDEX.get(row["component"], len(COMPONENT_ORDER)), row["component"]),
+        )
+
+
+def canonical_output_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    material = copy.deepcopy(payload)
+    canonicalize_component_rows(material)
+    return material
 
 
 def _reject_json_constant(value: str) -> None:
@@ -658,10 +685,11 @@ def validate_mutations(results: Any) -> None:
 
 
 def tsv_text(payload: dict[str, Any]) -> str:
+    material = canonical_output_payload(payload)
     output = io.StringIO()
     writer = csv.DictWriter(output, fieldnames=TSV_COLUMNS, delimiter="\t", lineterminator="\n")
     writer.writeheader()
-    for row in payload["component_rows"]:
+    for row in material["component_rows"]:
         writer.writerow({key: row[key] for key in TSV_COLUMNS})
     return output.getvalue()
 
@@ -736,10 +764,11 @@ def validated_output_targets(
 
 def write_outputs(payload: dict[str, Any], json_path: pathlib.Path | None, tsv_path: pathlib.Path | None) -> None:
     json_target, tsv_target = validated_output_targets(payload, json_path, tsv_path)
+    material = canonical_output_payload(payload)
     if json_target:
-        write_atomic(json_target, json.dumps(payload, indent=2, sort_keys=True).encode("utf-8") + b"\n")
+        write_atomic(json_target, json.dumps(material, indent=2, sort_keys=True).encode("utf-8") + b"\n")
     if tsv_target:
-        write_atomic(tsv_target, tsv_text(payload).encode("utf-8"))
+        write_atomic(tsv_target, tsv_text(material).encode("utf-8"))
 
 
 def main() -> int:
