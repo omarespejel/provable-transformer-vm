@@ -1,7 +1,7 @@
 {
   "decision": "NO_GO_NOW_D128_PROJECTION_SCALING",
   "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/663",
-  "mutation_count": 7,
+  "mutation_count": 8,
   "mutation_results": [
     {
       "name": "promote_tiny_gemm",
@@ -34,12 +34,17 @@
       "rejected": true
     },
     {
+      "name": "malformed_row_non_claim",
+      "reason": "jstprove_width_preserving_gemm_dim_2 non-claim entries must be strings",
+      "rejected": true
+    },
+    {
       "name": "source_digest_drift",
       "reason": "source_artifacts drift",
       "rejected": true
     }
   ],
-  "mutations_rejected": 7,
+  "mutations_rejected": 8,
   "non_claims": [
     "not a NANOZK proof-size win",
     "not a matched d128 JSTprove projection proof",
@@ -49,7 +54,7 @@
     "not a timing claim beyond source artifact timing fields",
     "not production zkML"
   ],
-  "payload_commitment": "blake2b-256:e880d0451f99e65b4ea63542e01957d6f7b862af43caf8c9e8051ccccfefa1a3",
+  "payload_commitment": "blake2b-256:787b645e96ab0a98aa78e760589c767609f83dc03dfc5fc2813e3d462c127bf4",
   "result": "TINY_GEMM_SIGNAL_DOES_NOT_SURVIVE_WIDTH_PRESERVING_PREFLIGHT_KEEP_GKR_AS_BASELINE",
   "rows": [
     {

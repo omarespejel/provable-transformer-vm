@@ -461,9 +461,14 @@ def validate_row(row: dict[str, Any]) -> None:
     require_str(row["source_status"], f"{row_id} source status")
     require_str(row["recommendation"], f"{row_id} recommendation")
     require_str(row["source_artifact"], f"{row_id} source artifact")
-    if not isinstance(row["non_claims"], list) or not set(NON_CLAIMS).issubset(set(row["non_claims"])):
+    raw_non_claims = row["non_claims"]
+    if not isinstance(raw_non_claims, list):
+        raise GkrProjectionPreflightError(f"{row_id} non-claims must be a list")
+    if not all(isinstance(claim, str) and claim for claim in raw_non_claims):
+        raise GkrProjectionPreflightError(f"{row_id} non-claim entries must be strings")
+    row_non_claims = set(raw_non_claims)
+    if not set(NON_CLAIMS).issubset(row_non_claims):
         raise GkrProjectionPreflightError(f"{row_id} non-claim inventory drift")
-    row_non_claims = set(row["non_claims"])
     required_row_non_claims = REQUIRED_ROW_NON_CLAIMS.get(row_id)
     if required_row_non_claims is None:
         raise GkrProjectionPreflightError(f"{row_id} required row non-claim inventory missing")
@@ -551,6 +556,10 @@ def mutate_remove_width_preserving_non_claim(payload: dict[str, Any]) -> None:
     non_claims.remove("dimension sweep is not d128 and not a matched workload")
 
 
+def mutate_malformed_row_non_claim(payload: dict[str, Any]) -> None:
+    row_by_id(payload["rows"], "jstprove_width_preserving_gemm_dim_2")["non_claims"].append({"not": "a string"})
+
+
 def mutate_source_digest(payload: dict[str, Any]) -> None:
     payload["source_artifacts"][0]["sha256"] = "0" * 64
 
@@ -562,6 +571,7 @@ MUTATIONS: tuple[tuple[str, Callable[[dict[str, Any]], None]], ...] = (
     ("recommendation_overclaim", mutate_recommendation),
     ("remove_non_claim", mutate_remove_non_claim),
     ("remove_width_preserving_non_claim", mutate_remove_width_preserving_non_claim),
+    ("malformed_row_non_claim", mutate_malformed_row_non_claim),
     ("source_digest_drift", mutate_source_digest),
 )
 
