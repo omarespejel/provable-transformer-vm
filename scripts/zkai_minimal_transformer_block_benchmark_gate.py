@@ -523,9 +523,12 @@ def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True)
         if not isinstance(row["component"], str) or not row["component"]:
             raise MinimalBlockBenchmarkError("component row name drift")
         component_rows.append(row)
+    rows_by_component = {row["component"]: row for row in component_rows}
+    if len(rows_by_component) != len(component_rows):
+        raise MinimalBlockBenchmarkError("duplicate component row")
     if any(row["comparability"] == "MATCHED_EXTERNAL_BENCHMARK" for row in component_rows):
         raise MinimalBlockBenchmarkError("external comparability overclaim")
-    native_row = next((row for row in component_rows if row["component"] == "native_full_block_proof_object"), None)
+    native_row = rows_by_component.get("native_full_block_proof_object")
     if native_row is None:
         raise MinimalBlockBenchmarkError("native_full_block_proof_object row missing")
     if native_row["object_class"] != "missing_native_proof_object" or native_row["primary_value"] is not None:
@@ -534,7 +537,8 @@ def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True)
         raise MinimalBlockBenchmarkError("missing native block summary drift")
     if payload["summary"]["adjacent_worst_label_gap_typed_bytes"] <= 0:
         raise MinimalBlockBenchmarkError("worst-label frontier overclaim")
-    if component_rows != expected["component_rows"]:
+    expected_rows_by_component = {row["component"]: row for row in expected["component_rows"]}
+    if rows_by_component != expected_rows_by_component:
         raise MinimalBlockBenchmarkError("component_rows drift")
     approximation_policy = payload["benchmark_spec"]["approximation_policy"]
     for required in ("attention", "normalization", "activation", "quantization"):

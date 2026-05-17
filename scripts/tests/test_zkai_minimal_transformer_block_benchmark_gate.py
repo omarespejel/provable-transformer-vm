@@ -63,6 +63,19 @@ class MinimalTransformerBlockBenchmarkGateTest(unittest.TestCase):
         with self.assertRaises(gate.MinimalBlockBenchmarkError):
             gate.validate_payload(payload)
 
+    def test_accepts_component_rows_reordered_by_stable_component_key(self) -> None:
+        payload = gate.build_payload()
+        payload["component_rows"] = list(reversed(payload["component_rows"]))
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        gate.validate_payload(payload)
+
+    def test_rejects_duplicate_component_rows(self) -> None:
+        payload = gate.build_payload()
+        payload["component_rows"][-1] = copy.deepcopy(payload["component_rows"][0])
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaisesRegex(gate.MinimalBlockBenchmarkError, "duplicate component"):
+            gate.validate_payload(payload)
+
     def test_rejects_native_block_proof_promotion(self) -> None:
         payload = gate.build_payload()
         rows = {row["component"]: row for row in payload["component_rows"]}
