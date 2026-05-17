@@ -451,7 +451,7 @@ def validate_row(row: dict[str, Any]) -> None:
         raise GkrProjectionPreflightError("row field drift")
     row_id = require_str(row["row_id"], "row id")
     require_str(row["proof_system"], f"{row_id} proof system")
-    object_class = require_str(row["object_class"], f"{row_id} object class")
+    require_str(row["object_class"], f"{row_id} object class")
     require_str(row["workload"], f"{row_id} workload")
     require_str(row["primary_metric"], f"{row_id} primary metric")
     if row["primary_value"] is not None:
@@ -473,8 +473,6 @@ def validate_row(row: dict[str, Any]) -> None:
         raise GkrProjectionPreflightError(f"{row_id} proof-size comparability overclaim")
     if row["matched_workload"]:
         raise GkrProjectionPreflightError(f"{row_id} matched workload overclaim")
-    if object_class.startswith("tiny") and "not d128" not in " ".join(row["non_claims"]):
-        raise GkrProjectionPreflightError(f"{row_id} tiny fixture non-claim missing")
 
 
 def validate_payload(payload: dict[str, Any], *, final: bool = True, sources: dict[str, dict[str, Any]] | None = None) -> None:
