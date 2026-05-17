@@ -1775,6 +1775,37 @@ Minimal benchmark reproducibility metadata:
 - Local tests:
   `python3 -m unittest scripts.tests.test_zkai_minimal_transformer_block_benchmark_gate`.
 
+Latest GKR dense sidecar baseline: issue `#650` now has a checked sidecar and
+baseline gate, not a Stwo replacement and not a matched external benchmark. The
+gate records `9` comparison rows. The local Stwo dense substitute remains
+`22,576` typed bytes. JSTprove/Remainder tiny `Gemm` is `11,645` proof bytes
+(`0.515813x` the Stwo dense typed-byte row), but the tiny residual-add and
+LayerNorm-shaped fixtures are `56,054` and `52,080` proof bytes respectively
+(`2.482902x` and `2.306875x`). The checked NO-GO rows are still important:
+baseline ReLU hits `range_check_capacity`, Softmax hits
+`unconstrained_backend_op`, and literal MatMul plus residual add hits
+`unsupported_witness_op`. Treat this as
+`GO_GKR_SIDECAR_BASELINE_NO_GO_MATCHED_D128_DENSE_LAYER_COMPARISON`: GKR-style
+tooling is worth exploring for dense layered sidecars, but the repo should not
+pivot away from Stwo or claim NANOZK/Jolt/Atlas comparability from this slice.
+See `docs/engineering/zkai-gkr-dense-sidecar-baseline-2026-05-17.md`.
+
+GKR sidecar reproducibility metadata:
+
+- Timing mode: evidence aggregation and existing fixture timings only; no
+  median-of-5 timing claim.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.json`,
+  `docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.tsv`,
+  `docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json`,
+  `docs/engineering/evidence/zkai-jstprove-shape-probe-2026-05.json`,
+  and
+  `docs/engineering/evidence/zkai-jstprove-statement-envelope-benchmark-2026-05.json`.
+- Gate command:
+  `python3 scripts/zkai_gkr_dense_sidecar_baseline_gate.py --write-json docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.json --write-tsv docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.tsv`.
+- Local tests:
+  `python3 -m unittest scripts.tests.test_zkai_gkr_dense_sidecar_baseline_gate`.
+
 Adapter opening-geometry budget reproducibility metadata:
 
 - Timing mode: proof-size accounting only; no proof regeneration, timing, or

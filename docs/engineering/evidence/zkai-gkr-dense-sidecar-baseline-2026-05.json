@@ -1,0 +1,242 @@
+{
+  "decision": "GO_GKR_SIDECAR_BASELINE_NO_GO_MATCHED_D128_DENSE_LAYER_COMPARISON",
+  "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/650",
+  "mutation_count": 6,
+  "mutation_results": [
+    {
+      "name": "matched_comparison_overclaim",
+      "reason": "matched comparison overclaim",
+      "rejected": true
+    },
+    {
+      "name": "gkr_replacement_overclaim",
+      "reason": "summary overclaim",
+      "rejected": true
+    },
+    {
+      "name": "row_comparability_overclaim",
+      "reason": "rows comparison overclaim",
+      "rejected": true
+    },
+    {
+      "name": "tiny_gemm_metric_drift",
+      "reason": "rows drift",
+      "rejected": true
+    },
+    {
+      "name": "softmax_no_go_removal",
+      "reason": "rows inventory drift",
+      "rejected": true
+    },
+    {
+      "name": "non_claim_removal",
+      "reason": "non_claims drift",
+      "rejected": true
+    }
+  ],
+  "mutations_rejected": 6,
+  "non_claims": [
+    "not a NANOZK proof-size win",
+    "not a Jolt or Atlas benchmark win",
+    "not a matched d128 transformer-block proof",
+    "not a full transformer proof",
+    "not a claim that GKR replaces Stwo",
+    "not a claim that JSTprove proves our exact RMSNorm/SwiGLU component",
+    "not timing evidence beyond previously recorded local fixture timings",
+    "not model-faithful accuracy evidence"
+  ],
+  "payload_commitment": "blake2b-256:9f1650f011dcf763a079d7c7fef7293033d76fc0c6562c1891cb987ca5a1a040",
+  "primary_sources": [
+    {
+      "label": "Polyhedra Expander GKR protocol docs",
+      "role": "primary docs for GKR/layered-circuit framing",
+      "url": "https://docs.polyhedra.network/expander/prover_internals/gkr"
+    },
+    {
+      "label": "PolyhedraZK/Expander",
+      "role": "open-source GKR prover implementation context",
+      "url": "https://github.com/PolyhedraZK/Expander"
+    },
+    {
+      "label": "JSTprove arXiv",
+      "role": "JSTprove/Remainder zkML toolkit context",
+      "url": "https://arxiv.org/abs/2510.21024"
+    }
+  ],
+  "result": "LOCAL_GKR_ARTIFACTS_EXIST_FOR_TINY_SHAPES_BUT_NOT_MATCHED_D128_TRANSFORMER_LAYER",
+  "rows": [
+    {
+      "comparability": "LOCAL_STWO_TYPED_ACCOUNTING_NOT_MATCHED_GKR_WORKLOAD",
+      "evidence_path": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+      "object_class": "local_native_stwo_proof_component",
+      "primary_metric": "derived_mlp_fused_typed_bytes",
+      "primary_value": 22576,
+      "proof_system": "Stwo/STARK",
+      "prove_seconds": "NA",
+      "row_id": "local_stwo_dense_substitute",
+      "status": "LOCAL_COMPONENT_FRONTIER",
+      "verify_seconds": "NA",
+      "workload": "d128 RMSNorm/SwiGLU/down/residual substitute component"
+    },
+    {
+      "comparability": "TINY_LINEAR_PROJECTION_ONLY_NOT_D128_MLP",
+      "evidence_path": "docs/engineering/evidence/zkai-jstprove-shape-probe-2026-05.json",
+      "object_class": "local_external_gkr_fixture",
+      "primary_metric": "proof_bytes",
+      "primary_value": 11645,
+      "proof_system": "JSTprove/Remainder-GKR-sumcheck",
+      "prove_seconds": "0.811731",
+      "row_id": "tiny_gemm",
+      "status": "GO",
+      "verify_seconds": "1.966926",
+      "workload": "Gemm"
+    },
+    {
+      "comparability": "TINY_RESIDUAL_ADD_SHAPE_NOT_D128_MLP",
+      "evidence_path": "docs/engineering/evidence/zkai-jstprove-shape-probe-2026-05.json",
+      "object_class": "local_external_gkr_fixture",
+      "primary_metric": "proof_bytes",
+      "primary_value": 56054,
+      "proof_system": "JSTprove/Remainder-GKR-sumcheck",
+      "prove_seconds": "0.936787",
+      "row_id": "tiny_gemm_residual_add",
+      "status": "GO",
+      "verify_seconds": "2.394773",
+      "workload": "Gemm(width-preserving) -> Add(input)"
+    },
+    {
+      "comparability": "TINY_NORMALIZATION_SHAPE_NOT_OUR_RMSNORM_COMPONENT",
+      "evidence_path": "docs/engineering/evidence/zkai-jstprove-shape-probe-2026-05.json",
+      "object_class": "local_external_gkr_fixture",
+      "primary_metric": "proof_bytes",
+      "primary_value": 52080,
+      "proof_system": "JSTprove/Remainder-GKR-sumcheck",
+      "prove_seconds": "0.849479",
+      "row_id": "tiny_gemm_layernorm",
+      "status": "GO",
+      "verify_seconds": "1.967507",
+      "workload": "Gemm(width-preserving) -> LayerNormalization"
+    },
+    {
+      "comparability": "TINY_NORMALIZATION_LIKE_SHAPE_NOT_OUR_RMSNORM_COMPONENT",
+      "evidence_path": "docs/engineering/evidence/zkai-jstprove-shape-probe-2026-05.json",
+      "object_class": "local_external_gkr_fixture",
+      "primary_metric": "proof_bytes",
+      "primary_value": 95105,
+      "proof_system": "JSTprove/Remainder-GKR-sumcheck",
+      "prove_seconds": "2.659671",
+      "row_id": "tiny_gemm_batchnorm",
+      "status": "GO",
+      "verify_seconds": "6.161834",
+      "workload": "Gemm -> BatchNormalization"
+    },
+    {
+      "comparability": "NO_GO_ACTIVATION_RANGE_CHECK_CAPACITY",
+      "evidence_path": "docs/engineering/evidence/zkai-jstprove-shape-probe-2026-05.json",
+      "object_class": "local_external_gkr_fixture",
+      "primary_metric": "range_check_capacity",
+      "primary_value": null,
+      "proof_system": "JSTprove/Remainder-GKR-sumcheck",
+      "prove_seconds": "NA",
+      "row_id": "tiny_gemm_relu",
+      "status": "NO_GO",
+      "verify_seconds": "NA",
+      "workload": "Gemm -> Relu"
+    },
+    {
+      "comparability": "NO_GO_UNCONSTRAINED_SOFTMAX_BACKEND_OP",
+      "evidence_path": "docs/engineering/evidence/zkai-jstprove-shape-probe-2026-05.json",
+      "object_class": "local_external_gkr_fixture",
+      "primary_metric": "unconstrained_backend_op",
+      "primary_value": null,
+      "proof_system": "JSTprove/Remainder-GKR-sumcheck",
+      "prove_seconds": "0.011955",
+      "row_id": "tiny_gemm_softmax",
+      "status": "NO_GO",
+      "verify_seconds": "NA",
+      "workload": "Gemm(width-preserving) -> Softmax"
+    },
+    {
+      "comparability": "NO_GO_LITERAL_MATMUL_WITNESS_UNSUPPORTED",
+      "evidence_path": "docs/engineering/evidence/zkai-jstprove-shape-probe-2026-05.json",
+      "object_class": "local_external_gkr_fixture",
+      "primary_metric": "unsupported_witness_op",
+      "primary_value": null,
+      "proof_system": "JSTprove/Remainder-GKR-sumcheck",
+      "prove_seconds": "NA",
+      "row_id": "tiny_matmul_residual_add",
+      "status": "NO_GO",
+      "verify_seconds": "NA",
+      "workload": "MatMul -> Add(input)"
+    },
+    {
+      "comparability": "STATEMENT_BINDING_ONLY_NOT_DENSE_LAYER_PROOF_SIZE",
+      "evidence_path": "docs/engineering/evidence/zkai-jstprove-statement-envelope-benchmark-2026-05.json",
+      "object_class": "external_statement_binding_adapter",
+      "primary_metric": "mutations_rejected",
+      "primary_value": 13,
+      "proof_system": "JSTprove/Remainder-GKR-sumcheck",
+      "prove_seconds": "NA",
+      "row_id": "jstprove_statement_envelope_binding",
+      "status": "GO_STATEMENT_ENVELOPE_REJECTS_RELABELING",
+      "verify_seconds": "NA",
+      "workload": "tiny_gemm statement-envelope relabeling adapter"
+    }
+  ],
+  "schema": "zkai-gkr-dense-sidecar-baseline-v1",
+  "selected_dense_surface": {
+    "external_candidate": "JSTprove/Remainder-GKR tiny Gemm/residual/normalization fixtures",
+    "local_component": "rmsnorm_mlp_residual_substitute",
+    "local_evidence": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+    "local_metric": "derived_mlp_fused_typed_bytes",
+    "object_class_policy": "context and sidecar feasibility only until a matched d128 dense-layer proof exists"
+  },
+  "source_artifacts": [
+    {
+      "decision": "GO_MINIMAL_BLOCK_BENCHMARK_CONTRACT_NO_GO_MATCHED_PROOF_CLAIM",
+      "file_sha256": "300ac6886019e7670e4a1dbb25a70803e9605dffd71907d8c1220fad1ba6436f",
+      "path": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+      "payload_sha256": "c5c9e6381c8a1ffe176552fc93fa64cd1421630045628dc22f07228967e358e1",
+      "schema": "zkai-minimal-transformer-block-benchmark-v1"
+    },
+    {
+      "decision": "GO_OPERATOR_SUPPORT_SPLIT_NOT_TRANSFORMER_PROOF",
+      "file_sha256": "8dbd4765afaa54702df4244369c450ea48bcea4c196ecd909bfb774096a1d340",
+      "path": "docs/engineering/evidence/zkai-jstprove-shape-probe-2026-05.json",
+      "payload_sha256": "5cd08057e6ddf39b795c34dc1dc1e9fc0b21d0f58504bb0f6bd6f25c4bde2fae",
+      "schema": "zkai-jstprove-shape-probe-v1"
+    },
+    {
+      "file_sha256": "1ddbd75355003ad6313dd4b1d521bb1f1de96be6546cc35a0156267a8be5ea37",
+      "path": "docs/engineering/evidence/zkai-jstprove-statement-envelope-benchmark-2026-05.json",
+      "payload_sha256": "41df8f5d6c6762bec3127632a81ca4905981862d4e3f7631cdd8fa9c11f79025",
+      "schema": "zkai-jstprove-statement-envelope-benchmark-v1"
+    }
+  ],
+  "summary": {
+    "comparison_rows": 9,
+    "gkr_route_classification": "SIDECAR_OR_BASELINE_CANDIDATE_NOT_STWO_REPLACEMENT",
+    "go_rows": 6,
+    "jstprove_layernorm_proof_bytes": 52080,
+    "jstprove_layernorm_ratio_vs_stwo_dense_typed": "2.306875",
+    "jstprove_residual_add_proof_bytes": 56054,
+    "jstprove_residual_add_ratio_vs_stwo_dense_typed": "2.482902",
+    "jstprove_tiny_gemm_proof_bytes": 11645,
+    "jstprove_tiny_gemm_ratio_vs_stwo_dense_typed": "0.515813",
+    "local_gkr_go_fixture_count": 5,
+    "local_gkr_no_go_fixture_count": 3,
+    "local_stwo_dense_typed_bytes": 22576,
+    "matched_d128_dense_layer_comparison": false,
+    "no_go_rows": 3,
+    "sidecar_candidate": "YES_FOR_TINY_PROJECTION_RESIDUAL_NORMALIZATION_EXPLORATION"
+  },
+  "validation_commands": [
+    "python3 scripts/zkai_gkr_dense_sidecar_baseline_gate.py --write-json docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.json --write-tsv docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.tsv",
+    "python3 -m py_compile scripts/zkai_gkr_dense_sidecar_baseline_gate.py scripts/tests/test_zkai_gkr_dense_sidecar_baseline_gate.py",
+    "python3 -m unittest scripts.tests.test_zkai_gkr_dense_sidecar_baseline_gate",
+    "python3 scripts/research_issue_lint.py --repo-root .",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}
