@@ -284,7 +284,7 @@
   ],
   "decision": "GO_ADVERSARIAL_ZKML_CLAIM_AUDIT_NO_GO_UNTYPED_COMPARISONS",
   "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/653",
-  "mutation_count": 15,
+  "mutation_count": 16,
   "mutation_results": [
     {
       "accepted": false,
@@ -348,6 +348,11 @@
     },
     {
       "accepted": false,
+      "name": "unlisted_local_source_status",
+      "reason": "local_stwo_two_proof_frontier non-local status marked reproduced"
+    },
+    {
+      "accepted": false,
       "name": "external_native_equivalence",
       "reason": "gkr_tiny_gemm_sidecar native equivalence overclaim"
     },
@@ -362,7 +367,7 @@
       "reason": "source artifact descriptor drift"
     }
   ],
-  "mutations_rejected": 15,
+  "mutations_rejected": 16,
   "non_claims": [
     "not a NANOZK proof-size win",
     "not a Jolt Atlas proof-size win",
@@ -372,7 +377,7 @@
     "not a full transformer block proof",
     "not timing evidence unless timing_policy is explicit"
   ],
-  "payload_commitment": "blake2b-256:e7f975bbf7ee20d5a22eeb9eddadf93de8497bb3f1412a85cb33bce6bfca6bb3",
+  "payload_commitment": "blake2b-256:121821170d0a303ed765e69a954f29e67591b03de2729b2988920ca7c3d2d515",
   "result": "COMPARISON_MATRIX_REJECTS_OBJECT_CLASS_AND_REPRODUCTION_OVERCLAIMS",
   "schema": "zkai-claim-audit-comparison-artifacts-v1",
   "source_artifacts": [

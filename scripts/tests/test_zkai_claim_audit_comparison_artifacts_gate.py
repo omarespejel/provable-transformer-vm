@@ -21,8 +21,8 @@ class ClaimAuditComparisonArtifactsGateTest(unittest.TestCase):
         self.assertEqual(payload["summary"]["gkr_tiny_residual_add_proof_bytes"], 56_054)
         self.assertEqual(payload["summary"]["gkr_tiny_layernorm_proof_bytes"], 52_080)
         self.assertEqual(payload["summary"]["worst_label_required_reduction_bytes"], 1_401)
-        self.assertEqual(payload["mutation_count"], 15)
-        self.assertEqual(payload["mutations_rejected"], 15)
+        self.assertEqual(payload["mutation_count"], 16)
+        self.assertEqual(payload["mutations_rejected"], 16)
 
     def test_audit_rows_keep_object_classes_and_reproduction_status_explicit(self) -> None:
         rows = gate.build_payload()["audit_rows"]
@@ -44,6 +44,12 @@ class ClaimAuditComparisonArtifactsGateTest(unittest.TestCase):
         payload = gate.base_payload(gate.load_sources())
         gate.mutate_remove_gkr_row_non_claim(payload)
         with self.assertRaisesRegex(gate.ClaimAuditError, "exact non-claim missing"):
+            gate.validate_payload(payload, final=False)
+
+    def test_rejects_unlisted_local_source_status(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        gate.mutate_unlisted_local_source_status(payload)
+        with self.assertRaisesRegex(gate.ClaimAuditError, "non-local status marked reproduced"):
             gate.validate_payload(payload, final=False)
 
     def test_mutation_inventory_is_strict(self) -> None:

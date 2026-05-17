@@ -20,7 +20,7 @@ Checked inventory:
 - audit rows: `13`
 - object classes: `10`
 - proof-size-comparable rows: `0`
-- adversarial mutations rejected: `15 / 15`
+- adversarial mutations rejected: `16 / 16`
 - local Stwo two-proof frontier: `40,700` typed bytes
 - NANOZK paper-reported context row: `6,900` bytes
 - GKR tiny `Gemm` sidecar: `11,645` proof bytes
