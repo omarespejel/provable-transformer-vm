@@ -72,7 +72,8 @@ Allowed:
 - Tablero can be the typed statement boundary between heterogeneous proof
   objects and source-reported comparison rows.
 - A local native Stwo proof frontier can set `native_proof_equivalent = true`
-  only when the row is a local proof-object frontier.
+  only when the row is local, uses the `Stwo/STARK` proof system, uses the
+  `stwo-native` backend, and belongs to the explicit native-frontier allowlist.
 - Compact statement artifacts, statement receipts, GKR sidecars, and Atlas
   source rows remain `native_proof_equivalent = false`.
 - Unavailable external model/input/output/proof facts must be represented as
@@ -99,6 +100,8 @@ Rejected mutations:
 - erased approximation policy
 - backend-version drift
 - Atlas row marked local
+- Atlas row marked with another local-prefixed source status
+- native-equivalent row moved to a non-Stwo backend
 - statement commitment drift
 - unavailable binding field removed
 - Atlas proof-size overclaim
@@ -123,8 +126,14 @@ Instead, Tablero provides the boundary discipline needed for the next phase:
 4. keep Jolt/Atlas rows as source context until reproduced;
 5. compare only when object class, workload, source status, and policy match.
 
-This makes a proof-system-aware transformer architecture research program
-possible without making false comparisons.
+That is what makes proof-system-aware layer selection possible. A future
+transformer block may choose Stwo-native proving for attention/lookup fusion,
+GKR-style sidecars for repeated dense arithmetic, and source-backed Jolt/Atlas
+rows as reproduction targets. Tablero is the typed boundary that keeps those
+choices honest: selecting a proof path for a layer does not let a statement
+artifact become a native proof object, does not let an external row become
+local, and does not weaken statement validity by hiding unavailable
+model/input/output/proof bindings.
 
 ## Non-Claims
 
