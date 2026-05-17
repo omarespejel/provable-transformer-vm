@@ -506,6 +506,14 @@ def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True)
     rows = payload["component_rows"]
     if not isinstance(rows, list) or len(rows) != 10:
         raise MinimalBlockBenchmarkError("component row inventory drift")
+    expected_row_keys = set(TSV_COLUMNS)
+    for row in rows:
+        if not isinstance(row, dict):
+            raise MinimalBlockBenchmarkError("component row must be an object")
+        if set(row) != expected_row_keys:
+            raise MinimalBlockBenchmarkError("component row key drift")
+        if not isinstance(row["component"], str) or not row["component"]:
+            raise MinimalBlockBenchmarkError("component row name drift")
     if any(row.get("comparability") == "MATCHED_EXTERNAL_BENCHMARK" for row in rows if isinstance(row, dict)):
         raise MinimalBlockBenchmarkError("external comparability overclaim")
     native_row = next((row for row in rows if row["component"] == "native_full_block_proof_object"), None)

@@ -128,6 +128,13 @@ class MinimalTransformerBlockBenchmarkGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.MinimalBlockBenchmarkError, "native_full_block_proof_object"):
             gate.validate_payload(payload)
 
+    def test_rejects_malformed_component_row_with_domain_error(self) -> None:
+        payload = gate.build_payload()
+        payload["component_rows"][0] = {"object_class": "local_native_stwo_proof_component"}
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaisesRegex(gate.MinimalBlockBenchmarkError, "component row"):
+            gate.validate_payload(payload)
+
     def test_rejects_non_claim_removal(self) -> None:
         payload = gate.build_payload()
         payload["non_claims"].remove("not a NANOZK proof-size win")
