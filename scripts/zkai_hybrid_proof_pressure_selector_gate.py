@@ -218,6 +218,7 @@ def validate_source_numbers(sources: dict[str, dict[str, Any]]) -> None:
     claim_summary = sources["claim_audit"]["summary"]
     minimal_summary = sources["minimal_block"]["summary"]
     gkr_summary = sources["gkr"]["summary"]
+    tablero_statement = row_by_id(sources["tablero"]["boundary_examples"], "compact_statement_chain_boundary")
 
     expect_equal(
         require_int(claim_summary.get("proof_size_comparable_rows"), "claim comparable rows"),
@@ -268,6 +269,16 @@ def validate_source_numbers(sources: dict[str, dict[str, Any]]) -> None:
         require_bool(gkr_summary.get("matched_d128_dense_layer_comparison"), "matched d128 GKR flag"),
         False,
         "matched d128 GKR flag",
+    )
+    expect_equal(
+        require_str(tablero_statement.get("primary_metric"), "Tablero statement metric"),
+        "statement_chain_rows",
+        "Tablero statement metric",
+    )
+    expect_equal(
+        require_int(tablero_statement.get("primary_value"), "Tablero statement rows"),
+        199_553,
+        "Tablero statement rows",
     )
 
 
@@ -364,8 +375,8 @@ def build_routes(sources: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
             route_id="tablero_statement_boundary_guardrail",
             proof_system="Tablero statement boundary",
             object_class=require_str(tablero_statement.get("object_class"), "Tablero statement class"),
-            primary_metric="statement_chain_rows",
-            primary_pressure=199_553,
+            primary_metric=require_str(tablero_statement.get("primary_metric"), "Tablero statement metric"),
+            primary_pressure=require_int(tablero_statement.get("primary_value"), "Tablero statement rows"),
             ratio_vs_stwo_frontier="NA",
             ratio_vs_nanozk_context="NA",
             matched_workload=False,
@@ -409,6 +420,32 @@ def build_routes(sources: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
             non_claims=("not a proof-size row", "not locally reproduced"),
         ),
     ]
+
+
+def summary_from_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    attack_next = [row["route_id"] for row in rows if row["selector_decision"].startswith("ATTACK_NEXT")]
+    no_go_now = [row["route_id"] for row in rows if row["selector_decision"].startswith("NO_GO_NOW")]
+    proof_size_comparable = [row for row in rows if row["proof_size_comparable"]]
+    return {
+        "selector_row_count": len(rows),
+        "attack_next_count": len(attack_next),
+        "no_go_now_count": len(no_go_now),
+        "attack_next_routes": attack_next,
+        "no_go_now_routes": no_go_now,
+        "proof_size_comparable_rows": len(proof_size_comparable),
+        "claim_audit_proof_size_comparable_rows": EXPECTED_CLAIM_AUDIT_COMPARABLE_ROWS,
+        "stwo_two_proof_frontier_typed_bytes": EXPECTED_STWO_FRONTIER_TYPED_BYTES,
+        "nanozk_paper_reported_bytes": EXPECTED_NANOZK_REPORTED_BYTES,
+        "gap_to_nanozk_paper_reported_bytes": EXPECTED_STWO_FRONTIER_TYPED_BYTES - EXPECTED_NANOZK_REPORTED_BYTES,
+        "gkr_tiny_gemm_proof_bytes": EXPECTED_GKR_TINY_GEMM_BYTES,
+        "gkr_tiny_gemm_vs_stwo_dense_substitute_ratio": ratio_string(
+            EXPECTED_GKR_TINY_GEMM_BYTES, EXPECTED_STWO_DENSE_SUBSTITUTE_TYPED_BYTES
+        ),
+        "gkr_tiny_gemm_vs_stwo_frontier_ratio": ratio_string(EXPECTED_GKR_TINY_GEMM_BYTES, EXPECTED_STWO_FRONTIER_TYPED_BYTES),
+        "gkr_residual_add_vs_stwo_frontier_ratio": ratio_string(EXPECTED_GKR_RESIDUAL_ADD_BYTES, EXPECTED_STWO_FRONTIER_TYPED_BYTES),
+        "gkr_layernorm_vs_stwo_frontier_ratio": ratio_string(EXPECTED_GKR_LAYERNORM_BYTES, EXPECTED_STWO_FRONTIER_TYPED_BYTES),
+        "go_gate": "GO_SELECTOR_HAS_ATTACK_NEXT_AND_NO_GO_NOW_WITH_ZERO_COMPARABLE_ROWS",
+    }
 
 
 def validate_route(row: dict[str, Any]) -> None:
@@ -506,6 +543,14 @@ def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
             raise HybridSelectorError("source artifact descriptor drift")
     if seen_source_paths != SOURCE_ARTIFACT_PATHS:
         raise HybridSelectorError("source artifact inventory drift")
+    sources = load_sources()
+    validate_source_numbers(sources)
+    canonical_rows = build_routes(sources)
+    if rows != canonical_rows:
+        raise HybridSelectorError("canonical selector row drift")
+    canonical_summary = summary_from_rows(canonical_rows)
+    if summary != canonical_summary:
+        raise HybridSelectorError("canonical summary drift")
     if "mutation_results" in payload:
         mutation_results = payload["mutation_results"]
         if not isinstance(mutation_results, list):
@@ -536,29 +581,7 @@ def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
 def base_payload(sources: dict[str, dict[str, Any]]) -> dict[str, Any]:
     validate_source_numbers(sources)
     rows = build_routes(sources)
-    attack_next = [row["route_id"] for row in rows if row["selector_decision"].startswith("ATTACK_NEXT")]
-    no_go_now = [row["route_id"] for row in rows if row["selector_decision"].startswith("NO_GO_NOW")]
-    proof_size_comparable = [row for row in rows if row["proof_size_comparable"]]
-    summary = {
-        "selector_row_count": len(rows),
-        "attack_next_count": len(attack_next),
-        "no_go_now_count": len(no_go_now),
-        "attack_next_routes": attack_next,
-        "no_go_now_routes": no_go_now,
-        "proof_size_comparable_rows": len(proof_size_comparable),
-        "claim_audit_proof_size_comparable_rows": EXPECTED_CLAIM_AUDIT_COMPARABLE_ROWS,
-        "stwo_two_proof_frontier_typed_bytes": EXPECTED_STWO_FRONTIER_TYPED_BYTES,
-        "nanozk_paper_reported_bytes": EXPECTED_NANOZK_REPORTED_BYTES,
-        "gap_to_nanozk_paper_reported_bytes": EXPECTED_STWO_FRONTIER_TYPED_BYTES - EXPECTED_NANOZK_REPORTED_BYTES,
-        "gkr_tiny_gemm_proof_bytes": EXPECTED_GKR_TINY_GEMM_BYTES,
-        "gkr_tiny_gemm_vs_stwo_dense_substitute_ratio": ratio_string(
-            EXPECTED_GKR_TINY_GEMM_BYTES, EXPECTED_STWO_DENSE_SUBSTITUTE_TYPED_BYTES
-        ),
-        "gkr_tiny_gemm_vs_stwo_frontier_ratio": ratio_string(EXPECTED_GKR_TINY_GEMM_BYTES, EXPECTED_STWO_FRONTIER_TYPED_BYTES),
-        "gkr_residual_add_vs_stwo_frontier_ratio": ratio_string(EXPECTED_GKR_RESIDUAL_ADD_BYTES, EXPECTED_STWO_FRONTIER_TYPED_BYTES),
-        "gkr_layernorm_vs_stwo_frontier_ratio": ratio_string(EXPECTED_GKR_LAYERNORM_BYTES, EXPECTED_STWO_FRONTIER_TYPED_BYTES),
-        "go_gate": "GO_SELECTOR_HAS_ATTACK_NEXT_AND_NO_GO_NOW_WITH_ZERO_COMPARABLE_ROWS",
-    }
+    summary = summary_from_rows(rows)
     payload = {
         "schema": SCHEMA,
         "issue": ISSUE_URL,

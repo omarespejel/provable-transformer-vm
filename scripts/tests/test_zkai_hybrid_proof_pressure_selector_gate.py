@@ -105,6 +105,19 @@ class HybridProofPressureSelectorGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.HybridSelectorError, "summary frontier drift"):
             gate.validate_payload(payload, final=False)
 
+    def test_rejects_selector_semantic_drift_even_when_summary_is_unchanged(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        payload["selector_rows"][0]["next_action"] = "quietly_promote_unchecked_route"
+        with self.assertRaisesRegex(gate.HybridSelectorError, "canonical selector row drift"):
+            gate.validate_payload(payload, final=False)
+
+    def test_rejects_tablero_pressure_drift_even_when_type_is_valid(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        rows = {row["route_id"]: row for row in payload["selector_rows"]}
+        rows["tablero_statement_boundary_guardrail"]["primary_pressure"] += 1
+        with self.assertRaisesRegex(gate.HybridSelectorError, "canonical selector row drift"):
+            gate.validate_payload(payload, final=False)
+
     def test_rejects_source_artifact_digest_drift(self) -> None:
         payload = gate.base_payload(gate.load_sources())
         gate.mutate_source_artifact_digest(payload)
