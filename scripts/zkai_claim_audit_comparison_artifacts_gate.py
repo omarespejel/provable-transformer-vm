@@ -11,7 +11,8 @@ import io
 import json
 import pathlib
 import sys
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
