@@ -70,7 +70,7 @@
       "native_proof_equivalent": false,
       "non_claims": [
         "not a matched d128 transformer-block proof",
-        "not a NANOZK proof-size win"
+        "not a GKR matched d128 proof-size win"
       ],
       "object_class": "local_external_gkr_fixture",
       "primary_metric": "proof_bytes",
@@ -284,7 +284,7 @@
   ],
   "decision": "GO_ADVERSARIAL_ZKML_CLAIM_AUDIT_NO_GO_UNTYPED_COMPARISONS",
   "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/653",
-  "mutation_count": 14,
+  "mutation_count": 15,
   "mutation_results": [
     {
       "accepted": false,
@@ -343,6 +343,11 @@
     },
     {
       "accepted": false,
+      "name": "remove_gkr_row_non_claim",
+      "reason": "gkr_tiny_gemm_sidecar exact non-claim missing: not a GKR matched d128 proof-size win"
+    },
+    {
+      "accepted": false,
       "name": "external_native_equivalence",
       "reason": "gkr_tiny_gemm_sidecar native equivalence overclaim"
     },
@@ -357,7 +362,7 @@
       "reason": "source artifact descriptor drift"
     }
   ],
-  "mutations_rejected": 14,
+  "mutations_rejected": 15,
   "non_claims": [
     "not a NANOZK proof-size win",
     "not a Jolt Atlas proof-size win",
@@ -367,7 +372,7 @@
     "not a full transformer block proof",
     "not timing evidence unless timing_policy is explicit"
   ],
-  "payload_commitment": "blake2b-256:ede37dd96f9fa7717ce3c5bcc9dbc7e832cc78b799a8ea4ef4d533f52c979e98",
+  "payload_commitment": "blake2b-256:e7f975bbf7ee20d5a22eeb9eddadf93de8497bb3f1412a85cb33bce6bfca6bb3",
   "result": "COMPARISON_MATRIX_REJECTS_OBJECT_CLASS_AND_REPRODUCTION_OVERCLAIMS",
   "schema": "zkai-claim-audit-comparison-artifacts-v1",
   "source_artifacts": [

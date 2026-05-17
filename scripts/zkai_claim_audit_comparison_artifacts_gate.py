@@ -116,7 +116,7 @@ REQUIRED_ROW_NON_CLAIMS = {
     ),
     "gkr_tiny_gemm_sidecar": (
         "not a matched d128 transformer-block proof",
-        "not a NANOZK proof-size win",
+        "not a GKR matched d128 proof-size win",
     ),
     "gkr_tiny_residual_add_heavier_shape": (
         "not a matched d128 transformer-block proof",
@@ -418,7 +418,7 @@ def build_audit_rows(sources: dict[str, Any]) -> list[dict[str, Any]]:
             proof_size_policy="tiny fixture proof bytes; not matched d128 transformer-layer proof bytes",
             timing_policy="fixture timing only, not paper timing",
             claim_boundary=require_str(gkr_tiny.get("comparability"), "GKR claim boundary"),
-            non_claims=row_non_claims("not a matched d128 transformer-block proof", "not a NANOZK proof-size win"),
+            non_claims=row_non_claims("not a matched d128 transformer-block proof", "not a GKR matched d128 proof-size win"),
         ),
         audit_row(
             row_id="gkr_tiny_residual_add_heavier_shape",
@@ -818,6 +818,10 @@ def mutate_remove_gkr_non_claim(payload: dict[str, Any]) -> None:
     payload["non_claims"].remove("not a GKR matched d128 proof-size win")
 
 
+def mutate_remove_gkr_row_non_claim(payload: dict[str, Any]) -> None:
+    row_by_id(payload["audit_rows"], "gkr_tiny_gemm_sidecar")["non_claims"].remove("not a GKR matched d128 proof-size win")
+
+
 def mutate_external_native_equivalence(payload: dict[str, Any]) -> None:
     row_by_id(payload["audit_rows"], "gkr_tiny_gemm_sidecar")["native_proof_equivalent"] = True
 
@@ -843,6 +847,7 @@ MUTATIONS: tuple[tuple[str, Callable[[dict[str, Any]], None]], ...] = (
     ("remove_nanozk_non_claim", mutate_remove_nanozk_non_claim),
     ("remove_jolt_non_claim", mutate_remove_jolt_non_claim),
     ("remove_gkr_non_claim", mutate_remove_gkr_non_claim),
+    ("remove_gkr_row_non_claim", mutate_remove_gkr_row_non_claim),
     ("external_native_equivalence", mutate_external_native_equivalence),
     ("missing_proof_size_policy", mutate_missing_proof_size_policy),
     ("source_artifact_digest", mutate_source_artifact_digest),
