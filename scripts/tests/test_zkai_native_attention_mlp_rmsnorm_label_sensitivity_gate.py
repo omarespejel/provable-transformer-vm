@@ -129,6 +129,18 @@ class RmsnormLabelSensitivityGateTest(unittest.TestCase):
         with self.assertRaises(gate.RmsnormLabelSensitivityError):
             gate.validate_payload(mutated)
 
+    def test_validate_mutation_result_rejects_unexpected_keys(self) -> None:
+        payload = gate.build_payload()
+        mutated = copy.deepcopy(payload["mutation_result"])
+        mutated["unchecked"] = True
+        with self.assertRaises(gate.RmsnormLabelSensitivityError):
+            gate.validate_mutation_result(mutated)
+
+        mutated = copy.deepcopy(payload["mutation_result"])
+        mutated["cases"][0]["unchecked"] = True
+        with self.assertRaises(gate.RmsnormLabelSensitivityError):
+            gate.validate_mutation_result(mutated)
+
     def test_validate_payload_rejects_unexpected_summary_key(self) -> None:
         payload = gate.build_payload(include_mutations=False)
         mutated = copy.deepcopy(payload)
@@ -254,6 +266,21 @@ class RmsnormLabelSensitivityGateTest(unittest.TestCase):
             with mock.patch.object(gate.os, "O_NOFOLLOW", 0, create=True):
                 with self.assertRaises(gate.RmsnormLabelSensitivityError):
                     gate.read_regular_file(path, "payload")
+
+    def test_read_regular_file_rejects_symlinked_parent(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = pathlib.Path(tmpdir)
+            real_parent = tmp / "real"
+            real_parent.mkdir()
+            payload = real_parent / "payload.json"
+            payload.write_text("{}", encoding="utf-8")
+            symlink_parent = tmp / "link"
+            try:
+                symlink_parent.symlink_to(real_parent, target_is_directory=True)
+            except (OSError, NotImplementedError):
+                self.skipTest("symlink creation unavailable")
+            with self.assertRaises(gate.RmsnormLabelSensitivityError):
+                gate.read_regular_file(symlink_parent / "payload.json", "payload")
 
 
 if __name__ == "__main__":
