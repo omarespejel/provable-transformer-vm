@@ -109,6 +109,30 @@ class GkrD128ProjectionScalingPreflightGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.GkrProjectionPreflightError, "row-specific non-claim inventory drift"):
             gate.validate_payload(payload, final=False)
 
+    def test_rejects_duplicate_fixture_source_rows(self) -> None:
+        parsed, raws = gate.load_sources()
+        parsed = deepcopy(parsed)
+        results = parsed["shape"]["results"]
+        results.append(deepcopy(results[0]))
+        with self.assertRaisesRegex(gate.GkrProjectionPreflightError, "duplicate fixture: tiny_gemm"):
+            gate.base_payload((parsed, raws))
+
+    def test_rejects_duplicate_dimension_source_rows(self) -> None:
+        parsed, raws = gate.load_sources()
+        parsed = deepcopy(parsed)
+        sweep = parsed["shape"]["dimension_sweep"]
+        sweep.append(deepcopy(sweep[0]))
+        with self.assertRaisesRegex(gate.GkrProjectionPreflightError, "duplicate dimension: 1"):
+            gate.base_payload((parsed, raws))
+
+    def test_rejects_duplicate_component_source_rows(self) -> None:
+        parsed, raws = gate.load_sources()
+        parsed = deepcopy(parsed)
+        components = parsed["minimal"]["component_rows"]
+        components.append(deepcopy(components[1]))
+        with self.assertRaisesRegex(gate.GkrProjectionPreflightError, "duplicate component: rmsnorm_mlp_residual_substitute"):
+            gate.base_payload((parsed, raws))
+
     def test_rejects_mutation_inventory_drift(self) -> None:
         payload = gate.build_payload()
         payload["mutation_results"] = deepcopy(payload["mutation_results"])
