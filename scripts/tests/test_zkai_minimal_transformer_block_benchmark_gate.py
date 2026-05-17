@@ -205,6 +205,32 @@ class MinimalTransformerBlockBenchmarkGateTest(unittest.TestCase):
             os.chdir(previous_cwd)
             path.unlink(missing_ok=True)
 
+    def test_write_outputs_rejects_wrong_suffixes(self) -> None:
+        payload = gate.build_payload()
+        with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".tsv", delete=False) as handle:
+            wrong_json_path = gate.pathlib.Path(handle.name)
+        try:
+            with self.assertRaisesRegex(gate.MinimalBlockBenchmarkError, "JSON output"):
+                gate.write_outputs(payload, wrong_json_path, None)
+        finally:
+            wrong_json_path.unlink(missing_ok=True)
+
+    def test_write_outputs_rejects_colliding_targets(self) -> None:
+        payload = gate.build_payload()
+        with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".json", delete=False) as handle:
+            path = gate.pathlib.Path(handle.name)
+        try:
+            with self.assertRaisesRegex(gate.MinimalBlockBenchmarkError, "collide"):
+                gate.write_outputs(payload, path, path)
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_write_outputs_rejects_source_artifact_overwrite(self) -> None:
+        payload = gate.build_payload()
+        source = gate.ROOT / payload["source_artifacts"][0]["path"]
+        with self.assertRaisesRegex(gate.MinimalBlockBenchmarkError, "source artifact"):
+            gate.write_outputs(payload, source, None)
+
     def test_read_source_bytes_rejects_in_place_rewrite_drift(self) -> None:
         original_fstat = gate.os.fstat
         calls = 0

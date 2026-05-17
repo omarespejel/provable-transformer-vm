@@ -674,11 +674,44 @@ def write_atomic(path: pathlib.Path, data: bytes) -> None:
         raise
 
 
+def validated_output_targets(
+    payload: dict[str, Any],
+    json_path: pathlib.Path | None,
+    tsv_path: pathlib.Path | None,
+) -> tuple[pathlib.Path | None, pathlib.Path | None]:
+    targets: list[tuple[str, pathlib.Path]] = []
+    if json_path is not None:
+        json_target = normalize_output_path(json_path)
+        targets.append(("json", json_target))
+    if tsv_path is not None:
+        tsv_target = normalize_output_path(tsv_path)
+        targets.append(("tsv", tsv_target))
+    resolved_targets = [target for _label, target in targets]
+    if len(set(resolved_targets)) != len(resolved_targets):
+        raise MinimalBlockBenchmarkError("output paths collide")
+    for label, target in targets:
+        if label == "json" and target.suffix != ".json":
+            raise MinimalBlockBenchmarkError(f"JSON output must use .json suffix: {target}")
+        if label == "tsv" and target.suffix != ".tsv":
+            raise MinimalBlockBenchmarkError(f"TSV output must use .tsv suffix: {target}")
+    source_paths = {
+        (ROOT / artifact["path"]).resolve()
+        for artifact in payload.get("source_artifacts", [])
+        if isinstance(artifact, dict) and isinstance(artifact.get("path"), str)
+    }
+    for label, target in targets:
+        if target in source_paths:
+            raise MinimalBlockBenchmarkError(f"refusing to overwrite source artifact with {label} output: {target}")
+    output_by_label = dict(targets)
+    return output_by_label.get("json"), output_by_label.get("tsv")
+
+
 def write_outputs(payload: dict[str, Any], json_path: pathlib.Path | None, tsv_path: pathlib.Path | None) -> None:
-    if json_path:
-        write_atomic(json_path, json.dumps(payload, indent=2, sort_keys=True).encode("utf-8") + b"\n")
-    if tsv_path:
-        write_atomic(tsv_path, tsv_text(payload).encode("utf-8"))
+    json_target, tsv_target = validated_output_targets(payload, json_path, tsv_path)
+    if json_target:
+        write_atomic(json_target, json.dumps(payload, indent=2, sort_keys=True).encode("utf-8") + b"\n")
+    if tsv_target:
+        write_atomic(tsv_target, tsv_text(payload).encode("utf-8"))
 
 
 def main() -> int:
