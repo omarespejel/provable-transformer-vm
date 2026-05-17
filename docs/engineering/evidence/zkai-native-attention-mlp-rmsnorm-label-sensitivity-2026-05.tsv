@@ -1,0 +1,5 @@
+variant	typed_bytes	typed_delta_vs_canonical	typed_delta_vs_two_proof_frontier	path_opening_bytes	path_opening_delta_vs_canonical	value_bytes	value_delta_vs_canonical	proof_json_bytes
+compact_selector	40812	-616	112	19504	-1008	21260	392	116091
+rmsnorm_input_fused	41428	0	728	20512	0	20868	0	118378
+label_probe_a	40836	-592	136	19920	-592	20868	0	116332
+label_probe_b	42100	672	1400	21184	672	20868	0	120694

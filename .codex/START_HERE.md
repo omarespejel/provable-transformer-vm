@@ -120,8 +120,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 114. `docs/engineering/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05-17.md`
 115. `docs/engineering/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05-17.md`
 116. `docs/engineering/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05-17.md`
-117. `docs/engineering/reproducibility.md`
-118. `git status --short --branch`
+117. `docs/engineering/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05-17.md`
+118. `docs/engineering/reproducibility.md`
+119. `git status --short --branch`
 
 ## What this repository is now
 
@@ -200,6 +201,14 @@ This repository currently has three live lanes.
      `docs/engineering/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05-17.md`,
      and
      `docs/engineering/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05-17.md`.
+   - The RMSNorm-input opening-layout follow-up now has a label-sensitivity
+     guardrail: label-only RMSNorm-input fused probes preserve the adapter
+     equation and direct value bytes, but move proof size from `40,836` to
+     `42,100` typed bytes (`1,264` byte span). The best probe is still `136`
+     bytes above the two-proof frontier and `24` bytes above compact, so this is
+     a no-go for frontier promotion and a requirement for a multi-label or
+     query-inventory policy before any sub-kilobyte opening-layout claim; see
+     `docs/engineering/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05-17.md`.
    - The current attention-to-RMSNorm/MLP boundary is a checked NO-GO for one
      value-connected native proof object: the attention-derived d128 statement
      chain has `199,553` accounted rows (`1.010374x` the MLP fused surface),
