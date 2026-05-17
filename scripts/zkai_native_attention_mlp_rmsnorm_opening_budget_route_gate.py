@@ -56,6 +56,8 @@ EXPECTED_FULL_REMOVAL_MODELED_TYPED_BYTES = 40_420
 EXPECTED_FULL_REMOVAL_FRONTIER_MARGIN_BYTES = 280
 EXPECTED_STRICT_MARGIN_BYTES = 279
 EXPECTED_RMSNORM_VALUE_SAVING_VS_COMPACT_BYTES = 392
+ISSUE_644_GO_GATE_SATISFIED = False
+ISSUE_644_CLOSED_BY_THIS_GATE = False
 
 ROUTE_CANDIDATE_ORDER = (
     "single_best_label",
@@ -63,6 +65,33 @@ ROUTE_CANDIDATE_ORDER = (
     "worst_label_path_opening_to_compact",
     "compact_selector_reference",
 )
+EXPECTED_ROUTE_CANDIDATE_METADATA = {
+    "single_best_label": {
+        "source_variant": "label_probe_a",
+        "route_status": "REJECTED_CHERRY_PICK",
+        "cherry_pick_risk": True,
+        "policy_sufficient_if_full_path_opening_removed": False,
+    },
+    "canonical_overhang_only": {
+        "source_variant": "rmsnorm_input_fused",
+        "route_status": "NOT_SUFFICIENT_UNDER_WORST_LABEL_POLICY",
+        "cherry_pick_risk": False,
+        "policy_sufficient_if_full_path_opening_removed": False,
+    },
+    "worst_label_path_opening_to_compact": {
+        "source_variant": "label_probe_b",
+        "route_status": "CONDITIONAL_GO_IF_STRUCTURAL_OVERHANG_REMOVAL_EXISTS",
+        "cherry_pick_risk": False,
+        "policy_sufficient_if_full_path_opening_removed": True,
+    },
+    "compact_selector_reference": {
+        "source_variant": "compact_selector",
+        "route_status": "REFERENCE_NOT_RMSNORM_SEMANTIC_FUSION",
+        "cherry_pick_risk": False,
+        "policy_sufficient_if_full_path_opening_removed": False,
+    },
+}
+ALLOWED_ROUTE_STATUSES = {item["route_status"] for item in EXPECTED_ROUTE_CANDIDATE_METADATA.values()}
 
 HUMAN_READ = (
     "The strict policy gap is 1,401 typed bytes under the worst checked label. "
@@ -109,6 +138,7 @@ EXPECTED_MUTATION_NAMES = (
     "nanozk_workload_match_overclaim",
     "source_policy_digest_drift",
     "source_sensitivity_commitment_drift",
+    "issue_scope_overclaim",
     "worst_label_required_reduction_drift",
     "worst_label_path_overhang_drift",
     "required_share_drift",
@@ -117,6 +147,9 @@ EXPECTED_MUTATION_NAMES = (
     "single_label_allowed",
     "value_saving_erased",
     "route_candidate_removed",
+    "route_status_drift",
+    "route_source_variant_drift",
+    "route_margin_drift",
     "decision_drift",
     "result_drift",
     "claim_boundary_drift",
@@ -185,6 +218,12 @@ def _int(value: Any, label: str) -> int:
     if not isinstance(value, int) or isinstance(value, bool):
         raise OpeningBudgetRouteError(f"{label} must be integer")
     return value
+
+
+def _float(value: Any, label: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise OpeningBudgetRouteError(f"{label} must be number")
+    return float(value)
 
 
 def require_exact_keys(value: dict[str, Any], expected: set[str], label: str) -> None:
@@ -312,6 +351,8 @@ def build_payload(include_mutations: bool = True) -> dict[str, Any]:
     best_overhang = path_overhang(best)
     worst_overhang = path_overhang(worst)
     worst_typed = _int(worst.get("typed_bytes"), "worst.typed")
+    if worst_overhang <= 0:
+        raise OpeningBudgetRouteError("worst label path-opening overhang must be positive")
     worst_required_share = round(worst_required / worst_overhang, 6)
     full_removal_typed = worst_typed - worst_overhang
     full_removal_frontier_margin = TWO_PROOF_FRONTIER_TYPED_BYTES - full_removal_typed
@@ -390,6 +431,15 @@ def build_payload(include_mutations: bool = True) -> dict[str, Any]:
         "result": RESULT,
         "issue": ISSUE,
         "claim_boundary": CLAIM_BOUNDARY,
+        "issue_scope": {
+            "tracked_issue": ISSUE,
+            "closes_issue": ISSUE_644_CLOSED_BY_THIS_GATE,
+            "satisfies_issue_go_gate": ISSUE_644_GO_GATE_SATISFIED,
+            "required_next_artifact": (
+                "regenerated RMSNorm-input opening-layout proof object with worst-label typed size "
+                "strictly below the 40,700 typed-byte frontier"
+            ),
+        },
         "source_artifacts": [
             {
                 "name": "label_policy_gate",
@@ -504,23 +554,68 @@ def validate_route_candidate(candidate: dict[str, Any], expected_name: str) -> N
     )
     if candidate.get("name") != expected_name:
         raise OpeningBudgetRouteError(f"{expected_name} name drift")
+    metadata = EXPECTED_ROUTE_CANDIDATE_METADATA[expected_name]
+    if candidate.get("source_variant") != metadata["source_variant"]:
+        raise OpeningBudgetRouteError(f"{expected_name} source variant drift")
+    if candidate.get("route_status") not in ALLOWED_ROUTE_STATUSES:
+        raise OpeningBudgetRouteError(f"{expected_name} route status not allowed")
+    if candidate.get("route_status") != metadata["route_status"]:
+        raise OpeningBudgetRouteError(f"{expected_name} route status drift")
+    if candidate.get("cherry_pick_risk") is not metadata["cherry_pick_risk"]:
+        raise OpeningBudgetRouteError(f"{expected_name} cherry-pick drift")
+    if (
+        candidate.get("policy_sufficient_if_full_path_opening_removed")
+        is not metadata["policy_sufficient_if_full_path_opening_removed"]
+    ):
+        raise OpeningBudgetRouteError(f"{expected_name} policy sufficiency drift")
     baseline = _int(candidate.get("baseline_typed_bytes"), f"{expected_name}.baseline")
+    baseline_delta = _int(
+        candidate.get("baseline_delta_vs_two_proof_frontier_bytes"),
+        f"{expected_name}.baseline_delta",
+    )
     overhang = _int(
         candidate.get("path_opening_overhang_vs_compact_bytes"),
         f"{expected_name}.path_overhang",
     )
+    value_delta = _int(candidate.get("value_delta_vs_compact_bytes"), f"{expected_name}.value_delta")
     required = _int(
         candidate.get("required_reduction_to_beat_frontier_bytes"),
         f"{expected_name}.required",
+    )
+    share = _float(
+        candidate.get("required_share_of_path_opening_overhang"),
+        f"{expected_name}.required_share",
     )
     modeled = _int(
         candidate.get("modeled_typed_after_full_path_opening_removal"),
         f"{expected_name}.modeled",
     )
+    modeled_delta = _int(
+        candidate.get("modeled_delta_vs_two_proof_frontier_after_full_path_opening_removal_bytes"),
+        f"{expected_name}.modeled_delta",
+    )
+    modeled_margin = _int(
+        candidate.get("modeled_frontier_margin_after_full_path_opening_removal_bytes"),
+        f"{expected_name}.modeled_margin",
+    )
+    strict_margin = _int(
+        candidate.get("strict_margin_after_required_reduction_bytes"),
+        f"{expected_name}.strict_margin",
+    )
+    if baseline_delta != baseline - TWO_PROOF_FRONTIER_TYPED_BYTES:
+        raise OpeningBudgetRouteError(f"{expected_name} baseline delta drift")
     if modeled != baseline - overhang:
         raise OpeningBudgetRouteError(f"{expected_name} modeled typed drift")
+    if modeled_delta != modeled - TWO_PROOF_FRONTIER_TYPED_BYTES:
+        raise OpeningBudgetRouteError(f"{expected_name} modeled delta drift")
+    if modeled_margin != TWO_PROOF_FRONTIER_TYPED_BYTES - modeled:
+        raise OpeningBudgetRouteError(f"{expected_name} modeled margin drift")
+    if strict_margin != overhang - required:
+        raise OpeningBudgetRouteError(f"{expected_name} strict margin drift")
+    if not isinstance(value_delta, int):
+        raise OpeningBudgetRouteError(f"{expected_name} value delta drift")
     expected_share = round(required / overhang, 6) if overhang > 0 else 0.0
-    if candidate.get("required_share_of_path_opening_overhang") != expected_share:
+    if share != expected_share:
         raise OpeningBudgetRouteError(f"{expected_name} required share drift")
     if candidate.get("promotion_allowed_now") is not False:
         raise OpeningBudgetRouteError(f"{expected_name} promotion overclaim")
@@ -533,6 +628,7 @@ def validate_payload(payload: dict[str, Any]) -> None:
         "result",
         "issue",
         "claim_boundary",
+        "issue_scope",
         "source_artifacts",
         "frontier",
         "route_budget",
@@ -556,6 +652,23 @@ def validate_payload(payload: dict[str, Any]) -> None:
         raise OpeningBudgetRouteError("issue drift")
     if payload.get("claim_boundary") != CLAIM_BOUNDARY:
         raise OpeningBudgetRouteError("claim boundary drift")
+
+    issue_scope = _dict(payload.get("issue_scope"), "issue scope")
+    expected_issue_scope = {
+        "tracked_issue": ISSUE,
+        "closes_issue": False,
+        "satisfies_issue_go_gate": False,
+        "required_next_artifact": (
+            "regenerated RMSNorm-input opening-layout proof object with worst-label typed size "
+            "strictly below the 40,700 typed-byte frontier"
+        ),
+    }
+    if issue_scope != expected_issue_scope:
+        raise OpeningBudgetRouteError("issue scope drift")
+    if issue_scope.get("closes_issue") is not False:
+        raise OpeningBudgetRouteError("issue close overclaim")
+    if issue_scope.get("satisfies_issue_go_gate") is not False:
+        raise OpeningBudgetRouteError("issue GO gate overclaim")
 
     expected_sources = [
         {
@@ -672,6 +785,7 @@ def run_mutations(payload: dict[str, Any]) -> dict[str, Any]:
             "source_sensitivity_commitment_drift",
             lambda p: p["source_artifacts"][1].__setitem__("payload_commitment", "blake2b-256:" + "00" * 32),
         ),
+        ("issue_scope_overclaim", lambda p: p["issue_scope"].__setitem__("satisfies_issue_go_gate", True)),
         (
             "worst_label_required_reduction_drift",
             lambda p: p["route_budget"].__setitem__("worst_label_required_reduction_to_beat_frontier_bytes", 137),
@@ -704,6 +818,24 @@ def run_mutations(payload: dict[str, Any]) -> dict[str, Any]:
         ),
         ("value_saving_erased", lambda p: p["summary"].__setitem__("rmsnorm_value_saving_vs_compact_bytes", 0)),
         ("route_candidate_removed", lambda p: p["route_candidates"].pop("worst_label_path_opening_to_compact")),
+        (
+            "route_status_drift",
+            lambda p: p["route_candidates"]["worst_label_path_opening_to_compact"].__setitem__(
+                "route_status", "UNREVIEWED_STATUS"
+            ),
+        ),
+        (
+            "route_source_variant_drift",
+            lambda p: p["route_candidates"]["worst_label_path_opening_to_compact"].__setitem__(
+                "source_variant", "label_probe_a"
+            ),
+        ),
+        (
+            "route_margin_drift",
+            lambda p: p["route_candidates"]["worst_label_path_opening_to_compact"].__setitem__(
+                "modeled_frontier_margin_after_full_path_opening_removal_bytes", 0
+            ),
+        ),
         ("decision_drift", lambda p: p.__setitem__("decision", "GO_FRONTIER_PROMOTION")),
         ("result_drift", lambda p: p.__setitem__("result", "PROOF_SIZE_WIN")),
         ("claim_boundary_drift", lambda p: p.__setitem__("claim_boundary", "OVERCLAIMED")),

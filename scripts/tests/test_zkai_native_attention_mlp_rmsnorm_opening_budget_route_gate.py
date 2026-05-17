@@ -4,6 +4,7 @@ import io
 import pathlib
 import tempfile
 import unittest
+from unittest import mock
 
 from scripts import zkai_native_attention_mlp_rmsnorm_opening_budget_route_gate as gate
 
@@ -56,6 +57,8 @@ class RmsnormOpeningBudgetRouteGateTest(unittest.TestCase):
             budget["modeled_frontier_margin_after_full_worst_label_path_opening_removal_bytes"],
             280,
         )
+        self.assertFalse(payload["issue_scope"]["closes_issue"])
+        self.assertFalse(payload["issue_scope"]["satisfies_issue_go_gate"])
 
     def test_mutations_are_rejected(self) -> None:
         payload = gate.build_payload()
@@ -110,8 +113,59 @@ class RmsnormOpeningBudgetRouteGateTest(unittest.TestCase):
         ] = True
         gate.refresh_payload_commitment(mutated)
 
-        with self.assertRaisesRegex(gate.OpeningBudgetRouteError, "single best label allowed"):
+        with self.assertRaisesRegex(gate.OpeningBudgetRouteError, "policy sufficiency drift"):
             gate.validate_payload(mutated)
+
+    def test_route_status_drift_is_rejected(self) -> None:
+        payload = gate.build_payload(include_mutations=False)
+        mutated = copy.deepcopy(payload)
+        mutated["route_candidates"]["worst_label_path_opening_to_compact"]["route_status"] = "UNREVIEWED_STATUS"
+        gate.refresh_payload_commitment(mutated)
+
+        with self.assertRaisesRegex(gate.OpeningBudgetRouteError, "route status not allowed"):
+            gate.validate_payload(mutated)
+
+    def test_route_source_variant_drift_is_rejected(self) -> None:
+        payload = gate.build_payload(include_mutations=False)
+        mutated = copy.deepcopy(payload)
+        mutated["route_candidates"]["worst_label_path_opening_to_compact"]["source_variant"] = "label_probe_a"
+        gate.refresh_payload_commitment(mutated)
+
+        with self.assertRaisesRegex(gate.OpeningBudgetRouteError, "source variant drift"):
+            gate.validate_payload(mutated)
+
+    def test_route_margin_drift_is_rejected(self) -> None:
+        payload = gate.build_payload(include_mutations=False)
+        mutated = copy.deepcopy(payload)
+        mutated["route_candidates"]["worst_label_path_opening_to_compact"][
+            "modeled_frontier_margin_after_full_path_opening_removal_bytes"
+        ] = 0
+        gate.refresh_payload_commitment(mutated)
+
+        with self.assertRaisesRegex(gate.OpeningBudgetRouteError, "modeled margin drift"):
+            gate.validate_payload(mutated)
+
+    def test_issue_scope_overclaim_is_rejected(self) -> None:
+        payload = gate.build_payload(include_mutations=False)
+        mutated = copy.deepcopy(payload)
+        mutated["issue_scope"]["satisfies_issue_go_gate"] = True
+        gate.refresh_payload_commitment(mutated)
+
+        with self.assertRaisesRegex(gate.OpeningBudgetRouteError, "issue scope drift"):
+            gate.validate_payload(mutated)
+
+    def test_zero_worst_label_overhang_fails_closed(self) -> None:
+        original_variant = gate.variant
+
+        def variant_with_zero_worst_overhang(sensitivity_payload, name):
+            item = copy.deepcopy(original_variant(sensitivity_payload, name))
+            if name == "label_probe_b":
+                item["path_opening_bytes"] = 19_504
+            return item
+
+        with mock.patch.object(gate, "variant", side_effect=variant_with_zero_worst_overhang):
+            with self.assertRaisesRegex(gate.OpeningBudgetRouteError, "overhang must be positive"):
+                gate.build_payload()
 
     def test_payload_commitment_rejects_drift(self) -> None:
         payload = gate.build_payload(include_mutations=False)

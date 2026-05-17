@@ -14,6 +14,12 @@
     "next_attack": "Build a real opening-layout variant and require it to remove at least 1,401 worst-label typed bytes from FRI/trace opening material while preserving the RMSNorm-input adapter equation, source binding, and the full label inventory. If it only wins under a favorable label, do not promote it."
   },
   "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/644",
+  "issue_scope": {
+    "closes_issue": false,
+    "required_next_artifact": "regenerated RMSNorm-input opening-layout proof object with worst-label typed size strictly below the 40,700 typed-byte frontier",
+    "satisfies_issue_go_gate": false,
+    "tracked_issue": "https://github.com/omarespejel/provable-transformer-vm/issues/644"
+  },
   "mutation_result": {
     "cases": [
       {
@@ -34,6 +40,10 @@
       },
       {
         "name": "source_sensitivity_commitment_drift",
+        "rejected": true
+      },
+      {
+        "name": "issue_scope_overclaim",
         "rejected": true
       },
       {
@@ -69,6 +79,18 @@
         "rejected": true
       },
       {
+        "name": "route_status_drift",
+        "rejected": true
+      },
+      {
+        "name": "route_source_variant_drift",
+        "rejected": true
+      },
+      {
+        "name": "route_margin_drift",
+        "rejected": true
+      },
+      {
         "name": "decision_drift",
         "rejected": true
       },
@@ -93,8 +115,8 @@
         "rejected": true
       }
     ],
-    "mutation_count": 19,
-    "rejected_count": 19
+    "mutation_count": 23,
+    "rejected_count": 23
   },
   "non_claims": [
     "not a two-proof frontier beat",
@@ -106,7 +128,7 @@
     "not a full transformer block proof",
     "not production-ready zkML"
   ],
-  "payload_commitment": "blake2b-256:58f7f0a5b73d0fec8320f6ad3dd7c11991c0f188eb96b5246b3fb50664d87911",
+  "payload_commitment": "blake2b-256:26505271fb83fa546c53a2dc9639f0322ab692b12559fc93cf700c3457fa24e6",
   "result": "WORST_LABEL_PATH_OPENING_OVERHANG_CAN_PAY_THE_1401_BYTE_POLICY_GAP_ONLY_IF_STRUCTURALLY_REMOVED",
   "route_budget": {
     "canonical_overhang_sufficient_under_worst_label_policy": false,

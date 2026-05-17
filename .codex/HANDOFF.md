@@ -1679,6 +1679,9 @@ overhang while preserving source binding and value semantics. Full modeled
 removal would land at `40,420` typed bytes, `280` below the frontier, but this
 is not a proof-size win, not a new proof object, and not NANOZK-comparable; see
 `docs/engineering/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05-17.md`.
+This route gate does not close issue `#644`; the GO gate still requires a
+regenerated RMSNorm-input opening-layout proof object whose worst-label typed
+size is strictly below `40,700`.
 
 RMSNorm-input opening-budget route reproducibility metadata:
 

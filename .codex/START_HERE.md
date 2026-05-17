@@ -225,7 +225,7 @@ This repository currently has three live lanes.
      `83.3929%` of that overhang while preserving source binding and value
      semantics. Full removal would model to `40,420` typed bytes, `280` below
      the current frontier, but this is not a proof-size win or a new proof
-     object; see
+     object and does not close issue `#644`; see
      `docs/engineering/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05-17.md`.
    - The current attention-to-RMSNorm/MLP boundary is a checked NO-GO for one
      value-connected native proof object: the attention-derived d128 statement

@@ -7,6 +7,11 @@ It does not build a new proof object. It asks whether the current
 opening-layout route has enough typed-byte budget to beat the strict
 worst-label policy, or whether the route should be abandoned.
 
+Scope note: this gate does not close issue `#644` and does not satisfy that
+issue's final GO gate. The required next artifact remains a regenerated
+RMSNorm-input opening-layout proof object whose worst-label typed size is
+strictly below the `40,700` typed-byte frontier.
+
 ## Result
 
 The route is still worth one more structural attack, but only under a strict
@@ -82,12 +87,14 @@ Non-claims:
 - Tests:
   `scripts/tests/test_zkai_native_attention_mlp_rmsnorm_opening_budget_route_gate.py`
 
-The gate rejects `19 / 19` mutation cases covering frontier overclaim, NANOZK
-overclaim, workload-match overclaim, source digest and commitment drift,
-required-reduction drift, path-overhang drift, required-share drift, canonical
-policy overclaim, modeled-margin drift, single-label promotion, value-saving
-erasure, missing route candidates, decision/result/claim-boundary drift,
-non-claim erasure, validation-command erasure, and payload-commitment drift.
+The gate rejects `23 / 23` mutation cases covering frontier overclaim, NANOZK
+overclaim, workload-match overclaim, source digest and commitment drift, issue
+scope overclaim, required-reduction drift, path-overhang drift, required-share
+drift, canonical policy overclaim, modeled-margin drift, single-label
+promotion, value-saving erasure, missing route candidates, route-status drift,
+route-source drift, candidate-margin drift, decision/result/claim-boundary
+drift, non-claim erasure, validation-command erasure, and payload-commitment
+drift.
 
 ## Reproduction
 
@@ -104,7 +111,7 @@ just gate
 Recorded gate output:
 
 ```json
-{"decision":"CONDITIONAL_GO_OPENING_OVERHANG_ATTACK_WITH_STRICT_WORST_LABEL_TARGET","full_removal_frontier_margin_bytes":280,"mutation_count":19,"mutations_rejected":19,"required_share_of_worst_label_path_opening_overhang":0.833929,"result":"WORST_LABEL_PATH_OPENING_OVERHANG_CAN_PAY_THE_1401_BYTE_POLICY_GAP_ONLY_IF_STRUCTURALLY_REMOVED","worst_label_path_opening_overhang_vs_compact_bytes":1680,"worst_label_required_reduction_to_beat_frontier_bytes":1401}
+{"decision":"CONDITIONAL_GO_OPENING_OVERHANG_ATTACK_WITH_STRICT_WORST_LABEL_TARGET","full_removal_frontier_margin_bytes":280,"mutation_count":23,"mutations_rejected":23,"required_share_of_worst_label_path_opening_overhang":0.833929,"result":"WORST_LABEL_PATH_OPENING_OVERHANG_CAN_PAY_THE_1401_BYTE_POLICY_GAP_ONLY_IF_STRUCTURALLY_REMOVED","worst_label_path_opening_overhang_vs_compact_bytes":1680,"worst_label_required_reduction_to_beat_frontier_bytes":1401}
 ```
 
 ## Next Attack
