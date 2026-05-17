@@ -150,6 +150,12 @@ def require_int(value: Any, label: str) -> int:
     return value
 
 
+def require_float(value: Any, label: str) -> float:
+    if not isinstance(value, (float, int)) or isinstance(value, bool):
+        raise PivotSelectorError(f"{label} must be a number")
+    return float(value)
+
+
 def require_str(value: Any, label: str) -> str:
     if not isinstance(value, str) or not value:
         raise PivotSelectorError(f"{label} must be a non-empty string")
@@ -254,11 +260,19 @@ def validate_source_numbers(sources: dict[str, dict[str, Any]]) -> None:
     expect_equal(require_int(mlp_aggregate.get("fused_local_typed_bytes"), "MLP fused typed"), MLP_FUSED_TYPED_BYTES, "MLP fused typed")
     expect_equal(require_int(mlp_aggregate.get("separate_local_typed_bytes"), "MLP separate typed"), MLP_SEPARATE_TYPED_BYTES, "MLP separate typed")
     expect_equal(require_int(mlp_aggregate.get("typed_saving_vs_separate_bytes"), "MLP saving"), MLP_FUSION_TYPED_SAVING_BYTES, "MLP saving")
-    expect_equal(f"{mlp_aggregate.get('typed_saving_ratio_vs_separate'):.6f}", MLP_FUSION_TYPED_SAVING_RATIO, "MLP saving ratio")
+    expect_equal(
+        f"{require_float(mlp_aggregate.get('typed_saving_ratio_vs_separate'), 'MLP saving ratio'):.6f}",
+        MLP_FUSION_TYPED_SAVING_RATIO,
+        "MLP saving ratio",
+    )
 
     compact_preprocessed = require_dict(sources["compact_preprocessed"].get("aggregate"), "compact-preprocessed aggregate")
     expect_equal(require_int(compact_preprocessed.get("compact_local_typed_bytes"), "compact preprocessed typed"), COMPACT_PREPROCESSED_TYPED_BYTES, "compact preprocessed typed")
-    expect_equal(f"{compact_preprocessed.get('typed_ratio_vs_nanozk_paper_row'):.6f}", COMPACT_PREPROCESSED_VS_NANOZK_RATIO, "compact preprocessed NANOZK ratio")
+    expect_equal(
+        f"{require_float(compact_preprocessed.get('typed_ratio_vs_nanozk_paper_row'), 'compact preprocessed NANOZK ratio'):.6f}",
+        COMPACT_PREPROCESSED_VS_NANOZK_RATIO,
+        "compact preprocessed NANOZK ratio",
+    )
     expect_equal(
         compact_preprocessed.get("comparison_status"),
         "below_nanozk_reported_row_under_local_typed_accounting_not_matched_benchmark",
@@ -435,15 +449,23 @@ def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
     expect_equal(require_int(summary.get("route_count"), "route count"), len(EXPECTED_ROUTE_IDS), "route count")
     expect_equal(require_int(summary.get("attack_next_count"), "attack-next count"), 1, "attack-next count")
     expect_equal(require_int(summary.get("park_now_count"), "park-now count"), 2, "park-now count")
+    expect_equal(require_int(summary.get("use_selectively_count"), "use-selectively count"), 1, "use-selectively count")
+    expect_equal(require_int(summary.get("guardrail_count"), "guardrail count"), 1, "guardrail count")
     expect_equal(require_int(summary.get("proof_size_comparable_rows"), "proof-size comparable rows"), 0, "proof-size comparable rows")
     expect_equal(require_int(summary.get("two_proof_frontier_typed_bytes"), "frontier"), TWO_PROOF_FRONTIER_TYPED_BYTES, "frontier")
     expect_equal(require_int(summary.get("nanozk_paper_reported_d128_block_proof_bytes"), "NANOZK row"), NANOZK_PAPER_REPORTED_D128_BLOCK_PROOF_BYTES, "NANOZK row")
     expect_equal(require_int(summary.get("strict_native_adapter_typed_bytes"), "strict native adapter typed"), STRICT_NATIVE_ADAPTER_TYPED_BYTES, "strict native adapter typed")
     expect_equal(require_int(summary.get("strict_native_adapter_gap_bytes"), "strict native adapter gap"), STRICT_NATIVE_ADAPTER_GAP_BYTES, "strict native adapter gap")
+    expect_equal(require_int(summary.get("compact_selector_typed_bytes"), "compact selector typed"), COMPACT_SELECTOR_TYPED_BYTES, "compact selector typed")
     expect_equal(require_int(summary.get("compact_selector_gap_bytes"), "compact selector gap"), COMPACT_SELECTOR_GAP_BYTES, "compact selector gap")
+    expect_equal(require_int(summary.get("post_tail_typed_bytes"), "post-tail typed"), POST_TAIL_TYPED_BYTES, "post-tail typed")
+    expect_equal(require_int(summary.get("post_tail_gap_bytes"), "post-tail gap"), POST_TAIL_GAP_BYTES, "post-tail gap")
     expect_equal(require_int(summary.get("post_tail_label_span_bytes"), "post-tail label span"), POST_TAIL_LABEL_SPAN_BYTES, "post-tail label span")
+    expect_equal(require_int(summary.get("gkr_smallest_width_preserving_bytes"), "GKR width-preserving bytes"), GKR_SMALLEST_WIDTH_PRESERVING_BYTES, "GKR width-preserving bytes")
+    expect_equal(require_int(summary.get("mlp_fused_typed_bytes"), "MLP fused typed"), MLP_FUSED_TYPED_BYTES, "MLP fused typed")
     expect_equal(require_int(summary.get("mlp_fusion_typed_saving_bytes"), "MLP saving"), MLP_FUSION_TYPED_SAVING_BYTES, "MLP saving")
     expect_equal(summary.get("mlp_fusion_typed_saving_ratio"), MLP_FUSION_TYPED_SAVING_RATIO, "MLP saving ratio")
+    expect_equal(require_int(summary.get("compact_preprocessed_typed_bytes"), "compact preprocessed typed"), COMPACT_PREPROCESSED_TYPED_BYTES, "compact preprocessed typed")
     expect_equal(summary.get("compact_preprocessed_vs_nanozk_ratio"), COMPACT_PREPROCESSED_VS_NANOZK_RATIO, "compact preprocessed ratio")
 
     routes = require_list(payload.get("routes"), "routes")
@@ -458,12 +480,23 @@ def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
             raise PivotSelectorError("route missing non-claims")
     route_by_id = {row["route_id"]: row for row in routes}
     expect_equal(route_by_id[SELECTED_NEXT_ROUTE]["selector_status"], "ATTACK_NEXT", "selected route status")
+    expect_equal(route_by_id[SELECTED_NEXT_ROUTE]["typed_bytes"], STRICT_NATIVE_ADAPTER_TYPED_BYTES, "selected route typed bytes")
+    expect_equal(route_by_id[SELECTED_NEXT_ROUTE]["delta_vs_frontier_typed_bytes"], STRICT_NATIVE_ADAPTER_GAP_BYTES, "selected route frontier delta")
     selected_evidence = require_str(route_by_id[SELECTED_NEXT_ROUTE].get("primary_evidence"), "selected route evidence")
     if "six-component MLP fusion saves 32,144 typed bytes" not in selected_evidence:
         raise PivotSelectorError("selected route evidence drift")
     expect_equal(route_by_id["sub_kilobyte_adapter_reorder"]["selector_status"], "PARK_NOW", "local reorder status")
+    expect_equal(route_by_id["sub_kilobyte_adapter_reorder"]["typed_bytes"], POST_TAIL_TYPED_BYTES, "local reorder typed bytes")
+    expect_equal(route_by_id["sub_kilobyte_adapter_reorder"]["delta_vs_frontier_typed_bytes"], POST_TAIL_GAP_BYTES, "local reorder frontier delta")
     expect_equal(route_by_id["current_gkr_projection_sidecar"]["selector_status"], "PARK_NOW", "GKR status")
+    expect_equal(route_by_id["current_gkr_projection_sidecar"]["typed_bytes"], GKR_SMALLEST_WIDTH_PRESERVING_BYTES, "GKR typed bytes")
+    expect_equal(
+        route_by_id["current_gkr_projection_sidecar"]["delta_vs_frontier_typed_bytes"],
+        GKR_SMALLEST_WIDTH_PRESERVING_BYTES - TWO_PROOF_FRONTIER_TYPED_BYTES,
+        "GKR frontier delta",
+    )
     expect_equal(route_by_id["compact_preprocessed_public_rows"]["selector_status"], "USE_SELECTIVELY", "compact preprocessed status")
+    expect_equal(route_by_id["compact_preprocessed_public_rows"]["typed_bytes"], COMPACT_PREPROCESSED_TYPED_BYTES, "compact preprocessed route typed bytes")
     expect_equal(route_by_id["comparison_claim_guardrail"]["selector_status"], "GUARDRAIL", "guardrail status")
 
     interpretation = require_dict(payload.get("interpretation"), "interpretation")
@@ -609,18 +642,26 @@ def tsv_text(payload: dict[str, Any]) -> str:
 
 
 def write_text(path: pathlib.Path, text: str) -> None:
-    if not path.is_absolute():
-        path = ROOT / path
-    if path.suffix not in {".json", ".tsv"}:
-        raise PivotSelectorError(f"unsupported output suffix: {path}")
+    raw_path = path if path.is_absolute() else ROOT / path
+    if raw_path.suffix not in {".json", ".tsv"}:
+        raise PivotSelectorError(f"unsupported output suffix: {raw_path}")
+    resolved_evidence = EVIDENCE_DIR.resolve(strict=False)
+    resolved_path = raw_path.resolve(strict=False)
     try:
-        path.relative_to(EVIDENCE_DIR)
+        resolved_path.relative_to(resolved_evidence)
     except ValueError as error:
-        raise PivotSelectorError(f"output path must be under evidence dir: {path}") from error
-    if path.is_symlink():
-        raise PivotSelectorError(f"output path must not be a symlink: {path}")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text, encoding="utf-8")
+        raise PivotSelectorError(f"output path must be under evidence dir: {raw_path}") from error
+
+    cursor = raw_path
+    while True:
+        if cursor.is_symlink():
+            raise PivotSelectorError(f"output path must not use a symlink: {cursor}")
+        if cursor == EVIDENCE_DIR or cursor == cursor.parent:
+            break
+        cursor = cursor.parent
+
+    resolved_path.parent.mkdir(parents=True, exist_ok=True)
+    resolved_path.write_text(text, encoding="utf-8")
 
 
 def write_outputs(payload: dict[str, Any], json_path: pathlib.Path, tsv_path: pathlib.Path | None) -> None:

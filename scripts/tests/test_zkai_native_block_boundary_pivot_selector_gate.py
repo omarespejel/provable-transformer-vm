@@ -28,6 +28,11 @@ class NativeBlockBoundaryPivotSelectorGateTest(unittest.TestCase):
         self.assertEqual(payload["mutation_count"], 12)
         self.assertEqual(payload["mutations_rejected"], 12)
 
+    def test_build_payload_is_deterministic(self) -> None:
+        payload_1 = gate.build_payload()
+        payload_2 = gate.build_payload()
+        self.assertEqual(payload_1, payload_2)
+
     def test_route_statuses_are_explicit(self) -> None:
         rows = {row["route_id"]: row for row in gate.build_payload()["routes"]}
         self.assertEqual(rows["larger_native_block_boundary"]["selector_status"], "ATTACK_NEXT")
@@ -43,6 +48,14 @@ class NativeBlockBoundaryPivotSelectorGateTest(unittest.TestCase):
         sources["post_tail"] = dict(sources["post_tail"])
         sources["post_tail"]["post_tail_canonical_typed_bytes"] = 40_699
         with self.assertRaisesRegex(gate.PivotSelectorError, "post-tail typed bytes drift"):
+            gate.validate_source_numbers(sources)
+
+    def test_rejects_source_ratio_type_drift(self) -> None:
+        sources = gate.load_sources()
+        sources["mlp_fused"] = dict(sources["mlp_fused"])
+        sources["mlp_fused"]["aggregate"] = dict(sources["mlp_fused"]["aggregate"])
+        sources["mlp_fused"]["aggregate"]["typed_saving_ratio_vs_separate"] = "0.564167"
+        with self.assertRaisesRegex(gate.PivotSelectorError, "MLP saving ratio must be a number"):
             gate.validate_source_numbers(sources)
 
     def test_mutation_inventory_is_strict(self) -> None:
@@ -72,6 +85,12 @@ class NativeBlockBoundaryPivotSelectorGateTest(unittest.TestCase):
         payload = gate.base_payload(gate.load_sources())
         gate.mutate_mlp_saving_erased(payload)
         with self.assertRaisesRegex(gate.PivotSelectorError, "MLP saving drift"):
+            gate.validate_payload(payload, final=False)
+
+    def test_rejects_summary_field_drift(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        payload["summary"]["post_tail_typed_bytes"] = 40_000
+        with self.assertRaisesRegex(gate.PivotSelectorError, "post-tail typed drift"):
             gate.validate_payload(payload, final=False)
 
     def test_rejects_non_claim_erasure(self) -> None:
@@ -126,6 +145,29 @@ class NativeBlockBoundaryPivotSelectorGateTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             with self.assertRaisesRegex(gate.PivotSelectorError, "evidence dir"):
                 gate.write_outputs(gate.build_payload(), gate.pathlib.Path(tmpdir) / "x.json", None)
+
+    def test_write_outputs_rejects_symlink_in_path(self) -> None:
+        payload = gate.build_payload()
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix="tmp-pivot-symlink-") as tmpdir:
+            tmp_path = gate.pathlib.Path(tmpdir)
+            target = tmp_path / "target.json"
+            target.write_text("{}", encoding="utf-8")
+            link = tmp_path / "link.json"
+            link.symlink_to(target)
+            with self.assertRaisesRegex(gate.PivotSelectorError, "symlink"):
+                gate.write_outputs(payload, link, None)
+
+    def test_write_outputs_rejects_symlink_parent(self) -> None:
+        payload = gate.build_payload()
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix="tmp-pivot-parent-target-") as target_dir:
+            target_path = gate.pathlib.Path(target_dir)
+            link_dir = target_path.with_name(f"{target_path.name}-link")
+            try:
+                link_dir.symlink_to(target_path, target_is_directory=True)
+                with self.assertRaisesRegex(gate.PivotSelectorError, "symlink"):
+                    gate.write_outputs(payload, link_dir / "payload.json", None)
+            finally:
+                link_dir.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":
