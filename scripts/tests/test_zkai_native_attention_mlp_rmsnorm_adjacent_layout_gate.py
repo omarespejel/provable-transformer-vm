@@ -73,6 +73,13 @@ class RmsnormAdjacentLayoutGateTest(unittest.TestCase):
         with self.assertRaises(gate.AdjacentLayoutGateError):
             gate.validate_payload(payload)
 
+    def test_payload_rejects_non_claim_type_drift(self) -> None:
+        payload = gate.build_payload()
+        payload["non_claims"] = None
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.AdjacentLayoutGateError):
+            gate.validate_payload(payload)
+
     def test_payload_rejects_commitment_drift(self) -> None:
         payload = gate.build_payload()
         payload["payload_commitment"] = "blake2b-256:" + "0" * 64
@@ -99,6 +106,16 @@ class RmsnormAdjacentLayoutGateTest(unittest.TestCase):
         gate.validate_payload(payload, require_mutations=False)
         with self.assertRaises(gate.AdjacentLayoutGateError):
             gate.validate_payload(payload)
+
+    def test_read_input_bytes_rejects_oversized_artifact(self) -> None:
+        with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".json", delete=False) as handle:
+            path = gate.pathlib.Path(handle.name)
+            handle.truncate(gate.MAX_INPUT_JSON_BYTES + 1)
+        try:
+            with self.assertRaises(gate.AdjacentLayoutGateError):
+                gate.read_input_bytes(path)
+        finally:
+            path.unlink(missing_ok=True)
 
     def test_tsv_includes_adjacent_bad_label(self) -> None:
         payload = gate.build_payload()
