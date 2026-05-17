@@ -197,6 +197,13 @@ def row_by_component(rows: list[dict[str, Any]], component: str) -> dict[str, An
     raise GkrDenseBaselineError(f"component row missing: {component}")
 
 
+def require_row_by_id(rows: list[dict[str, Any]], row_id: str) -> dict[str, Any]:
+    for row in rows:
+        if row.get("row_id") == row_id:
+            return row
+    raise GkrDenseBaselineError(f"missing summary row: {row_id}")
+
+
 def shape_result_by_fixture(results: list[Any], fixture: str) -> dict[str, Any]:
     for row in results:
         if isinstance(row, dict) and row.get("fixture") == fixture:
@@ -238,6 +245,7 @@ def build_rows(sources: dict[str, Any]) -> list[dict[str, Any]]:
     if not isinstance(results, list):
         raise GkrDenseBaselineError("JSTprove results must be a list")
     tiny_gemm = shape_result_by_fixture(results, "tiny_gemm")
+    gemm_add = shape_result_by_fixture(results, "tiny_gemm_add")
     residual = shape_result_by_fixture(results, "tiny_gemm_residual_add")
     layernorm = shape_result_by_fixture(results, "tiny_gemm_layernorm")
     batchnorm = shape_result_by_fixture(results, "tiny_gemm_batchnorm")
@@ -261,6 +269,7 @@ def build_rows(sources: dict[str, Any]) -> list[dict[str, Any]]:
             "evidence_path": str(MINIMAL_BENCHMARK.relative_to(ROOT)),
         },
         result_row(tiny_gemm, comparability="TINY_LINEAR_PROJECTION_ONLY_NOT_D128_MLP"),
+        result_row(gemm_add, comparability="TINY_LINEAR_PLUS_ADD_SHAPE_NOT_D128_MLP"),
         result_row(residual, comparability="TINY_RESIDUAL_ADD_SHAPE_NOT_D128_MLP"),
         result_row(layernorm, comparability="TINY_NORMALIZATION_SHAPE_NOT_OUR_RMSNORM_COMPONENT"),
         result_row(batchnorm, comparability="TINY_NORMALIZATION_LIKE_SHAPE_NOT_OUR_RMSNORM_COMPONENT"),
@@ -284,23 +293,34 @@ def build_rows(sources: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def build_summary(rows: list[dict[str, Any]], sources: dict[str, Any]) -> dict[str, Any]:
-    stwo = next(row for row in rows if row["row_id"] == "local_stwo_dense_substitute")
-    tiny = next(row for row in rows if row["row_id"] == "tiny_gemm")
-    residual = next(row for row in rows if row["row_id"] == "tiny_gemm_residual_add")
-    layernorm = next(row for row in rows if row["row_id"] == "tiny_gemm_layernorm")
+    stwo = require_row_by_id(rows, "local_stwo_dense_substitute")
+    tiny = require_row_by_id(rows, "tiny_gemm")
+    residual = require_row_by_id(rows, "tiny_gemm_residual_add")
+    layernorm = require_row_by_id(rows, "tiny_gemm_layernorm")
+    stwo_bytes = require_int(stwo.get("primary_value"), "Stwo dense summary typed bytes")
+    tiny_bytes = require_int(tiny.get("primary_value"), "tiny_gemm summary proof bytes")
+    residual_bytes = require_int(residual.get("primary_value"), "residual summary proof bytes")
+    layernorm_bytes = require_int(layernorm.get("primary_value"), "layernorm summary proof bytes")
     go_rows = [row for row in rows if row["status"].startswith("GO") or row["status"] == "LOCAL_COMPONENT_FRONTIER"]
     no_go_rows = [row for row in rows if row["status"] == "NO_GO"]
     shape_conclusion = require_dict(sources["shape"].get("conclusion"), "shape conclusion")
+    source_go_count = require_int(shape_conclusion.get("go_count"), "shape go_count")
+    source_no_go_count = require_int(shape_conclusion.get("no_go_count"), "shape no_go_count")
+    shape_fixture_rows = [row for row in rows if row["object_class"] == "local_external_gkr_fixture"]
+    derived_go_count = sum(1 for row in shape_fixture_rows if row["status"] == "GO")
+    derived_no_go_count = sum(1 for row in shape_fixture_rows if row["status"] == "NO_GO")
+    if source_go_count != derived_go_count or source_no_go_count != derived_no_go_count:
+        raise GkrDenseBaselineError("shape conclusion fixture counts drift")
     return {
-        "local_stwo_dense_typed_bytes": stwo["primary_value"],
-        "jstprove_tiny_gemm_proof_bytes": tiny["primary_value"],
-        "jstprove_tiny_gemm_ratio_vs_stwo_dense_typed": ratio(tiny["primary_value"], stwo["primary_value"]),
-        "jstprove_residual_add_proof_bytes": residual["primary_value"],
-        "jstprove_residual_add_ratio_vs_stwo_dense_typed": ratio(residual["primary_value"], stwo["primary_value"]),
-        "jstprove_layernorm_proof_bytes": layernorm["primary_value"],
-        "jstprove_layernorm_ratio_vs_stwo_dense_typed": ratio(layernorm["primary_value"], stwo["primary_value"]),
-        "local_gkr_go_fixture_count": int(shape_conclusion.get("go_count", 0)),
-        "local_gkr_no_go_fixture_count": int(shape_conclusion.get("no_go_count", 0)),
+        "local_stwo_dense_typed_bytes": stwo_bytes,
+        "jstprove_tiny_gemm_proof_bytes": tiny_bytes,
+        "jstprove_tiny_gemm_ratio_vs_stwo_dense_typed": ratio(tiny_bytes, stwo_bytes),
+        "jstprove_residual_add_proof_bytes": residual_bytes,
+        "jstprove_residual_add_ratio_vs_stwo_dense_typed": ratio(residual_bytes, stwo_bytes),
+        "jstprove_layernorm_proof_bytes": layernorm_bytes,
+        "jstprove_layernorm_ratio_vs_stwo_dense_typed": ratio(layernorm_bytes, stwo_bytes),
+        "local_gkr_go_fixture_count": source_go_count,
+        "local_gkr_no_go_fixture_count": source_no_go_count,
         "comparison_rows": len(rows),
         "go_rows": len(go_rows),
         "no_go_rows": len(no_go_rows),
@@ -344,7 +364,7 @@ def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True)
     if set(payload) != expected_keys:
         raise GkrDenseBaselineError("payload key drift")
     rows = payload["rows"]
-    if not isinstance(rows, list) or len(rows) != 9:
+    if not isinstance(rows, list) or len(rows) != 10:
         raise GkrDenseBaselineError("rows inventory drift")
     for row in rows:
         if not isinstance(row, dict) or set(row) != set(ROW_COLUMNS):

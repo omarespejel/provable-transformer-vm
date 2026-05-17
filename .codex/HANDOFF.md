@@ -1777,11 +1777,12 @@ Minimal benchmark reproducibility metadata:
 
 Latest GKR dense sidecar baseline: issue `#650` now has a checked sidecar and
 baseline gate, not a Stwo replacement and not a matched external benchmark. The
-gate records `9` comparison rows. The local Stwo dense substitute remains
+gate records `10` comparison rows. The local Stwo dense substitute remains
 `22,576` typed bytes. JSTprove/Remainder tiny `Gemm` is `11,645` proof bytes
-(`0.515813x` the Stwo dense typed-byte row), but the tiny residual-add and
-LayerNorm-shaped fixtures are `56,054` and `52,080` proof bytes respectively
-(`2.482902x` and `2.306875x`). The checked NO-GO rows are still important:
+(`0.515813x` the Stwo dense typed-byte row), tiny `Gemm + Add` is `36,449`
+proof bytes, and the tiny residual-add and LayerNorm-shaped fixtures are
+`56,054` and `52,080` proof bytes respectively (`2.482902x` and `2.306875x`).
+The checked NO-GO rows are still important:
 baseline ReLU hits `range_check_capacity`, Softmax hits
 `unconstrained_backend_op`, and literal MatMul plus residual add hits
 `unsupported_witness_op`. Treat this as

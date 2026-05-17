@@ -45,7 +45,7 @@
     "not timing evidence beyond previously recorded local fixture timings",
     "not model-faithful accuracy evidence"
   ],
-  "payload_commitment": "blake2b-256:9f1650f011dcf763a079d7c7fef7293033d76fc0c6562c1891cb987ca5a1a040",
+  "payload_commitment": "blake2b-256:609f855591128a50ab23fe855ce63ff05c56a56b3e4d39794b5eeb0e218f3fa9",
   "primary_sources": [
     {
       "label": "Polyhedra Expander GKR protocol docs",
@@ -90,6 +90,19 @@
       "status": "GO",
       "verify_seconds": "1.966926",
       "workload": "Gemm"
+    },
+    {
+      "comparability": "TINY_LINEAR_PLUS_ADD_SHAPE_NOT_D128_MLP",
+      "evidence_path": "docs/engineering/evidence/zkai-jstprove-shape-probe-2026-05.json",
+      "object_class": "local_external_gkr_fixture",
+      "primary_metric": "proof_bytes",
+      "primary_value": 36449,
+      "proof_system": "JSTprove/Remainder-GKR-sumcheck",
+      "prove_seconds": "0.940403",
+      "row_id": "tiny_gemm_add",
+      "status": "GO",
+      "verify_seconds": "2.343996",
+      "workload": "Gemm -> Add"
     },
     {
       "comparability": "TINY_RESIDUAL_ADD_SHAPE_NOT_D128_MLP",
@@ -214,9 +227,9 @@
     }
   ],
   "summary": {
-    "comparison_rows": 9,
+    "comparison_rows": 10,
     "gkr_route_classification": "SIDECAR_OR_BASELINE_CANDIDATE_NOT_STWO_REPLACEMENT",
-    "go_rows": 6,
+    "go_rows": 7,
     "jstprove_layernorm_proof_bytes": 52080,
     "jstprove_layernorm_ratio_vs_stwo_dense_typed": "2.306875",
     "jstprove_residual_add_proof_bytes": 56054,
