@@ -1,0 +1,143 @@
+import copy
+import json
+import tempfile
+import unittest
+
+from scripts import zkai_minimal_transformer_block_benchmark_gate as gate
+
+
+class MinimalTransformerBlockBenchmarkGateTest(unittest.TestCase):
+    def test_build_payload_records_contract_and_missing_native_block(self) -> None:
+        payload = gate.build_payload()
+        self.assertEqual(payload["schema"], gate.SCHEMA)
+        self.assertEqual(payload["decision"], gate.DECISION)
+        self.assertEqual(payload["result"], gate.RESULT)
+        self.assertEqual(payload["summary"]["component_count"], 10)
+        self.assertEqual(payload["summary"]["proof_component_count"], 2)
+        self.assertTrue(payload["summary"]["missing_native_block_proof_object"])
+        self.assertEqual(payload["summary"]["two_proof_frontier_typed_bytes"], 40_700)
+        self.assertEqual(payload["summary"]["adjacent_worst_label_gap_typed_bytes"], 2_024)
+        self.assertEqual(payload["summary"]["statement_chain_rows"], 199_553)
+        self.assertEqual(payload["summary"]["external_statement_receipt_proof_bytes"], 807)
+        self.assertEqual(payload["mutation_count"], 14)
+        self.assertEqual(payload["mutations_rejected"], 14)
+        self.assertTrue(all(entry["rejected"] for entry in payload["mutation_results"]))
+
+    def test_spec_makes_approximations_and_statement_bindings_explicit(self) -> None:
+        spec = gate.build_payload()["benchmark_spec"]
+        self.assertEqual(spec["model_width"], 128)
+        self.assertEqual(spec["attention_source_width"], 8)
+        self.assertEqual(spec["ffn_width"], 512)
+        self.assertIn("RMSNorm substitute for LayerNorm", spec["component_contract"])
+        self.assertIn("not exact real-valued Softmax", spec["approximation_policy"]["attention"])
+        self.assertIn("not exact LayerNorm", spec["approximation_policy"]["normalization"])
+        self.assertIn("not exact GELU", spec["approximation_policy"]["activation"])
+        self.assertIn("proof_commitment_or_receipt_commitment", spec["public_statement_bindings"])
+
+    def test_rows_classify_object_classes_without_external_overclaim(self) -> None:
+        rows = {row["component"]: row for row in gate.build_payload()["component_rows"]}
+        self.assertEqual(rows["attention_boundary_and_softmax_lookup"]["object_class"], "local_native_stwo_proof_component")
+        self.assertEqual(rows["two_proof_frontier"]["object_class"], "local_two_proof_target")
+        self.assertEqual(rows["typed_public_statement_chain"]["object_class"], "local_statement_artifact")
+        self.assertEqual(rows["external_statement_receipt"]["object_class"], "external_snark_statement_receipt")
+        self.assertEqual(rows["native_full_block_proof_object"]["object_class"], "missing_native_proof_object")
+        self.assertIsNone(rows["native_full_block_proof_object"]["primary_value"])
+        self.assertEqual(rows["nanozk_context_row"]["comparability"], "CONTEXT_ONLY_NOT_LOCAL_REPRODUCTION_NOT_MATCHED_WORKLOAD")
+        self.assertEqual(rows["gkr_hyrax_sidecar_lane"]["local_status"], "FOLLOWUP_ISSUE_650_NOT_IMPLEMENTED")
+        self.assertEqual(rows["jolt_atlas_lookup_tensor_lane"]["local_status"], "FOLLOWUP_ISSUE_651_NOT_IMPLEMENTED")
+
+    def test_rejects_component_omission(self) -> None:
+        payload = gate.build_payload()
+        payload["component_rows"].pop(0)
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.MinimalBlockBenchmarkError):
+            gate.validate_payload(payload)
+
+    def test_rejects_native_block_proof_promotion(self) -> None:
+        payload = gate.build_payload()
+        native = payload["component_rows"][6]
+        native["object_class"] = "local_native_stwo_proof_object"
+        native["primary_value"] = 6_900
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.MinimalBlockBenchmarkError):
+            gate.validate_payload(payload)
+
+    def test_rejects_false_nanozk_comparability(self) -> None:
+        payload = gate.build_payload()
+        payload["component_rows"][7]["comparability"] = "MATCHED_EXTERNAL_BENCHMARK"
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.MinimalBlockBenchmarkError):
+            gate.validate_payload(payload)
+
+    def test_rejects_approximation_policy_removal(self) -> None:
+        payload = gate.build_payload()
+        payload["benchmark_spec"]["approximation_policy"] = {}
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.MinimalBlockBenchmarkError):
+            gate.validate_payload(payload)
+
+    def test_rejects_statement_binding_removal(self) -> None:
+        payload = gate.build_payload()
+        payload["benchmark_spec"]["public_statement_bindings"] = []
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.MinimalBlockBenchmarkError):
+            gate.validate_payload(payload)
+
+    def test_rejects_source_digest_drift(self) -> None:
+        payload = gate.build_payload()
+        payload["source_artifacts"][0]["file_sha256"] = "0" * 64
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.MinimalBlockBenchmarkError):
+            gate.validate_payload(payload)
+
+    def test_rejects_non_claim_removal(self) -> None:
+        payload = gate.build_payload()
+        payload["non_claims"].remove("not a NANOZK proof-size win")
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.MinimalBlockBenchmarkError):
+            gate.validate_payload(payload)
+
+    def test_rejects_mutation_result_type_drift(self) -> None:
+        payload = gate.build_payload()
+        payload["mutation_results"] = copy.deepcopy(payload["mutation_results"])
+        payload["mutation_results"][-1] = "not an object"
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.MinimalBlockBenchmarkError):
+            gate.validate_payload(payload)
+
+    def test_tsv_contains_object_class_rows(self) -> None:
+        text = gate.tsv_text(gate.build_payload())
+        self.assertIn("native_full_block_proof_object\tmissing_native_proof_object", text)
+        self.assertIn("nanozk_context_row\tpaper_reported_external_context", text)
+        self.assertIn("gkr_hyrax_sidecar_lane\tfollowup_hypothesis", text)
+
+    def test_write_outputs_round_trips(self) -> None:
+        payload = gate.build_payload()
+        with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".json", delete=False) as json_handle:
+            json_path = gate.pathlib.Path(json_handle.name)
+        with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".tsv", delete=False) as tsv_handle:
+            tsv_path = gate.pathlib.Path(tsv_handle.name)
+        try:
+            gate.write_outputs(payload, json_path, tsv_path)
+            self.assertEqual(json.loads(json_path.read_text(encoding="utf-8")), payload)
+            self.assertTrue(tsv_path.read_text(encoding="utf-8").startswith("\t".join(gate.TSV_COLUMNS)))
+        finally:
+            json_path.unlink(missing_ok=True)
+            tsv_path.unlink(missing_ok=True)
+
+    def test_write_outputs_rejects_symlink_path(self) -> None:
+        payload = gate.build_payload()
+        with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".json", delete=False) as handle:
+            target = gate.pathlib.Path(handle.name)
+        link = target.with_name(f"{target.name}.link.json")
+        try:
+            link.symlink_to(target)
+            with self.assertRaises(gate.MinimalBlockBenchmarkError):
+                gate.write_outputs(payload, link, None)
+        finally:
+            link.unlink(missing_ok=True)
+            target.unlink(missing_ok=True)
+
+
+if __name__ == "__main__":
+    unittest.main()

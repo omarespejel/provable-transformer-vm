@@ -1746,6 +1746,35 @@ RMSNorm-input adjacent layout reproducibility metadata:
   `python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_adjacent_layout_gate`;
   `cargo +nightly-2025-07-14 test --locked --features stwo-backend native_attention_mlp_single_proof --lib`.
 
+Latest minimal transformer-block benchmark contract: issue `#649` now has a
+shared comparison object for the next research phase. The contract records `10`
+component/object-class rows, pins `d128` model-side width with the current `d8`
+attention source, keeps the `40,700` typed-byte two-proof frontier separate from
+the `42,724` typed-byte adjacent worst-label proof-object attempt, marks the
+native full-block proof object as missing, and keeps NANOZK as source-backed
+context only. The gate rejects `14 / 14` mutation guards covering component
+omission, native-proof promotion, approximation-policy removal, false NANOZK
+comparability, source digest drift, statement-binding removal, hidden GKR/Jolt
+lanes, frontier overclaim, and payload commitment drift. See
+`docs/engineering/zkai-minimal-transformer-block-benchmark-2026-05-17.md`.
+
+Minimal benchmark reproducibility metadata:
+
+- Timing mode: benchmark-contract and proof-size accounting only; no timing
+  claim and no median-of-5 policy.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json`,
+  `docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.tsv`,
+  `docs/engineering/evidence/zkai-one-transformer-block-surface-2026-05.json`,
+  `docs/engineering/evidence/zkai-d128-attention-mlp-boundary-frontier-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.json`,
+  and
+  `docs/engineering/evidence/zkai-matched-d64-d128-evidence-table-2026-05.json`.
+- Gate command:
+  `python3 scripts/zkai_minimal_transformer_block_benchmark_gate.py --write-json docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json --write-tsv docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.tsv`.
+- Local tests:
+  `python3 -m unittest scripts.tests.test_zkai_minimal_transformer_block_benchmark_gate`.
+
 Adapter opening-geometry budget reproducibility metadata:
 
 - Timing mode: proof-size accounting only; no proof regeneration, timing, or

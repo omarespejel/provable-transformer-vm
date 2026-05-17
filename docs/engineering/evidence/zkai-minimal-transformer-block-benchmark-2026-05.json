@@ -1,0 +1,312 @@
+{
+  "benchmark_spec": {
+    "approximation_policy": {
+      "activation": "bounded SiLU/SwiGLU substitute, not exact GELU",
+      "attention": "bounded Softmax-table / LogUp fixture, not exact real-valued Softmax",
+      "normalization": "RMSNorm substitute, not exact LayerNorm",
+      "quantization": "integer/field-bounded fixtures; model-faithful accuracy bridge is missing"
+    },
+    "attention_source_width": 8,
+    "benchmark_id": "minimal_attention_derived_d128_transformer_block_v1",
+    "component_contract": [
+      "attention boundary",
+      "Softmax-table lookup membership",
+      "RMSNorm substitute for LayerNorm",
+      "gate/value projection",
+      "bounded SiLU/SwiGLU activation substitute for GELU",
+      "down projection",
+      "residual boundary",
+      "typed public statement"
+    ],
+    "ffn_width": 512,
+    "model_width": 128,
+    "public_statement_bindings": [
+      "model_artifact_commitment",
+      "input_activation_commitment",
+      "attention_output_commitment",
+      "block_output_commitment",
+      "proof_commitment_or_receipt_commitment",
+      "object_class"
+    ],
+    "sequence_policy": "bounded local fixtures only; not full autoregressive inference"
+  },
+  "claim_boundary": "MINIMAL_TRANSFORMER_BLOCK_BENCHMARK_CONTRACT_WITH_EXPLICIT_OBJECT_CLASSES_NO_MATCHED_EXTERNAL_WIN_NO_NATIVE_FULL_BLOCK_PROOF",
+  "comparison_policy": {
+    "allowed_now": [
+      "internal frontier comparisons",
+      "source-backed external context",
+      "object-class gap accounting",
+      "follow-up issue generation"
+    ],
+    "forbidden_now": [
+      "NANOZK win",
+      "Jolt or Atlas win",
+      "full transformer-block proof claim",
+      "timing claim",
+      "model-faithful accuracy claim"
+    ],
+    "matched_external_comparison_requires": [
+      "same block semantics",
+      "same dimensions or an explicit scaling model",
+      "same object class",
+      "source-backed or locally reproduced external numbers",
+      "proof-size accounting policy",
+      "median-of-5 timing policy before time claims"
+    ]
+  },
+  "component_rows": [
+    {
+      "claim_boundary": "attention arithmetic and lookup membership surface only",
+      "comparability": "LOCAL_COMPONENT_ONLY_NOT_MATCHED_EXTERNAL_BENCHMARK",
+      "component": "attention_boundary_and_softmax_lookup",
+      "evidence_path": "docs/engineering/evidence/zkai-d128-attention-mlp-boundary-frontier-2026-05.json",
+      "local_status": "GO_EXISTING_COMPONENT_PROOF_NOT_FULL_BLOCK",
+      "object_class": "local_native_stwo_proof_component",
+      "primary_metric": "attention_fused_typed_bytes",
+      "primary_value": 18124,
+      "proof_system": "Stwo/STARK"
+    },
+    {
+      "claim_boundary": "RMSNorm/SwiGLU/down/residual substitute surface, not exact transformer layer semantics",
+      "comparability": "RMSNORM_SWIGLU_SUBSTITUTE_NOT_EXACT_LAYER_NORM_GELU",
+      "component": "rmsnorm_mlp_residual_substitute",
+      "evidence_path": "docs/engineering/evidence/zkai-d128-attention-mlp-boundary-frontier-2026-05.json",
+      "local_status": "GO_DERIVED_D128_RMSNORM_MLP_FUSED_COMPONENT",
+      "object_class": "local_native_stwo_proof_component",
+      "primary_metric": "derived_mlp_fused_typed_bytes",
+      "primary_value": 22576,
+      "proof_system": "Stwo/STARK"
+    },
+    {
+      "claim_boundary": "real layout lever; fails worst-label policy by 2,024 typed bytes",
+      "comparability": "PROOF_OBJECT_ATTEMPT_STILL_ABOVE_TWO_PROOF_FRONTIER",
+      "component": "attention_to_d128_adapter_layout",
+      "evidence_path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.json",
+      "local_status": "NO_GO_WORST_LABEL_FRONTIER_PROMOTION",
+      "object_class": "local_native_stwo_proof_object_attempt",
+      "primary_metric": "adjacent_worst_label_typed_bytes",
+      "primary_value": 42724,
+      "proof_system": "Stwo/STARK"
+    },
+    {
+      "claim_boundary": "current honest frontier is two proof objects, not one block proof",
+      "comparability": "INTERNAL_FRONTIER_ONLY",
+      "component": "two_proof_frontier",
+      "evidence_path": "docs/engineering/evidence/zkai-d128-attention-mlp-boundary-frontier-2026-05.json",
+      "local_status": "GO_CURRENT_COMPARISON_FRONTIER_NOT_ONE_PROOF",
+      "object_class": "local_two_proof_target",
+      "primary_metric": "two_proof_frontier_typed_bytes",
+      "primary_value": 40700,
+      "proof_system": "Stwo/STARK"
+    },
+    {
+      "claim_boundary": "binds the object to a statement chain; does not prove the whole block natively",
+      "comparability": "STATEMENT_VALIDITY_SURFACE_NOT_PROOF_SIZE_ROW",
+      "component": "typed_public_statement_chain",
+      "evidence_path": "docs/engineering/evidence/zkai-one-transformer-block-surface-2026-05.json",
+      "local_status": "GO_STATEMENT_BOUNDARY_NOT_PROOF_OBJECT",
+      "object_class": "local_statement_artifact",
+      "primary_metric": "statement_chain_rows",
+      "primary_value": 199553,
+      "proof_system": "statement artifact"
+    },
+    {
+      "claim_boundary": "useful verifier-facing package signal; not the STARK-native benchmark row",
+      "comparability": "EXTERNAL_RECEIPT_NOT_NATIVE_STARK_PROOF",
+      "component": "external_statement_receipt",
+      "evidence_path": "docs/engineering/evidence/zkai-one-transformer-block-surface-2026-05.json",
+      "local_status": "GO_EXECUTABLE_STATEMENT_RECEIPT_NOT_STARK_NATIVE_BLOCK_PROOF",
+      "object_class": "external_snark_statement_receipt",
+      "primary_metric": "external_receipt_proof_bytes",
+      "primary_value": 807,
+      "proof_system": "Groth16/SNARK"
+    },
+    {
+      "claim_boundary": "missing object; benchmark cannot claim matched proof-size or timing",
+      "comparability": "REQUIRED_BEFORE_NANOZK_OR_JOLT_PROOF_SIZE_COMPARISON",
+      "component": "native_full_block_proof_object",
+      "evidence_path": "",
+      "local_status": "NO_GO_NATIVE_BLOCK_PROOF_OBJECT_MISSING",
+      "object_class": "missing_native_proof_object",
+      "primary_metric": "native_block_proof_bytes",
+      "primary_value": null,
+      "proof_system": "Stwo/STARK"
+    },
+    {
+      "claim_boundary": "paper-reported context only",
+      "comparability": "CONTEXT_ONLY_NOT_LOCAL_REPRODUCTION_NOT_MATCHED_WORKLOAD",
+      "component": "nanozk_context_row",
+      "evidence_path": "docs/engineering/evidence/zkai-one-transformer-block-surface-2026-05.json",
+      "local_status": "SOURCE_BACKED_CONTEXT_ONLY",
+      "object_class": "paper_reported_external_context",
+      "primary_metric": "reported_proof_size_bytes",
+      "primary_value": 6900,
+      "proof_system": "paper-reported"
+    },
+    {
+      "claim_boundary": "exploratory dense-layer sidecar lane only",
+      "comparability": "NOT_IMPLEMENTED_BASELINE",
+      "component": "gkr_hyrax_sidecar_lane",
+      "evidence_path": "https://github.com/omarespejel/provable-transformer-vm/issues/650",
+      "local_status": "FOLLOWUP_ISSUE_650_NOT_IMPLEMENTED",
+      "object_class": "followup_hypothesis",
+      "primary_metric": "implemented",
+      "primary_value": false,
+      "proof_system": "GKR/Hyrax candidate"
+    },
+    {
+      "claim_boundary": "exploratory lookup/tensor comparison lane only",
+      "comparability": "NOT_IMPLEMENTED_BASELINE",
+      "component": "jolt_atlas_lookup_tensor_lane",
+      "evidence_path": "https://github.com/omarespejel/provable-transformer-vm/issues/651",
+      "local_status": "FOLLOWUP_ISSUE_651_NOT_IMPLEMENTED",
+      "object_class": "followup_hypothesis",
+      "primary_metric": "implemented",
+      "primary_value": false,
+      "proof_system": "Jolt/Atlas candidate"
+    }
+  ],
+  "decision": "GO_MINIMAL_BLOCK_BENCHMARK_CONTRACT_NO_GO_MATCHED_PROOF_CLAIM",
+  "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/649",
+  "mutation_count": 14,
+  "mutation_results": [
+    {
+      "name": "component_omitted",
+      "reason": "component_rows drift",
+      "rejected": true
+    },
+    {
+      "name": "native_block_proof_promoted",
+      "reason": "component_rows drift",
+      "rejected": true
+    },
+    {
+      "name": "approximation_policy_removed",
+      "reason": "benchmark_spec drift",
+      "rejected": true
+    },
+    {
+      "name": "nanozk_marked_matched",
+      "reason": "component_rows drift",
+      "rejected": true
+    },
+    {
+      "name": "source_digest_drift",
+      "reason": "source_artifacts drift",
+      "rejected": true
+    },
+    {
+      "name": "non_claim_removed",
+      "reason": "non_claims drift",
+      "rejected": true
+    },
+    {
+      "name": "statement_binding_removed",
+      "reason": "benchmark_spec drift",
+      "rejected": true
+    },
+    {
+      "name": "gkr_lane_hidden",
+      "reason": "component_rows drift",
+      "rejected": true
+    },
+    {
+      "name": "jolt_lane_hidden",
+      "reason": "component_rows drift",
+      "rejected": true
+    },
+    {
+      "name": "two_proof_frontier_reduced",
+      "reason": "summary drift",
+      "rejected": true
+    },
+    {
+      "name": "worst_label_gap_zeroed",
+      "reason": "summary drift",
+      "rejected": true
+    },
+    {
+      "name": "validation_commands_erased",
+      "reason": "validation_commands drift",
+      "rejected": true
+    },
+    {
+      "name": "issue_link_drift",
+      "reason": "issue drift",
+      "rejected": true
+    },
+    {
+      "name": "payload_commitment_drift",
+      "reason": "payload commitment drift",
+      "rejected": true
+    }
+  ],
+  "mutations_rejected": 14,
+  "non_claims": [
+    "not a full LLM proof",
+    "not production zkML",
+    "not exact real-valued Softmax",
+    "not exact LayerNorm",
+    "not exact GELU",
+    "not a NANOZK proof-size win",
+    "not a Jolt or Atlas benchmark win",
+    "not a GKR or Hyrax implementation",
+    "not timing evidence",
+    "not recursion or proof-carrying data"
+  ],
+  "payload_commitment": "blake2b-256:1d9e585422d8b7ce09d3d6ad65450fbdfbfab32f4a0a292ff1f95df84c598f59",
+  "result": "BENCHMARK_CONTRACT_READY_MISSING_NATIVE_BLOCK_PROOF_OBJECT",
+  "schema": "zkai-minimal-transformer-block-benchmark-v1",
+  "source_artifacts": [
+    {
+      "decision": "GO_ONE_TRANSFORMER_BLOCK_SURFACE_NO_GO_MATCHED_LAYER_PROOF",
+      "file_sha256": "e02fa957b2ca7d54056d564b53fd64bcdb5b94983dc1c7d59e4dc3c017436022",
+      "path": "docs/engineering/evidence/zkai-one-transformer-block-surface-2026-05.json",
+      "payload_sha256": "315729692adf873a6fab16882f03f8b349ee87b7a13d1030ffcc0660d1a48fc6",
+      "schema": "zkai-one-transformer-block-surface-v1"
+    },
+    {
+      "decision": "NARROW_CLAIM_ATTENTION_PLUS_DERIVED_MLP_BOUNDARY_FRONTIER_PINNED",
+      "file_sha256": "04db68f8005ed11a5d593b7ad39b8e602fa4ea2899191a0a438ac5f8b3080679",
+      "path": "docs/engineering/evidence/zkai-d128-attention-mlp-boundary-frontier-2026-05.json",
+      "payload_sha256": "3cbb753120b255bf70f64d76c313e6fd4ab5a290fa719550c38baf8b60b8e700",
+      "schema": "zkai-d128-attention-mlp-boundary-frontier-gate-v1"
+    },
+    {
+      "decision": "NO_GO_WORST_LABEL_FRONTIER_PROMOTION_BUT_GO_LAYOUT_LEVER",
+      "file_sha256": "002141cd6dc9a5216cb1f6236863e9c55b6030a73b99d2c0a81b1f55183b5fea",
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.json",
+      "payload_sha256": "3510b65d4a81512e03a43bf1839969bb63a32f7784a1335b8e1cf4d7da5de178",
+      "schema": "zkai-native-attention-mlp-rmsnorm-adjacent-layout-gate-v1"
+    },
+    {
+      "decision": "GO_MATCHED_D64_D128_EVIDENCE_TABLE_NO_GO_NATIVE_PROOF_SIZE_WIN",
+      "file_sha256": "e6e2182e3b7a3a042f224e9be7c2c7292c3a988fb81f42f8554e0b4b2e650b28",
+      "path": "docs/engineering/evidence/zkai-matched-d64-d128-evidence-table-2026-05.json",
+      "payload_sha256": "85ee4876183abbaa4fdf8e3a43b430dcfe30b1a84700a0626e34a8343d80a44a",
+      "schema": "zkai-matched-d64-d128-evidence-table-v1"
+    }
+  ],
+  "summary": {
+    "adjacent_layout_canonical_typed_bytes": 40948,
+    "adjacent_worst_label_gap_typed_bytes": 2024,
+    "adjacent_worst_label_typed_bytes": 42724,
+    "component_count": 10,
+    "external_statement_receipt_proof_bytes": 807,
+    "gap_to_nanozk_from_two_proof_frontier_typed_bytes": 33800,
+    "missing_native_block_proof_object": true,
+    "nanozk_reported_d128_block_proof_bytes": 6900,
+    "proof_component_count": 2,
+    "statement_chain_rows": 199553,
+    "two_proof_frontier_typed_bytes": 40700
+  },
+  "validation_commands": [
+    "python3 scripts/zkai_minimal_transformer_block_benchmark_gate.py --write-json docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json --write-tsv docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.tsv",
+    "python3 -m py_compile scripts/zkai_minimal_transformer_block_benchmark_gate.py scripts/tests/test_zkai_minimal_transformer_block_benchmark_gate.py",
+    "python3 -m unittest scripts.tests.test_zkai_minimal_transformer_block_benchmark_gate",
+    "python3 scripts/research_issue_lint.py --repo-root .",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}

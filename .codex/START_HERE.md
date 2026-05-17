@@ -124,8 +124,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 118. `docs/engineering/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05-17.md`
 119. `docs/engineering/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05-17.md`
 120. `docs/engineering/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05-17.md`
-121. `docs/engineering/reproducibility.md`
-122. `git status --short --branch`
+121. `docs/engineering/zkai-minimal-transformer-block-benchmark-2026-05-17.md`
+122. `docs/engineering/reproducibility.md`
+123. `git status --short --branch`
 
 ## What this repository is now
 
@@ -226,8 +227,8 @@ This repository currently has three live lanes.
      `83.3929%` of that overhang while preserving source binding and value
      semantics. Full removal would model to `40,420` typed bytes, `280` below
      the current frontier, but this is not a proof-size win or a new proof
-   object and does not close issue `#644`; see
-   `docs/engineering/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05-17.md`.
+     object and does not close issue `#644`; see
+     `docs/engineering/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05-17.md`.
    - The RMSNorm-input adjacent fixed-column layout is now a real regenerated
      proof-object NO-GO that still teaches something useful. Moving the fixed
      adapter columns next to the RMSNorm public-row columns keeps adapter base
@@ -238,6 +239,14 @@ This repository currently has three live lanes.
      that opening layout matters, but current label stability is the blocker;
      see
      `docs/engineering/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05-17.md`.
+   - The minimal transformer-block benchmark contract is now the comparison
+     guardrail for the next phase. It has `10` component/object-class rows,
+     pins `d128` model width with a current `d8` attention source, records the
+     current `40,700` typed-byte two-proof frontier, keeps the missing native
+     full-block proof object explicit, and rejects `14 / 14` claim-drift
+     mutations. Treat it as the shared benchmark contract, not as a proof-size
+     win; see
+     `docs/engineering/zkai-minimal-transformer-block-benchmark-2026-05-17.md`.
    - The current attention-to-RMSNorm/MLP boundary is a checked NO-GO for one
      value-connected native proof object: the attention-derived d128 statement
      chain has `199,553` accounted rows (`1.010374x` the MLP fused surface),
