@@ -25,7 +25,7 @@ Important numbers:
 - layernorm ratio versus local Stwo dense typed bytes: `2.306875x`
 - local GKR GO fixture count: `5`
 - local GKR NO-GO fixture count: `3`
-- comparison rows: `9`
+- comparison rows: `10`
 - mutation gate: `6 / 6` rejected
 
 Human meaning: GKR-style tooling is interesting for tiny layered dense
@@ -40,6 +40,7 @@ keep GKR/Expander as a sidecar and baseline lane, not pivot away from Stwo.
 | --- | --- | --- | ---: | --- |
 | local Stwo dense substitute | Stwo/STARK | local frontier | `22,576` typed bytes | local typed accounting |
 | tiny Gemm | JSTprove/Remainder-GKR | GO | `11,645` proof bytes | tiny projection only |
+| tiny Gemm + Add | JSTprove/Remainder-GKR | GO | `36,449` proof bytes | tiny projection plus add only |
 | tiny Gemm + residual add | JSTprove/Remainder-GKR | GO | `56,054` proof bytes | not d128 MLP |
 | tiny Gemm + layernorm | JSTprove/Remainder-GKR | GO | `52,080` proof bytes | not our RMSNorm substitute |
 | tiny Gemm + batchnorm | JSTprove/Remainder-GKR | GO | `95,105` proof bytes | normalization-like only |

@@ -17,6 +17,7 @@ class GkrDenseSidecarBaselineGateTest(unittest.TestCase):
         self.assertEqual(payload["summary"]["jstprove_tiny_gemm_ratio_vs_stwo_dense_typed"], "0.515813")
         self.assertEqual(payload["summary"]["jstprove_residual_add_proof_bytes"], 56_054)
         self.assertEqual(payload["summary"]["jstprove_layernorm_proof_bytes"], 52_080)
+        self.assertEqual(payload["summary"]["comparison_rows"], 10)
         self.assertEqual(payload["mutation_count"], 6)
         self.assertEqual(payload["mutations_rejected"], 6)
 
@@ -24,6 +25,7 @@ class GkrDenseSidecarBaselineGateTest(unittest.TestCase):
         rows = {row["row_id"]: row for row in gate.build_payload()["rows"]}
         self.assertEqual(rows["local_stwo_dense_substitute"]["primary_value"], 22_576)
         self.assertEqual(rows["tiny_gemm"]["status"], "GO")
+        self.assertEqual(rows["tiny_gemm_add"]["primary_value"], 36_449)
         self.assertEqual(rows["tiny_gemm_residual_add"]["primary_value"], 56_054)
         self.assertEqual(rows["tiny_gemm_layernorm"]["primary_value"], 52_080)
         self.assertEqual(rows["tiny_gemm_relu"]["primary_metric"], "range_check_capacity")
@@ -112,6 +114,28 @@ class GkrDenseSidecarBaselineGateTest(unittest.TestCase):
                 gate.write_outputs(payload, path, None)
         finally:
             path.unlink(missing_ok=True)
+
+    def test_rejects_missing_summary_row_with_gate_error(self) -> None:
+        payload = gate.build_payload()
+        rows = [row for row in payload["rows"] if row["row_id"] != "tiny_gemm"]
+        with self.assertRaisesRegex(gate.GkrDenseBaselineError, "missing summary row: tiny_gemm"):
+            gate.build_summary(rows, gate.load_sources())
+
+    def test_rejects_shape_count_drift(self) -> None:
+        sources = gate.load_sources()
+        rows = gate.build_rows(sources)
+        sources["shape"] = copy.deepcopy(sources["shape"])
+        del sources["shape"]["conclusion"]["go_count"]
+        with self.assertRaisesRegex(gate.GkrDenseBaselineError, "shape go_count"):
+            gate.build_summary(rows, sources)
+
+    def test_rejects_shape_count_mismatch(self) -> None:
+        sources = gate.load_sources()
+        rows = gate.build_rows(sources)
+        sources["shape"] = copy.deepcopy(sources["shape"])
+        sources["shape"]["conclusion"]["go_count"] += 1
+        with self.assertRaisesRegex(gate.GkrDenseBaselineError, "fixture counts drift"):
+            gate.build_summary(rows, sources)
 
 
 if __name__ == "__main__":
