@@ -404,8 +404,8 @@ beat the `40,700` typed-byte two-proof frontier under the worst label in the
 checked inventory, not under one favorable transcript. The current best label is
 `40,836` typed bytes (`+136`, needing `137` bytes to beat the frontier), but the
 worst label is `42,100` typed bytes (`+1,400`, needing `1,401` bytes to beat the
-frontier). The policy gate rejects `17 / 17` promotion, metric, source,
-interpretation, non-claim, and payload-commitment drift cases. This is a
+frontier). The policy gate rejects `18 / 18` promotion, metric, inventory-byte,
+source, interpretation, non-claim, and payload-commitment drift cases. This is a
 NO-GO for frontier promotion and a GO for using worst-label inventory as the
 next opening-layout promotion rule; see
 `docs/engineering/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05-17.md`.

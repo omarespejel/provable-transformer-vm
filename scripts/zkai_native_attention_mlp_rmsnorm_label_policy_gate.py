@@ -55,6 +55,26 @@ POLICY_CANDIDATE_ORDER = (
     "mean_two_label_probes",
     "worst_label_inventory",
 )
+EXPECTED_LABEL_INVENTORY = {
+    "rmsnorm_input_fused": {
+        "typed_bytes": 41_428,
+        "path_opening_bytes": 20_512,
+        "value_bytes": 20_868,
+        "value_delta_vs_canonical": 0,
+    },
+    "label_probe_a": {
+        "typed_bytes": 40_836,
+        "path_opening_bytes": 19_920,
+        "value_bytes": 20_868,
+        "value_delta_vs_canonical": 0,
+    },
+    "label_probe_b": {
+        "typed_bytes": 42_100,
+        "path_opening_bytes": 21_184,
+        "value_bytes": 20_868,
+        "value_delta_vs_canonical": 0,
+    },
+}
 
 HUMAN_READ = (
     "The best observed label is only 136 typed bytes above the two-proof frontier, "
@@ -100,6 +120,7 @@ EXPECTED_MUTATION_NAMES = (
     "worst_policy_reduction_drift",
     "single_label_promoted",
     "label_span_erased",
+    "inventory_byte_drift",
     "candidate_missing_worst_label",
     "source_digest_drift",
     "source_commitment_drift",
@@ -460,6 +481,9 @@ def validate_payload(payload: dict[str, Any]) -> None:
             raise LabelPolicyError("unknown label inventory item")
         inventory_by_name[name] = label
         value_deltas.append(_int(label.get("value_delta_vs_canonical"), f"{name}.value_delta"))
+        for field, expected_value in EXPECTED_LABEL_INVENTORY[name].items():
+            if _int(label.get(field), f"{name}.{field}") != expected_value:
+                raise LabelPolicyError(f"{name} inventory byte drift")
     if any(delta != 0 for delta in value_deltas[1:]):
         raise LabelPolicyError("label value delta drift")
 
@@ -589,6 +613,7 @@ def run_mutations(payload: dict[str, Any]) -> dict[str, Any]:
             lambda p: p["promotion_policy"].__setitem__("single_label_frontier_promotable", True),
         ),
         ("label_span_erased", lambda p: p["summary"].__setitem__("label_span_typed_bytes", 0)),
+        ("inventory_byte_drift", lambda p: p["label_inventory"][0].__setitem__("typed_bytes", 41_429)),
         ("candidate_missing_worst_label", lambda p: p["policy_candidates"].pop("worst_label_inventory")),
         ("source_digest_drift", lambda p: p["source_artifacts"][0].__setitem__("sha256", "00" * 32)),
         (
