@@ -80,11 +80,11 @@ Non-claims:
 - Tests:
   `scripts/tests/test_zkai_native_attention_mlp_rmsnorm_adjacent_layout_gate.py`
 
-The gate rejects `12 / 12` mutation cases covering frontier overclaim, result
+The gate rejects `14 / 14` mutation cases covering frontier overclaim, result
 overclaim, worst-label erasure, canonical-saving drift, label-span drift,
 NANOZK overclaim, source digest drift, non-claim erasure, validation-command
-erasure, variant metric drift, grouped-field drift, and payload-commitment
-drift.
+erasure, variant provenance drift, interpretation drift, variant metric drift,
+grouped-field drift, and payload-commitment drift.
 
 ## Reproduction
 
@@ -98,7 +98,7 @@ Metadata:
 - Timing mode: proof-size and verification evidence only; no timing claim and
   no median-of-5 policy.
 - Step counts: `3` adjacent build/prove/verify runs, `5` accounting rows,
-  `12 / 12` mutation guards rejected, `16 / 16` Python tests, `18 / 18`
+  `14 / 14` mutation guards rejected, `19 / 19` Python tests, `18 / 18`
   targeted Rust tests, and `14 / 14` full local release-gate steps.
 - Evidence paths:
   - `docs/engineering/evidence/zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json`

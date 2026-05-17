@@ -137,6 +137,35 @@ NON_CLAIMS = (
     "does not close issue 644",
 )
 
+INTERPRETATION = {
+    "human_read": (
+        "Moving the RMSNorm-input fixed adapter columns next to the RMSNorm public-row columns is a real "
+        "proof-layout lever: canonical typed bytes drop by 480. It is not enough for promotion because "
+        "the bad adjacent label is 42,724 typed bytes, 2,024 above the two-proof frontier."
+    ),
+    "next_attack": (
+        "Do not claim a frontier win. The next useful route must stabilize query/opening behavior across "
+        "labels or find another component ordering that keeps the 480-byte canonical saving without the "
+        "1,776-byte adjacent label penalty."
+    ),
+}
+
+VARIANT_KEYS = {
+    "name",
+    "evidence_relative_path",
+    "proof_json_bytes",
+    "typed_bytes",
+    "typed_delta_vs_two_proof_frontier",
+    "path_opening_bytes",
+    "path_opening_delta_vs_canonical",
+    "value_bytes",
+    "value_delta_vs_canonical",
+    "typed_groups",
+    "record_stream_sha256",
+    "label_probe",
+    "layout_probe",
+}
+
 VALIDATION_COMMANDS = (
     "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-rmsnorm-fused-adjacent docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.input.json",
     "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json",
@@ -355,18 +384,7 @@ def build_payload(*, include_mutations: bool = True) -> dict[str, Any]:
         "adjacent_best_label_typed_bytes": best["typed_bytes"],
         "adjacent_label_span_typed_bytes": worst["typed_bytes"] - best["typed_bytes"],
         "variants": variants,
-        "interpretation": {
-            "human_read": (
-                "Moving the RMSNorm-input fixed adapter columns next to the RMSNorm public-row columns is a real "
-                "proof-layout lever: canonical typed bytes drop by 480. It is not enough for promotion because "
-                "the bad adjacent label is 42,724 typed bytes, 2,024 above the two-proof frontier."
-            ),
-            "next_attack": (
-                "Do not claim a frontier win. The next useful route must stabilize query/opening behavior across "
-                "labels or find another component ordering that keeps the 480-byte canonical saving without the "
-                "1,776-byte adjacent label penalty."
-            ),
-        },
+        "interpretation": dict(INTERPRETATION),
         "non_claims": list(NON_CLAIMS),
         "validation_commands": list(VALIDATION_COMMANDS),
         "mutation_results": [],
@@ -427,10 +445,34 @@ def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True)
         variant = variants[name]
         if not isinstance(variant, dict):
             raise AdjacentLayoutGateError(f"{name} variant is not object")
+        if set(variant) != VARIANT_KEYS:
+            raise AdjacentLayoutGateError(f"{name} variant key drift")
+        if variant["name"] != name:
+            raise AdjacentLayoutGateError(f"{name} variant name drift")
+        if variant["evidence_relative_path"] != expected["path"]:
+            raise AdjacentLayoutGateError(f"{name} variant path drift")
         if variant["typed_bytes"] != expected["typed"] or variant["proof_json_bytes"] != expected["proof_json"]:
             raise AdjacentLayoutGateError(f"{name} variant metric drift")
         if variant["typed_groups"] != expected["groups"]:
             raise AdjacentLayoutGateError(f"{name} group drift")
+        if variant["record_stream_sha256"] != expected["record_stream_sha256"]:
+            raise AdjacentLayoutGateError(f"{name} record stream digest drift")
+        if variant["typed_delta_vs_two_proof_frontier"] != expected["typed"] - TWO_PROOF_FRONTIER_TYPED_BYTES:
+            raise AdjacentLayoutGateError(f"{name} frontier delta drift")
+        if variant["path_opening_bytes"] != path_opening_bytes(expected["groups"]):
+            raise AdjacentLayoutGateError(f"{name} path-opening byte drift")
+        if variant["path_opening_delta_vs_canonical"] != path_opening_bytes(expected["groups"]) - path_opening_bytes(
+            EXPECTED_VARIANTS["rmsnorm_input_fused"]["groups"]
+        ):
+            raise AdjacentLayoutGateError(f"{name} path-opening delta drift")
+        if variant["value_bytes"] != value_bytes(expected["groups"]):
+            raise AdjacentLayoutGateError(f"{name} value byte drift")
+        if variant["value_delta_vs_canonical"] != value_bytes(expected["groups"]) - value_bytes(
+            EXPECTED_VARIANTS["rmsnorm_input_fused"]["groups"]
+        ):
+            raise AdjacentLayoutGateError(f"{name} value delta drift")
+        if variant["label_probe"] is not expected["label_probe"] or variant["layout_probe"] is not expected["layout_probe"]:
+            raise AdjacentLayoutGateError(f"{name} probe flag drift")
     adjacent = variants["adjacent_layout"]
     canonical = variants["rmsnorm_input_fused"]
     compact = variants["compact_selector"]
@@ -462,6 +504,8 @@ def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True)
         raise AdjacentLayoutGateError("label span drift")
     if payload["adjacent_worst_label_delta_vs_frontier_typed_bytes"] <= 0:
         raise AdjacentLayoutGateError("frontier overclaim: worst adjacent label does not beat frontier")
+    if payload["interpretation"] != INTERPRETATION:
+        raise AdjacentLayoutGateError("interpretation drift")
     non_claims = payload["non_claims"]
     if not isinstance(non_claims, list) or any(not isinstance(item, str) for item in non_claims):
         raise AdjacentLayoutGateError("non-claims must be a list of strings")
@@ -485,6 +529,8 @@ MUTATIONS = (
     ("source_digest_drift", lambda p: p.__setitem__("source_accounting_sha256", "0" * 64)),
     ("non_claims_erased", lambda p: p.__setitem__("non_claims", [])),
     ("validation_commands_erased", lambda p: p.__setitem__("validation_commands", [])),
+    ("variant_path_drift", lambda p: p["variants"]["adjacent_layout"].__setitem__("evidence_relative_path", "other.json")),
+    ("interpretation_drift", lambda p: p.__setitem__("interpretation", {"human_read": "frontier win"})),
     ("variant_metric_drift", lambda p: p["variants"]["adjacent_layout"].__setitem__("typed_bytes", 40_700)),
     ("group_drift", lambda p: p["variants"]["adjacent_layout"]["typed_groups"].__setitem__("fri_decommitments", 0)),
     ("payload_commitment_drift", lambda p: p.__setitem__("payload_commitment", "blake2b-256:" + "0" * 64)),
@@ -552,6 +598,15 @@ def tsv_text(payload: dict[str, Any]) -> str:
 
 
 def normalize_output_path(path: pathlib.Path) -> pathlib.Path:
+    try:
+        original_st = os.lstat(path)
+    except FileNotFoundError:
+        pass
+    else:
+        if stat.S_ISLNK(original_st.st_mode):
+            raise AdjacentLayoutGateError(f"refusing to write through symlink: {path}")
+        if not stat.S_ISREG(original_st.st_mode):
+            raise AdjacentLayoutGateError(f"output path is not a regular file: {path}")
     resolved = path.resolve()
     evidence_root = EVIDENCE_DIR.resolve()
     if evidence_root != resolved and evidence_root not in resolved.parents:
