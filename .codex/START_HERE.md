@@ -121,8 +121,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 115. `docs/engineering/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05-17.md`
 116. `docs/engineering/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05-17.md`
 117. `docs/engineering/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05-17.md`
-118. `docs/engineering/reproducibility.md`
-119. `git status --short --branch`
+118. `docs/engineering/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05-17.md`
+119. `docs/engineering/reproducibility.md`
+120. `git status --short --branch`
 
 ## What this repository is now
 
@@ -209,6 +210,13 @@ This repository currently has three live lanes.
      a no-go for frontier promotion and a requirement for a multi-label or
      query-inventory policy before any sub-kilobyte opening-layout claim; see
      `docs/engineering/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05-17.md`.
+   - The RMSNorm-input label-policy follow-up now pins that multi-label rule:
+     future opening-layout wins must beat the `40,700` typed-byte two-proof
+     frontier under the worst label in the checked inventory, not under one
+     favorable transcript. The current worst label is `42,100` typed bytes, so
+     the honest promotion target is a `1,401` typed-byte reduction, not the
+     `137` bytes suggested by the best single label; see
+     `docs/engineering/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05-17.md`.
    - The current attention-to-RMSNorm/MLP boundary is a checked NO-GO for one
      value-connected native proof object: the attention-derived d128 statement
      chain has `199,553` accounted rows (`1.010374x` the MLP fused surface),
