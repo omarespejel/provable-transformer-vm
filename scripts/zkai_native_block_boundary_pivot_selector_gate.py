@@ -97,6 +97,38 @@ SOURCE_ARTIFACTS_KEY = "__source_artifacts"
 LARGER_NATIVE_BOUNDARY_EVIDENCE = (
     "six-component MLP fusion saves 32,144 typed bytes while current adapter/reorder routes are label-fragile"
 )
+SUB_KILOBYTE_REORDER_EVIDENCE = (
+    "post-tail canonical is 42,724 typed bytes and matches the adjacent bad-label record stream"
+)
+CURRENT_GKR_PROJECTION_EVIDENCE = (
+    "width-preserving GKR dim2/dim4 rows are already heavier than local Stwo dense baselines"
+)
+COMPACT_PREPROCESSED_EVIDENCE = (
+    "6,264 typed bytes is below the NANOZK paper row but only for selected public RMSNorm plus bridge"
+)
+COMPARISON_GUARDRAIL_EVIDENCE = (
+    "minimal block benchmark still has missing native block proof object and zero matched external proof-size rows"
+)
+LARGER_NATIVE_BOUNDARY_NEXT_GATE = (
+    "build a larger source-bound native boundary or amortization gate before another local reorder"
+)
+SUB_KILOBYTE_REORDER_NEXT_GATE = (
+    "reopen only with label-stable query/opening policy and worst-label proof below 40,700 typed bytes"
+)
+CURRENT_GKR_PROJECTION_NEXT_GATE = "reopen only with a live dim8/16/32 sweep or a new GKR backend"
+COMPACT_PREPROCESSED_NEXT_GATE = (
+    "extend only to public-row-like surfaces; do not compare as a full d128 block proof"
+)
+COMPARISON_GUARDRAIL_NEXT_GATE = (
+    "keep comparison table separated by object class, source status, and local reproduction status"
+)
+ROUTE_TEXT_EXPECTATIONS = {
+    "larger_native_block_boundary": (LARGER_NATIVE_BOUNDARY_EVIDENCE, LARGER_NATIVE_BOUNDARY_NEXT_GATE),
+    "sub_kilobyte_adapter_reorder": (SUB_KILOBYTE_REORDER_EVIDENCE, SUB_KILOBYTE_REORDER_NEXT_GATE),
+    "current_gkr_projection_sidecar": (CURRENT_GKR_PROJECTION_EVIDENCE, CURRENT_GKR_PROJECTION_NEXT_GATE),
+    "compact_preprocessed_public_rows": (COMPACT_PREPROCESSED_EVIDENCE, COMPACT_PREPROCESSED_NEXT_GATE),
+    "comparison_claim_guardrail": (COMPARISON_GUARDRAIL_EVIDENCE, COMPARISON_GUARDRAIL_NEXT_GATE),
+}
 INTERPRETATION_HUMAN_READ = (
     "The next serious attack is a larger native proof boundary. The local reorder route is now "
     "label-fragile, current GKR projection scaling is parked, and the positive mechanism remains "
@@ -366,43 +398,43 @@ def base_payload(sources: dict[str, Any]) -> dict[str, Any]:
             STRICT_NATIVE_ADAPTER_TYPED_BYTES,
             STRICT_NATIVE_ADAPTER_GAP_BYTES,
             False,
-            "build a larger source-bound native boundary or amortization gate before another local reorder",
+            LARGER_NATIVE_BOUNDARY_NEXT_GATE,
         ),
         route(
             "sub_kilobyte_adapter_reorder",
             "PARK_NOW",
-            "post-tail canonical is 42,724 typed bytes and matches the adjacent bad-label record stream",
+            SUB_KILOBYTE_REORDER_EVIDENCE,
             POST_TAIL_TYPED_BYTES,
             POST_TAIL_GAP_BYTES,
             False,
-            "reopen only with label-stable query/opening policy and worst-label proof below 40,700 typed bytes",
+            SUB_KILOBYTE_REORDER_NEXT_GATE,
         ),
         route(
             "current_gkr_projection_sidecar",
             "PARK_NOW",
-            "width-preserving GKR dim2/dim4 rows are already heavier than local Stwo dense baselines",
+            CURRENT_GKR_PROJECTION_EVIDENCE,
             GKR_SMALLEST_WIDTH_PRESERVING_BYTES,
             GKR_SMALLEST_WIDTH_PRESERVING_BYTES - TWO_PROOF_FRONTIER_TYPED_BYTES,
             False,
-            "reopen only with a live dim8/16/32 sweep or a new GKR backend",
+            CURRENT_GKR_PROJECTION_NEXT_GATE,
         ),
         route(
             "compact_preprocessed_public_rows",
             "USE_SELECTIVELY",
-            "6,264 typed bytes is below the NANOZK paper row but only for selected public RMSNorm plus bridge",
+            COMPACT_PREPROCESSED_EVIDENCE,
             COMPACT_PREPROCESSED_TYPED_BYTES,
             COMPACT_PREPROCESSED_TYPED_BYTES - TWO_PROOF_FRONTIER_TYPED_BYTES,
             False,
-            "extend only to public-row-like surfaces; do not compare as a full d128 block proof",
+            COMPACT_PREPROCESSED_NEXT_GATE,
         ),
         route(
             "comparison_claim_guardrail",
             "GUARDRAIL",
-            "minimal block benchmark still has missing native block proof object and zero matched external proof-size rows",
+            COMPARISON_GUARDRAIL_EVIDENCE,
             None,
             None,
             False,
-            "keep comparison table separated by object class, source status, and local reproduction status",
+            COMPARISON_GUARDRAIL_NEXT_GATE,
         ),
     ]
     summary = {
@@ -448,7 +480,12 @@ def base_payload(sources: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
+def validate_payload(
+    payload: dict[str, Any],
+    *,
+    final: bool = True,
+    expected_source_artifacts: list[dict[str, Any]] | None = None,
+) -> None:
     expected_keys = {
         "claim_boundary",
         "decision",
@@ -514,6 +551,18 @@ def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
         if not set(NON_CLAIMS).issubset(set(row_non_claims)):
             raise PivotSelectorError("route missing non-claims")
     route_by_id = {row["route_id"]: row for row in routes}
+    for route_id, (expected_evidence, expected_next_gate) in ROUTE_TEXT_EXPECTATIONS.items():
+        row = route_by_id[route_id]
+        expect_equal(
+            require_str(row.get("primary_evidence"), f"{route_id} primary evidence"),
+            expected_evidence,
+            f"{route_id} primary evidence",
+        )
+        expect_equal(
+            require_str(row.get("next_gate"), f"{route_id} next gate"),
+            expected_next_gate,
+            f"{route_id} next gate",
+        )
     expect_equal(route_by_id[SELECTED_NEXT_ROUTE]["selector_status"], "ATTACK_NEXT", "selected route status")
     expect_equal(route_by_id[SELECTED_NEXT_ROUTE]["typed_bytes"], STRICT_NATIVE_ADAPTER_TYPED_BYTES, "selected route typed bytes")
     expect_equal(route_by_id[SELECTED_NEXT_ROUTE]["delta_vs_frontier_typed_bytes"], STRICT_NATIVE_ADAPTER_GAP_BYTES, "selected route frontier delta")
@@ -555,6 +604,12 @@ def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
     expect_equal(actual_source_paths, expected_source_paths, "source artifact paths")
     if len(set(actual_source_paths)) != len(actual_source_paths):
         raise PivotSelectorError("duplicate source artifact path")
+    if expected_source_artifacts is None:
+        expected_source_artifacts = [
+            require_dict(row, "expected source artifact row")
+            for row in require_list(load_sources().get(SOURCE_ARTIFACTS_KEY), "expected source artifacts")
+        ]
+    expect_equal(source_artifacts, expected_source_artifacts, "source artifact descriptor")
 
     non_claims = require_list(payload.get("non_claims"), "non-claims")
     if not set(NON_CLAIMS).issubset(set(non_claims)):
@@ -609,6 +664,18 @@ def mutate_native_adapter_binding_demoted(payload: dict[str, Any]) -> None:
     payload["routes"][0]["primary_evidence"] = "ignore adapter binding and use the smaller statement artifact"
 
 
+def mutate_nonselected_route_rationale_drift(payload: dict[str, Any]) -> None:
+    payload["routes"][3]["primary_evidence"] = "compact preprocessed route is a matched NANOZK benchmark"
+
+
+def mutate_route_next_gate_drift(payload: dict[str, Any]) -> None:
+    payload["routes"][2]["next_gate"] = "reopen now and compare directly to external block proofs"
+
+
+def mutate_source_descriptor_field_drift(payload: dict[str, Any]) -> None:
+    payload["source_artifacts"][0]["sha256"] = "0" * 64
+
+
 def mutate_remove_non_claim(payload: dict[str, Any]) -> None:
     payload["non_claims"] = payload["non_claims"][:-1]
 
@@ -634,6 +701,9 @@ MUTATIONS: tuple[tuple[str, Callable[[dict[str, Any]], None]], ...] = (
     ("mlp_fusion_saving_erased", mutate_mlp_saving_erased),
     ("compact_preprocessed_overclaimed", mutate_compact_preprocessed_overclaimed),
     ("native_adapter_binding_demoted", mutate_native_adapter_binding_demoted),
+    ("nonselected_route_rationale_drift", mutate_nonselected_route_rationale_drift),
+    ("route_next_gate_drift", mutate_route_next_gate_drift),
+    ("source_descriptor_field_drift", mutate_source_descriptor_field_drift),
     ("non_claim_removed", mutate_remove_non_claim),
     ("validation_command_drift", mutate_validation_command_drift),
     ("source_descriptor_path_drift", mutate_source_path_drift),
@@ -641,14 +711,14 @@ MUTATIONS: tuple[tuple[str, Callable[[dict[str, Any]], None]], ...] = (
 )
 
 
-def run_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
+def run_mutations(payload: dict[str, Any], expected_source_artifacts: list[dict[str, Any]]) -> list[dict[str, Any]]:
     results = []
     for name, mutator in MUTATIONS:
         mutated = copy.deepcopy(payload)
         mutator(mutated)
         if name != "payload_commitment_drift":
             try:
-                validate_payload(mutated, final=False)
+                validate_payload(mutated, final=False, expected_source_artifacts=expected_source_artifacts)
             except PivotSelectorError as error:
                 results.append({"name": name, "rejected": True, "error": str(error)})
             else:
@@ -658,7 +728,7 @@ def run_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
             mutated["mutation_count"] = 0
             mutated["mutations_rejected"] = 0
             try:
-                validate_payload(mutated, final=True)
+                validate_payload(mutated, final=True, expected_source_artifacts=expected_source_artifacts)
             except PivotSelectorError as error:
                 results.append({"name": name, "rejected": True, "error": str(error)})
             else:
@@ -667,13 +737,18 @@ def run_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def build_payload() -> dict[str, Any]:
-    payload = base_payload(load_sources())
-    mutation_results = run_mutations(payload)
+    sources = load_sources()
+    expected_source_artifacts = [
+        require_dict(row, "expected source artifact row")
+        for row in require_list(sources.get(SOURCE_ARTIFACTS_KEY), "expected source artifacts")
+    ]
+    payload = base_payload(sources)
+    mutation_results = run_mutations(payload, expected_source_artifacts)
     payload["mutation_results"] = mutation_results
     payload["mutation_count"] = len(mutation_results)
     payload["mutations_rejected"] = sum(1 for row in mutation_results if row["rejected"])
     payload["payload_commitment"] = commitment(payload)
-    validate_payload(payload)
+    validate_payload(payload, expected_source_artifacts=expected_source_artifacts)
     return payload
 
 

@@ -25,8 +25,8 @@ class NativeBlockBoundaryPivotSelectorGateTest(unittest.TestCase):
         self.assertEqual(payload["summary"]["gkr_smallest_width_preserving_bytes"], 70_138)
         self.assertEqual(payload["summary"]["mlp_fusion_typed_saving_bytes"], 32_144)
         self.assertEqual(payload["summary"]["compact_preprocessed_typed_bytes"], 6_264)
-        self.assertEqual(payload["mutation_count"], 12)
-        self.assertEqual(payload["mutations_rejected"], 12)
+        self.assertEqual(payload["mutation_count"], 15)
+        self.assertEqual(payload["mutations_rejected"], 15)
 
     def test_build_payload_is_deterministic(self) -> None:
         payload_1 = gate.build_payload()
@@ -141,13 +141,31 @@ class NativeBlockBoundaryPivotSelectorGateTest(unittest.TestCase):
     def test_rejects_appended_selected_evidence_overclaim(self) -> None:
         payload = gate.base_payload(gate.load_sources())
         payload["routes"][0]["primary_evidence"] = f"{gate.LARGER_NATIVE_BOUNDARY_EVIDENCE}; matched NANOZK benchmark"
-        with self.assertRaisesRegex(gate.PivotSelectorError, "selected route evidence drift"):
+        with self.assertRaisesRegex(gate.PivotSelectorError, "larger_native_block_boundary primary evidence drift"):
             gate.validate_payload(payload, final=False)
 
     def test_rejects_appended_interpretation_overclaim(self) -> None:
         payload = gate.base_payload(gate.load_sources())
         payload["interpretation"]["human_read"] = f"{gate.INTERPRETATION_HUMAN_READ} Full block proof."
         with self.assertRaisesRegex(gate.PivotSelectorError, "human interpretation drift"):
+            gate.validate_payload(payload, final=False)
+
+    def test_rejects_nonselected_route_rationale_drift(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        gate.mutate_nonselected_route_rationale_drift(payload)
+        with self.assertRaisesRegex(gate.PivotSelectorError, "compact_preprocessed_public_rows primary evidence drift"):
+            gate.validate_payload(payload, final=False)
+
+    def test_rejects_route_next_gate_drift(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        gate.mutate_route_next_gate_drift(payload)
+        with self.assertRaisesRegex(gate.PivotSelectorError, "current_gkr_projection_sidecar next gate drift"):
+            gate.validate_payload(payload, final=False)
+
+    def test_rejects_source_descriptor_field_drift(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        gate.mutate_source_descriptor_field_drift(payload)
+        with self.assertRaisesRegex(gate.PivotSelectorError, "source artifact descriptor drift"):
             gate.validate_payload(payload, final=False)
 
     def test_rejects_non_claim_erasure(self) -> None:

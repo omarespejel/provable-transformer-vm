@@ -2041,8 +2041,8 @@ selector `40,812` (`+112`), post-tail canonical `42,724` (`+2,024`) with a
 `1,216` byte label span, GKR width-preserving preflight `70,138`, compact
 preprocessed public-row route `6,264` typed bytes but not comparable to a full
 block, and six-component MLP fusion saving `32,144` typed bytes (`56.4167%`).
-The gate rejects `12 / 12` route, metric, source, non-claim, and payload
-mutations. See
+The gate rejects `15 / 15` route, route-text, metric, source-descriptor,
+non-claim, and payload mutations. See
 `docs/engineering/zkai-native-block-boundary-pivot-selector-2026-05-18.md`.
 
 Native block-boundary pivot reproducibility metadata:

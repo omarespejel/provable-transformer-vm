@@ -6,7 +6,7 @@
     "why_larger_boundary": "The six-component d128 RMSNorm-to-residual MLP proof saves 32,144 typed bytes versus separate native objects, which is a structural signal rather than a sub-kilobyte layout artifact.",
     "why_not_local_reorder": "The compact selector is only 112 typed bytes above the two-proof frontier, but post-tail and label probes move opening bytes by more than that. A small favorable label is not a robust result."
   },
-  "mutation_count": 12,
+  "mutation_count": 15,
   "mutation_results": [
     {
       "error": "NANOZK proof-size comparability overclaim",
@@ -44,8 +44,23 @@
       "rejected": true
     },
     {
-      "error": "selected route evidence drift: expected 'six-component MLP fusion saves 32,144 typed bytes while current adapter/reorder routes are label-fragile', got 'ignore adapter binding and use the smaller statement artifact'",
+      "error": "larger_native_block_boundary primary evidence drift: expected 'six-component MLP fusion saves 32,144 typed bytes while current adapter/reorder routes are label-fragile', got 'ignore adapter binding and use the smaller statement artifact'",
       "name": "native_adapter_binding_demoted",
+      "rejected": true
+    },
+    {
+      "error": "compact_preprocessed_public_rows primary evidence drift: expected '6,264 typed bytes is below the NANOZK paper row but only for selected public RMSNorm plus bridge', got 'compact preprocessed route is a matched NANOZK benchmark'",
+      "name": "nonselected_route_rationale_drift",
+      "rejected": true
+    },
+    {
+      "error": "current_gkr_projection_sidecar next gate drift: expected 'reopen only with a live dim8/16/32 sweep or a new GKR backend', got 'reopen now and compare directly to external block proofs'",
+      "name": "route_next_gate_drift",
+      "rejected": true
+    },
+    {
+      "error": "source artifact descriptor drift: expected [{'path': 'docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05.json', 'schema': 'zkai-native-attention-mlp-rmsnorm-post-tail-layout-gate-v1', 'decision': 'NO_GO_POST_TAIL_LAYOUT_LABEL_STABILITY', 'result': 'POST_TAIL_CANONICAL_MATCHES_ADJACENT_BAD_LABEL_42724_TYPED_BYTES_AND_DOES_NOT_PROMOTE_FRONTIER', 'sha256': '441fe78e6d139b553e0f53c233a23a7b2aa1c9e824563c536dad5c9b1f3ec6e2', 'bytes': 15497}, {'path': 'docs/engineering/evidence/zkai-gkr-d128-projection-scaling-preflight-2026-05.json', 'schema': 'zkai-gkr-d128-projection-scaling-preflight-v1', 'decision': 'NO_GO_NOW_D128_PROJECTION_SCALING', 'result': 'TINY_GEMM_SIGNAL_DOES_NOT_SURVIVE_WIDTH_PRESERVING_PREFLIGHT_KEEP_GKR_AS_BASELINE', 'sha256': '5e509ebe2cb8ccafdbce0a187e55c046b71081ec44372650a638e65294abe380', 'bytes': 15646}, {'path': 'docs/engineering/evidence/zkai-native-attention-mlp-source-backed-adapter-selector-2026-05.json', 'schema': 'zkai-native-attention-mlp-source-backed-adapter-selector-gate-v1', 'decision': 'NARROW_CLAIM_SOURCE_BACKED_COMPACT_ADAPTER_SELECTOR_VERIFIES', 'result': 'GO_SOURCE_BACKED_COMPACT_ARTIFACT_NO_GO_TWO_PROOF_FRONTIER_BEAT', 'sha256': '68c5440aaf94b02e39bc17c8447bf734215a8e14bb22bea8e741bd358fa3ec65', 'bytes': 11579}, {'path': 'docs/engineering/evidence/zkai-native-attention-mlp-single-proof-2026-05.json', 'schema': 'zkai-native-attention-mlp-single-proof-object-gate-v1', 'decision': 'GO_NATIVE_ATTENTION_MLP_SINGLE_STWO_PROOF_OBJECT_VERIFIES', 'result': 'NARROW_CLAIM_NATIVE_ADAPTER_AIR_VERIFIES_WITH_TYPED_SIZE_COST', 'sha256': '7e68dac61d177b61b98468d1ad788756af7e06890585fa726fa3a5fdfbaade4c', 'bytes': 9134}, {'path': 'docs/engineering/evidence/zkai-d128-rmsnorm-mlp-fused-gate-2026-05.json', 'schema': 'zkai-d128-rmsnorm-mlp-fused-gate-v1', 'decision': 'GO_D128_RMSNORM_MLP_FUSED_TYPED_PROOF_SAVING', 'result': 'GO_SIX_COMPONENT_D128_RMSNORM_MLP_FUSION_SAVES_32144_TYPED_BYTES', 'sha256': '1c9512076b0d814c1501dc0e3160529a33674ef3fd5f28695e939a98fbd7f0cc', 'bytes': 6070}, {'path': 'docs/engineering/evidence/zkai-d128-component-compact-preprocessed-reprove-gate-2026-05.json', 'schema': 'zkai-d128-component-compact-preprocessed-reprove-gate-v1', 'decision': 'GO_D128_COMPONENT_NATIVE_COMPACT_PREPROCESSED_REPROVE', 'result': 'GO_BELOW_NANOZK_REPORTED_ROW_UNDER_LOCAL_TYPED_ACCOUNTING_WITH_STRICT_NON_CLAIMS', 'sha256': 'c981f3d309aaf06b91c2c4fb1b57d15821d1cc5a91d8a9258b10c61edb30d177', 'bytes': 17173}, {'path': 'docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json', 'schema': 'zkai-minimal-transformer-block-benchmark-v1', 'decision': 'GO_MINIMAL_BLOCK_BENCHMARK_CONTRACT_NO_GO_MATCHED_PROOF_CLAIM', 'result': 'BENCHMARK_CONTRACT_READY_MISSING_NATIVE_BLOCK_PROOF_OBJECT', 'sha256': '300ac6886019e7670e4a1dbb25a70803e9605dffd71907d8c1220fad1ba6436f', 'bytes': 13069}, {'path': 'docs/engineering/evidence/zkai-d128-attention-mlp-boundary-frontier-2026-05.json', 'schema': 'zkai-d128-attention-mlp-boundary-frontier-gate-v1', 'decision': 'NARROW_CLAIM_ATTENTION_PLUS_DERIVED_MLP_BOUNDARY_FRONTIER_PINNED', 'result': 'GO_TWO_PROOF_TARGET_PINNED_NO_GO_SINGLE_NATIVE_ATTENTION_MLP_OBJECT_YET', 'sha256': '04db68f8005ed11a5d593b7ad39b8e602fa4ea2899191a0a438ac5f8b3080679', 'bytes': 10330}], got [{'path': 'docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05.json', 'schema': 'zkai-native-attention-mlp-rmsnorm-post-tail-layout-gate-v1', 'decision': 'NO_GO_POST_TAIL_LAYOUT_LABEL_STABILITY', 'result': 'POST_TAIL_CANONICAL_MATCHES_ADJACENT_BAD_LABEL_42724_TYPED_BYTES_AND_DOES_NOT_PROMOTE_FRONTIER', 'sha256': '0000000000000000000000000000000000000000000000000000000000000000', 'bytes': 15497}, {'path': 'docs/engineering/evidence/zkai-gkr-d128-projection-scaling-preflight-2026-05.json', 'schema': 'zkai-gkr-d128-projection-scaling-preflight-v1', 'decision': 'NO_GO_NOW_D128_PROJECTION_SCALING', 'result': 'TINY_GEMM_SIGNAL_DOES_NOT_SURVIVE_WIDTH_PRESERVING_PREFLIGHT_KEEP_GKR_AS_BASELINE', 'sha256': '5e509ebe2cb8ccafdbce0a187e55c046b71081ec44372650a638e65294abe380', 'bytes': 15646}, {'path': 'docs/engineering/evidence/zkai-native-attention-mlp-source-backed-adapter-selector-2026-05.json', 'schema': 'zkai-native-attention-mlp-source-backed-adapter-selector-gate-v1', 'decision': 'NARROW_CLAIM_SOURCE_BACKED_COMPACT_ADAPTER_SELECTOR_VERIFIES', 'result': 'GO_SOURCE_BACKED_COMPACT_ARTIFACT_NO_GO_TWO_PROOF_FRONTIER_BEAT', 'sha256': '68c5440aaf94b02e39bc17c8447bf734215a8e14bb22bea8e741bd358fa3ec65', 'bytes': 11579}, {'path': 'docs/engineering/evidence/zkai-native-attention-mlp-single-proof-2026-05.json', 'schema': 'zkai-native-attention-mlp-single-proof-object-gate-v1', 'decision': 'GO_NATIVE_ATTENTION_MLP_SINGLE_STWO_PROOF_OBJECT_VERIFIES', 'result': 'NARROW_CLAIM_NATIVE_ADAPTER_AIR_VERIFIES_WITH_TYPED_SIZE_COST', 'sha256': '7e68dac61d177b61b98468d1ad788756af7e06890585fa726fa3a5fdfbaade4c', 'bytes': 9134}, {'path': 'docs/engineering/evidence/zkai-d128-rmsnorm-mlp-fused-gate-2026-05.json', 'schema': 'zkai-d128-rmsnorm-mlp-fused-gate-v1', 'decision': 'GO_D128_RMSNORM_MLP_FUSED_TYPED_PROOF_SAVING', 'result': 'GO_SIX_COMPONENT_D128_RMSNORM_MLP_FUSION_SAVES_32144_TYPED_BYTES', 'sha256': '1c9512076b0d814c1501dc0e3160529a33674ef3fd5f28695e939a98fbd7f0cc', 'bytes': 6070}, {'path': 'docs/engineering/evidence/zkai-d128-component-compact-preprocessed-reprove-gate-2026-05.json', 'schema': 'zkai-d128-component-compact-preprocessed-reprove-gate-v1', 'decision': 'GO_D128_COMPONENT_NATIVE_COMPACT_PREPROCESSED_REPROVE', 'result': 'GO_BELOW_NANOZK_REPORTED_ROW_UNDER_LOCAL_TYPED_ACCOUNTING_WITH_STRICT_NON_CLAIMS', 'sha256': 'c981f3d309aaf06b91c2c4fb1b57d15821d1cc5a91d8a9258b10c61edb30d177', 'bytes': 17173}, {'path': 'docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json', 'schema': 'zkai-minimal-transformer-block-benchmark-v1', 'decision': 'GO_MINIMAL_BLOCK_BENCHMARK_CONTRACT_NO_GO_MATCHED_PROOF_CLAIM', 'result': 'BENCHMARK_CONTRACT_READY_MISSING_NATIVE_BLOCK_PROOF_OBJECT', 'sha256': '300ac6886019e7670e4a1dbb25a70803e9605dffd71907d8c1220fad1ba6436f', 'bytes': 13069}, {'path': 'docs/engineering/evidence/zkai-d128-attention-mlp-boundary-frontier-2026-05.json', 'schema': 'zkai-d128-attention-mlp-boundary-frontier-gate-v1', 'decision': 'NARROW_CLAIM_ATTENTION_PLUS_DERIVED_MLP_BOUNDARY_FRONTIER_PINNED', 'result': 'GO_TWO_PROOF_TARGET_PINNED_NO_GO_SINGLE_NATIVE_ATTENTION_MLP_OBJECT_YET', 'sha256': '04db68f8005ed11a5d593b7ad39b8e602fa4ea2899191a0a438ac5f8b3080679', 'bytes': 10330}]",
+      "name": "source_descriptor_field_drift",
       "rejected": true
     },
     {
@@ -69,7 +84,7 @@
       "rejected": true
     }
   ],
-  "mutations_rejected": 12,
+  "mutations_rejected": 15,
   "non_claims": [
     "not a NANOZK proof-size win",
     "not a matched NANOZK benchmark",
@@ -78,7 +93,7 @@
     "not evidence that GKR replaces Stwo",
     "not production zkML"
   ],
-  "payload_commitment": "blake2b-256:e46dfc8259df538b1cc30681a8e99dfda93bf11c0bfb8b7b9b8e7196a1f4e053",
+  "payload_commitment": "blake2b-256:ecb63c84e44022b13f20a1bb68a215dc5aa1cd58a323d3171b8ea42af45fa391",
   "result": "PIVOT_TO_LARGER_NATIVE_BOUNDARY_NOT_LOCAL_REORDER_OR_CURRENT_GKR",
   "routes": [
     {
