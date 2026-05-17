@@ -117,6 +117,18 @@ class HybridProofPressureSelectorGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.HybridSelectorError, "source artifact path outside allowlist"):
             gate.validate_payload(payload, final=False)
 
+    def test_rejects_duplicate_source_artifact_path(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        payload["source_artifacts"][1] = dict(payload["source_artifacts"][0])
+        with self.assertRaisesRegex(gate.HybridSelectorError, "duplicate source artifact path"):
+            gate.validate_payload(payload, final=False)
+
+    def test_rejects_validation_command_drift(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        payload["validation_commands"] = payload["validation_commands"][:-1]
+        with self.assertRaisesRegex(gate.HybridSelectorError, "validation command inventory drift"):
+            gate.validate_payload(payload, final=False)
+
     def test_payload_commitment_rejects_drift(self) -> None:
         payload = gate.build_payload()
         gate.mutate_payload_commitment(payload)
@@ -142,17 +154,13 @@ class HybridProofPressureSelectorGateTest(unittest.TestCase):
 
     def test_write_outputs_creates_nested_evidence_directory(self) -> None:
         payload = gate.build_payload()
-        nested_dir = gate.EVIDENCE_DIR / "tmp-hybrid-selector-test"
-        json_path = nested_dir / "selector.json"
-        tsv_path = nested_dir / "selector.tsv"
-        try:
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix="tmp-hybrid-selector-test-") as temp_dir:
+            nested_dir = gate.pathlib.Path(temp_dir)
+            json_path = nested_dir / "selector.json"
+            tsv_path = nested_dir / "selector.tsv"
             gate.write_outputs(payload, json_path, tsv_path)
             self.assertEqual(json.loads(json_path.read_text(encoding="utf-8")), payload)
             self.assertTrue(tsv_path.exists())
-        finally:
-            json_path.unlink(missing_ok=True)
-            tsv_path.unlink(missing_ok=True)
-            nested_dir.rmdir()
 
     def test_rejects_source_overwrite(self) -> None:
         with self.assertRaisesRegex(gate.HybridSelectorError, "source artifact"):
@@ -174,6 +182,14 @@ class HybridProofPressureSelectorGateTest(unittest.TestCase):
         payload["mutation_results"].pop()
         payload["mutation_count"] -= 1
         payload["mutations_rejected"] -= 1
+        payload["payload_commitment"] = gate.commitment({key: value for key, value in payload.items() if key != "payload_commitment"})
+        with self.assertRaisesRegex(gate.HybridSelectorError, "mutation inventory drift"):
+            gate.validate_payload(payload)
+
+    def test_rejects_non_dict_mutation_inventory_entry(self) -> None:
+        payload = gate.build_payload()
+        payload["mutation_results"] = deepcopy(payload["mutation_results"])
+        payload["mutation_results"][-1] = "not-a-dict"
         payload["payload_commitment"] = gate.commitment({key: value for key, value in payload.items() if key != "payload_commitment"})
         with self.assertRaisesRegex(gate.HybridSelectorError, "mutation inventory drift"):
             gate.validate_payload(payload)
