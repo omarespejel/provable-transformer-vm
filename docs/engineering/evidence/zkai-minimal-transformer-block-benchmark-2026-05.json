@@ -254,7 +254,7 @@
     "not timing evidence",
     "not recursion or proof-carrying data"
   ],
-  "payload_commitment": "blake2b-256:848fdeae85840b4976c8e20301a009cce8a27bc59b8976f1251fefcb557e7bba",
+  "payload_commitment": "blake2b-256:7513b0af034aa35fd66ef8557ec528e44cbe240e7f718c665712d2a3c34a7689",
   "result": "BENCHMARK_CONTRACT_READY_MISSING_NATIVE_BLOCK_PROOF_OBJECT",
   "schema": "zkai-minimal-transformer-block-benchmark-v1",
   "source_artifacts": [

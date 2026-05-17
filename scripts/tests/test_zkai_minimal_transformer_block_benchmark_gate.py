@@ -77,10 +77,14 @@ class MinimalTransformerBlockBenchmarkGateTest(unittest.TestCase):
     def test_accepts_component_rows_reordered_by_stable_component_key(self) -> None:
         payload = gate.build_payload()
         original_commitment = payload["payload_commitment"]
+        original_order = [row["component"] for row in payload["component_rows"]]
         payload["component_rows"] = list(reversed(payload["component_rows"]))
         self.assertEqual(gate.payload_commitment(payload), original_commitment)
         payload["payload_commitment"] = gate.payload_commitment(payload)
         gate.validate_payload(payload)
+        canonical_payload = gate.canonical_output_payload(payload)
+        self.assertEqual([row["component"] for row in canonical_payload["component_rows"]], original_order)
+        self.assertEqual(gate.tsv_text(payload).splitlines()[1].split("\t")[0], original_order[0])
 
     def test_rejects_duplicate_component_rows(self) -> None:
         payload = gate.build_payload()
@@ -214,6 +218,24 @@ class MinimalTransformerBlockBenchmarkGateTest(unittest.TestCase):
             gate.write_outputs(payload, json_path, tsv_path)
             self.assertEqual(json.loads(json_path.read_text(encoding="utf-8")), payload)
             self.assertTrue(tsv_path.read_text(encoding="utf-8").startswith("\t".join(gate.TSV_COLUMNS)))
+        finally:
+            json_path.unlink(missing_ok=True)
+            tsv_path.unlink(missing_ok=True)
+
+    def test_write_outputs_canonicalizes_reordered_component_rows(self) -> None:
+        payload = gate.build_payload()
+        original_order = [row["component"] for row in payload["component_rows"]]
+        payload["component_rows"] = list(reversed(payload["component_rows"]))
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".json", delete=False) as json_handle:
+            json_path = gate.pathlib.Path(json_handle.name)
+        with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".tsv", delete=False) as tsv_handle:
+            tsv_path = gate.pathlib.Path(tsv_handle.name)
+        try:
+            gate.write_outputs(payload, json_path, tsv_path)
+            written = json.loads(json_path.read_text(encoding="utf-8"))
+            self.assertEqual([row["component"] for row in written["component_rows"]], original_order)
+            self.assertEqual(tsv_path.read_text(encoding="utf-8").splitlines()[1].split("\t")[0], original_order[0])
         finally:
             json_path.unlink(missing_ok=True)
             tsv_path.unlink(missing_ok=True)
