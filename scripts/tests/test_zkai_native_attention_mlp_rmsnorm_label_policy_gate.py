@@ -103,6 +103,15 @@ class RmsnormLabelPolicyGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.LabelPolicyError, "mutation result key drift"):
             gate.validate_mutation_result(mutated)
 
+    def test_inventory_byte_drift_is_rejected(self) -> None:
+        payload = gate.build_payload(include_mutations=False)
+        mutated = copy.deepcopy(payload)
+        mutated["label_inventory"][0]["typed_bytes"] += 1
+        gate.refresh_payload_commitment(mutated)
+
+        with self.assertRaisesRegex(gate.LabelPolicyError, "inventory byte drift"):
+            gate.validate_payload(mutated)
+
     def test_payload_commitment_rejects_drift(self) -> None:
         payload = gate.build_payload(include_mutations=False)
         mutated = copy.deepcopy(payload)
@@ -132,7 +141,7 @@ class RmsnormLabelPolicyGateTest(unittest.TestCase):
     def test_write_outputs_rejects_outside_evidence_dir(self) -> None:
         payload = gate.build_payload()
         with tempfile.TemporaryDirectory() as tmpdir:
-            with self.assertRaises(gate.LabelPolicyError):
+            with self.assertRaisesRegex(gate.LabelPolicyError, "evidence dir"):
                 gate.write_outputs(payload, pathlib.Path(tmpdir) / "policy.json", None)
 
 

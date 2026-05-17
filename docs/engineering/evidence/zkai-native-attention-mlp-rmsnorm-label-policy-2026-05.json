@@ -64,6 +64,10 @@
         "rejected": true
       },
       {
+        "name": "inventory_byte_drift",
+        "rejected": true
+      },
+      {
         "name": "candidate_missing_worst_label",
         "rejected": true
       },
@@ -108,8 +112,8 @@
         "rejected": true
       }
     ],
-    "mutation_count": 17,
-    "rejected_count": 17
+    "mutation_count": 18,
+    "rejected_count": 18
   },
   "non_claims": [
     "not a two-proof frontier beat",
@@ -120,7 +124,7 @@
     "not a full transformer block proof",
     "not production-ready zkML"
   ],
-  "payload_commitment": "blake2b-256:7adbdfec5773bdd946ab2d745c2e449cd075269ff35587336d4d3f199d6ce4ac",
+  "payload_commitment": "blake2b-256:ef71b343b14f57f07028247f3184a99bea46996c1d124c2cdb707b49c1304b1c",
   "policy_candidates": {
     "canonical_label": {
       "cherry_pick_risk": false,

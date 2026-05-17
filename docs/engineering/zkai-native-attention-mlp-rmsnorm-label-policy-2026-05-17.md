@@ -85,12 +85,12 @@ Non-claims:
 - Tests:
   `scripts/tests/test_zkai_native_attention_mlp_rmsnorm_label_policy_gate.py`
 
-The policy gate rejects `17 / 17` mutation cases covering frontier overclaim,
+The policy gate rejects `18 / 18` mutation cases covering frontier overclaim,
 NANOZK overclaim, worst-label metric drift, promotion-policy drift,
-single-label promotion, label-span erasure, missing worst-label inventory,
-source digest drift, source commitment drift, decision/result/claim-boundary
-drift, non-claim erasure, validation-command erasure, interpretation drift,
-extra policy keys, and payload-commitment drift.
+single-label promotion, label-span erasure, inventory-byte drift, missing
+worst-label inventory, source digest drift, source commitment drift,
+decision/result/claim-boundary drift, non-claim erasure, validation-command
+erasure, interpretation drift, extra policy keys, and payload-commitment drift.
 
 ## Reproduction
 
@@ -106,7 +106,7 @@ just gate
 Recorded gate output:
 
 ```json
-{"decision":"NO_GO_MULTI_LABEL_FRONTIER_PROMOTION","mutation_count":17,"mutations_rejected":17,"result":"WORST_LABEL_INVENTORY_REQUIRES_1401_TYPED_BYTE_REDUCTION_BEFORE_PROMOTION","worst_label_inventory_typed_bytes":42100,"worst_label_reduction_to_beat_frontier_bytes":1401}
+{"decision":"NO_GO_MULTI_LABEL_FRONTIER_PROMOTION","mutation_count":18,"mutations_rejected":18,"result":"WORST_LABEL_INVENTORY_REQUIRES_1401_TYPED_BYTE_REDUCTION_BEFORE_PROMOTION","worst_label_inventory_typed_bytes":42100,"worst_label_reduction_to_beat_frontier_bytes":1401}
 ```
 
 ## Next Attack
