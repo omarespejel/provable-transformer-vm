@@ -104,6 +104,7 @@ The gate rejects:
 - changing the recommendation from NO-GO to attack-now;
 - removing global non-claims;
 - removing row-specific non-claims;
+- inserting malformed row non-claim entries;
 - drifting source artifact digests;
 - removing the explicit tiny-fixture `not d128` non-claim.
 

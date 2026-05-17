@@ -25,8 +25,8 @@ class GkrD128ProjectionScalingPreflightGateTest(unittest.TestCase):
         self.assertEqual(payload["summary"]["smallest_width_preserving_vs_nanozk_context_ratio"], "10.164928")
         self.assertEqual(payload["summary"]["width_gap_from_largest_checked_gkr_dim_to_d128"], 32)
         self.assertEqual(payload["summary"]["proof_size_comparable_rows"], 0)
-        self.assertEqual(payload["mutation_count"], 7)
-        self.assertEqual(payload["mutations_rejected"], 7)
+        self.assertEqual(payload["mutation_count"], 8)
+        self.assertEqual(payload["mutations_rejected"], 8)
 
     def test_rows_keep_tiny_signal_and_width_preserving_no_go_separate(self) -> None:
         rows = {row["row_id"]: row for row in gate.build_payload()["rows"]}
@@ -86,6 +86,12 @@ class GkrD128ProjectionScalingPreflightGateTest(unittest.TestCase):
         payload = gate.base_payload(gate.load_sources())
         gate.mutate_remove_width_preserving_non_claim(payload)
         with self.assertRaisesRegex(gate.GkrProjectionPreflightError, "row-specific non-claim inventory drift"):
+            gate.validate_payload(payload, final=False)
+
+    def test_rejects_malformed_row_non_claim_with_domain_error(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        gate.mutate_malformed_row_non_claim(payload)
+        with self.assertRaisesRegex(gate.GkrProjectionPreflightError, "non-claim entries must be strings"):
             gate.validate_payload(payload, final=False)
 
     def test_rejects_source_digest_drift(self) -> None:
