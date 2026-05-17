@@ -579,12 +579,12 @@ def validate_payload(payload: dict[str, Any]) -> None:
         "frontier_win_claimed": False,
         "nanozk_win_claimed": False,
     }
-    if frontier != expected_frontier:
-        raise RmsnormLabelSensitivityError("frontier body drift")
     if frontier.get("frontier_win_claimed") is not False:
         raise RmsnormLabelSensitivityError("frontier overclaim")
     if frontier.get("nanozk_win_claimed") is not False:
         raise RmsnormLabelSensitivityError("NANOZK overclaim")
+    if frontier != expected_frontier:
+        raise RmsnormLabelSensitivityError("frontier body drift")
     summary = _dict(payload.get("summary"), "summary")
     require_exact_keys(
         summary,

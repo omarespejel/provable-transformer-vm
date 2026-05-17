@@ -113,6 +113,14 @@ class RmsnormLabelSensitivityGateTest(unittest.TestCase):
         with self.assertRaises(gate.RmsnormLabelSensitivityError):
             gate.validate_payload(mutated)
 
+    def test_validate_payload_reports_frontier_overclaim(self) -> None:
+        payload = gate.build_payload(include_mutations=False)
+        mutated = copy.deepcopy(payload)
+        mutated["frontier"]["frontier_win_claimed"] = True
+        gate.refresh_payload_commitment(mutated)
+        with self.assertRaisesRegex(gate.RmsnormLabelSensitivityError, "frontier overclaim"):
+            gate.validate_payload(mutated)
+
     def test_validate_payload_rejects_mutation_result_drift(self) -> None:
         payload = gate.build_payload()
         mutated = copy.deepcopy(payload)
