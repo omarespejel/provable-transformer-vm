@@ -144,9 +144,12 @@ def ratio_string(numerator: int, denominator: int) -> str:
 
 def source_descriptor(path: pathlib.Path) -> dict[str, Any]:
     raw = path.read_bytes()
+    data = json.loads(raw.decode("utf-8"))
+    if not isinstance(data, dict):
+        raise HybridSelectorError(f"{path} must contain a JSON object")
     return {
         "path": path.relative_to(ROOT).as_posix(),
-        "schema": load_json(path).get("schema"),
+        "schema": data.get("schema"),
         "sha256": hashlib.sha256(raw).hexdigest(),
         "bytes": len(raw),
     }
