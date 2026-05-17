@@ -282,6 +282,16 @@ def _benchmark_spec() -> dict[str, Any]:
     }
 
 
+def _adjacent_worst_label_typed_bytes(adjacent: dict[str, Any]) -> int:
+    adjacent_variants = _dict(adjacent.get("variants"), "adjacent variants")
+    adjacent_bad = _dict(adjacent_variants.get("adjacent_label_probe_b"), "adjacent label probe B")
+    nested_typed_bytes = _int(adjacent_bad.get("typed_bytes"), "adjacent worst label typed bytes")
+    top_level_typed_bytes = _int(adjacent.get("adjacent_worst_label_typed_bytes"), "worst label")
+    if nested_typed_bytes != top_level_typed_bytes:
+        raise MinimalBlockBenchmarkError("adjacent worst-label typed-byte drift")
+    return nested_typed_bytes
+
+
 def _component_rows(sources: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
     one_block = sources["one_block"]
     frontier = sources["frontier"]
@@ -290,7 +300,7 @@ def _component_rows(sources: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
     frontier_summary = _dict(frontier.get("summary"), "frontier summary")
     adjacent_variants = _dict(adjacent.get("variants"), "adjacent variants")
     adjacent_layout = _dict(adjacent_variants.get("adjacent_layout"), "adjacent layout variant")
-    adjacent_bad = _dict(adjacent_variants.get("adjacent_label_probe_b"), "adjacent label probe B")
+    adjacent_worst_label_typed_bytes = _adjacent_worst_label_typed_bytes(adjacent)
     return [
         {
             "component": "attention_boundary_and_softmax_lookup",
@@ -321,7 +331,7 @@ def _component_rows(sources: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
             "proof_system": "Stwo/STARK",
             "evidence_path": str(ADJACENT_LAYOUT.relative_to(ROOT)),
             "primary_metric": "adjacent_worst_label_typed_bytes",
-            "primary_value": _int(adjacent_bad.get("typed_bytes"), "adjacent worst label typed bytes"),
+            "primary_value": adjacent_worst_label_typed_bytes,
             "comparability": "PROOF_OBJECT_ATTEMPT_STILL_ABOVE_TWO_PROOF_FRONTIER",
             "claim_boundary": "real layout lever; fails worst-label policy by 2,024 typed bytes",
         },
@@ -449,7 +459,7 @@ def _base_payload() -> dict[str, Any]:
         source_descriptor(MATCHED_TABLE, sources["matched"], raw_sources["matched"]),
     ]
     two_proof_frontier_typed_bytes = _int(frontier_summary.get("two_proof_frontier_typed_bytes"), "frontier")
-    adjacent_worst_label_typed_bytes = _int(adjacent.get("adjacent_worst_label_typed_bytes"), "worst label")
+    adjacent_worst_label_typed_bytes = _adjacent_worst_label_typed_bytes(adjacent)
     nanozk_reported_d128_block_proof_bytes = _int(
         frontier_summary.get("nanozk_reported_d128_block_proof_bytes"), "NANOZK bytes"
     )
