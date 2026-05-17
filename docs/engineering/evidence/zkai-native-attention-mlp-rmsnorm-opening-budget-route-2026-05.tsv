@@ -1,0 +1,5 @@
+route_candidate	source_variant	baseline_typed_bytes	required_reduction_to_beat_frontier_bytes	path_opening_overhang_vs_compact_bytes	required_share_of_path_opening_overhang	modeled_typed_after_full_path_opening_removal	modeled_frontier_margin_after_full_path_opening_removal_bytes	cherry_pick_risk	policy_sufficient_if_full_path_opening_removed
+single_best_label	label_probe_a	40836	137	416	0.329327	40420	280	true	false
+canonical_overhang_only	rmsnorm_input_fused	41428	729	1008	0.723214	40420	280	false	false
+worst_label_path_opening_to_compact	label_probe_b	42100	1401	1680	0.833929	40420	280	false	true
+compact_selector_reference	compact_selector	40812	113	0	0.0	40812	-112	false	false
