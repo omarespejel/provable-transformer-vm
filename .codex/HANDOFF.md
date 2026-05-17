@@ -1915,6 +1915,34 @@ Claim-audit reproducibility metadata:
 - Local tests:
   `python3 -m unittest scripts.tests.test_zkai_claim_audit_comparison_artifacts_gate`.
 
+Latest hybrid proof-pressure selector: issue `#661` turns the heavier-than-NANOZK
+comparison state into a checked next-action matrix. The selector has `8` rows,
+keeps `0` proof-size-comparable cross-system rows, marks
+`gkr_dense_linear_scaling_candidate` and `native_d128_block_object_blocker` as
+the two `ATTACK_NEXT` routes, marks GKR residual-add and LayerNorm-like routes
+as `NO_GO_NOW`, and rejects `11 / 11` selector-overclaim mutations. The pinned
+numbers are: Stwo two-proof frontier `40,700` typed bytes, NANOZK paper context
+row `6,900` bytes, GKR tiny `Gemm` `11,645` proof bytes (`0.515813x` the local
+Stwo dense substitute and `1.687681x` the NANOZK context row), GKR residual-add
+`56,054` proof bytes (`1.377248x` the Stwo frontier), and GKR LayerNorm-like
+`52,080` proof bytes (`1.279607x` the Stwo frontier). Treat this as
+`GO_HYBRID_PROOF_PRESSURE_SELECTOR_NO_GO_MATCHED_EXTERNAL_COMPARISON`: a route
+selector and claim-boundary artifact, not a performance result. See
+`docs/engineering/zkai-hybrid-proof-pressure-selector-2026-05-17.md`.
+
+Hybrid selector reproducibility metadata:
+
+- Timing mode: validation-only; no proof generation, local timing, or
+  median-of-5 claim.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-hybrid-proof-pressure-selector-2026-05.json`
+  and
+  `docs/engineering/evidence/zkai-hybrid-proof-pressure-selector-2026-05.tsv`.
+- Gate command:
+  `python3 scripts/zkai_hybrid_proof_pressure_selector_gate.py --write-json docs/engineering/evidence/zkai-hybrid-proof-pressure-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-hybrid-proof-pressure-selector-2026-05.tsv`.
+- Local tests:
+  `python3 -m unittest scripts.tests.test_zkai_hybrid_proof_pressure_selector_gate`.
+
 Adapter opening-geometry budget reproducibility metadata:
 
 - Timing mode: proof-size accounting only; no proof regeneration, timing, or
