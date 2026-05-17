@@ -19,7 +19,7 @@ class RmsnormAdjacentLayoutGateTest(unittest.TestCase):
         self.assertEqual(payload["adjacent_worst_label_typed_bytes"], 42_724)
         self.assertEqual(payload["adjacent_worst_label_delta_vs_frontier_typed_bytes"], 2_024)
         self.assertEqual(payload["adjacent_label_span_typed_bytes"], 1_776)
-        self.assertEqual(len(payload["mutation_results"]), 12)
+        self.assertEqual(len(payload["mutation_results"]), 14)
         self.assertTrue(all(entry["rejected"] for entry in payload["mutation_results"]))
 
     def test_payload_rejects_frontier_overclaim(self) -> None:
@@ -39,6 +39,33 @@ class RmsnormAdjacentLayoutGateTest(unittest.TestCase):
     def test_payload_rejects_group_drift(self) -> None:
         payload = gate.build_payload()
         payload["variants"]["adjacent_layout"]["typed_groups"]["fri_decommitments"] = 0
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.AdjacentLayoutGateError):
+            gate.validate_payload(payload)
+
+    def test_payload_rejects_nested_variant_provenance_and_derived_drift(self) -> None:
+        cases = (
+            ("evidence_relative_path", "other.json"),
+            ("record_stream_sha256", "0" * 64),
+            ("typed_delta_vs_two_proof_frontier", 0),
+            ("path_opening_bytes", 0),
+            ("path_opening_delta_vs_canonical", 0),
+            ("value_bytes", 0),
+            ("value_delta_vs_canonical", 1),
+            ("label_probe", True),
+            ("layout_probe", False),
+        )
+        for key, value in cases:
+            with self.subTest(key=key):
+                payload = gate.build_payload()
+                payload["variants"]["adjacent_layout"][key] = value
+                payload["payload_commitment"] = gate.payload_commitment(payload)
+                with self.assertRaises(gate.AdjacentLayoutGateError):
+                    gate.validate_payload(payload)
+
+    def test_payload_rejects_interpretation_drift(self) -> None:
+        payload = gate.build_payload()
+        payload["interpretation"]["human_read"] = "frontier win"
         payload["payload_commitment"] = gate.payload_commitment(payload)
         with self.assertRaises(gate.AdjacentLayoutGateError):
             gate.validate_payload(payload)
@@ -129,6 +156,19 @@ class RmsnormAdjacentLayoutGateTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             with self.assertRaises(gate.AdjacentLayoutGateError):
                 gate.write_outputs(payload, gate.pathlib.Path(tmpdir) / "payload.json", None)
+
+    def test_write_outputs_rejects_symlink_path_before_resolve(self) -> None:
+        payload = gate.build_payload()
+        with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".json", delete=False) as handle:
+            target = gate.pathlib.Path(handle.name)
+        link = target.with_name(f"{target.name}.link.json")
+        try:
+            link.symlink_to(target)
+            with self.assertRaises(gate.AdjacentLayoutGateError):
+                gate.write_outputs(payload, link, None)
+        finally:
+            link.unlink(missing_ok=True)
+            target.unlink(missing_ok=True)
 
     def test_write_atomic_preserves_original_failure_when_cleanup_fails(self) -> None:
         with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".json", delete=False) as handle:

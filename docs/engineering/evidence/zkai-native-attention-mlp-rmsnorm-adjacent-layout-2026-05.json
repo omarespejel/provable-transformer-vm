@@ -62,6 +62,16 @@
       "rejected": true
     },
     {
+      "name": "variant_path_drift",
+      "reason": "adjacent_layout variant path drift",
+      "rejected": true
+    },
+    {
+      "name": "interpretation_drift",
+      "reason": "interpretation drift",
+      "rejected": true
+    },
+    {
       "name": "variant_metric_drift",
       "reason": "adjacent_layout variant metric drift",
       "rejected": true
@@ -88,7 +98,7 @@
     "not production-ready zkML",
     "does not close issue 644"
   ],
-  "payload_commitment": "blake2b-256:73d23523662acf66b3530e0827d84e6f5b4c5726bffe3af2b0e47f9f9fe592dd",
+  "payload_commitment": "blake2b-256:563b9fe12895d6010a80bcaf65e33df160291cc74f414d960c57207eefdb514f",
   "result": "ADJACENT_LAYOUT_SAVES_480_TYPED_BYTES_CANONICALLY_BUT_WORST_LABEL_REMAINS_2024_BYTES_ABOVE_FRONTIER",
   "schema": "zkai-native-attention-mlp-rmsnorm-adjacent-layout-gate-v1",
   "source_accounting_path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-accounting-2026-05.json",
