@@ -63,6 +63,16 @@ class RmsnormAdjacentLayoutGateTest(unittest.TestCase):
         with self.assertRaises(gate.AdjacentLayoutGateError):
             gate.validate_payload(payload)
 
+    def test_payload_rejects_partial_non_claim_erasure(self) -> None:
+        payload = gate.build_payload()
+        payload["non_claims"] = [
+            "not a proof-size win",
+            "does not close issue 644",
+        ]
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.AdjacentLayoutGateError):
+            gate.validate_payload(payload)
+
     def test_payload_rejects_commitment_drift(self) -> None:
         payload = gate.build_payload()
         payload["payload_commitment"] = "blake2b-256:" + "0" * 64
