@@ -172,12 +172,12 @@
   "mutation_results": [
     {
       "name": "component_omitted",
-      "reason": "component_rows drift",
+      "reason": "component row inventory drift",
       "rejected": true
     },
     {
       "name": "native_block_proof_promoted",
-      "reason": "component_rows drift",
+      "reason": "native block proof object overclaim",
       "rejected": true
     },
     {
@@ -187,7 +187,7 @@
     },
     {
       "name": "nanozk_marked_matched",
-      "reason": "component_rows drift",
+      "reason": "external comparability overclaim",
       "rejected": true
     },
     {
@@ -207,12 +207,12 @@
     },
     {
       "name": "gkr_lane_hidden",
-      "reason": "component_rows drift",
+      "reason": "component row inventory drift",
       "rejected": true
     },
     {
       "name": "jolt_lane_hidden",
-      "reason": "component_rows drift",
+      "reason": "component row inventory drift",
       "rejected": true
     },
     {
@@ -254,7 +254,7 @@
     "not timing evidence",
     "not recursion or proof-carrying data"
   ],
-  "payload_commitment": "blake2b-256:11e4ce9382caba55c3f02ff3d75f1f38f99091e9d8b05ed430aa7d465aa3bc90",
+  "payload_commitment": "blake2b-256:d9f5a1b2403cfa20a1b81a90018487a116b0d085776b77d2b97db2d195266dd6",
   "result": "BENCHMARK_CONTRACT_READY_MISSING_NATIVE_BLOCK_PROOF_OBJECT",
   "schema": "zkai-minimal-transformer-block-benchmark-v1",
   "source_artifacts": [
