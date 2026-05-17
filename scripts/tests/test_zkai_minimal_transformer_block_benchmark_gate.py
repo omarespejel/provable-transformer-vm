@@ -55,7 +55,8 @@ class MinimalTransformerBlockBenchmarkGateTest(unittest.TestCase):
 
     def test_rejects_native_block_proof_promotion(self) -> None:
         payload = gate.build_payload()
-        native = payload["component_rows"][6]
+        rows = {row["component"]: row for row in payload["component_rows"]}
+        native = rows["native_full_block_proof_object"]
         native["object_class"] = "local_native_stwo_proof_object"
         native["primary_value"] = 6_900
         payload["payload_commitment"] = gate.payload_commitment(payload)
@@ -64,7 +65,8 @@ class MinimalTransformerBlockBenchmarkGateTest(unittest.TestCase):
 
     def test_rejects_false_nanozk_comparability(self) -> None:
         payload = gate.build_payload()
-        payload["component_rows"][7]["comparability"] = "MATCHED_EXTERNAL_BENCHMARK"
+        rows = {row["component"]: row for row in payload["component_rows"]}
+        rows["nanozk_context_row"]["comparability"] = "MATCHED_EXTERNAL_BENCHMARK"
         payload["payload_commitment"] = gate.payload_commitment(payload)
         with self.assertRaises(gate.MinimalBlockBenchmarkError):
             gate.validate_payload(payload)

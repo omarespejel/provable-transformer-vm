@@ -515,16 +515,38 @@ def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True)
         raise MinimalBlockBenchmarkError("payload commitment drift")
 
 
+def row_by_component(payload: dict[str, Any], component: str) -> dict[str, Any]:
+    for row in payload["component_rows"]:
+        if row.get("component") == component:
+            return row
+    raise MinimalBlockBenchmarkError(f"component row missing: {component}")
+
+
+def remove_row_by_component(payload: dict[str, Any], component: str) -> None:
+    payload["component_rows"] = [row for row in payload["component_rows"] if row.get("component") != component]
+
+
+def promote_native_block_proof(payload: dict[str, Any]) -> None:
+    row_by_component(payload, "native_full_block_proof_object").update(
+        {"object_class": "local_native_stwo_proof_object", "primary_value": 6900}
+    )
+
+
 MUTATIONS = (
-    ("component_omitted", lambda p: p["component_rows"].pop(0)),
-    ("native_block_proof_promoted", lambda p: p["component_rows"][6].update({"object_class": "local_native_stwo_proof_object", "primary_value": 6900})),
+    ("component_omitted", lambda p: remove_row_by_component(p, "attention_boundary_and_softmax_lookup")),
+    ("native_block_proof_promoted", promote_native_block_proof),
     ("approximation_policy_removed", lambda p: p["benchmark_spec"].__setitem__("approximation_policy", {})),
-    ("nanozk_marked_matched", lambda p: p["component_rows"][7].__setitem__("comparability", "MATCHED_EXTERNAL_BENCHMARK")),
+    (
+        "nanozk_marked_matched",
+        lambda p: row_by_component(p, "nanozk_context_row").__setitem__(
+            "comparability", "MATCHED_EXTERNAL_BENCHMARK"
+        ),
+    ),
     ("source_digest_drift", lambda p: p["source_artifacts"][0].__setitem__("file_sha256", "0" * 64)),
     ("non_claim_removed", lambda p: p.__setitem__("non_claims", p["non_claims"][:-1])),
     ("statement_binding_removed", lambda p: p["benchmark_spec"].__setitem__("public_statement_bindings", [])),
-    ("gkr_lane_hidden", lambda p: p["component_rows"].pop(8)),
-    ("jolt_lane_hidden", lambda p: p["component_rows"].pop(9)),
+    ("gkr_lane_hidden", lambda p: remove_row_by_component(p, "gkr_hyrax_sidecar_lane")),
+    ("jolt_lane_hidden", lambda p: remove_row_by_component(p, "jolt_atlas_lookup_tensor_lane")),
     ("two_proof_frontier_reduced", lambda p: p["summary"].__setitem__("two_proof_frontier_typed_bytes", 6900)),
     ("worst_label_gap_zeroed", lambda p: p["summary"].__setitem__("adjacent_worst_label_gap_typed_bytes", 0)),
     ("validation_commands_erased", lambda p: p.__setitem__("validation_commands", [])),
