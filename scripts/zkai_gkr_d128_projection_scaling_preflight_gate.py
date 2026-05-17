@@ -81,6 +81,10 @@ ROW_COLUMNS = (
 )
 ROW_FIELDS = (*ROW_COLUMNS, "source_artifact", "non_claims")
 
+ParsedSources = dict[str, dict[str, Any]]
+RawSources = dict[str, bytes]
+LoadedSources = tuple[ParsedSources, RawSources]
+
 REQUIRED_ROW_NON_CLAIMS = {
     "local_stwo_d128_gate_value_projection": ("typed local accounting, not external proof bytes",),
     "local_stwo_d128_rmsnorm_mlp_substitute": ("not exact LayerNorm/GELU transformer MLP",),
@@ -171,9 +175,9 @@ def source_descriptor(path: pathlib.Path, data: dict[str, Any], raw: bytes) -> d
     }
 
 
-def load_sources() -> dict[str, dict[str, Any]]:
-    loaded: dict[str, dict[str, Any]] = {}
-    raws: dict[str, bytes] = {}
+def load_sources() -> LoadedSources:
+    loaded: ParsedSources = {}
+    raws: RawSources = {}
     for key, path in (
         ("shape", JSTPROVE_SHAPE_PROBE),
         ("stwo_gate", STWO_GATE_VALUE_GATE),
@@ -187,8 +191,7 @@ def load_sources() -> dict[str, dict[str, Any]]:
     expect_equal(loaded["minimal"].get("schema"), "zkai-minimal-transformer-block-benchmark-v1", "minimal schema")
     expect_equal(loaded["selector"].get("schema"), "zkai-hybrid-proof-pressure-selector-v1", "selector schema")
     expect_equal(loaded["tablero"].get("schema"), "zkai-tablero-hybrid-zkml-boundary-v1", "Tablero schema")
-    loaded["raw"] = raws  # type: ignore[assignment]
-    return loaded
+    return loaded, raws
 
 
 def result_by_fixture(results: list[Any], fixture: str) -> dict[str, Any]:
@@ -247,7 +250,7 @@ def route(
     }
 
 
-def validate_source_numbers(sources: dict[str, dict[str, Any]]) -> None:
+def validate_source_numbers(sources: ParsedSources) -> None:
     stwo_aggregate = require_dict(sources["stwo_gate"].get("aggregate"), "Stwo gate aggregate")
     minimal_summary = require_dict(sources["minimal"].get("summary"), "minimal summary")
     selector_summary = require_dict(sources["selector"].get("summary"), "selector summary")
@@ -266,7 +269,7 @@ def validate_source_numbers(sources: dict[str, dict[str, Any]]) -> None:
     expect_equal(require_int(sweep_by_dimension(shape_sweep, 4).get("proof_bytes"), "dim4 proof bytes"), EXPECTED_JSTPROVE_DIM_4_BYTES, "dim4 proof bytes")
 
 
-def build_rows(sources: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+def build_rows(sources: ParsedSources) -> list[dict[str, Any]]:
     validate_source_numbers(sources)
     stwo_aggregate = require_dict(sources["stwo_gate"].get("aggregate"), "Stwo gate aggregate")
     minimal_rows = require_list(sources["minimal"].get("component_rows"), "minimal component rows")
@@ -419,8 +422,7 @@ def build_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def source_artifacts(sources: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
-    raws = require_dict(sources["raw"], "raw source inventory")
+def source_artifacts(sources: ParsedSources, raws: RawSources) -> list[dict[str, Any]]:
     return [
         source_descriptor(JSTPROVE_SHAPE_PROBE, sources["shape"], raws["shape"]),
         source_descriptor(STWO_GATE_VALUE_GATE, sources["stwo_gate"], raws["stwo_gate"]),
@@ -430,9 +432,9 @@ def source_artifacts(sources: dict[str, dict[str, Any]]) -> list[dict[str, Any]]
     ]
 
 
-def base_payload(sources: dict[str, dict[str, Any]] | None = None) -> dict[str, Any]:
-    sources = sources or load_sources()
-    rows = build_rows(sources)
+def base_payload(sources: LoadedSources | None = None) -> dict[str, Any]:
+    parsed_sources, raw_sources = sources or load_sources()
+    rows = build_rows(parsed_sources)
     return {
         "schema": SCHEMA,
         "issue": ISSUE,
@@ -440,7 +442,7 @@ def base_payload(sources: dict[str, dict[str, Any]] | None = None) -> dict[str, 
         "result": RESULT,
         "summary": build_summary(rows),
         "rows": rows,
-        "source_artifacts": source_artifacts(sources),
+        "source_artifacts": source_artifacts(parsed_sources, raw_sources),
         "non_claims": list(NON_CLAIMS),
         "validation_commands": list(VALIDATION_COMMANDS),
     }
@@ -480,7 +482,7 @@ def validate_row(row: dict[str, Any]) -> None:
         raise GkrProjectionPreflightError(f"{row_id} matched workload overclaim")
 
 
-def validate_payload(payload: dict[str, Any], *, final: bool = True, sources: dict[str, dict[str, Any]] | None = None) -> None:
+def validate_payload(payload: dict[str, Any], *, final: bool = True, sources: LoadedSources | None = None) -> None:
     expect_equal(payload.get("schema"), SCHEMA, "schema")
     expect_equal(payload.get("issue"), ISSUE, "issue")
     expect_equal(payload.get("decision"), DECISION, "decision")
@@ -576,7 +578,7 @@ MUTATIONS: tuple[tuple[str, Callable[[dict[str, Any]], None]], ...] = (
 )
 
 
-def run_mutations(payload: dict[str, Any], sources: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+def run_mutations(payload: dict[str, Any], sources: LoadedSources) -> list[dict[str, Any]]:
     results = []
     for name, mutate in MUTATIONS:
         candidate = copy.deepcopy(payload)
