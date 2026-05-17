@@ -482,8 +482,11 @@ def validate_payload(payload: dict[str, Any]) -> None:
         inventory_by_name[name] = label
         value_deltas.append(_int(label.get("value_delta_vs_canonical"), f"{name}.value_delta"))
         for field, expected_value in EXPECTED_LABEL_INVENTORY[name].items():
-            if _int(label.get(field), f"{name}.{field}") != expected_value:
-                raise LabelPolicyError(f"{name} inventory byte drift")
+            actual_value = _int(label.get(field), f"{name}.{field}")
+            if actual_value != expected_value:
+                raise LabelPolicyError(
+                    f"{name} inventory byte drift: {field} expected={expected_value} got={actual_value}"
+                )
     if any(delta != 0 for delta in value_deltas[1:]):
         raise LabelPolicyError("label value delta drift")
 
@@ -613,7 +616,13 @@ def run_mutations(payload: dict[str, Any]) -> dict[str, Any]:
             lambda p: p["promotion_policy"].__setitem__("single_label_frontier_promotable", True),
         ),
         ("label_span_erased", lambda p: p["summary"].__setitem__("label_span_typed_bytes", 0)),
-        ("inventory_byte_drift", lambda p: p["label_inventory"][0].__setitem__("typed_bytes", 41_429)),
+        (
+            "inventory_byte_drift",
+            lambda p: p["label_inventory"][0].__setitem__(
+                "typed_bytes",
+                EXPECTED_LABEL_INVENTORY["rmsnorm_input_fused"]["typed_bytes"] + 1,
+            ),
+        ),
         ("candidate_missing_worst_label", lambda p: p["policy_candidates"].pop("worst_label_inventory")),
         ("source_digest_drift", lambda p: p["source_artifacts"][0].__setitem__("sha256", "00" * 32)),
         (
