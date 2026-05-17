@@ -133,6 +133,27 @@ class GkrD128ProjectionScalingPreflightGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.GkrProjectionPreflightError, "duplicate component: rmsnorm_mlp_residual_substitute"):
             gate.base_payload((parsed, raws))
 
+    def test_rejects_malformed_fixture_source_rows(self) -> None:
+        parsed, raws = gate.load_sources()
+        parsed = deepcopy(parsed)
+        parsed["shape"]["results"].append("not an object")
+        with self.assertRaisesRegex(gate.GkrProjectionPreflightError, r"shape results row \d+ must be an object"):
+            gate.base_payload((parsed, raws))
+
+    def test_rejects_malformed_dimension_source_rows(self) -> None:
+        parsed, raws = gate.load_sources()
+        parsed = deepcopy(parsed)
+        parsed["shape"]["dimension_sweep"].append("not an object")
+        with self.assertRaisesRegex(gate.GkrProjectionPreflightError, "dimension sweep row 3 must be an object"):
+            gate.base_payload((parsed, raws))
+
+    def test_rejects_malformed_component_source_rows(self) -> None:
+        parsed, raws = gate.load_sources()
+        parsed = deepcopy(parsed)
+        parsed["minimal"]["component_rows"].append("not an object")
+        with self.assertRaisesRegex(gate.GkrProjectionPreflightError, r"component row \d+ must be an object"):
+            gate.base_payload((parsed, raws))
+
     def test_rejects_mutation_inventory_drift(self) -> None:
         payload = gate.build_payload()
         payload["mutation_results"] = deepcopy(payload["mutation_results"])

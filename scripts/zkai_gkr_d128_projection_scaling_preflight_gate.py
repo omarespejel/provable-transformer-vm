@@ -195,7 +195,12 @@ def load_sources() -> LoadedSources:
 
 
 def result_by_fixture(results: list[Any], fixture: str) -> dict[str, Any]:
-    matches = [row for row in results if isinstance(row, dict) and row.get("fixture") == fixture]
+    matches = []
+    for index, row in enumerate(results):
+        if not isinstance(row, dict):
+            raise GkrProjectionPreflightError(f"shape results row {index} must be an object")
+        if row.get("fixture") == fixture:
+            matches.append(row)
     if len(matches) == 1:
         return matches[0]
     if not matches:
@@ -204,7 +209,12 @@ def result_by_fixture(results: list[Any], fixture: str) -> dict[str, Any]:
 
 
 def sweep_by_dimension(rows: list[Any], dimension: int) -> dict[str, Any]:
-    matches = [row for row in rows if isinstance(row, dict) and row.get("dimension") == dimension]
+    matches = []
+    for index, row in enumerate(rows):
+        if not isinstance(row, dict):
+            raise GkrProjectionPreflightError(f"dimension sweep row {index} must be an object")
+        if row.get("dimension") == dimension:
+            matches.append(row)
     if len(matches) == 1:
         return matches[0]
     if not matches:
@@ -213,7 +223,12 @@ def sweep_by_dimension(rows: list[Any], dimension: int) -> dict[str, Any]:
 
 
 def component_by_name(rows: list[Any], component: str) -> dict[str, Any]:
-    matches = [row for row in rows if isinstance(row, dict) and row.get("component") == component]
+    matches = []
+    for index, row in enumerate(rows):
+        if not isinstance(row, dict):
+            raise GkrProjectionPreflightError(f"component row {index} must be an object")
+        if row.get("component") == component:
+            matches.append(row)
     if len(matches) == 1:
         return matches[0]
     if not matches:
