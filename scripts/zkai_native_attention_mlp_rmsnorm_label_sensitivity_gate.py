@@ -272,6 +272,9 @@ def require_no_follow_flag(label: str) -> int:
 def read_regular_file(path: pathlib.Path, label: str) -> bytes:
     if path.is_symlink():
         raise RmsnormLabelSensitivityError(f"refusing symlinked {label}: {path}")
+    for parent in path.parents:
+        if parent.is_symlink():
+            raise RmsnormLabelSensitivityError(f"refusing symlinked {label} parent: {parent}")
     nofollow_flag = require_no_follow_flag(f"to read {label}")
     try:
         fd = os.open(path, os.O_RDONLY | nofollow_flag)
@@ -491,6 +494,7 @@ def build_payload(include_mutations: bool = True) -> dict[str, Any]:
 
 
 def validate_mutation_result(mutation_result: dict[str, Any]) -> None:
+    require_exact_keys(mutation_result, {"cases", "mutation_count", "rejected_count"}, "mutation result")
     cases = _list(mutation_result.get("cases"), "mutation cases")
     if _int(mutation_result.get("mutation_count"), "mutation count") != len(EXPECTED_MUTATION_NAMES):
         raise RmsnormLabelSensitivityError("mutation count drift")
@@ -499,6 +503,7 @@ def validate_mutation_result(mutation_result: dict[str, Any]) -> None:
     names = []
     for index, case in enumerate(cases):
         case_obj = _dict(case, f"mutation case {index}")
+        require_exact_keys(case_obj, {"name", "rejected"}, f"mutation case {index}")
         name = case_obj.get("name")
         if not isinstance(name, str):
             raise RmsnormLabelSensitivityError("mutation case name drift")
