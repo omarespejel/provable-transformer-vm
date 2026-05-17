@@ -109,7 +109,9 @@ class RmsnormLabelPolicyGateTest(unittest.TestCase):
         mutated["label_inventory"][0]["typed_bytes"] += 1
         gate.refresh_payload_commitment(mutated)
 
-        with self.assertRaisesRegex(gate.LabelPolicyError, "inventory byte drift"):
+        with self.assertRaisesRegex(
+            gate.LabelPolicyError, "inventory byte drift: typed_bytes expected=41428 got=41429"
+        ):
             gate.validate_payload(mutated)
 
     def test_payload_commitment_rejects_drift(self) -> None:
