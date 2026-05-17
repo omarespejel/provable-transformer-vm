@@ -93,6 +93,9 @@ NON_CLAIMS = (
     "not timing evidence unless timing_policy is explicit",
 )
 
+# Pinned from the RMSNorm opening-layout route evidence; this gate checks drift.
+WORST_LABEL_REQUIRED_REDUCTION_BYTES = 1_401
+
 VALIDATION_COMMANDS = (
     "python3 scripts/zkai_claim_audit_comparison_artifacts_gate.py --write-json docs/engineering/evidence/zkai-claim-audit-comparison-artifacts-2026-05.json --write-tsv docs/engineering/evidence/zkai-claim-audit-comparison-artifacts-2026-05.tsv",
     "python3 -m py_compile scripts/zkai_claim_audit_comparison_artifacts_gate.py scripts/tests/test_zkai_claim_audit_comparison_artifacts_gate.py",
@@ -676,8 +679,12 @@ def validate_row(row: dict[str, Any]) -> None:
         raise ClaimAuditError(f"{row_id} timing policy missing")
     if row_id == "rmsnorm_single_best_label_rejected" and "single best label rejected" not in proof_size_policy:
         raise ClaimAuditError("favorable-label policy drift")
-    if row_id == "rmsnorm_worst_label_opening_target" and row["primary_value"] != 1401:
-        raise ClaimAuditError("worst-label required reduction drift")
+    if row_id == "rmsnorm_worst_label_opening_target" and row["primary_value"] != WORST_LABEL_REQUIRED_REDUCTION_BYTES:
+        raise ClaimAuditError(
+            "worst-label required reduction drift: "
+            f"expected WORST_LABEL_REQUIRED_REDUCTION_BYTES={WORST_LABEL_REQUIRED_REDUCTION_BYTES}, "
+            f"actual={row['primary_value']}"
+        )
     required_non_claims = REQUIRED_ROW_NON_CLAIMS.get(row_id, ())
     for required in required_non_claims:
         if required not in non_claims:
@@ -904,7 +911,13 @@ def build_payload() -> dict[str, Any]:
 
 def tsv_text(payload: dict[str, Any]) -> str:
     output = io.StringIO()
-    writer = csv.DictWriter(output, fieldnames=ROW_COLUMNS, delimiter="\t", lineterminator="\n")
+    writer = csv.DictWriter(
+        output,
+        fieldnames=ROW_COLUMNS,
+        delimiter="\t",
+        lineterminator="\n",
+        quoting=csv.QUOTE_MINIMAL,
+    )
     writer.writeheader()
     for row in payload["audit_rows"]:
         writer.writerow({column: row[column] for column in ROW_COLUMNS})
