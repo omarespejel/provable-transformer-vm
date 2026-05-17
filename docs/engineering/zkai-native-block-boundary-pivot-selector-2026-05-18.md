@@ -74,11 +74,12 @@ variants. The target is still strict:
 - Tests:
   `scripts/tests/test_zkai_native_block_boundary_pivot_selector_gate.py`
 
-The gate rejects `12 / 12` mutations covering NANOZK comparability, route
-selection drift, GKR unparking, compact-gap erasure, post-tail overclaim, MLP
-fusion erasure, compact-preprocessed overclaim, adapter-binding demotion,
-non-claim erasure, validation-command drift, source-path drift, and payload
-commitment drift.
+The gate rejects `15 / 15` mutations covering NANOZK comparability, route
+selection drift, route-rationale drift, next-gate drift, GKR unparking,
+compact-gap erasure, post-tail overclaim, MLP fusion erasure,
+compact-preprocessed overclaim, adapter-binding demotion, source-descriptor
+drift, non-claim erasure, validation-command drift, source-path drift, and
+payload commitment drift.
 
 ## Reproduce
 
