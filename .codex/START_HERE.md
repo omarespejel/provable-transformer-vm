@@ -257,7 +257,7 @@ This repository currently has three live lanes.
      cross-system rows, marks `gkr_dense_linear_scaling_candidate` and
      `native_d128_block_object_blocker` as the two `ATTACK_NEXT` routes, marks
      GKR residual-add and LayerNorm-like shapes as `NO_GO_NOW`, and rejects
-     `11 / 11` selector-overclaim mutations. Treat this as a route selector,
+     `12 / 12` selector-overclaim mutations. Treat this as a route selector,
      not a performance result; see
      `docs/engineering/zkai-hybrid-proof-pressure-selector-2026-05-17.md`.
    - The current attention-to-RMSNorm/MLP boundary is a checked NO-GO for one

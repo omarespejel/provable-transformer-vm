@@ -1920,7 +1920,7 @@ comparison state into a checked next-action matrix. The selector has `8` rows,
 keeps `0` proof-size-comparable cross-system rows, marks
 `gkr_dense_linear_scaling_candidate` and `native_d128_block_object_blocker` as
 the two `ATTACK_NEXT` routes, marks GKR residual-add and LayerNorm-like routes
-as `NO_GO_NOW`, and rejects `11 / 11` selector-overclaim mutations. The pinned
+as `NO_GO_NOW`, and rejects `12 / 12` selector-overclaim mutations. The pinned
 numbers are: Stwo two-proof frontier `40,700` typed bytes, NANOZK paper context
 row `6,900` bytes, GKR tiny `Gemm` `11,645` proof bytes (`0.515813x` the local
 Stwo dense substitute and `1.687681x` the NANOZK context row), GKR residual-add

@@ -23,8 +23,8 @@ class HybridProofPressureSelectorGateTest(unittest.TestCase):
         self.assertEqual(payload["summary"]["gkr_tiny_gemm_proof_bytes"], 11_645)
         self.assertEqual(payload["summary"]["gkr_tiny_gemm_vs_stwo_dense_substitute_ratio"], "0.515813")
         self.assertEqual(payload["summary"]["gkr_tiny_gemm_vs_stwo_frontier_ratio"], "0.286118")
-        self.assertEqual(payload["mutation_count"], 11)
-        self.assertEqual(payload["mutations_rejected"], 11)
+        self.assertEqual(payload["mutation_count"], 12)
+        self.assertEqual(payload["mutations_rejected"], 12)
 
     def test_selector_rows_keep_good_and_bad_routes_explicit(self) -> None:
         rows = {row["route_id"]: row for row in gate.build_payload()["selector_rows"]}
@@ -37,6 +37,8 @@ class HybridProofPressureSelectorGateTest(unittest.TestCase):
         self.assertEqual(rows["native_d128_block_object_blocker"]["selector_decision"], "ATTACK_NEXT_NATIVE_BLOCK_OBJECT")
         self.assertEqual(rows["tablero_statement_boundary_guardrail"]["ratio_vs_stwo_frontier"], "NA")
         self.assertFalse(any(row["proof_size_comparable"] for row in rows.values()))
+        for row in rows.values():
+            self.assertTrue(set(gate.NON_CLAIMS).issubset(set(row["non_claims"])))
 
     def test_mutation_inventory_is_strict(self) -> None:
         payload = gate.build_payload()
@@ -91,6 +93,12 @@ class HybridProofPressureSelectorGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.HybridSelectorError, "claim audit proof comparable rows drift"):
             gate.validate_payload(payload, final=False)
 
+    def test_rejects_summary_route_drift(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        gate.mutate_summary_attack_route_drift(payload)
+        with self.assertRaisesRegex(gate.HybridSelectorError, "attack-next routes drift"):
+            gate.validate_payload(payload, final=False)
+
     def test_rejects_stwo_frontier_drift(self) -> None:
         payload = gate.base_payload(gate.load_sources())
         gate.mutate_stwo_frontier_drift(payload)
@@ -101,6 +109,12 @@ class HybridProofPressureSelectorGateTest(unittest.TestCase):
         payload = gate.base_payload(gate.load_sources())
         gate.mutate_source_artifact_digest(payload)
         with self.assertRaisesRegex(gate.HybridSelectorError, "source artifact descriptor drift"):
+            gate.validate_payload(payload, final=False)
+
+    def test_rejects_source_artifact_path_outside_allowlist(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        payload["source_artifacts"][0]["path"] = "docs/engineering/evidence/not-a-source.json"
+        with self.assertRaisesRegex(gate.HybridSelectorError, "source artifact path outside allowlist"):
             gate.validate_payload(payload, final=False)
 
     def test_payload_commitment_rejects_drift(self) -> None:
@@ -125,6 +139,20 @@ class HybridProofPressureSelectorGateTest(unittest.TestCase):
         finally:
             json_path.unlink(missing_ok=True)
             tsv_path.unlink(missing_ok=True)
+
+    def test_write_outputs_creates_nested_evidence_directory(self) -> None:
+        payload = gate.build_payload()
+        nested_dir = gate.EVIDENCE_DIR / "tmp-hybrid-selector-test"
+        json_path = nested_dir / "selector.json"
+        tsv_path = nested_dir / "selector.tsv"
+        try:
+            gate.write_outputs(payload, json_path, tsv_path)
+            self.assertEqual(json.loads(json_path.read_text(encoding="utf-8")), payload)
+            self.assertTrue(tsv_path.exists())
+        finally:
+            json_path.unlink(missing_ok=True)
+            tsv_path.unlink(missing_ok=True)
+            nested_dir.rmdir()
 
     def test_rejects_source_overwrite(self) -> None:
         with self.assertRaisesRegex(gate.HybridSelectorError, "source artifact"):
