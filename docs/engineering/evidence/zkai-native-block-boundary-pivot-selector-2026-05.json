@@ -1,6 +1,6 @@
 {
   "claim_boundary": "SELECT_NEXT_NATIVE_ZKML_ROUTE_FROM_CHECKED_EVIDENCE_WITH_NO_NANOZK_OR_FRONTIER_OVERCLAIM",
-  "decision": "ATTACK_NEXT_LARGER_NATIVE_BLOCK_BOUNDARY_AFTER_ADAPTER_AND_GKR_NO_GOS",
+  "decision": "ATTACK_NEXT_LARGER_NATIVE_BLOCK_BOUNDARY",
   "interpretation": {
     "human_read": "The next serious attack is a larger native proof boundary. The local reorder route is now label-fragile, current GKR projection scaling is parked, and the positive mechanism remains shared native STARK plumbing across larger adjacent transformer surfaces.",
     "why_larger_boundary": "The six-component d128 RMSNorm-to-residual MLP proof saves 32,144 typed bytes versus separate native objects, which is a structural signal rather than a sub-kilobyte layout artifact.",
@@ -64,7 +64,7 @@
       "rejected": true
     },
     {
-      "error": "payload commitment drift: expected 'blake2b-256:94dee06187b09a010f75ed67fb8066ee69c79f523d7a5ecaab03ae5ed24eaa69', got 'blake2b-256:0000000000000000000000000000000000000000000000000000000000000000'",
+      "error": "payload commitment drift: expected 'blake2b-256:2ca744352c91bdec0cb9f9e92a302ed2b2e9a1052d94674b59eca682023be208', got 'blake2b-256:0000000000000000000000000000000000000000000000000000000000000000'",
       "name": "payload_commitment_drift",
       "rejected": true
     }
@@ -78,7 +78,7 @@
     "not evidence that GKR replaces Stwo",
     "not production zkML"
   ],
-  "payload_commitment": "blake2b-256:ce612ae8a870ef5c8239da035a3ceae7e16fe9d840bcacacfc99af996635f072",
+  "payload_commitment": "blake2b-256:14cbf1149f74bebb6fa96a8baf431eb93320a7ab943c02fe4ff49980cbaa7420",
   "result": "PIVOT_TO_LARGER_NATIVE_BOUNDARY_NOT_LOCAL_REORDER_OR_CURRENT_GKR",
   "routes": [
     {

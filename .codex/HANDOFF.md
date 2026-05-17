@@ -2031,7 +2031,7 @@ Adapter opening-geometry budget reproducibility metadata:
 
 Latest native block-boundary pivot selector: issue `#667` converts the recent
 post-tail and GKR NO-GOs into the next executable route. The selector records
-`ATTACK_NEXT_LARGER_NATIVE_BLOCK_BOUNDARY_AFTER_ADAPTER_AND_GKR_NO_GOS`: park
+`ATTACK_NEXT_LARGER_NATIVE_BLOCK_BOUNDARY`: park
 sub-kilobyte local adapter reorders for now, park current GKR projection scaling
 unless a new live dim sweep/backend changes evidence, use compact-preprocessed
 public rows only as a scoped mechanism lead, and attack a larger source-bound

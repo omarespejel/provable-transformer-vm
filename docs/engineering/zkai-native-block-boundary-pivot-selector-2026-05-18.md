@@ -6,7 +6,7 @@ Issue: [#667](https://github.com/omarespejel/provable-transformer-vm/issues/667)
 
 ## Decision
 
-`ATTACK_NEXT_LARGER_NATIVE_BLOCK_BOUNDARY_AFTER_ADAPTER_AND_GKR_NO_GOS`
+`ATTACK_NEXT_LARGER_NATIVE_BLOCK_BOUNDARY`
 
 Result:
 
