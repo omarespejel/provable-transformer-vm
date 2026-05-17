@@ -459,8 +459,10 @@ RMSNorm-input opening-budget route reproducibility metadata:
   `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05.tsv`.
 - Gate command:
   `python3 scripts/zkai_native_attention_mlp_rmsnorm_opening_budget_route_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05.tsv`.
-- Local route tests:
-  `python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_opening_budget_route_gate`.
+- Local route and source-policy tests:
+  `python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_opening_budget_route_gate`;
+  `python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_label_policy_gate`;
+  `python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_label_sensitivity_gate`.
 
 Adapter opening-geometry budget reproducibility metadata:
 
