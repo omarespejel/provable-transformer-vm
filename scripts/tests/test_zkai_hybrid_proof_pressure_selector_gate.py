@@ -105,6 +105,13 @@ class HybridProofPressureSelectorGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.HybridSelectorError, "summary frontier drift"):
             gate.validate_payload(payload, final=False)
 
+    def test_rejects_tablero_source_shape_drift_with_checked_error(self) -> None:
+        sources = gate.load_sources()
+        sources["tablero"] = dict(sources["tablero"])
+        sources["tablero"].pop("boundary_examples")
+        with self.assertRaisesRegex(gate.HybridSelectorError, "Tablero boundary_examples must be a list"):
+            gate.validate_source_numbers(sources)
+
     def test_rejects_selector_semantic_drift_even_when_summary_is_unchanged(self) -> None:
         payload = gate.base_payload(gate.load_sources())
         payload["selector_rows"][0]["next_action"] = "quietly_promote_unchecked_route"

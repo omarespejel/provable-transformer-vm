@@ -131,6 +131,20 @@ def require_str(value: Any, label: str) -> str:
     return value
 
 
+def require_dict(value: Any, label: str) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise HybridSelectorError(f"{label} must be an object")
+    return value
+
+
+def require_dict_list(value: Any, label: str) -> list[dict[str, Any]]:
+    if not isinstance(value, list):
+        raise HybridSelectorError(f"{label} must be a list")
+    if any(not isinstance(item, dict) for item in value):
+        raise HybridSelectorError(f"{label} entries must be objects")
+    return value
+
+
 def expect_equal(actual: Any, expected: Any, label: str) -> None:
     if actual != expected:
         raise HybridSelectorError(f"{label} drift: expected {expected!r}, got {actual!r}")
@@ -215,10 +229,11 @@ def load_sources() -> dict[str, dict[str, Any]]:
 
 
 def validate_source_numbers(sources: dict[str, dict[str, Any]]) -> None:
-    claim_summary = sources["claim_audit"]["summary"]
-    minimal_summary = sources["minimal_block"]["summary"]
-    gkr_summary = sources["gkr"]["summary"]
-    tablero_statement = row_by_id(sources["tablero"]["boundary_examples"], "compact_statement_chain_boundary")
+    claim_summary = require_dict(sources["claim_audit"].get("summary"), "claim summary")
+    minimal_summary = require_dict(sources["minimal_block"].get("summary"), "minimal block summary")
+    gkr_summary = require_dict(sources["gkr"].get("summary"), "GKR summary")
+    tablero_examples = require_dict_list(sources["tablero"].get("boundary_examples"), "Tablero boundary_examples")
+    tablero_statement = row_by_id(tablero_examples, "compact_statement_chain_boundary")
 
     expect_equal(
         require_int(claim_summary.get("proof_size_comparable_rows"), "claim comparable rows"),
@@ -283,12 +298,15 @@ def validate_source_numbers(sources: dict[str, dict[str, Any]]) -> None:
 
 
 def build_routes(sources: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
-    gkr_rows = sources["gkr"]["rows"]
+    gkr_rows = require_dict_list(sources["gkr"].get("rows"), "GKR rows")
     gkr_tiny = row_by_id(gkr_rows, "tiny_gemm")
     gkr_residual = row_by_id(gkr_rows, "tiny_gemm_residual_add")
     gkr_layernorm = row_by_id(gkr_rows, "tiny_gemm_layernorm")
-    jolt_timing = row_by_id(sources["jolt"]["rows"], "jolt_atlas_repo_gpt2_readme")
-    tablero_statement = row_by_id(sources["tablero"]["boundary_examples"], "compact_statement_chain_boundary")
+    jolt_timing = row_by_id(require_dict_list(sources["jolt"].get("rows"), "Jolt rows"), "jolt_atlas_repo_gpt2_readme")
+    tablero_statement = row_by_id(
+        require_dict_list(sources["tablero"].get("boundary_examples"), "Tablero boundary_examples"),
+        "compact_statement_chain_boundary",
+    )
 
     return [
         route(
@@ -481,7 +499,7 @@ def validate_route(row: dict[str, Any]) -> None:
         raise HybridSelectorError(f"{route_id} NANOZK local reproduction non-claim missing")
 
 
-def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
+def validate_payload(payload: dict[str, Any], *, final: bool = True, sources: dict[str, dict[str, Any]] | None = None) -> None:
     expect_equal(payload.get("schema"), SCHEMA, "schema")
     expect_equal(payload.get("decision"), DECISION, "decision")
     expect_equal(payload.get("result"), RESULT, "result")
@@ -543,7 +561,8 @@ def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
             raise HybridSelectorError("source artifact descriptor drift")
     if seen_source_paths != SOURCE_ARTIFACT_PATHS:
         raise HybridSelectorError("source artifact inventory drift")
-    sources = load_sources()
+    if sources is None:
+        sources = load_sources()
     validate_source_numbers(sources)
     canonical_rows = build_routes(sources)
     if rows != canonical_rows:
@@ -599,7 +618,7 @@ def base_payload(sources: dict[str, dict[str, Any]]) -> dict[str, Any]:
         ],
         "validation_commands": list(VALIDATION_COMMANDS),
     }
-    validate_payload(payload, final=False)
+    validate_payload(payload, final=False, sources=sources)
     return payload
 
 
@@ -681,13 +700,13 @@ MUTATIONS: tuple[tuple[str, Callable[[dict[str, Any]], None]], ...] = (
 )
 
 
-def run_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
+def run_mutations(payload: dict[str, Any], sources: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
     results = []
     for name, mutation in MUTATIONS:
         candidate = copy.deepcopy(payload)
         try:
             mutation(candidate)
-            validate_payload(candidate, final=name == "payload_commitment")
+            validate_payload(candidate, final=name == "payload_commitment", sources=sources)
             results.append({"name": name, "accepted": True, "reason": "mutation accepted"})
         except HybridSelectorError as exc:
             results.append({"name": name, "accepted": False, "reason": str(exc)})
@@ -695,13 +714,14 @@ def run_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def build_payload() -> dict[str, Any]:
-    payload = base_payload(load_sources())
-    mutation_results = run_mutations(payload)
+    sources = load_sources()
+    payload = base_payload(sources)
+    mutation_results = run_mutations(payload, sources)
     payload["mutation_results"] = mutation_results
     payload["mutation_count"] = len(mutation_results)
     payload["mutations_rejected"] = sum(1 for result in mutation_results if result["accepted"] is False)
     payload["payload_commitment"] = commitment({key: value for key, value in payload.items() if key != "payload_commitment"})
-    validate_payload(payload)
+    validate_payload(payload, sources=sources)
     if payload["mutations_rejected"] != payload["mutation_count"]:
         raise HybridSelectorError("mutation rejection drift")
     return payload
