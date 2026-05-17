@@ -485,10 +485,6 @@ class TableroHybridBoundaryError(ValueError):
     pass
 
 
-def normalized_source_bytes(raw: bytes) -> bytes:
-    return raw.replace(b"\r\n", b"\n")
-
-
 def canonical_json_bytes(value: Any) -> bytes:
     try:
         return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False).encode()
@@ -519,7 +515,7 @@ def statement_commitment(statement: dict[str, Any]) -> str:
 def source_descriptor(path: pathlib.Path, payload: dict[str, Any], raw: bytes) -> dict[str, Any]:
     descriptor = {
         "path": path.relative_to(ROOT).as_posix(),
-        "file_sha256": hashlib.sha256(normalized_source_bytes(raw)).hexdigest(),
+        "file_sha256": hashlib.sha256(raw).hexdigest(),
         "payload_sha256": hashlib.sha256(canonical_json_bytes(payload)).hexdigest(),
     }
     if isinstance(payload.get("schema"), str):
