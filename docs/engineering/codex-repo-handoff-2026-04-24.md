@@ -464,6 +464,37 @@ RMSNorm-input opening-budget route reproducibility metadata:
   `python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_label_policy_gate`;
   `python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_label_sensitivity_gate`.
 
+Latest RMSNorm-input adjacent layout gate: issue `#644` now has one real
+regenerated opening-layout attempt after the route-budget gate. The new
+`rmsnorm_input_fused_adjacent_fixed_v1` mode keeps the RMSNorm-input adapter
+equation, keeps adapter base cells at `0`, and moves the fixed adapter columns
+next to the RMSNorm public-row columns. The canonical adjacent proof verifies
+and drops from `41,428` to `40,948` typed bytes, saving `480` bytes by reducing
+FRI decommitments (`352` bytes) and trace decommitments (`128` bytes). This is
+a real opening-layout lever, but it is a NO-GO for promotion: adjacent label
+probe B is `42,724` typed bytes, `2,024` above the `40,700` frontier. This
+does not close issue `#644`; the next attack must stabilize query/opening
+behavior across labels or find a different component ordering. See
+`docs/engineering/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05-17.md`.
+
+RMSNorm-input adjacent layout reproducibility metadata:
+
+- Timing mode: proof-size and verification evidence only; no median-of-5
+  timing claim.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.envelope.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.envelope.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-accounting-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.json`,
+  and
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.tsv`.
+- Gate command:
+  `python3 scripts/zkai_native_attention_mlp_rmsnorm_adjacent_layout_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.tsv`.
+- Local tests:
+  `python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_adjacent_layout_gate`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend native_attention_mlp_single_proof --lib`.
+
 Adapter opening-geometry budget reproducibility metadata:
 
 - Timing mode: proof-size accounting only; no proof regeneration, timing, or

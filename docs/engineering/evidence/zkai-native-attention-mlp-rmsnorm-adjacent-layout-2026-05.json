@@ -1,0 +1,227 @@
+{
+  "adjacent_best_label_typed_bytes": 40948,
+  "adjacent_canonical_delta_vs_frontier_typed_bytes": 248,
+  "adjacent_canonical_saving_vs_canonical_typed_bytes": 480,
+  "adjacent_canonical_typed_bytes": 40948,
+  "adjacent_label_span_typed_bytes": 1776,
+  "adjacent_worst_label_delta_vs_frontier_typed_bytes": 2024,
+  "adjacent_worst_label_typed_bytes": 42724,
+  "canonical_rmsnorm_input_fused_typed_bytes": 41428,
+  "claim_boundary": "RMSNORM_INPUT_ADJACENT_FIXED_COLUMN_LAYOUT_IS_A_REAL_OPENING_LAYOUT_LEVER_BUT_DOES_NOT_SATISFY_WORST_LABEL_FRONTIER_PROMOTION",
+  "compact_selector_typed_bytes": 40812,
+  "decision": "NO_GO_WORST_LABEL_FRONTIER_PROMOTION_BUT_GO_LAYOUT_LEVER",
+  "interpretation": {
+    "human_read": "Moving the RMSNorm-input fixed adapter columns next to the RMSNorm public-row columns is a real proof-layout lever: canonical typed bytes drop by 480. It is not enough for promotion because the bad adjacent label is 42,724 typed bytes, 2,024 above the two-proof frontier.",
+    "next_attack": "Do not claim a frontier win. The next useful route must stabilize query/opening behavior across labels or find another component ordering that keeps the 480-byte canonical saving without the 1,776-byte adjacent label penalty."
+  },
+  "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/644",
+  "mutation_results": [
+    {
+      "name": "frontier_overclaim",
+      "reason": "payload metadata drift",
+      "rejected": true
+    },
+    {
+      "name": "result_overclaim",
+      "reason": "payload metadata drift",
+      "rejected": true
+    },
+    {
+      "name": "worst_label_erased",
+      "reason": "worst label summary drift",
+      "rejected": true
+    },
+    {
+      "name": "canonical_saving_drift",
+      "reason": "adjacent canonical saving arithmetic drift",
+      "rejected": true
+    },
+    {
+      "name": "label_span_drift",
+      "reason": "label span drift",
+      "rejected": true
+    },
+    {
+      "name": "nanozk_overclaim",
+      "reason": "NANOZK reference drift",
+      "rejected": true
+    },
+    {
+      "name": "source_digest_drift",
+      "reason": "source digest drift",
+      "rejected": true
+    },
+    {
+      "name": "non_claims_erased",
+      "reason": "non-claims erased",
+      "rejected": true
+    },
+    {
+      "name": "validation_commands_erased",
+      "reason": "validation command drift",
+      "rejected": true
+    },
+    {
+      "name": "variant_metric_drift",
+      "reason": "adjacent_layout variant metric drift",
+      "rejected": true
+    },
+    {
+      "name": "group_drift",
+      "reason": "adjacent_layout group drift",
+      "rejected": true
+    },
+    {
+      "name": "payload_commitment_drift",
+      "reason": "payload commitment drift",
+      "rejected": true
+    }
+  ],
+  "nanozk_reported_d128_block_proof_bytes": 6900,
+  "non_claims": [
+    "not a two-proof frontier beat",
+    "not a proof-size win",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not a full transformer block proof",
+    "not timing evidence",
+    "not production-ready zkML",
+    "does not close issue 644"
+  ],
+  "payload_commitment": "blake2b-256:d6c2b7e393bbee1967168ba84f4da5b1dcc66a5db9f290f217088a3a1c165c72",
+  "result": "ADJACENT_LAYOUT_SAVES_480_TYPED_BYTES_CANONICALLY_BUT_WORST_LABEL_REMAINS_2024_BYTES_ABOVE_FRONTIER",
+  "schema": "zkai-native-attention-mlp-rmsnorm-adjacent-layout-gate-v1",
+  "source_accounting_path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-accounting-2026-05.json",
+  "source_accounting_sha256": "64fdab3dbcd5c5c196425121820bf2bc6ec301b98a94fea64d8fa51fb47d5da6",
+  "two_proof_frontier_typed_bytes": 40700,
+  "validation_commands": [
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-rmsnorm-fused-adjacent docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-rmsnorm-fused-adjacent-label-probe-a docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-rmsnorm-fused-adjacent-label-probe-b docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.envelope.json > docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-accounting-2026-05.json",
+    "python3 scripts/zkai_native_attention_mlp_rmsnorm_adjacent_layout_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.tsv",
+    "python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_adjacent_layout_gate",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_attention_mlp_single_proof --lib",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ],
+  "variants": {
+    "adjacent_label_probe_a": {
+      "evidence_relative_path": "zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.envelope.json",
+      "label_probe": true,
+      "layout_probe": true,
+      "name": "adjacent_label_probe_a",
+      "path_opening_bytes": 20032,
+      "path_opening_delta_vs_canonical": -480,
+      "proof_json_bytes": 116882,
+      "record_stream_sha256": "e363d9a7577d80d7240bde40053732cd5938dcb324b459092d2815a0f0428710",
+      "typed_bytes": 40948,
+      "typed_delta_vs_two_proof_frontier": 248,
+      "typed_groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 12832,
+        "fri_samples": 800,
+        "oods_samples": 11952,
+        "queries_values": 8916,
+        "trace_decommitments": 6400
+      },
+      "value_bytes": 20868,
+      "value_delta_vs_canonical": 0
+    },
+    "adjacent_label_probe_b": {
+      "evidence_relative_path": "zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.envelope.json",
+      "label_probe": true,
+      "layout_probe": true,
+      "name": "adjacent_label_probe_b",
+      "path_opening_bytes": 21808,
+      "path_opening_delta_vs_canonical": 1296,
+      "proof_json_bytes": 123141,
+      "record_stream_sha256": "75ff14f548a97546870ea9f4c36951bb7b02d9ca2f736a11ff38a6b83403e28d",
+      "typed_bytes": 42724,
+      "typed_delta_vs_two_proof_frontier": 2024,
+      "typed_groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 14176,
+        "fri_samples": 848,
+        "oods_samples": 11952,
+        "queries_values": 8916,
+        "trace_decommitments": 6784
+      },
+      "value_bytes": 20868,
+      "value_delta_vs_canonical": 0
+    },
+    "adjacent_layout": {
+      "evidence_relative_path": "zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json",
+      "label_probe": false,
+      "layout_probe": true,
+      "name": "adjacent_layout",
+      "path_opening_bytes": 20032,
+      "path_opening_delta_vs_canonical": -480,
+      "proof_json_bytes": 116847,
+      "record_stream_sha256": "e363d9a7577d80d7240bde40053732cd5938dcb324b459092d2815a0f0428710",
+      "typed_bytes": 40948,
+      "typed_delta_vs_two_proof_frontier": 248,
+      "typed_groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 12832,
+        "fri_samples": 800,
+        "oods_samples": 11952,
+        "queries_values": 8916,
+        "trace_decommitments": 6400
+      },
+      "value_bytes": 20868,
+      "value_delta_vs_canonical": 0
+    },
+    "compact_selector": {
+      "evidence_relative_path": "zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json",
+      "label_probe": false,
+      "layout_probe": false,
+      "name": "compact_selector",
+      "path_opening_bytes": 19504,
+      "path_opening_delta_vs_canonical": -1008,
+      "proof_json_bytes": 116091,
+      "record_stream_sha256": "8ed8db52bfb240a2b742df9877aa8d01ece09334616540771812e28081c5d996",
+      "typed_bytes": 40812,
+      "typed_delta_vs_two_proof_frontier": 112,
+      "typed_groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 12448,
+        "fri_samples": 784,
+        "oods_samples": 12176,
+        "queries_values": 9084,
+        "trace_decommitments": 6272
+      },
+      "value_bytes": 21260,
+      "value_delta_vs_canonical": 392
+    },
+    "rmsnorm_input_fused": {
+      "evidence_relative_path": "zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json",
+      "label_probe": false,
+      "layout_probe": false,
+      "name": "rmsnorm_input_fused",
+      "path_opening_bytes": 20512,
+      "path_opening_delta_vs_canonical": 0,
+      "proof_json_bytes": 118378,
+      "record_stream_sha256": "2f7f36ee6000173dea41ab684dab9a20f36f95277eeb7c9a749a98c185583d91",
+      "typed_bytes": 41428,
+      "typed_delta_vs_two_proof_frontier": 728,
+      "typed_groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 13184,
+        "fri_samples": 800,
+        "oods_samples": 11952,
+        "queries_values": 8916,
+        "trace_decommitments": 6528
+      },
+      "value_bytes": 20868,
+      "value_delta_vs_canonical": 0
+    }
+  }
+}
