@@ -9,7 +9,9 @@ import csv
 import hashlib
 import io
 import json
+import os
 import pathlib
+import secrets
 import sys
 from typing import Any
 
@@ -691,19 +693,51 @@ def normalize_output_path(path: pathlib.Path) -> pathlib.Path:
         raise LabelPolicyError(f"failed to normalize output path: {err}") from err
 
 
+def staged_output_path(target: pathlib.Path, label: str) -> pathlib.Path:
+    return target.with_name(f".{target.name}.{os.getpid()}.{secrets.token_hex(8)}.{label}.stage")
+
+
+def write_output_pair_atomically(
+    json_target: pathlib.Path,
+    json_text: str,
+    tsv_target: pathlib.Path,
+    tsv_body: str,
+) -> None:
+    json_stage = staged_output_path(json_target, "json")
+    tsv_stage = staged_output_path(tsv_target, "tsv")
+    staged_paths = [json_stage, tsv_stage]
+    try:
+        sensitivity_gate.write_text_atomically(json_stage, json_text)
+        sensitivity_gate.write_text_atomically(tsv_stage, tsv_body)
+        os.replace(json_stage, json_target)
+        staged_paths.remove(json_stage)
+        os.replace(tsv_stage, tsv_target)
+        staged_paths.remove(tsv_stage)
+    except (OSError, sensitivity_gate.RmsnormLabelSensitivityError) as err:
+        for staged_path in staged_paths:
+            try:
+                staged_path.unlink(missing_ok=True)
+            except OSError:
+                pass
+        raise LabelPolicyError(f"failed to write output: {err}") from err
+
+
 def write_outputs(payload: dict[str, Any], json_path: pathlib.Path | None, tsv_path: pathlib.Path | None) -> None:
     validate_payload(payload)
     json_target = normalize_output_path(json_path) if json_path is not None else None
     tsv_target = normalize_output_path(tsv_path) if tsv_path is not None else None
     if json_target is not None and tsv_target is not None and json_target.resolve() == tsv_target.resolve():
         raise LabelPolicyError(f"duplicate output destination: {json_target}")
+    json_text = json.dumps(payload, indent=2, sort_keys=True) + "\n"
+    tsv_body = tsv_text(payload)
+    if json_target is not None and tsv_target is not None:
+        write_output_pair_atomically(json_target, json_text, tsv_target, tsv_body)
+        return
     try:
         if json_target is not None:
-            sensitivity_gate.write_text_atomically(
-                json_target, json.dumps(payload, indent=2, sort_keys=True) + "\n"
-            )
+            sensitivity_gate.write_text_atomically(json_target, json_text)
         if tsv_target is not None:
-            sensitivity_gate.write_text_atomically(tsv_target, tsv_text(payload))
+            sensitivity_gate.write_text_atomically(tsv_target, tsv_body)
     except sensitivity_gate.RmsnormLabelSensitivityError as err:
         raise LabelPolicyError(f"failed to write output: {err}") from err
 

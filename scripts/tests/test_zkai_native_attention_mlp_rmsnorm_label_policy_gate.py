@@ -4,6 +4,7 @@ import io
 import pathlib
 import tempfile
 import unittest
+from unittest import mock
 
 from scripts import zkai_native_attention_mlp_rmsnorm_label_policy_gate as gate
 
@@ -160,6 +161,35 @@ class RmsnormLabelPolicyGateTest(unittest.TestCase):
 
         with self.assertRaisesRegex(gate.LabelPolicyError, "duplicate output destination"):
             gate.write_outputs(payload, relative, absolute)
+
+    def test_write_outputs_stages_pair_before_replacing_targets(self) -> None:
+        payload = gate.build_payload()
+        json_path = gate.EVIDENCE_DIR / "rmsnorm-label-policy-atomic-json.tmp"
+        tsv_path = gate.EVIDENCE_DIR / "rmsnorm-label-policy-atomic-tsv.tmp"
+        original_writer = gate.sensitivity_gate.write_text_atomically
+        writes = []
+
+        try:
+            original_writer(json_path, "old-json\n")
+            original_writer(tsv_path, "old-tsv\n")
+
+            def fail_second_write(path: pathlib.Path, text: str) -> None:
+                writes.append(path)
+                if len(writes) == 2:
+                    raise gate.sensitivity_gate.RmsnormLabelSensitivityError("forced second write")
+                original_writer(path, text)
+
+            with mock.patch.object(
+                gate.sensitivity_gate, "write_text_atomically", side_effect=fail_second_write
+            ):
+                with self.assertRaisesRegex(gate.LabelPolicyError, "forced second write"):
+                    gate.write_outputs(payload, json_path, tsv_path)
+
+            self.assertEqual(json_path.read_text(), "old-json\n")
+            self.assertEqual(tsv_path.read_text(), "old-tsv\n")
+        finally:
+            json_path.unlink(missing_ok=True)
+            tsv_path.unlink(missing_ok=True)
 
     def test_write_outputs_rejects_outside_evidence_dir(self) -> None:
         payload = gate.build_payload()
