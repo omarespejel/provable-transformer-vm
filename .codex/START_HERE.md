@@ -126,8 +126,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 120. `docs/engineering/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05-17.md`
 121. `docs/engineering/zkai-minimal-transformer-block-benchmark-2026-05-17.md`
 122. `docs/engineering/zkai-gkr-dense-sidecar-baseline-2026-05-17.md`
-123. `docs/engineering/reproducibility.md`
-124. `git status --short --branch`
+123. `docs/engineering/zkai-jolt-atlas-lookup-tensor-comparison-2026-05-17.md`
+124. `docs/engineering/reproducibility.md`
+125. `git status --short --branch`
 
 ## What this repository is now
 
