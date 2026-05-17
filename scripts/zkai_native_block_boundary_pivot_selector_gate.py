@@ -125,8 +125,13 @@ def commitment(data: Any) -> str:
 
 
 def load_json(path: pathlib.Path) -> dict[str, Any]:
-    with path.open("r", encoding="utf-8") as handle:
-        payload = json.load(handle)
+    try:
+        with path.open("r", encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except OSError as error:
+        raise PivotSelectorError(f"unable to read JSON source: {path}") from error
+    except json.JSONDecodeError as error:
+        raise PivotSelectorError(f"invalid JSON source: {path}") from error
     if not isinstance(payload, dict):
         raise PivotSelectorError(f"{path} must contain a JSON object")
     return payload
@@ -174,8 +179,14 @@ def expect_equal(actual: Any, expected: Any, label: str) -> None:
 
 
 def source_descriptor(path: pathlib.Path) -> dict[str, Any]:
-    raw = path.read_bytes()
-    data = json.loads(raw.decode("utf-8"))
+    try:
+        raw = path.read_bytes()
+    except OSError as error:
+        raise PivotSelectorError(f"unable to read source artifact: {path}") from error
+    try:
+        data = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise PivotSelectorError(f"invalid JSON source artifact: {path}") from error
     if not isinstance(data, dict):
         raise PivotSelectorError(f"{path} must contain a JSON object")
     return {
@@ -468,7 +479,7 @@ def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
     expect_equal(require_int(summary.get("compact_preprocessed_typed_bytes"), "compact preprocessed typed"), COMPACT_PREPROCESSED_TYPED_BYTES, "compact preprocessed typed")
     expect_equal(summary.get("compact_preprocessed_vs_nanozk_ratio"), COMPACT_PREPROCESSED_VS_NANOZK_RATIO, "compact preprocessed ratio")
 
-    routes = require_list(payload.get("routes"), "routes")
+    routes = [require_dict(row, "route row") for row in require_list(payload.get("routes"), "routes")]
     expect_equal([require_str(row.get("route_id"), "route id") for row in routes], list(EXPECTED_ROUTE_IDS), "route order")
     for row in routes:
         if set(row) != set(ROW_COLUMNS) | {"non_claims"}:
@@ -507,7 +518,10 @@ def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
     if "32,144 typed bytes" not in require_str(interpretation.get("why_larger_boundary"), "larger boundary interpretation"):
         raise PivotSelectorError("larger-boundary mechanism erased")
 
-    source_artifacts = require_list(payload.get("source_artifacts"), "source artifacts")
+    source_artifacts = [
+        require_dict(row, "source artifact row")
+        for row in require_list(payload.get("source_artifacts"), "source artifacts")
+    ]
     expected_source_paths = [path.relative_to(ROOT).as_posix() for path in SOURCE_PATHS]
     actual_source_paths = [require_str(row.get("path"), "source path") for row in source_artifacts]
     expect_equal(actual_source_paths, expected_source_paths, "source artifact paths")
@@ -520,9 +534,12 @@ def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
     expect_equal(tuple(payload.get("validation_commands", ())), VALIDATION_COMMANDS, "validation command inventory")
 
     if final:
-        mutation_results = require_list(payload.get("mutation_results"), "mutation results")
+        mutation_results = [
+            require_dict(row, "mutation result row")
+            for row in require_list(payload.get("mutation_results"), "mutation results")
+        ]
         expect_equal([row.get("name") for row in mutation_results], [name for name, _ in MUTATIONS], "mutation inventory")
-        if not all(isinstance(row, dict) and row.get("rejected") is True for row in mutation_results):
+        if not all(row.get("rejected") is True for row in mutation_results):
             raise PivotSelectorError("mutation inventory drift")
         expect_equal(require_int(payload.get("mutation_count"), "mutation count"), len(MUTATIONS), "mutation count")
         expect_equal(require_int(payload.get("mutations_rejected"), "mutations rejected"), len(MUTATIONS), "mutations rejected")
