@@ -352,7 +352,7 @@ def _component_rows(sources: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
             "object_class": "paper_reported_external_context",
             "local_status": "SOURCE_BACKED_CONTEXT_ONLY",
             "proof_system": "paper-reported",
-            "evidence_path": str(ONE_BLOCK_SURFACE.relative_to(ROOT)),
+            "evidence_path": str(BOUNDARY_FRONTIER.relative_to(ROOT)),
             "primary_metric": "reported_proof_size_bytes",
             "primary_value": _int(frontier_summary.get("nanozk_reported_d128_block_proof_bytes"), "NANOZK bytes"),
             "comparability": "CONTEXT_ONLY_NOT_LOCAL_REPRODUCTION_NOT_MATCHED_WORKLOAD",
