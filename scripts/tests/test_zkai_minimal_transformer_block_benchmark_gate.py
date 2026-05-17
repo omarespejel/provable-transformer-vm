@@ -1,4 +1,5 @@
 import copy
+import hashlib
 import json
 import os
 import tempfile
@@ -163,6 +164,14 @@ class MinimalTransformerBlockBenchmarkGateTest(unittest.TestCase):
         self.assertIn("nanozk_context_row\tpaper_reported_external_context", text)
         self.assertIn("gkr_hyrax_sidecar_lane\tfollowup_hypothesis", text)
 
+    def test_source_descriptor_uses_supplied_snapshot_bytes(self) -> None:
+        payload = {"schema": "unit-test", "decision": "GO"}
+        raw = b'{"schema":"unit-test","decision":"GO"}'
+        with mock.patch.object(gate, "read_source_bytes", side_effect=AssertionError("unexpected reread")):
+            descriptor = gate.source_descriptor(gate.ONE_BLOCK_SURFACE, payload, raw)
+        self.assertEqual(descriptor["file_sha256"], hashlib.sha256(raw).hexdigest())
+        self.assertEqual(descriptor["payload_sha256"], hashlib.sha256(gate.canonical_json_bytes(payload)).hexdigest())
+
     def test_write_outputs_round_trips(self) -> None:
         payload = gate.build_payload()
         with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".json", delete=False) as json_handle:
@@ -230,6 +239,12 @@ class MinimalTransformerBlockBenchmarkGateTest(unittest.TestCase):
         source = gate.ROOT / payload["source_artifacts"][0]["path"]
         with self.assertRaisesRegex(gate.MinimalBlockBenchmarkError, "source artifact"):
             gate.write_outputs(payload, source, None)
+
+    def test_write_outputs_rejects_canonical_source_overwrite_even_if_payload_hides_it(self) -> None:
+        payload = gate.build_payload()
+        payload["source_artifacts"] = []
+        with self.assertRaisesRegex(gate.MinimalBlockBenchmarkError, "source artifact"):
+            gate.write_outputs(payload, gate.ONE_BLOCK_SURFACE, None)
 
     def test_read_source_bytes_rejects_in_place_rewrite_drift(self) -> None:
         original_fstat = gate.os.fstat
