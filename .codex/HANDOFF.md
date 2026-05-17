@@ -1728,7 +1728,7 @@ RMSNorm-input adjacent layout reproducibility metadata:
 - Timing mode: proof-size and verification evidence only; no median-of-5
   timing claim.
 - Step counts: `3` adjacent build/prove/verify runs, `5` accounting rows,
-  `12 / 12` mutation guards rejected, `9 / 9` Python tests, `17 / 17`
+  `12 / 12` mutation guards rejected, `12 / 12` Python tests, `17 / 17`
   targeted Rust tests, and `14 / 14` full local release-gate steps.
 - Evidence paths:
   `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json`,
