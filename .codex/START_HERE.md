@@ -132,8 +132,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 126. `docs/engineering/zkai-hybrid-proof-pressure-selector-2026-05-17.md`
 127. `docs/engineering/zkai-gkr-d128-projection-scaling-preflight-2026-05-17.md`
 128. `docs/engineering/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05-18.md`
-129. `docs/engineering/reproducibility.md`
-130. `git status --short --branch`
+129. `docs/engineering/zkai-native-block-boundary-pivot-selector-2026-05-18.md`
+130. `docs/engineering/reproducibility.md`
+131. `git status --short --branch`
 
 ## What this repository is now
 
@@ -280,8 +281,18 @@ This repository currently has three live lanes.
      the local Stwo gate/value baseline and `10.164928x` the NANOZK paper
      context row, so this is a current NO-GO for rushing into a JSTprove
      `d128` projection. Keep GKR as a sidecar/baseline lane unless a live
-     dim `8/16/32` sweep changes the evidence; see
-     `docs/engineering/zkai-gkr-d128-projection-scaling-preflight-2026-05-17.md`.
+   dim `8/16/32` sweep changes the evidence; see
+   `docs/engineering/zkai-gkr-d128-projection-scaling-preflight-2026-05-17.md`.
+   - The native block-boundary pivot selector now resolves the next immediate
+     route after those NO-GOs: `ATTACK_NEXT_LARGER_NATIVE_BLOCK_BOUNDARY`.
+     Park sub-kilobyte local reorders for now (`42,724` post-tail typed bytes,
+     `1,216` byte label span), park current GKR projection scaling (`70,138`
+     smallest width-preserving row), keep compact-preprocessed public rows as a
+     scoped mechanism lead (`6,264` typed bytes, not a full block comparison),
+     and attack a larger source-bound native boundary next. The reason is the
+     structural positive signal: six-component MLP fusion saves `32,144` typed
+     bytes (`56.4167%`) versus separate native objects. See
+     `docs/engineering/zkai-native-block-boundary-pivot-selector-2026-05-18.md`.
    - The current attention-to-RMSNorm/MLP boundary is a checked NO-GO for one
      value-connected native proof object: the attention-derived d128 statement
      chain has `199,553` accounted rows (`1.010374x` the MLP fused surface),

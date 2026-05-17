@@ -2029,6 +2029,35 @@ Adapter opening-geometry budget reproducibility metadata:
 - Gate command:
   `python3 scripts/zkai_native_attention_mlp_adapter_opening_geometry_budget_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05.tsv`.
 
+Latest native block-boundary pivot selector: issue `#667` converts the recent
+post-tail and GKR NO-GOs into the next executable route. The selector records
+`ATTACK_NEXT_LARGER_NATIVE_BLOCK_BOUNDARY_AFTER_ADAPTER_AND_GKR_NO_GOS`: park
+sub-kilobyte local adapter reorders for now, park current GKR projection scaling
+unless a new live dim sweep/backend changes evidence, use compact-preprocessed
+public rows only as a scoped mechanism lead, and attack a larger source-bound
+native boundary next. The key numbers are: strict native adapter object
+`41,932` typed bytes (`+1,232` versus the `40,700` two-proof frontier), compact
+selector `40,812` (`+112`), post-tail canonical `42,724` (`+2,024`) with a
+`1,216` byte label span, GKR width-preserving preflight `70,138`, compact
+preprocessed public-row route `6,264` typed bytes but not comparable to a full
+block, and six-component MLP fusion saving `32,144` typed bytes (`56.4167%`).
+The gate rejects `12 / 12` route, metric, source, non-claim, and payload
+mutations. See
+`docs/engineering/zkai-native-block-boundary-pivot-selector-2026-05-18.md`.
+
+Native block-boundary pivot reproducibility metadata:
+
+- Timing mode: selector/validation only; no new proof object, no timing, and no
+  median-of-5 claim.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-block-boundary-pivot-selector-2026-05.json`
+  and
+  `docs/engineering/evidence/zkai-native-block-boundary-pivot-selector-2026-05.tsv`.
+- Gate command:
+  `python3 scripts/zkai_native_block_boundary_pivot_selector_gate.py --write-json docs/engineering/evidence/zkai-native-block-boundary-pivot-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-block-boundary-pivot-selector-2026-05.tsv`.
+- Local tests:
+  `python3 -m unittest scripts.tests.test_zkai_native_block_boundary_pivot_selector_gate`.
+
 ## Resume protocol
 
 1. Read `AGENTS.md`.
