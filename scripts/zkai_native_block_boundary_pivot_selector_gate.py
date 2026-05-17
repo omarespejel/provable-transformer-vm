@@ -93,6 +93,7 @@ SOURCE_PATHS = (
     ATTENTION_MLP_FRONTIER,
 )
 SOURCE_ARTIFACTS_KEY = "__source_artifacts"
+SOURCE_ARTIFACT_KEYS = ("path", "schema", "decision", "result", "sha256", "bytes")
 
 LARGER_NATIVE_BOUNDARY_EVIDENCE = (
     "six-component MLP fusion saves 32,144 typed bytes while current adapter/reorder routes are label-fragile"
@@ -599,6 +600,17 @@ def validate_payload(
         require_dict(row, "source artifact row")
         for row in require_list(payload.get("source_artifacts"), "source artifacts")
     ]
+    for row in source_artifacts:
+        if set(row) != set(SOURCE_ARTIFACT_KEYS):
+            raise PivotSelectorError("source artifact row key inventory drift")
+        require_str(row.get("schema"), "source artifact schema")
+        require_str(row.get("decision"), "source artifact decision")
+        require_str(row.get("result"), "source artifact result")
+        digest = require_str(row.get("sha256"), "source artifact sha256")
+        if len(digest) != 64 or any(char not in "0123456789abcdef" for char in digest):
+            raise PivotSelectorError("source artifact sha256 format drift")
+        if require_int(row.get("bytes"), "source artifact bytes") <= 0:
+            raise PivotSelectorError("source artifact bytes must be positive")
     expected_source_paths = [path.relative_to(ROOT).as_posix() for path in SOURCE_PATHS]
     actual_source_paths = [require_str(row.get("path"), "source path") for row in source_artifacts]
     expect_equal(actual_source_paths, expected_source_paths, "source artifact paths")
