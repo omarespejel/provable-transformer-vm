@@ -208,22 +208,14 @@ def normalize_input_path(path: pathlib.Path) -> pathlib.Path:
     return resolved
 
 
-def sha256_file(path: pathlib.Path) -> str:
+def read_input_bytes(path: pathlib.Path) -> bytes:
     target = normalize_input_path(path)
     if target.stat().st_size > MAX_INPUT_JSON_BYTES:
-        raise AdjacentLayoutGateError(f"input artifact too large to hash: {path}")
-    digest = hashlib.sha256()
-    with target.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+        raise AdjacentLayoutGateError(f"input artifact too large: {path}")
+    return target.read_bytes()
 
 
-def read_json(path: pathlib.Path) -> dict[str, Any]:
-    target = normalize_input_path(path)
-    if target.stat().st_size > MAX_INPUT_JSON_BYTES:
-        raise AdjacentLayoutGateError(f"JSON input too large: {path}")
-    raw = target.read_bytes()
+def json_from_bytes(raw: bytes, path: pathlib.Path) -> dict[str, Any]:
     try:
         value = json.loads(raw)
     except json.JSONDecodeError as err:
@@ -319,10 +311,10 @@ def rows_by_expected_path(accounting: dict[str, Any]) -> dict[str, dict[str, Any
 
 
 def build_payload(*, include_mutations: bool = True) -> dict[str, Any]:
-    accounting_path = normalize_input_path(ACCOUNTING_PATH)
-    if sha256_file(accounting_path) != EXPECTED_ACCOUNTING_SHA256:
+    accounting_raw = read_input_bytes(ACCOUNTING_PATH)
+    if hashlib.sha256(accounting_raw).hexdigest() != EXPECTED_ACCOUNTING_SHA256:
         raise AdjacentLayoutGateError("adjacent accounting source digest drift")
-    accounting = read_json(accounting_path)
+    accounting = json_from_bytes(accounting_raw, ACCOUNTING_PATH)
     by_path = rows_by_expected_path(accounting)
     variants = {
         name: variant_from_row(name, by_path[entry["path"]])
@@ -470,8 +462,8 @@ def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True)
         raise AdjacentLayoutGateError("label span drift")
     if payload["adjacent_worst_label_delta_vs_frontier_typed_bytes"] <= 0:
         raise AdjacentLayoutGateError("frontier overclaim: worst adjacent label does not beat frontier")
-    if "not a proof-size win" not in payload["non_claims"] or "does not close issue 644" not in payload["non_claims"]:
-        raise AdjacentLayoutGateError("non-claims erased")
+    if tuple(payload["non_claims"]) != NON_CLAIMS:
+        raise AdjacentLayoutGateError("non-claims drift")
     if tuple(payload["validation_commands"]) != VALIDATION_COMMANDS:
         raise AdjacentLayoutGateError("validation command drift")
     if payload["payload_commitment"] != payload_commitment(payload):
