@@ -43,6 +43,10 @@ class MinimalTransformerBlockBenchmarkGateTest(unittest.TestCase):
         self.assertEqual(rows["native_full_block_proof_object"]["object_class"], "missing_native_proof_object")
         self.assertIsNone(rows["native_full_block_proof_object"]["primary_value"])
         self.assertEqual(rows["nanozk_context_row"]["comparability"], "CONTEXT_ONLY_NOT_LOCAL_REPRODUCTION_NOT_MATCHED_WORKLOAD")
+        self.assertEqual(
+            rows["nanozk_context_row"]["evidence_path"],
+            "docs/engineering/evidence/zkai-d128-attention-mlp-boundary-frontier-2026-05.json",
+        )
         self.assertEqual(rows["gkr_hyrax_sidecar_lane"]["local_status"], "FOLLOWUP_ISSUE_650_NOT_IMPLEMENTED")
         self.assertEqual(rows["jolt_atlas_lookup_tensor_lane"]["local_status"], "FOLLOWUP_ISSUE_651_NOT_IMPLEMENTED")
 

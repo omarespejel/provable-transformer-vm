@@ -136,7 +136,7 @@
       "claim_boundary": "paper-reported context only",
       "comparability": "CONTEXT_ONLY_NOT_LOCAL_REPRODUCTION_NOT_MATCHED_WORKLOAD",
       "component": "nanozk_context_row",
-      "evidence_path": "docs/engineering/evidence/zkai-one-transformer-block-surface-2026-05.json",
+      "evidence_path": "docs/engineering/evidence/zkai-d128-attention-mlp-boundary-frontier-2026-05.json",
       "local_status": "SOURCE_BACKED_CONTEXT_ONLY",
       "object_class": "paper_reported_external_context",
       "primary_metric": "reported_proof_size_bytes",
@@ -254,7 +254,7 @@
     "not timing evidence",
     "not recursion or proof-carrying data"
   ],
-  "payload_commitment": "blake2b-256:1d9e585422d8b7ce09d3d6ad65450fbdfbfab32f4a0a292ff1f95df84c598f59",
+  "payload_commitment": "blake2b-256:11e4ce9382caba55c3f02ff3d75f1f38f99091e9d8b05ed430aa7d465aa3bc90",
   "result": "BENCHMARK_CONTRACT_READY_MISSING_NATIVE_BLOCK_PROOF_OBJECT",
   "schema": "zkai-minimal-transformer-block-benchmark-v1",
   "source_artifacts": [
