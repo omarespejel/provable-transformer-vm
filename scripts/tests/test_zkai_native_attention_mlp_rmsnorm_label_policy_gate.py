@@ -191,6 +191,25 @@ class RmsnormLabelPolicyGateTest(unittest.TestCase):
             json_path.unlink(missing_ok=True)
             tsv_path.unlink(missing_ok=True)
 
+    def test_write_outputs_fsyncs_directory_after_pair_publish(self) -> None:
+        payload = gate.build_payload()
+        json_path = gate.EVIDENCE_DIR / "rmsnorm-label-policy-fsync-json.tmp"
+        tsv_path = gate.EVIDENCE_DIR / "rmsnorm-label-policy-fsync-tsv.tmp"
+
+        try:
+            with mock.patch.object(
+                gate.sensitivity_gate,
+                "fsync_dir_fd",
+                wraps=gate.sensitivity_gate.fsync_dir_fd,
+            ) as fsync_dir:
+                gate.write_outputs(payload, json_path, tsv_path)
+
+            self.assertTrue(fsync_dir.called)
+            self.assertEqual(json_path.parent, gate.EVIDENCE_DIR)
+        finally:
+            json_path.unlink(missing_ok=True)
+            tsv_path.unlink(missing_ok=True)
+
     def test_write_outputs_rejects_outside_evidence_dir(self) -> None:
         payload = gate.build_payload()
         with tempfile.TemporaryDirectory() as tmpdir:
