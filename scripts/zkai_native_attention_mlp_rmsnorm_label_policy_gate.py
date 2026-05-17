@@ -684,17 +684,26 @@ def tsv_text(payload: dict[str, Any]) -> str:
     return output.getvalue()
 
 
+def normalize_output_path(path: pathlib.Path) -> pathlib.Path:
+    try:
+        return sensitivity_gate.require_output_path(path)
+    except sensitivity_gate.RmsnormLabelSensitivityError as err:
+        raise LabelPolicyError(f"failed to normalize output path: {err}") from err
+
+
 def write_outputs(payload: dict[str, Any], json_path: pathlib.Path | None, tsv_path: pathlib.Path | None) -> None:
     validate_payload(payload)
-    if json_path is not None and tsv_path is not None and json_path.resolve() == tsv_path.resolve():
-        raise LabelPolicyError(f"duplicate output destination: {json_path}")
+    json_target = normalize_output_path(json_path) if json_path is not None else None
+    tsv_target = normalize_output_path(tsv_path) if tsv_path is not None else None
+    if json_target is not None and tsv_target is not None and json_target.resolve() == tsv_target.resolve():
+        raise LabelPolicyError(f"duplicate output destination: {json_target}")
     try:
-        if json_path is not None:
+        if json_target is not None:
             sensitivity_gate.write_text_atomically(
-                json_path, json.dumps(payload, indent=2, sort_keys=True) + "\n"
+                json_target, json.dumps(payload, indent=2, sort_keys=True) + "\n"
             )
-        if tsv_path is not None:
-            sensitivity_gate.write_text_atomically(tsv_path, tsv_text(payload))
+        if tsv_target is not None:
+            sensitivity_gate.write_text_atomically(tsv_target, tsv_text(payload))
     except sensitivity_gate.RmsnormLabelSensitivityError as err:
         raise LabelPolicyError(f"failed to write output: {err}") from err
 
