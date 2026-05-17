@@ -147,9 +147,26 @@ def read_source_bytes(path: pathlib.Path) -> bytes:
             post_stat = os.fstat(fd)
             if (post_stat.st_dev, post_stat.st_ino) != (pre_stat.st_dev, pre_stat.st_ino):
                 raise MinimalBlockBenchmarkError(f"source changed while reading: {path}")
+            opened_fingerprint = (
+                post_stat.st_dev,
+                post_stat.st_ino,
+                post_stat.st_size,
+                post_stat.st_mtime_ns,
+                post_stat.st_ctime_ns,
+            )
             with os.fdopen(fd, "rb") as handle:
                 fd = None
                 raw = handle.read(MAX_SOURCE_BYTES + 1)
+                final_stat = os.fstat(handle.fileno())
+                final_fingerprint = (
+                    final_stat.st_dev,
+                    final_stat.st_ino,
+                    final_stat.st_size,
+                    final_stat.st_mtime_ns,
+                    final_stat.st_ctime_ns,
+                )
+                if final_fingerprint != opened_fingerprint:
+                    raise MinimalBlockBenchmarkError(f"source changed while reading: {path}")
         finally:
             if fd is not None:
                 os.close(fd)
@@ -599,6 +616,8 @@ def tsv_text(payload: dict[str, Any]) -> str:
 
 
 def normalize_output_path(path: pathlib.Path) -> pathlib.Path:
+    if not path.is_absolute():
+        path = ROOT / path
     try:
         original_st = os.lstat(path)
     except FileNotFoundError:
