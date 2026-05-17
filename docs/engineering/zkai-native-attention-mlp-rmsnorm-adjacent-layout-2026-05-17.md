@@ -137,7 +137,7 @@ just gate
 Recorded gate output:
 
 ```json
-{"adjacent_canonical_saving_vs_canonical_typed_bytes":480,"adjacent_canonical_typed_bytes":40948,"adjacent_worst_label_delta_vs_frontier_typed_bytes":2024,"adjacent_worst_label_typed_bytes":42724,"decision":"NO_GO_WORST_LABEL_FRONTIER_PROMOTION_BUT_GO_LAYOUT_LEVER","mutation_count":12,"mutations_rejected":12,"result":"ADJACENT_LAYOUT_SAVES_480_TYPED_BYTES_CANONICALLY_BUT_WORST_LABEL_REMAINS_2024_BYTES_ABOVE_FRONTIER"}
+{"adjacent_canonical_saving_vs_canonical_typed_bytes":480,"adjacent_canonical_typed_bytes":40948,"adjacent_worst_label_delta_vs_frontier_typed_bytes":2024,"adjacent_worst_label_typed_bytes":42724,"decision":"NO_GO_WORST_LABEL_FRONTIER_PROMOTION_BUT_GO_LAYOUT_LEVER","mutation_count":14,"mutations_rejected":14,"result":"ADJACENT_LAYOUT_SAVES_480_TYPED_BYTES_CANONICALLY_BUT_WORST_LABEL_REMAINS_2024_BYTES_ABOVE_FRONTIER"}
 ```
 
 ## Next Attack
