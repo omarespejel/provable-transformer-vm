@@ -713,13 +713,18 @@ def write_output_pair_atomically(
         staged_paths.remove(json_stage)
         os.replace(tsv_stage, tsv_target)
         staged_paths.remove(tsv_stage)
-        dir_fd: int | None = None
-        try:
-            dir_fd = sensitivity_gate.open_directory_fd(json_target.parent)
-            sensitivity_gate.fsync_dir_fd(dir_fd, json_target.parent)
-        finally:
-            if dir_fd is not None:
-                os.close(dir_fd)
+        fsynced_parents: list[pathlib.Path] = []
+        for parent in (json_target.parent, tsv_target.parent):
+            if parent in fsynced_parents:
+                continue
+            fsynced_parents.append(parent)
+            dir_fd: int | None = None
+            try:
+                dir_fd = sensitivity_gate.open_directory_fd(parent)
+                sensitivity_gate.fsync_dir_fd(dir_fd, parent)
+            finally:
+                if dir_fd is not None:
+                    os.close(dir_fd)
     except (OSError, sensitivity_gate.RmsnormLabelSensitivityError) as err:
         for staged_path in staged_paths:
             try:

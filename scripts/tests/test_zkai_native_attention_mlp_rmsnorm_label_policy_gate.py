@@ -205,7 +205,9 @@ class RmsnormLabelPolicyGateTest(unittest.TestCase):
                 gate.write_outputs(payload, json_path, tsv_path)
 
             self.assertGreaterEqual(fsync_dir.call_count, 3)
-            self.assertEqual(json_path.parent, gate.EVIDENCE_DIR)
+            self.assertTrue(
+                any(len(call.args) > 1 and call.args[1] == gate.EVIDENCE_DIR for call in fsync_dir.mock_calls)
+            )
         finally:
             json_path.unlink(missing_ok=True)
             tsv_path.unlink(missing_ok=True)
