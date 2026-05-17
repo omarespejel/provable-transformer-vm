@@ -167,10 +167,11 @@ class HybridProofPressureSelectorGateTest(unittest.TestCase):
 
     def test_write_outputs_creates_nested_evidence_directory(self) -> None:
         payload = gate.build_payload()
-        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix="tmp-hybrid-selector-test-") as temp_dir:
-            nested_dir = gate.pathlib.Path(temp_dir)
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix="tmp-hybrid-selector-parent-") as temp_parent:
+            nested_dir = gate.pathlib.Path(temp_parent) / "nonexistent-subdir"
             json_path = nested_dir / "selector.json"
             tsv_path = nested_dir / "selector.tsv"
+            self.assertFalse(nested_dir.exists())
             gate.write_outputs(payload, json_path, tsv_path)
             self.assertEqual(json.loads(json_path.read_text(encoding="utf-8")), payload)
             self.assertTrue(tsv_path.exists())
