@@ -1,0 +1,6 @@
+route_id	selector_status	primary_evidence	typed_bytes	delta_vs_frontier_typed_bytes	proof_size_comparable_to_nanozk	next_gate
+larger_native_block_boundary	ATTACK_NEXT	six-component MLP fusion saves 32,144 typed bytes while current adapter/reorder routes are label-fragile	41932	1232	False	build a larger source-bound native boundary or amortization gate before another local reorder
+sub_kilobyte_adapter_reorder	PARK_NOW	post-tail canonical is 42,724 typed bytes and matches the adjacent bad-label record stream	42724	2024	False	reopen only with label-stable query/opening policy and worst-label proof below 40,700 typed bytes
+current_gkr_projection_sidecar	PARK_NOW	width-preserving GKR dim2/dim4 rows are already heavier than local Stwo dense baselines	70138	29438	False	reopen only with a live dim8/16/32 sweep or a new GKR backend
+compact_preprocessed_public_rows	USE_SELECTIVELY	6,264 typed bytes is below the NANOZK paper row but only for selected public RMSNorm plus bridge	6264	-34436	False	extend only to public-row-like surfaces; do not compare as a full d128 block proof
+comparison_claim_guardrail	GUARDRAIL	minimal block benchmark still has missing native block proof object and zero matched external proof-size rows			False	keep comparison table separated by object class, source status, and local reproduction status
