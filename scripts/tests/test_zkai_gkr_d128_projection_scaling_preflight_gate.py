@@ -144,7 +144,7 @@ class GkrD128ProjectionScalingPreflightGateTest(unittest.TestCase):
         parsed, raws = gate.load_sources()
         parsed = deepcopy(parsed)
         parsed["shape"]["dimension_sweep"].append("not an object")
-        with self.assertRaisesRegex(gate.GkrProjectionPreflightError, "dimension sweep row 3 must be an object"):
+        with self.assertRaisesRegex(gate.GkrProjectionPreflightError, r"dimension sweep row \d+ must be an object"):
             gate.base_payload((parsed, raws))
 
     def test_rejects_malformed_component_source_rows(self) -> None:
