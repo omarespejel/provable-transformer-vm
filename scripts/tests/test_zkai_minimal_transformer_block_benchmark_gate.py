@@ -198,6 +198,12 @@ class MinimalTransformerBlockBenchmarkGateTest(unittest.TestCase):
         self.assertEqual(descriptor["file_sha256"], hashlib.sha256(raw).hexdigest())
         self.assertEqual(descriptor["payload_sha256"], hashlib.sha256(gate.canonical_json_bytes(payload)).hexdigest())
 
+    def test_rejects_adjacent_worst_label_typed_byte_drift(self) -> None:
+        adjacent = copy.deepcopy(gate._load_sources()["adjacent"])
+        adjacent["adjacent_worst_label_typed_bytes"] += 1
+        with self.assertRaisesRegex(gate.MinimalBlockBenchmarkError, "worst-label"):
+            gate._adjacent_worst_label_typed_bytes(adjacent)
+
     def test_write_outputs_round_trips(self) -> None:
         payload = gate.build_payload()
         with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".json", delete=False) as json_handle:
