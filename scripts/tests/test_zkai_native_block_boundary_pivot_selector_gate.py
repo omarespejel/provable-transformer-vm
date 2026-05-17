@@ -58,6 +58,21 @@ class NativeBlockBoundaryPivotSelectorGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.PivotSelectorError, "MLP saving ratio must be a number"):
             gate.validate_source_numbers(sources)
 
+    def test_load_json_normalizes_read_failure(self) -> None:
+        missing = gate.EVIDENCE_DIR / "missing-pivot-selector-source.json"
+        with self.assertRaisesRegex(gate.PivotSelectorError, "unable to read JSON source"):
+            gate.load_json(missing)
+
+    def test_source_descriptor_normalizes_parse_failure(self) -> None:
+        with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".json", delete=False) as handle:
+            path = gate.pathlib.Path(handle.name)
+            handle.write(b"{")
+        try:
+            with self.assertRaisesRegex(gate.PivotSelectorError, "invalid JSON source artifact"):
+                gate.source_descriptor(path)
+        finally:
+            path.unlink(missing_ok=True)
+
     def test_mutation_inventory_is_strict(self) -> None:
         payload = gate.build_payload()
         self.assertEqual([row["name"] for row in payload["mutation_results"]], [name for name, _ in gate.MUTATIONS])
@@ -93,6 +108,18 @@ class NativeBlockBoundaryPivotSelectorGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.PivotSelectorError, "post-tail typed drift"):
             gate.validate_payload(payload, final=False)
 
+    def test_rejects_malformed_route_row(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        payload["routes"][0] = "not-an-object"
+        with self.assertRaisesRegex(gate.PivotSelectorError, "route row must be an object"):
+            gate.validate_payload(payload, final=False)
+
+    def test_rejects_malformed_source_artifact_row(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        payload["source_artifacts"][0] = "not-an-object"
+        with self.assertRaisesRegex(gate.PivotSelectorError, "source artifact row must be an object"):
+            gate.validate_payload(payload, final=False)
+
     def test_rejects_non_claim_erasure(self) -> None:
         payload = gate.base_payload(gate.load_sources())
         gate.mutate_remove_non_claim(payload)
@@ -119,6 +146,14 @@ class NativeBlockBoundaryPivotSelectorGateTest(unittest.TestCase):
         payload["mutations_rejected"] -= 1
         payload["payload_commitment"] = gate.commitment({key: value for key, value in payload.items() if key != "payload_commitment"})
         with self.assertRaisesRegex(gate.PivotSelectorError, "mutation inventory drift"):
+            gate.validate_payload(payload)
+
+    def test_rejects_malformed_mutation_result_row(self) -> None:
+        payload = gate.build_payload()
+        payload["mutation_results"] = deepcopy(payload["mutation_results"])
+        payload["mutation_results"][0] = "not-an-object"
+        payload["payload_commitment"] = gate.commitment({key: value for key, value in payload.items() if key != "payload_commitment"})
+        with self.assertRaisesRegex(gate.PivotSelectorError, "mutation result row must be an object"):
             gate.validate_payload(payload)
 
     def test_tsv_shape(self) -> None:
