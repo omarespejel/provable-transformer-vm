@@ -1,0 +1,189 @@
+import copy
+import tempfile
+import unittest
+from unittest import mock
+
+from scripts import zkai_native_attention_mlp_rmsnorm_post_tail_layout_gate as gate
+
+
+class RmsnormPostTailLayoutGateTest(unittest.TestCase):
+    def test_build_payload_records_no_go_and_bad_label_match(self) -> None:
+        payload = gate.build_payload()
+        self.assertEqual(payload["decision"], "NO_GO_POST_TAIL_LAYOUT_LABEL_STABILITY")
+        self.assertEqual(payload["post_tail_canonical_typed_bytes"], 42_724)
+        self.assertEqual(payload["post_tail_delta_vs_two_proof_frontier_typed_bytes"], 2_024)
+        self.assertEqual(payload["post_tail_penalty_vs_adjacent_canonical_typed_bytes"], 1_776)
+        self.assertEqual(payload["post_tail_penalty_vs_canonical_rmsnorm_typed_bytes"], 1_296)
+        self.assertEqual(payload["post_tail_best_label_typed_bytes"], 41_508)
+        self.assertEqual(payload["post_tail_label_span_typed_bytes"], 1_216)
+        self.assertTrue(payload["post_tail_matches_adjacent_bad_label_record_stream"])
+        self.assertEqual(len(payload["mutation_results"]), 17)
+        self.assertTrue(all(entry["rejected"] for entry in payload["mutation_results"]))
+
+    def test_payload_rejects_frontier_overclaim(self) -> None:
+        payload = gate.build_payload()
+        payload["decision"] = "GO_FRONTIER_PROMOTION"
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.PostTailLayoutGateError):
+            gate.validate_payload(payload)
+
+    def test_payload_rejects_post_tail_metric_erasure(self) -> None:
+        payload = gate.build_payload()
+        payload["post_tail_canonical_typed_bytes"] = 40_699
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.PostTailLayoutGateError):
+            gate.validate_payload(payload)
+
+    def test_payload_rejects_record_stream_match_erasure(self) -> None:
+        payload = gate.build_payload()
+        payload["post_tail_matches_adjacent_bad_label_record_stream"] = False
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.PostTailLayoutGateError):
+            gate.validate_payload(payload)
+
+    def test_payload_rejects_group_drift(self) -> None:
+        payload = gate.build_payload()
+        payload["variants"]["post_tail_layout"]["typed_groups"]["fri_decommitments"] = 0
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.PostTailLayoutGateError):
+            gate.validate_payload(payload)
+
+    def test_payload_rejects_nested_variant_provenance_and_derived_drift(self) -> None:
+        cases = (
+            ("evidence_relative_path", "other.json"),
+            ("record_stream_sha256", "0" * 64),
+            ("typed_delta_vs_two_proof_frontier", 0),
+            ("path_opening_bytes", 0),
+            ("path_opening_delta_vs_canonical", 0),
+            ("value_bytes", 0),
+            ("value_delta_vs_canonical", 1),
+            ("label_probe", True),
+            ("layout_probe", False),
+            ("policy_group", "reference"),
+        )
+        for key, value in cases:
+            with self.subTest(key=key):
+                payload = gate.build_payload()
+                payload["variants"]["post_tail_layout"][key] = value
+                payload["payload_commitment"] = gate.payload_commitment(payload)
+                with self.assertRaises(gate.PostTailLayoutGateError):
+                    gate.validate_payload(payload)
+
+    def test_payload_rejects_interpretation_drift(self) -> None:
+        payload = gate.build_payload()
+        payload["interpretation"]["human_read"] = "frontier win"
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.PostTailLayoutGateError):
+            gate.validate_payload(payload)
+
+    def test_payload_rejects_top_level_summary_drift(self) -> None:
+        for key, value in (
+            ("compact_selector_typed_bytes", 1),
+            ("canonical_rmsnorm_input_fused_typed_bytes", 1),
+            ("adjacent_canonical_typed_bytes", 1),
+            ("adjacent_bad_label_typed_bytes", 1),
+            ("source_accounting_path", "docs/engineering/evidence/other.json"),
+        ):
+            with self.subTest(key=key):
+                payload = gate.build_payload()
+                payload[key] = value
+                payload["payload_commitment"] = gate.payload_commitment(payload)
+                with self.assertRaises(gate.PostTailLayoutGateError):
+                    gate.validate_payload(payload)
+
+    def test_payload_rejects_non_claim_erasure(self) -> None:
+        payload = gate.build_payload()
+        payload["non_claims"] = []
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.PostTailLayoutGateError):
+            gate.validate_payload(payload)
+
+    def test_payload_rejects_partial_non_claim_erasure(self) -> None:
+        payload = gate.build_payload()
+        payload["non_claims"] = [
+            "not a proof-size win",
+            "does not close parent issue 641",
+        ]
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.PostTailLayoutGateError):
+            gate.validate_payload(payload)
+
+    def test_payload_rejects_commitment_drift(self) -> None:
+        payload = gate.build_payload()
+        payload["payload_commitment"] = "blake2b-256:" + "0" * 64
+        with self.assertRaises(gate.PostTailLayoutGateError):
+            gate.validate_payload(payload)
+
+    def test_mutation_inventory_is_exact(self) -> None:
+        payload = gate.build_payload()
+        mutations = copy.deepcopy(payload["mutation_results"])
+        mutations.append({"name": "extra", "rejected": True, "reason": "extra"})
+        with self.assertRaises(gate.PostTailLayoutGateError):
+            gate.validate_mutation_results(mutations)
+
+    def test_mutation_inventory_rejects_non_object_entries(self) -> None:
+        payload = gate.build_payload()
+        mutations = copy.deepcopy(payload["mutation_results"])
+        mutations[-1] = "not an object"
+        with self.assertRaises(gate.PostTailLayoutGateError):
+            gate.validate_mutation_results(mutations)
+
+    def test_payload_can_validate_without_mutation_inventory(self) -> None:
+        payload = gate.build_payload(include_mutations=False)
+        self.assertEqual(payload["mutation_results"], [])
+        gate.validate_payload(payload, require_mutations=False)
+        with self.assertRaises(gate.PostTailLayoutGateError):
+            gate.validate_payload(payload)
+
+    def test_read_input_bytes_rejects_oversized_artifact(self) -> None:
+        with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".json", delete=False) as handle:
+            path = gate.pathlib.Path(handle.name)
+            handle.truncate(gate.MAX_INPUT_JSON_BYTES + 1)
+        try:
+            with self.assertRaises(gate.PostTailLayoutGateError):
+                gate.read_input_bytes(path)
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_tsv_includes_post_tail_no_go(self) -> None:
+        payload = gate.build_payload()
+        text = gate.tsv_text(payload)
+        self.assertIn("post_tail_layout\t42724\t2024\t21808", text)
+        self.assertIn("post_tail_label_probe_a\t41508\t808\t20592", text)
+        self.assertIn("no_go_post_tail", text)
+
+    def test_write_outputs_rejects_non_evidence_path(self) -> None:
+        payload = gate.build_payload()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with self.assertRaises(gate.PostTailLayoutGateError):
+                gate.write_outputs(payload, gate.pathlib.Path(tmpdir) / "payload.json", None)
+
+    def test_write_outputs_rejects_symlink_path_before_resolve(self) -> None:
+        payload = gate.build_payload()
+        with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".json", delete=False) as handle:
+            target = gate.pathlib.Path(handle.name)
+        link = target.with_name(f"{target.name}.link.json")
+        try:
+            link.symlink_to(target)
+            with self.assertRaises(gate.PostTailLayoutGateError):
+                gate.write_outputs(payload, link, None)
+        finally:
+            link.unlink(missing_ok=True)
+            target.unlink(missing_ok=True)
+
+    def test_write_atomic_preserves_original_failure_when_cleanup_fails(self) -> None:
+        with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".json", delete=False) as handle:
+            path = gate.pathlib.Path(handle.name)
+        try:
+            with (
+                mock.patch.object(gate.pathlib.Path, "write_bytes", side_effect=OSError("write failed")),
+                mock.patch.object(gate.pathlib.Path, "unlink", side_effect=PermissionError("cleanup failed")),
+            ):
+                with self.assertRaisesRegex(OSError, "write failed"):
+                    gate.write_atomic(path, b"{}")
+        finally:
+            path.unlink(missing_ok=True)
+
+
+if __name__ == "__main__":
+    unittest.main()
