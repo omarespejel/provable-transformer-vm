@@ -4,9 +4,9 @@ Date: 2026-05-17
 
 Issue: [#663](https://github.com/omarespejel/provable-transformer-vm/issues/663)
 
-Decision: `NO_GO_JSTPROVE_D128_PROJECTION_SCALING_PREFLIGHT_KEEP_GKR_AS_BASELINE`
+Decision: `NO_GO_NOW_D128_PROJECTION_SCALING`
 
-Result: `TINY_GEMM_SIGNAL_DOES_NOT_SURVIVE_WIDTH_PRESERVING_PREFLIGHT`
+Result: `TINY_GEMM_SIGNAL_DOES_NOT_SURVIVE_WIDTH_PRESERVING_PREFLIGHT_KEEP_GKR_AS_BASELINE`
 
 ## What This Shows
 
@@ -16,17 +16,23 @@ selector before spending a PR on a `d128` projection implementation.
 The prior selector found a tempting tiny `Gemm` signal:
 
 - JSTprove/Remainder tiny scalar `Gemm`: `11,645` proof bytes
+  from `zkai-jstprove-shape-probe-2026-05.json`
 - local Stwo `d128` gate/value projection baseline: `16,360` typed bytes
+  from `zkai-d128-gate-value-compact-preprocessed-gate-2026-05.json`
 - tiny scalar ratio versus Stwo gate/value baseline: `0.711797x`
 
 That signal does not survive the current width-preserving preflight:
 
 - width-preserving `Gemm` dim `2`: `71,040` proof bytes
+  from `zkai-jstprove-shape-probe-2026-05.json`
 - width-preserving `Gemm` dim `4`: `70,138` proof bytes
+  from `zkai-jstprove-shape-probe-2026-05.json`
 - smallest checked width-preserving row: `70,138` proof bytes
 - ratio versus local Stwo gate/value baseline: `4.287164x`
 - ratio versus local Stwo dense substitute: `3.106751x`
-- ratio versus NANOZK paper context row: `10.164928x`
+- ratio versus NANOZK paper context row: `10.164928x`, using the
+  `6,900` byte context row pinned in
+  `zkai-minimal-transformer-block-benchmark-2026-05.json`
 
 Human meaning: tiny GKR projection-shaped fixtures are still worth tracking, but
 the checked JSTprove/Remainder width-preserving route is not currently the next
@@ -97,6 +103,7 @@ The gate rejects:
 - smuggling smaller width-preserving byte values into the output;
 - changing the recommendation from NO-GO to attack-now;
 - removing global non-claims;
+- removing row-specific non-claims;
 - drifting source artifact digests;
 - removing the explicit tiny-fixture `not d128` non-claim.
 
