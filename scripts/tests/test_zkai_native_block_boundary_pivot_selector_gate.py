@@ -168,6 +168,20 @@ class NativeBlockBoundaryPivotSelectorGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.PivotSelectorError, "source artifact descriptor drift"):
             gate.validate_payload(payload, final=False)
 
+    def test_rejects_source_descriptor_key_inventory_drift(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        payload["source_artifacts"][0] = dict(payload["source_artifacts"][0])
+        payload["source_artifacts"][0].pop("schema")
+        with self.assertRaisesRegex(gate.PivotSelectorError, "source artifact row key inventory drift"):
+            gate.validate_payload(payload, final=False)
+
+    def test_rejects_source_descriptor_sha_format_drift(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        payload["source_artifacts"][0] = dict(payload["source_artifacts"][0])
+        payload["source_artifacts"][0]["sha256"] = "not-a-sha"
+        with self.assertRaisesRegex(gate.PivotSelectorError, "source artifact sha256 format drift"):
+            gate.validate_payload(payload, final=False)
+
     def test_rejects_non_claim_erasure(self) -> None:
         payload = gate.base_payload(gate.load_sources())
         gate.mutate_remove_non_claim(payload)
