@@ -165,6 +165,11 @@ class TableroHybridZkmlBoundaryGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.TableroHybridBoundaryError, "duplicate row"):
             gate.build_boundary_examples(sources)
 
+    def test_relative_source_path_is_posix(self) -> None:
+        source_path = gate.relative_source_path(gate.MINIMAL_BENCHMARK)
+        self.assertEqual(source_path, "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json")
+        self.assertNotIn("\\", source_path)
+
     def test_mutation_inventory_is_strict(self) -> None:
         payload = gate.build_payload()
         payload["mutation_results"] = deepcopy(payload["mutation_results"])
