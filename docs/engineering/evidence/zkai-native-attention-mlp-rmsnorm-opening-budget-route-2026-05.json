@@ -1,0 +1,238 @@
+{
+  "claim_boundary": "RMSNORM_INPUT_OPENING_LAYOUT_REMAINS_AN_EXPLORATORY_ROUTE_ONLY_IF_A_FUTURE_VARIANT_REMOVES_AT_LEAST_1401_WORST_LABEL_TYPED_BYTES_WHILE_PRESERVING_SOURCE_BINDING_AND_VALUE_SEMANTICS",
+  "decision": "CONDITIONAL_GO_OPENING_OVERHANG_ATTACK_WITH_STRICT_WORST_LABEL_TARGET",
+  "frontier": {
+    "compact_selector_typed_bytes": 40812,
+    "frontier_win_claimed": false,
+    "nanozk_reported_d128_block_proof_bytes": 6900,
+    "nanozk_win_claimed": false,
+    "nanozk_workload_matched": false,
+    "two_proof_frontier_typed_bytes": 40700
+  },
+  "interpretation": {
+    "human_read": "The strict policy gap is 1,401 typed bytes under the worst checked label. That worst label carries 1,680 typed bytes of path-opening overhang versus the compact selector, so the route is not dead: removing 83.3929% of that overhang would beat the 40,700 byte frontier. But this is only a target. No proof object currently removes that overhang.",
+    "next_attack": "Build a real opening-layout variant and require it to remove at least 1,401 worst-label typed bytes from FRI/trace opening material while preserving the RMSNorm-input adapter equation, source binding, and the full label inventory. If it only wins under a favorable label, do not promote it."
+  },
+  "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/644",
+  "mutation_result": {
+    "cases": [
+      {
+        "name": "frontier_overclaim",
+        "rejected": true
+      },
+      {
+        "name": "nanozk_overclaim",
+        "rejected": true
+      },
+      {
+        "name": "nanozk_workload_match_overclaim",
+        "rejected": true
+      },
+      {
+        "name": "source_policy_digest_drift",
+        "rejected": true
+      },
+      {
+        "name": "source_sensitivity_commitment_drift",
+        "rejected": true
+      },
+      {
+        "name": "worst_label_required_reduction_drift",
+        "rejected": true
+      },
+      {
+        "name": "worst_label_path_overhang_drift",
+        "rejected": true
+      },
+      {
+        "name": "required_share_drift",
+        "rejected": true
+      },
+      {
+        "name": "canonical_policy_sufficient_overclaim",
+        "rejected": true
+      },
+      {
+        "name": "full_removal_margin_drift",
+        "rejected": true
+      },
+      {
+        "name": "single_label_allowed",
+        "rejected": true
+      },
+      {
+        "name": "value_saving_erased",
+        "rejected": true
+      },
+      {
+        "name": "route_candidate_removed",
+        "rejected": true
+      },
+      {
+        "name": "decision_drift",
+        "rejected": true
+      },
+      {
+        "name": "result_drift",
+        "rejected": true
+      },
+      {
+        "name": "claim_boundary_drift",
+        "rejected": true
+      },
+      {
+        "name": "non_claims_erased",
+        "rejected": true
+      },
+      {
+        "name": "validation_commands_erased",
+        "rejected": true
+      },
+      {
+        "name": "payload_commitment_drift",
+        "rejected": true
+      }
+    ],
+    "mutation_count": 19,
+    "rejected_count": 19
+  },
+  "non_claims": [
+    "not a two-proof frontier beat",
+    "not a proof-size win",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not a new proof object",
+    "not timing evidence",
+    "not a full transformer block proof",
+    "not production-ready zkML"
+  ],
+  "payload_commitment": "blake2b-256:58f7f0a5b73d0fec8320f6ad3dd7c11991c0f188eb96b5246b3fb50664d87911",
+  "result": "WORST_LABEL_PATH_OPENING_OVERHANG_CAN_PAY_THE_1401_BYTE_POLICY_GAP_ONLY_IF_STRUCTURALLY_REMOVED",
+  "route_budget": {
+    "canonical_overhang_sufficient_under_worst_label_policy": false,
+    "canonical_path_opening_overhang_vs_compact_bytes": 1008,
+    "compact_selector_path_opening_bytes": 19504,
+    "current_promotion_allowed": false,
+    "modeled_frontier_margin_after_full_worst_label_path_opening_removal_bytes": 280,
+    "modeled_typed_after_full_worst_label_path_opening_removal": 40420,
+    "required_share_of_path_opening_overhang": 0.833929,
+    "rmsnorm_value_saving_vs_compact_bytes": 392,
+    "strict_margin_after_required_reduction_bytes": 279,
+    "worst_label_delta_vs_frontier_bytes": 1400,
+    "worst_label_inventory": "label_probe_b",
+    "worst_label_path_opening_bytes": 21184,
+    "worst_label_path_opening_overhang_vs_compact_bytes": 1680,
+    "worst_label_required_reduction_to_beat_frontier_bytes": 1401,
+    "worst_label_typed_bytes": 42100
+  },
+  "route_candidates": {
+    "canonical_overhang_only": {
+      "baseline_delta_vs_two_proof_frontier_bytes": 728,
+      "baseline_typed_bytes": 41428,
+      "cherry_pick_risk": false,
+      "modeled_delta_vs_two_proof_frontier_after_full_path_opening_removal_bytes": -280,
+      "modeled_frontier_margin_after_full_path_opening_removal_bytes": 280,
+      "modeled_typed_after_full_path_opening_removal": 40420,
+      "name": "canonical_overhang_only",
+      "path_opening_overhang_vs_compact_bytes": 1008,
+      "policy_sufficient_if_full_path_opening_removed": false,
+      "promotion_allowed_now": false,
+      "required_reduction_to_beat_frontier_bytes": 729,
+      "required_share_of_path_opening_overhang": 0.723214,
+      "route_status": "NOT_SUFFICIENT_UNDER_WORST_LABEL_POLICY",
+      "source_variant": "rmsnorm_input_fused",
+      "strict_margin_after_required_reduction_bytes": 279,
+      "value_delta_vs_compact_bytes": -392
+    },
+    "compact_selector_reference": {
+      "baseline_delta_vs_two_proof_frontier_bytes": 112,
+      "baseline_typed_bytes": 40812,
+      "cherry_pick_risk": false,
+      "modeled_delta_vs_two_proof_frontier_after_full_path_opening_removal_bytes": 112,
+      "modeled_frontier_margin_after_full_path_opening_removal_bytes": -112,
+      "modeled_typed_after_full_path_opening_removal": 40812,
+      "name": "compact_selector_reference",
+      "path_opening_overhang_vs_compact_bytes": 0,
+      "policy_sufficient_if_full_path_opening_removed": false,
+      "promotion_allowed_now": false,
+      "required_reduction_to_beat_frontier_bytes": 113,
+      "required_share_of_path_opening_overhang": 0.0,
+      "route_status": "REFERENCE_NOT_RMSNORM_SEMANTIC_FUSION",
+      "source_variant": "compact_selector",
+      "strict_margin_after_required_reduction_bytes": -113,
+      "value_delta_vs_compact_bytes": 0
+    },
+    "single_best_label": {
+      "baseline_delta_vs_two_proof_frontier_bytes": 136,
+      "baseline_typed_bytes": 40836,
+      "cherry_pick_risk": true,
+      "modeled_delta_vs_two_proof_frontier_after_full_path_opening_removal_bytes": -280,
+      "modeled_frontier_margin_after_full_path_opening_removal_bytes": 280,
+      "modeled_typed_after_full_path_opening_removal": 40420,
+      "name": "single_best_label",
+      "path_opening_overhang_vs_compact_bytes": 416,
+      "policy_sufficient_if_full_path_opening_removed": false,
+      "promotion_allowed_now": false,
+      "required_reduction_to_beat_frontier_bytes": 137,
+      "required_share_of_path_opening_overhang": 0.329327,
+      "route_status": "REJECTED_CHERRY_PICK",
+      "source_variant": "label_probe_a",
+      "strict_margin_after_required_reduction_bytes": 279,
+      "value_delta_vs_compact_bytes": -392
+    },
+    "worst_label_path_opening_to_compact": {
+      "baseline_delta_vs_two_proof_frontier_bytes": 1400,
+      "baseline_typed_bytes": 42100,
+      "cherry_pick_risk": false,
+      "modeled_delta_vs_two_proof_frontier_after_full_path_opening_removal_bytes": -280,
+      "modeled_frontier_margin_after_full_path_opening_removal_bytes": 280,
+      "modeled_typed_after_full_path_opening_removal": 40420,
+      "name": "worst_label_path_opening_to_compact",
+      "path_opening_overhang_vs_compact_bytes": 1680,
+      "policy_sufficient_if_full_path_opening_removed": true,
+      "promotion_allowed_now": false,
+      "required_reduction_to_beat_frontier_bytes": 1401,
+      "required_share_of_path_opening_overhang": 0.833929,
+      "route_status": "CONDITIONAL_GO_IF_STRUCTURAL_OVERHANG_REMOVAL_EXISTS",
+      "source_variant": "label_probe_b",
+      "strict_margin_after_required_reduction_bytes": 279,
+      "value_delta_vs_compact_bytes": -392
+    }
+  },
+  "schema": "zkai-native-attention-mlp-rmsnorm-opening-budget-route-gate-v1",
+  "source_artifacts": [
+    {
+      "name": "label_policy_gate",
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05.json",
+      "payload_commitment": "blake2b-256:ef71b343b14f57f07028247f3184a99bea46996c1d124c2cdb707b49c1304b1c",
+      "sha256": "484bbddc65f7f4b34241b3ec3c5979d81ffbcef16a8ca6af88aee5c96da58642"
+    },
+    {
+      "name": "label_sensitivity_gate",
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05.json",
+      "payload_commitment": "blake2b-256:ca919cd12acdfb5783a1c017d0b64bdba62adae082c8cf503af739076720df2a",
+      "sha256": "03777754ecf0a99f1ef7371cc038be99bd4471aeac3861ddf9a225697cf29f30"
+    }
+  ],
+  "summary": {
+    "canonical_overhang_alone_is_policy_sufficient": false,
+    "full_worst_label_path_opening_removal_frontier_margin_bytes": 280,
+    "full_worst_label_path_opening_removal_modeled_typed_bytes": 40420,
+    "required_share_of_worst_label_path_opening_overhang": 0.833929,
+    "rmsnorm_value_saving_vs_compact_bytes": 392,
+    "route_alive_if_structural_opening_removal_exists": true,
+    "strict_margin_after_required_reduction_bytes": 279,
+    "worst_label_path_opening_overhang_can_pay_policy_gap": true,
+    "worst_label_path_opening_overhang_vs_compact_bytes": 1680,
+    "worst_label_required_reduction_to_beat_frontier_bytes": 1401
+  },
+  "validation_commands": [
+    "python3 scripts/zkai_native_attention_mlp_rmsnorm_opening_budget_route_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05.tsv",
+    "python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_opening_budget_route_gate",
+    "python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_label_policy_gate",
+    "python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_label_sensitivity_gate",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}

@@ -122,8 +122,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 116. `docs/engineering/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05-17.md`
 117. `docs/engineering/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05-17.md`
 118. `docs/engineering/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05-17.md`
-119. `docs/engineering/reproducibility.md`
-120. `git status --short --branch`
+119. `docs/engineering/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05-17.md`
+120. `docs/engineering/reproducibility.md`
+121. `git status --short --branch`
 
 ## What this repository is now
 
@@ -212,11 +213,20 @@ This repository currently has three live lanes.
      `docs/engineering/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05-17.md`.
    - The RMSNorm-input label-policy follow-up now pins that multi-label rule:
      future opening-layout wins must beat the `40,700` typed-byte two-proof
-     frontier under the worst label in the checked inventory, not under one
-     favorable transcript. The current worst label is `42,100` typed bytes, so
-     the honest promotion target is a `1,401` typed-byte reduction, not the
-     `137` bytes suggested by the best single label; see
-     `docs/engineering/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05-17.md`.
+   frontier under the worst label in the checked inventory, not under one
+   favorable transcript. The current worst label is `42,100` typed bytes, so
+   the honest promotion target is a `1,401` typed-byte reduction, not the
+   `137` bytes suggested by the best single label; see
+   `docs/engineering/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05-17.md`.
+   - The RMSNorm-input opening-budget route gate now checks whether that
+     strict `1,401` byte target is even plausible. The worst checked label has
+     `1,680` typed bytes of path-opening overhang versus the compact selector,
+     so the route is still alive only if a future component layout removes
+     `83.3929%` of that overhang while preserving source binding and value
+     semantics. Full removal would model to `40,420` typed bytes, `280` below
+     the current frontier, but this is not a proof-size win or a new proof
+     object; see
+     `docs/engineering/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05-17.md`.
    - The current attention-to-RMSNorm/MLP boundary is a checked NO-GO for one
      value-connected native proof object: the attention-derived d128 statement
      chain has `199,553` accounted rows (`1.010374x` the MLP fused surface),

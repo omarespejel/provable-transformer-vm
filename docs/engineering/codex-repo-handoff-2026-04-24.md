@@ -427,6 +427,38 @@ RMSNorm-input label-policy reproducibility metadata:
 - Local policy tests:
   `python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_label_policy_gate`.
 
+Latest RMSNorm-input opening-budget route gate: issue `#644` now has a checked
+answer to whether the strict worst-label route is still worth attacking. The
+worst label needs `1,401` typed bytes removed to beat the `40,700` typed-byte
+two-proof frontier, and it has `1,680` typed bytes of path-opening overhang
+versus the compact selector. So the route is still alive only if a future
+layout structurally removes `83.3929%` of that worst-label path-opening
+overhang while preserving source binding and value semantics. Full modeled
+removal would land at `40,420` typed bytes, `280` below the frontier, but this
+is not a proof-size win, not a new proof object, and not NANOZK-comparable; see
+`docs/engineering/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05-17.md`.
+
+RMSNorm-input opening-budget route reproducibility metadata:
+
+- Timing mode: proof-size accounting route budget only; no new proof object and
+  no median-of-5 timing claim.
+- Source artifacts:
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05.json`
+  with payload commitment
+  `blake2b-256:ef71b343b14f57f07028247f3184a99bea46996c1d124c2cdb707b49c1304b1c`,
+  and
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05.json`
+  with payload commitment
+  `blake2b-256:ca919cd12acdfb5783a1c017d0b64bdba62adae082c8cf503af739076720df2a`.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05.json`
+  and
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05.tsv`.
+- Gate command:
+  `python3 scripts/zkai_native_attention_mlp_rmsnorm_opening_budget_route_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05.tsv`.
+- Local route tests:
+  `python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_opening_budget_route_gate`.
+
 Adapter opening-geometry budget reproducibility metadata:
 
 - Timing mode: proof-size accounting only; no proof regeneration, timing, or
