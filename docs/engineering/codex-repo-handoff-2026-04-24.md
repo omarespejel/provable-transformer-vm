@@ -675,8 +675,8 @@ Claim-audit reproducibility metadata:
   `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05.tsv`,
   `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05.json`,
   `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05.tsv`,
-  and
   `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.json`,
+  and
   `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.tsv`.
 - Gate command:
   `python3 scripts/zkai_claim_audit_comparison_artifacts_gate.py --write-json docs/engineering/evidence/zkai-claim-audit-comparison-artifacts-2026-05.json --write-tsv docs/engineering/evidence/zkai-claim-audit-comparison-artifacts-2026-05.tsv`.

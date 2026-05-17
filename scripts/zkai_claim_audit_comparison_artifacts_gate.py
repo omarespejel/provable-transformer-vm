@@ -854,7 +854,6 @@ def mutate_missing_proof_size_policy(payload: dict[str, Any]) -> None:
 
 def mutate_source_artifact_digest(payload: dict[str, Any]) -> None:
     payload["source_artifacts"][0]["file_sha256"] = "0" * 64
-    payload["summary"]["audit_row_count"] = len(payload["audit_rows"])
 
 
 MUTATIONS: tuple[tuple[str, Callable[[dict[str, Any]], None]], ...] = (
