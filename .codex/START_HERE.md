@@ -129,8 +129,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 123. `docs/engineering/zkai-jolt-atlas-lookup-tensor-comparison-2026-05-17.md`
 124. `docs/engineering/zkai-tablero-hybrid-zkml-boundary-2026-05-17.md`
 125. `docs/engineering/zkai-claim-audit-comparison-artifacts-2026-05-17.md`
-126. `docs/engineering/reproducibility.md`
-127. `git status --short --branch`
+126. `docs/engineering/zkai-hybrid-proof-pressure-selector-2026-05-17.md`
+127. `docs/engineering/reproducibility.md`
+128. `git status --short --branch`
 
 ## What this repository is now
 
@@ -251,6 +252,14 @@ This repository currently has three live lanes.
      mutations. Treat it as the shared benchmark contract, not as a proof-size
      win; see
      `docs/engineering/zkai-minimal-transformer-block-benchmark-2026-05-17.md`.
+   - The hybrid proof-pressure selector turns the heavier-than-NANOZK result
+     into the next bounded attack list. It keeps `0` proof-size-comparable
+     cross-system rows, marks `gkr_dense_linear_scaling_candidate` and
+     `native_d128_block_object_blocker` as the two `ATTACK_NEXT` routes, marks
+     GKR residual-add and LayerNorm-like shapes as `NO_GO_NOW`, and rejects
+     `11 / 11` selector-overclaim mutations. Treat this as a route selector,
+     not a performance result; see
+     `docs/engineering/zkai-hybrid-proof-pressure-selector-2026-05-17.md`.
    - The current attention-to-RMSNorm/MLP boundary is a checked NO-GO for one
      value-connected native proof object: the attention-derived d128 statement
      chain has `199,553` accounted rows (`1.010374x` the MLP fused surface),
