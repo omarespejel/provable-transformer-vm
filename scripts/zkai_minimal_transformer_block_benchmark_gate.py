@@ -499,6 +499,8 @@ def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True)
         raise MinimalBlockBenchmarkError("payload key drift")
     expected = _base_payload()
     for key in BASELINE_KEYS:
+        if key == "component_rows":
+            continue
         if payload[key] != expected[key]:
             raise MinimalBlockBenchmarkError(f"{key} drift")
     rows = payload["component_rows"]
@@ -506,13 +508,17 @@ def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True)
         raise MinimalBlockBenchmarkError("component row inventory drift")
     if any(row.get("comparability") == "MATCHED_EXTERNAL_BENCHMARK" for row in rows if isinstance(row, dict)):
         raise MinimalBlockBenchmarkError("external comparability overclaim")
-    native_row = next(row for row in rows if row["component"] == "native_full_block_proof_object")
+    native_row = next((row for row in rows if row["component"] == "native_full_block_proof_object"), None)
+    if native_row is None:
+        raise MinimalBlockBenchmarkError("native_full_block_proof_object row missing")
     if native_row["object_class"] != "missing_native_proof_object" or native_row["primary_value"] is not None:
         raise MinimalBlockBenchmarkError("native block proof object overclaim")
     if payload["summary"]["missing_native_block_proof_object"] is not True:
         raise MinimalBlockBenchmarkError("missing native block summary drift")
     if payload["summary"]["adjacent_worst_label_gap_typed_bytes"] <= 0:
         raise MinimalBlockBenchmarkError("worst-label frontier overclaim")
+    if rows != expected["component_rows"]:
+        raise MinimalBlockBenchmarkError("component_rows drift")
     approximation_policy = payload["benchmark_spec"]["approximation_policy"]
     for required in ("attention", "normalization", "activation", "quantization"):
         if required not in approximation_policy:
@@ -543,6 +549,14 @@ def remove_row_by_component(payload: dict[str, Any], component: str) -> None:
     payload["component_rows"] = [row for row in payload["component_rows"] if row.get("component") != component]
 
 
+def source_by_path(payload: dict[str, Any], path: pathlib.Path) -> dict[str, Any]:
+    expected_path = str(path.relative_to(ROOT))
+    for artifact in payload["source_artifacts"]:
+        if artifact.get("path") == expected_path:
+            return artifact
+    raise MinimalBlockBenchmarkError(f"source artifact missing: {expected_path}")
+
+
 def promote_native_block_proof(payload: dict[str, Any]) -> None:
     row_by_component(payload, "native_full_block_proof_object").update(
         {"object_class": "local_native_stwo_proof_object", "primary_value": 6900}
@@ -559,7 +573,7 @@ MUTATIONS = (
             "comparability", "MATCHED_EXTERNAL_BENCHMARK"
         ),
     ),
-    ("source_digest_drift", lambda p: p["source_artifacts"][0].__setitem__("file_sha256", "0" * 64)),
+    ("source_digest_drift", lambda p: source_by_path(p, ONE_BLOCK_SURFACE).__setitem__("file_sha256", "0" * 64)),
     ("non_claim_removed", lambda p: p.__setitem__("non_claims", p["non_claims"][:-1])),
     ("statement_binding_removed", lambda p: p["benchmark_spec"].__setitem__("public_statement_bindings", [])),
     ("gkr_lane_hidden", lambda p: remove_row_by_component(p, "gkr_hyrax_sidecar_lane")),

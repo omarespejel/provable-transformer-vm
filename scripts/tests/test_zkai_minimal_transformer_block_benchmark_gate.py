@@ -96,9 +96,36 @@ class MinimalTransformerBlockBenchmarkGateTest(unittest.TestCase):
 
     def test_rejects_source_digest_drift(self) -> None:
         payload = gate.build_payload()
-        payload["source_artifacts"][0]["file_sha256"] = "0" * 64
+        target = next(
+            artifact
+            for artifact in payload["source_artifacts"]
+            if artifact["path"] == str(gate.ONE_BLOCK_SURFACE.relative_to(gate.ROOT))
+        )
+        target["file_sha256"] = "0" * 64
         payload["payload_commitment"] = gate.payload_commitment(payload)
         with self.assertRaises(gate.MinimalBlockBenchmarkError):
+            gate.validate_payload(payload)
+
+    def test_rejects_missing_native_block_row_with_domain_error(self) -> None:
+        payload = gate.build_payload()
+        payload["component_rows"] = [
+            row for row in payload["component_rows"] if row["component"] != "native_full_block_proof_object"
+        ]
+        payload["component_rows"].append(
+            {
+                "component": "native_full_block_placeholder",
+                "object_class": "missing_native_proof_object",
+                "local_status": "NO_GO_NATIVE_BLOCK_PROOF_OBJECT_MISSING",
+                "proof_system": "Stwo/STARK",
+                "evidence_path": "",
+                "primary_metric": "native_block_proof_bytes",
+                "primary_value": None,
+                "comparability": "REQUIRED_BEFORE_NANOZK_OR_JOLT_PROOF_SIZE_COMPARISON",
+                "claim_boundary": "placeholder",
+            }
+        )
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaisesRegex(gate.MinimalBlockBenchmarkError, "native_full_block_proof_object"):
             gate.validate_payload(payload)
 
     def test_rejects_non_claim_removal(self) -> None:
