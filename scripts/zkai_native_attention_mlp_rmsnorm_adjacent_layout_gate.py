@@ -462,7 +462,10 @@ def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True)
         raise AdjacentLayoutGateError("label span drift")
     if payload["adjacent_worst_label_delta_vs_frontier_typed_bytes"] <= 0:
         raise AdjacentLayoutGateError("frontier overclaim: worst adjacent label does not beat frontier")
-    if tuple(payload["non_claims"]) != NON_CLAIMS:
+    non_claims = payload["non_claims"]
+    if not isinstance(non_claims, list) or any(not isinstance(item, str) for item in non_claims):
+        raise AdjacentLayoutGateError("non-claims must be a list of strings")
+    if tuple(non_claims) != NON_CLAIMS:
         raise AdjacentLayoutGateError("non-claims drift")
     if tuple(payload["validation_commands"]) != VALIDATION_COMMANDS:
         raise AdjacentLayoutGateError("validation command drift")
@@ -568,8 +571,15 @@ def write_atomic(path: pathlib.Path, data: bytes) -> None:
     if suffix not in {".json", ".tsv"}:
         raise AdjacentLayoutGateError(f"unsupported output suffix: {target}")
     tmp = target.with_name(f".{target.name}.{secrets.token_hex(8)}.tmp")
-    tmp.write_bytes(data)
-    os.replace(tmp, target)
+    try:
+        tmp.write_bytes(data)
+        os.replace(tmp, target)
+    except Exception:
+        try:
+            tmp.unlink()
+        except FileNotFoundError:
+            pass
+        raise
 
 
 def write_outputs(payload: dict[str, Any], json_path: pathlib.Path | None, tsv_path: pathlib.Path | None) -> None:
