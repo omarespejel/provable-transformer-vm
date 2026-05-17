@@ -448,6 +448,7 @@ def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
     expect_equal(payload.get("issue"), ISSUE_URL, "issue")
     if set(payload.get("non_claims", [])) != set(NON_CLAIMS):
         raise HybridSelectorError("global non-claim drift")
+    expect_equal(payload.get("validation_commands"), list(VALIDATION_COMMANDS), "validation command inventory")
     rows = payload.get("selector_rows")
     if not isinstance(rows, list) or not rows:
         raise HybridSelectorError("selector rows missing")
@@ -487,24 +488,34 @@ def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
         raise HybridSelectorError("GO gate drift")
     if not isinstance(payload.get("source_artifacts"), list) or len(payload["source_artifacts"]) != 5:
         raise HybridSelectorError("source artifact inventory drift")
+    seen_source_paths: set[str] = set()
     for descriptor in payload["source_artifacts"]:
         if not isinstance(descriptor, dict):
             raise HybridSelectorError("source artifact descriptor must be an object")
         rel_path = require_str(descriptor.get("path"), "source artifact path")
         if rel_path not in SOURCE_ARTIFACT_PATHS:
             raise HybridSelectorError("source artifact path outside allowlist")
+        if rel_path in seen_source_paths:
+            raise HybridSelectorError("duplicate source artifact path")
+        seen_source_paths.add(rel_path)
         path = ROOT / rel_path
         if descriptor != source_descriptor(path):
             raise HybridSelectorError("source artifact descriptor drift")
+    if seen_source_paths != SOURCE_ARTIFACT_PATHS:
+        raise HybridSelectorError("source artifact inventory drift")
     if "mutation_results" in payload:
         mutation_results = payload["mutation_results"]
         if not isinstance(mutation_results, list):
             raise HybridSelectorError("mutation inventory drift")
+        if len(mutation_results) != len(MUTATIONS):
+            raise HybridSelectorError("mutation inventory drift")
+        if any(not isinstance(result, dict) for result in mutation_results):
+            raise HybridSelectorError("mutation inventory drift")
         expected_names = [name for name, _ in MUTATIONS]
-        actual_names = [require_str(result.get("name"), "mutation name") for result in mutation_results if isinstance(result, dict)]
+        actual_names = [require_str(result.get("name"), "mutation name") for result in mutation_results]
         if actual_names != expected_names:
             raise HybridSelectorError("mutation inventory drift")
-        rejected = sum(1 for result in mutation_results if isinstance(result, dict) and result.get("accepted") is False)
+        rejected = sum(1 for result in mutation_results if result.get("accepted") is False)
         if payload.get("mutation_count") != len(MUTATIONS) or payload.get("mutations_rejected") != rejected:
             raise HybridSelectorError("mutation rejection drift")
         if rejected != len(MUTATIONS):
