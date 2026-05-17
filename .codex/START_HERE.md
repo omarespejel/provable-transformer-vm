@@ -131,8 +131,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 125. `docs/engineering/zkai-claim-audit-comparison-artifacts-2026-05-17.md`
 126. `docs/engineering/zkai-hybrid-proof-pressure-selector-2026-05-17.md`
 127. `docs/engineering/zkai-gkr-d128-projection-scaling-preflight-2026-05-17.md`
-128. `docs/engineering/reproducibility.md`
-129. `git status --short --branch`
+128. `docs/engineering/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05-18.md`
+129. `docs/engineering/reproducibility.md`
+130. `git status --short --branch`
 
 ## What this repository is now
 
@@ -241,10 +242,20 @@ This repository currently has three live lanes.
      cells at `0` and reduces canonical RMSNorm-input fused typed bytes from
      `41,428` to `40,948`, a `480` byte saving from opening/decommitment
      material. It still fails promotion: adjacent label probe B is `42,724`
-     typed bytes, `2,024` above the `40,700` frontier. Treat this as evidence
-     that opening layout matters, but current label stability is the blocker;
-     see
-     `docs/engineering/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05-17.md`.
+   typed bytes, `2,024` above the `40,700` frontier. Treat this as evidence
+   that opening layout matters, but current label stability is the blocker;
+   see
+   `docs/engineering/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05-17.md`.
+   - The RMSNorm-input post-tail layout probe is now a checked NO-GO for the
+     next fixed-column reorder. Moving the fused RMSNorm-input fixed columns
+     after the MLP tail keeps zero adapter base cells and verifies, but the
+     canonical post-tail proof lands at `42,724` typed bytes, exactly matching
+     the adjacent bad-label typed shape and sitting `2,024` bytes above the
+     `40,700` frontier. Probe A improves to `41,508` typed bytes but remains
+     `808` bytes above the frontier. Park this route; the next attack should
+     be label-stable query/opening geometry or a larger native block boundary,
+     not another local reorder. See
+     `docs/engineering/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05-18.md`.
    - The minimal transformer-block benchmark contract is now the comparison
      guardrail for the next phase. It has `10` component/object-class rows,
      pins `d128` model width with a current `d8` attention source, records the

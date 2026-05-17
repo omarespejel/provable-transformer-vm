@@ -1,0 +1,975 @@
+{
+  "accounting_domain": "zkai:stwo:local-binary-proof-accounting",
+  "accounting_format_version": "v1",
+  "accounting_source": "repo_owned_canonical_local_accounting_from_stwo_2_2_0_typed_StarkProof_fields",
+  "proof_payload_kind": "utf8_json_object_with_single_stark_proof_field",
+  "rows": [
+    {
+      "envelope_metadata": {
+        "proof_backend": "stwo",
+        "proof_backend_version": "stwo-native-attention-mlp-single-proof-object-compact-adapter-selector-v1",
+        "proof_schema_version": "stwo-native-attention-mlp-single-proof-object-native-adapter-payload-v1",
+        "statement_version": "zkai-native-attention-mlp-single-proof-object-native-adapter-statement-v1",
+        "target_id": "attention-kv-d8-fused-softmax-table-plus-attention-derived-d128-rmsnorm-mlp-v1",
+        "verifier_domain": "ptvm:zkai:native-attention-mlp-single-proof-object:v1"
+      },
+      "envelope_sha256": "7c45e4bdc16c330bac25fbe93884569cd578f8ec988efc4f29723ec490750263",
+      "evidence_relative_path": "zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json",
+      "local_binary_accounting": {
+        "component_sum_bytes": 40812,
+        "format_domain": "zkai:stwo:local-binary-proof-accounting",
+        "format_version": "v1",
+        "grouped_reconstruction": {
+          "fixed_overhead": 48,
+          "fri_decommitments": 12448,
+          "fri_samples": 784,
+          "oods_samples": 12176,
+          "queries_values": 9084,
+          "trace_decommitments": 6272
+        },
+        "json_minus_local_typed_bytes": 75279,
+        "json_over_local_typed_ratio": 2.844531,
+        "record_count": 13,
+        "record_stream_bytes": 1084,
+        "record_stream_sha256": "8ed8db52bfb240a2b742df9877aa8d01ece09334616540771812e28081c5d996",
+        "records": [
+          {
+            "item_count": 4,
+            "item_size_bytes": 32,
+            "path": "pcs.commitments",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 128
+          },
+          {
+            "item_count": 192,
+            "item_size_bytes": 32,
+            "path": "pcs.trace_decommitments.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 6144
+          },
+          {
+            "item_count": 761,
+            "item_size_bytes": 16,
+            "path": "pcs.sampled_values",
+            "scalar_kind": "secure_field",
+            "total_bytes": 12176
+          },
+          {
+            "item_count": 2271,
+            "item_size_bytes": 4,
+            "path": "pcs.queried_values",
+            "scalar_kind": "base_field",
+            "total_bytes": 9084
+          },
+          {
+            "item_count": 3,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.first_layer.fri_witness",
+            "scalar_kind": "secure_field",
+            "total_bytes": 48
+          },
+          {
+            "item_count": 45,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.inner_layers.fri_witness",
+            "scalar_kind": "secure_field",
+            "total_bytes": 720
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.last_layer_poly",
+            "scalar_kind": "secure_field",
+            "total_bytes": 16
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.first_layer.commitment",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 32
+          },
+          {
+            "item_count": 17,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.inner_layers.commitments",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 544
+          },
+          {
+            "item_count": 45,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.first_layer.decommitment.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 1440
+          },
+          {
+            "item_count": 326,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.inner_layers.decommitment.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 10432
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 8,
+            "path": "pcs.proof_of_work",
+            "scalar_kind": "u64_le",
+            "total_bytes": 8
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 40,
+            "path": "pcs.config",
+            "scalar_kind": "pcs_config",
+            "total_bytes": 40
+          }
+        ],
+        "stwo_grouped_breakdown": {
+          "fixed_overhead": 48,
+          "fri_decommitments": 12448,
+          "fri_samples": 784,
+          "oods_samples": 12176,
+          "queries_values": 9084,
+          "trace_decommitments": 6272
+        },
+        "typed_size_estimate_bytes": 40812,
+        "upstream_stwo_serialization_status": "NOT_UPSTREAM_STWO_SERIALIZATION_LOCAL_ACCOUNTING_RECORD_STREAM_ONLY"
+      },
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json",
+      "proof_json_size_bytes": 116091,
+      "proof_sha256": "fba78004f082a1799ba784ce4fd539bb8659be225804136e5dab723dd121ca9e"
+    },
+    {
+      "envelope_metadata": {
+        "proof_backend": "stwo",
+        "proof_backend_version": "stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-adapter-v1",
+        "proof_schema_version": "stwo-native-attention-mlp-single-proof-object-native-adapter-payload-v1",
+        "statement_version": "zkai-native-attention-mlp-single-proof-object-native-adapter-statement-v1",
+        "target_id": "attention-kv-d8-fused-softmax-table-plus-attention-derived-d128-rmsnorm-mlp-v1",
+        "verifier_domain": "ptvm:zkai:native-attention-mlp-single-proof-object:v1"
+      },
+      "envelope_sha256": "d55310b92a1d5e2e8512ca561739f8b997c9c777b05983dbf30743f87fbad3d6",
+      "evidence_relative_path": "zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json",
+      "local_binary_accounting": {
+        "component_sum_bytes": 41428,
+        "format_domain": "zkai:stwo:local-binary-proof-accounting",
+        "format_version": "v1",
+        "grouped_reconstruction": {
+          "fixed_overhead": 48,
+          "fri_decommitments": 13184,
+          "fri_samples": 800,
+          "oods_samples": 11952,
+          "queries_values": 8916,
+          "trace_decommitments": 6528
+        },
+        "json_minus_local_typed_bytes": 76950,
+        "json_over_local_typed_ratio": 2.857439,
+        "record_count": 13,
+        "record_stream_bytes": 1084,
+        "record_stream_sha256": "2f7f36ee6000173dea41ab684dab9a20f36f95277eeb7c9a749a98c185583d91",
+        "records": [
+          {
+            "item_count": 4,
+            "item_size_bytes": 32,
+            "path": "pcs.commitments",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 128
+          },
+          {
+            "item_count": 200,
+            "item_size_bytes": 32,
+            "path": "pcs.trace_decommitments.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 6400
+          },
+          {
+            "item_count": 747,
+            "item_size_bytes": 16,
+            "path": "pcs.sampled_values",
+            "scalar_kind": "secure_field",
+            "total_bytes": 11952
+          },
+          {
+            "item_count": 2229,
+            "item_size_bytes": 4,
+            "path": "pcs.queried_values",
+            "scalar_kind": "base_field",
+            "total_bytes": 8916
+          },
+          {
+            "item_count": 3,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.first_layer.fri_witness",
+            "scalar_kind": "secure_field",
+            "total_bytes": 48
+          },
+          {
+            "item_count": 46,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.inner_layers.fri_witness",
+            "scalar_kind": "secure_field",
+            "total_bytes": 736
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.last_layer_poly",
+            "scalar_kind": "secure_field",
+            "total_bytes": 16
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.first_layer.commitment",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 32
+          },
+          {
+            "item_count": 17,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.inner_layers.commitments",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 544
+          },
+          {
+            "item_count": 47,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.first_layer.decommitment.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 1504
+          },
+          {
+            "item_count": 347,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.inner_layers.decommitment.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 11104
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 8,
+            "path": "pcs.proof_of_work",
+            "scalar_kind": "u64_le",
+            "total_bytes": 8
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 40,
+            "path": "pcs.config",
+            "scalar_kind": "pcs_config",
+            "total_bytes": 40
+          }
+        ],
+        "stwo_grouped_breakdown": {
+          "fixed_overhead": 48,
+          "fri_decommitments": 13184,
+          "fri_samples": 800,
+          "oods_samples": 11952,
+          "queries_values": 8916,
+          "trace_decommitments": 6528
+        },
+        "typed_size_estimate_bytes": 41428,
+        "upstream_stwo_serialization_status": "NOT_UPSTREAM_STWO_SERIALIZATION_LOCAL_ACCOUNTING_RECORD_STREAM_ONLY"
+      },
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json",
+      "proof_json_size_bytes": 118378,
+      "proof_sha256": "1dee6c17a18d4179a8a49646a575d0ec22e5f2442d229c6f8a748df53ac34816"
+    },
+    {
+      "envelope_metadata": {
+        "proof_backend": "stwo",
+        "proof_backend_version": "stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+        "proof_schema_version": "stwo-native-attention-mlp-single-proof-object-native-adapter-payload-v1",
+        "statement_version": "zkai-native-attention-mlp-single-proof-object-native-adapter-statement-v1",
+        "target_id": "attention-kv-d8-fused-softmax-table-plus-attention-derived-d128-rmsnorm-mlp-v1",
+        "verifier_domain": "ptvm:zkai:native-attention-mlp-single-proof-object:v1"
+      },
+      "envelope_sha256": "c9e17062905f61c7ee808819f4fbb6f1e5a55fa51393613812909f6bd3abd109",
+      "evidence_relative_path": "zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json",
+      "local_binary_accounting": {
+        "component_sum_bytes": 40948,
+        "format_domain": "zkai:stwo:local-binary-proof-accounting",
+        "format_version": "v1",
+        "grouped_reconstruction": {
+          "fixed_overhead": 48,
+          "fri_decommitments": 12832,
+          "fri_samples": 800,
+          "oods_samples": 11952,
+          "queries_values": 8916,
+          "trace_decommitments": 6400
+        },
+        "json_minus_local_typed_bytes": 75899,
+        "json_over_local_typed_ratio": 2.853546,
+        "record_count": 13,
+        "record_stream_bytes": 1084,
+        "record_stream_sha256": "e363d9a7577d80d7240bde40053732cd5938dcb324b459092d2815a0f0428710",
+        "records": [
+          {
+            "item_count": 4,
+            "item_size_bytes": 32,
+            "path": "pcs.commitments",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 128
+          },
+          {
+            "item_count": 196,
+            "item_size_bytes": 32,
+            "path": "pcs.trace_decommitments.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 6272
+          },
+          {
+            "item_count": 747,
+            "item_size_bytes": 16,
+            "path": "pcs.sampled_values",
+            "scalar_kind": "secure_field",
+            "total_bytes": 11952
+          },
+          {
+            "item_count": 2229,
+            "item_size_bytes": 4,
+            "path": "pcs.queried_values",
+            "scalar_kind": "base_field",
+            "total_bytes": 8916
+          },
+          {
+            "item_count": 3,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.first_layer.fri_witness",
+            "scalar_kind": "secure_field",
+            "total_bytes": 48
+          },
+          {
+            "item_count": 46,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.inner_layers.fri_witness",
+            "scalar_kind": "secure_field",
+            "total_bytes": 736
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.last_layer_poly",
+            "scalar_kind": "secure_field",
+            "total_bytes": 16
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.first_layer.commitment",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 32
+          },
+          {
+            "item_count": 17,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.inner_layers.commitments",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 544
+          },
+          {
+            "item_count": 46,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.first_layer.decommitment.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 1472
+          },
+          {
+            "item_count": 337,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.inner_layers.decommitment.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 10784
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 8,
+            "path": "pcs.proof_of_work",
+            "scalar_kind": "u64_le",
+            "total_bytes": 8
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 40,
+            "path": "pcs.config",
+            "scalar_kind": "pcs_config",
+            "total_bytes": 40
+          }
+        ],
+        "stwo_grouped_breakdown": {
+          "fixed_overhead": 48,
+          "fri_decommitments": 12832,
+          "fri_samples": 800,
+          "oods_samples": 11952,
+          "queries_values": 8916,
+          "trace_decommitments": 6400
+        },
+        "typed_size_estimate_bytes": 40948,
+        "upstream_stwo_serialization_status": "NOT_UPSTREAM_STWO_SERIALIZATION_LOCAL_ACCOUNTING_RECORD_STREAM_ONLY"
+      },
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json",
+      "proof_json_size_bytes": 116847,
+      "proof_sha256": "b251ca388cbde16c0d276bff0ac4cf3c51635edfb9a015f0139408dc5778cc75"
+    },
+    {
+      "envelope_metadata": {
+        "proof_backend": "stwo",
+        "proof_backend_version": "stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+        "proof_schema_version": "stwo-native-attention-mlp-single-proof-object-native-adapter-payload-v1",
+        "statement_version": "zkai-native-attention-mlp-single-proof-object-native-adapter-statement-v1",
+        "target_id": "attention-kv-d8-fused-softmax-table-plus-attention-derived-d128-rmsnorm-mlp-v1",
+        "verifier_domain": "ptvm:zkai:native-attention-mlp-single-proof-object:v1"
+      },
+      "envelope_sha256": "2963978ee9e5a8588c89390d22e0912b37f3b3188f4c5150534244278fe82f4b",
+      "evidence_relative_path": "zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.envelope.json",
+      "local_binary_accounting": {
+        "component_sum_bytes": 42724,
+        "format_domain": "zkai:stwo:local-binary-proof-accounting",
+        "format_version": "v1",
+        "grouped_reconstruction": {
+          "fixed_overhead": 48,
+          "fri_decommitments": 14176,
+          "fri_samples": 848,
+          "oods_samples": 11952,
+          "queries_values": 8916,
+          "trace_decommitments": 6784
+        },
+        "json_minus_local_typed_bytes": 80417,
+        "json_over_local_typed_ratio": 2.882244,
+        "record_count": 13,
+        "record_stream_bytes": 1084,
+        "record_stream_sha256": "75ff14f548a97546870ea9f4c36951bb7b02d9ca2f736a11ff38a6b83403e28d",
+        "records": [
+          {
+            "item_count": 4,
+            "item_size_bytes": 32,
+            "path": "pcs.commitments",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 128
+          },
+          {
+            "item_count": 208,
+            "item_size_bytes": 32,
+            "path": "pcs.trace_decommitments.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 6656
+          },
+          {
+            "item_count": 747,
+            "item_size_bytes": 16,
+            "path": "pcs.sampled_values",
+            "scalar_kind": "secure_field",
+            "total_bytes": 11952
+          },
+          {
+            "item_count": 2229,
+            "item_size_bytes": 4,
+            "path": "pcs.queried_values",
+            "scalar_kind": "base_field",
+            "total_bytes": 8916
+          },
+          {
+            "item_count": 3,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.first_layer.fri_witness",
+            "scalar_kind": "secure_field",
+            "total_bytes": 48
+          },
+          {
+            "item_count": 49,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.inner_layers.fri_witness",
+            "scalar_kind": "secure_field",
+            "total_bytes": 784
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.last_layer_poly",
+            "scalar_kind": "secure_field",
+            "total_bytes": 16
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.first_layer.commitment",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 32
+          },
+          {
+            "item_count": 17,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.inner_layers.commitments",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 544
+          },
+          {
+            "item_count": 49,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.first_layer.decommitment.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 1568
+          },
+          {
+            "item_count": 376,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.inner_layers.decommitment.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 12032
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 8,
+            "path": "pcs.proof_of_work",
+            "scalar_kind": "u64_le",
+            "total_bytes": 8
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 40,
+            "path": "pcs.config",
+            "scalar_kind": "pcs_config",
+            "total_bytes": 40
+          }
+        ],
+        "stwo_grouped_breakdown": {
+          "fixed_overhead": 48,
+          "fri_decommitments": 14176,
+          "fri_samples": 848,
+          "oods_samples": 11952,
+          "queries_values": 8916,
+          "trace_decommitments": 6784
+        },
+        "typed_size_estimate_bytes": 42724,
+        "upstream_stwo_serialization_status": "NOT_UPSTREAM_STWO_SERIALIZATION_LOCAL_ACCOUNTING_RECORD_STREAM_ONLY"
+      },
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.envelope.json",
+      "proof_json_size_bytes": 123141,
+      "proof_sha256": "9360b0e6aff6efa2bc68fb2e32ecfd3de3868357fa2bf95f5648d23aba654295"
+    },
+    {
+      "envelope_metadata": {
+        "proof_backend": "stwo",
+        "proof_backend_version": "stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-post-tail-fixed-v1",
+        "proof_schema_version": "stwo-native-attention-mlp-single-proof-object-native-adapter-payload-v1",
+        "statement_version": "zkai-native-attention-mlp-single-proof-object-native-adapter-statement-v1",
+        "target_id": "attention-kv-d8-fused-softmax-table-plus-attention-derived-d128-rmsnorm-mlp-v1",
+        "verifier_domain": "ptvm:zkai:native-attention-mlp-single-proof-object:v1"
+      },
+      "envelope_sha256": "f5b9f00af9c2164e79faea261b1d3ae94a8c1d32b1edb46e1ce717f9b40dc020",
+      "evidence_relative_path": "zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-layout-2026-05.envelope.json",
+      "local_binary_accounting": {
+        "component_sum_bytes": 42724,
+        "format_domain": "zkai:stwo:local-binary-proof-accounting",
+        "format_version": "v1",
+        "grouped_reconstruction": {
+          "fixed_overhead": 48,
+          "fri_decommitments": 14176,
+          "fri_samples": 848,
+          "oods_samples": 11952,
+          "queries_values": 8916,
+          "trace_decommitments": 6784
+        },
+        "json_minus_local_typed_bytes": 80252,
+        "json_over_local_typed_ratio": 2.878382,
+        "record_count": 13,
+        "record_stream_bytes": 1084,
+        "record_stream_sha256": "75ff14f548a97546870ea9f4c36951bb7b02d9ca2f736a11ff38a6b83403e28d",
+        "records": [
+          {
+            "item_count": 4,
+            "item_size_bytes": 32,
+            "path": "pcs.commitments",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 128
+          },
+          {
+            "item_count": 208,
+            "item_size_bytes": 32,
+            "path": "pcs.trace_decommitments.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 6656
+          },
+          {
+            "item_count": 747,
+            "item_size_bytes": 16,
+            "path": "pcs.sampled_values",
+            "scalar_kind": "secure_field",
+            "total_bytes": 11952
+          },
+          {
+            "item_count": 2229,
+            "item_size_bytes": 4,
+            "path": "pcs.queried_values",
+            "scalar_kind": "base_field",
+            "total_bytes": 8916
+          },
+          {
+            "item_count": 3,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.first_layer.fri_witness",
+            "scalar_kind": "secure_field",
+            "total_bytes": 48
+          },
+          {
+            "item_count": 49,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.inner_layers.fri_witness",
+            "scalar_kind": "secure_field",
+            "total_bytes": 784
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.last_layer_poly",
+            "scalar_kind": "secure_field",
+            "total_bytes": 16
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.first_layer.commitment",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 32
+          },
+          {
+            "item_count": 17,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.inner_layers.commitments",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 544
+          },
+          {
+            "item_count": 49,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.first_layer.decommitment.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 1568
+          },
+          {
+            "item_count": 376,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.inner_layers.decommitment.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 12032
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 8,
+            "path": "pcs.proof_of_work",
+            "scalar_kind": "u64_le",
+            "total_bytes": 8
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 40,
+            "path": "pcs.config",
+            "scalar_kind": "pcs_config",
+            "total_bytes": 40
+          }
+        ],
+        "stwo_grouped_breakdown": {
+          "fixed_overhead": 48,
+          "fri_decommitments": 14176,
+          "fri_samples": 848,
+          "oods_samples": 11952,
+          "queries_values": 8916,
+          "trace_decommitments": 6784
+        },
+        "typed_size_estimate_bytes": 42724,
+        "upstream_stwo_serialization_status": "NOT_UPSTREAM_STWO_SERIALIZATION_LOCAL_ACCOUNTING_RECORD_STREAM_ONLY"
+      },
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-layout-2026-05.envelope.json",
+      "proof_json_size_bytes": 122976,
+      "proof_sha256": "c643fab0dcf0cda85f08e9beb52a3ab637ca2c42d45f80cd40aa5ba7b7c34ceb"
+    },
+    {
+      "envelope_metadata": {
+        "proof_backend": "stwo",
+        "proof_backend_version": "stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-post-tail-fixed-v1",
+        "proof_schema_version": "stwo-native-attention-mlp-single-proof-object-native-adapter-payload-v1",
+        "statement_version": "zkai-native-attention-mlp-single-proof-object-native-adapter-statement-v1",
+        "target_id": "attention-kv-d8-fused-softmax-table-plus-attention-derived-d128-rmsnorm-mlp-v1",
+        "verifier_domain": "ptvm:zkai:native-attention-mlp-single-proof-object:v1"
+      },
+      "envelope_sha256": "bf1f7c2d204e1ed08a66f9c80fb402f41bbd76f454a58edf0628f9c16a811302",
+      "evidence_relative_path": "zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-label-probe-a-2026-05.envelope.json",
+      "local_binary_accounting": {
+        "component_sum_bytes": 41508,
+        "format_domain": "zkai:stwo:local-binary-proof-accounting",
+        "format_version": "v1",
+        "grouped_reconstruction": {
+          "fixed_overhead": 48,
+          "fri_decommitments": 13248,
+          "fri_samples": 816,
+          "oods_samples": 11952,
+          "queries_values": 8916,
+          "trace_decommitments": 6528
+        },
+        "json_minus_local_typed_bytes": 77018,
+        "json_over_local_typed_ratio": 2.855498,
+        "record_count": 13,
+        "record_stream_bytes": 1084,
+        "record_stream_sha256": "80c5a9e5f8dcc3df29e415eb8cee5b7173bf8550cba499e5341a94c4ff76f0dd",
+        "records": [
+          {
+            "item_count": 4,
+            "item_size_bytes": 32,
+            "path": "pcs.commitments",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 128
+          },
+          {
+            "item_count": 200,
+            "item_size_bytes": 32,
+            "path": "pcs.trace_decommitments.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 6400
+          },
+          {
+            "item_count": 747,
+            "item_size_bytes": 16,
+            "path": "pcs.sampled_values",
+            "scalar_kind": "secure_field",
+            "total_bytes": 11952
+          },
+          {
+            "item_count": 2229,
+            "item_size_bytes": 4,
+            "path": "pcs.queried_values",
+            "scalar_kind": "base_field",
+            "total_bytes": 8916
+          },
+          {
+            "item_count": 3,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.first_layer.fri_witness",
+            "scalar_kind": "secure_field",
+            "total_bytes": 48
+          },
+          {
+            "item_count": 47,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.inner_layers.fri_witness",
+            "scalar_kind": "secure_field",
+            "total_bytes": 752
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.last_layer_poly",
+            "scalar_kind": "secure_field",
+            "total_bytes": 16
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.first_layer.commitment",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 32
+          },
+          {
+            "item_count": 17,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.inner_layers.commitments",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 544
+          },
+          {
+            "item_count": 47,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.first_layer.decommitment.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 1504
+          },
+          {
+            "item_count": 349,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.inner_layers.decommitment.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 11168
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 8,
+            "path": "pcs.proof_of_work",
+            "scalar_kind": "u64_le",
+            "total_bytes": 8
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 40,
+            "path": "pcs.config",
+            "scalar_kind": "pcs_config",
+            "total_bytes": 40
+          }
+        ],
+        "stwo_grouped_breakdown": {
+          "fixed_overhead": 48,
+          "fri_decommitments": 13248,
+          "fri_samples": 816,
+          "oods_samples": 11952,
+          "queries_values": 8916,
+          "trace_decommitments": 6528
+        },
+        "typed_size_estimate_bytes": 41508,
+        "upstream_stwo_serialization_status": "NOT_UPSTREAM_STWO_SERIALIZATION_LOCAL_ACCOUNTING_RECORD_STREAM_ONLY"
+      },
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-label-probe-a-2026-05.envelope.json",
+      "proof_json_size_bytes": 118526,
+      "proof_sha256": "b627f0185b4c8f4b25be403cc8ebd1ac8c51386c2423876fe5dcfe392b0699f5"
+    },
+    {
+      "envelope_metadata": {
+        "proof_backend": "stwo",
+        "proof_backend_version": "stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-post-tail-fixed-v1",
+        "proof_schema_version": "stwo-native-attention-mlp-single-proof-object-native-adapter-payload-v1",
+        "statement_version": "zkai-native-attention-mlp-single-proof-object-native-adapter-statement-v1",
+        "target_id": "attention-kv-d8-fused-softmax-table-plus-attention-derived-d128-rmsnorm-mlp-v1",
+        "verifier_domain": "ptvm:zkai:native-attention-mlp-single-proof-object:v1"
+      },
+      "envelope_sha256": "d0e101638d6a9ceec5f360e20d79b5d4620279ed3be05b8abfaacf1666fb38de",
+      "evidence_relative_path": "zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-label-probe-b-2026-05.envelope.json",
+      "local_binary_accounting": {
+        "component_sum_bytes": 42724,
+        "format_domain": "zkai:stwo:local-binary-proof-accounting",
+        "format_version": "v1",
+        "grouped_reconstruction": {
+          "fixed_overhead": 48,
+          "fri_decommitments": 14176,
+          "fri_samples": 848,
+          "oods_samples": 11952,
+          "queries_values": 8916,
+          "trace_decommitments": 6784
+        },
+        "json_minus_local_typed_bytes": 80294,
+        "json_over_local_typed_ratio": 2.879365,
+        "record_count": 13,
+        "record_stream_bytes": 1084,
+        "record_stream_sha256": "75ff14f548a97546870ea9f4c36951bb7b02d9ca2f736a11ff38a6b83403e28d",
+        "records": [
+          {
+            "item_count": 4,
+            "item_size_bytes": 32,
+            "path": "pcs.commitments",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 128
+          },
+          {
+            "item_count": 208,
+            "item_size_bytes": 32,
+            "path": "pcs.trace_decommitments.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 6656
+          },
+          {
+            "item_count": 747,
+            "item_size_bytes": 16,
+            "path": "pcs.sampled_values",
+            "scalar_kind": "secure_field",
+            "total_bytes": 11952
+          },
+          {
+            "item_count": 2229,
+            "item_size_bytes": 4,
+            "path": "pcs.queried_values",
+            "scalar_kind": "base_field",
+            "total_bytes": 8916
+          },
+          {
+            "item_count": 3,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.first_layer.fri_witness",
+            "scalar_kind": "secure_field",
+            "total_bytes": 48
+          },
+          {
+            "item_count": 49,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.inner_layers.fri_witness",
+            "scalar_kind": "secure_field",
+            "total_bytes": 784
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 16,
+            "path": "pcs.fri.last_layer_poly",
+            "scalar_kind": "secure_field",
+            "total_bytes": 16
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.first_layer.commitment",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 32
+          },
+          {
+            "item_count": 17,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.inner_layers.commitments",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 544
+          },
+          {
+            "item_count": 49,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.first_layer.decommitment.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 1568
+          },
+          {
+            "item_count": 376,
+            "item_size_bytes": 32,
+            "path": "pcs.fri.inner_layers.decommitment.hash_witness",
+            "scalar_kind": "blake2s_hash",
+            "total_bytes": 12032
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 8,
+            "path": "pcs.proof_of_work",
+            "scalar_kind": "u64_le",
+            "total_bytes": 8
+          },
+          {
+            "item_count": 1,
+            "item_size_bytes": 40,
+            "path": "pcs.config",
+            "scalar_kind": "pcs_config",
+            "total_bytes": 40
+          }
+        ],
+        "stwo_grouped_breakdown": {
+          "fixed_overhead": 48,
+          "fri_decommitments": 14176,
+          "fri_samples": 848,
+          "oods_samples": 11952,
+          "queries_values": 8916,
+          "trace_decommitments": 6784
+        },
+        "typed_size_estimate_bytes": 42724,
+        "upstream_stwo_serialization_status": "NOT_UPSTREAM_STWO_SERIALIZATION_LOCAL_ACCOUNTING_RECORD_STREAM_ONLY"
+      },
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-label-probe-b-2026-05.envelope.json",
+      "proof_json_size_bytes": 123018,
+      "proof_sha256": "03f196202d28f2b198f6c4f0f4b13ca9de4c54f9f56f64a2b678dde6af191787"
+    }
+  ],
+  "safety": {
+    "commitment": "sha256_over_repo_owned_canonical_local_binary_accounting_record_stream",
+    "max_envelope_json_bytes": 16777216,
+    "max_proof_json_bytes": 2097152,
+    "path_policy": "inputs_must_be_regular_non_symlink_files_inside_canonical_evidence_dir"
+  },
+  "schema": "zkai-stwo-local-binary-proof-accounting-cli-v1",
+  "size_constants": {
+    "base_field_bytes": 4,
+    "blake2s_hash_bytes": 32,
+    "pcs_config_bytes": 40,
+    "proof_of_work_bytes": 8,
+    "secure_field_bytes": 16
+  },
+  "upstream_stwo_serialization_status": "NOT_UPSTREAM_STWO_SERIALIZATION_LOCAL_ACCOUNTING_RECORD_STREAM_ONLY"
+}

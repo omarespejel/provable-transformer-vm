@@ -1,0 +1,8 @@
+variant	typed_bytes	delta_vs_frontier	path_opening_bytes	path_opening_delta_vs_canonical	value_bytes	value_delta_vs_canonical	proof_json_bytes	policy_status
+compact_selector	40812	112	19504	-1008	21260	392	116091	reference
+rmsnorm_input_fused	41428	728	20512	0	20868	0	118378	reference
+adjacent_layout	40948	248	20032	-480	20868	0	116847	adjacent_reference
+adjacent_bad_label	42724	2024	21808	1296	20868	0	123141	adjacent_bad_label_reference
+post_tail_layout	42724	2024	21808	1296	20868	0	122976	no_go_post_tail
+post_tail_label_probe_a	41508	808	20592	80	20868	0	118526	no_go_post_tail
+post_tail_label_probe_b	42724	2024	21808	1296	20868	0	123018	no_go_post_tail

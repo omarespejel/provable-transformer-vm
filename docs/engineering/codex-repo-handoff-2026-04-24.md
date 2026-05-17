@@ -89,8 +89,9 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 78. `docs/engineering/zkai-claim-audit-comparison-artifacts-2026-05-17.md`
 79. `docs/engineering/zkai-hybrid-proof-pressure-selector-2026-05-17.md`
 80. `docs/engineering/zkai-gkr-d128-projection-scaling-preflight-2026-05-17.md`
-81. `docs/engineering/reproducibility.md`
-82. `git status --short --branch`
+81. `docs/engineering/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05-18.md`
+82. `docs/engineering/reproducibility.md`
+83. `git status --short --branch`
 
 ## Current lane split
 
@@ -508,6 +509,46 @@ RMSNorm-input adjacent layout reproducibility metadata:
   `python3 scripts/zkai_native_attention_mlp_rmsnorm_adjacent_layout_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.tsv`.
 - Local tests:
   `python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_adjacent_layout_gate`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend native_attention_mlp_single_proof --lib`.
+
+Latest RMSNorm-input post-tail layout gate: issue `#665` tests the next
+fixed-column reorder under issue `#641`. The
+`rmsnorm_input_fused_post_tail_fixed_v1` mode keeps the RMSNorm-input adapter
+equation and keeps adapter base cells at `0`, but moves the fused fixed columns
+after the MLP tail in the preprocessed trace. The proof verifies, but the
+canonical post-tail object lands at `42,724` typed bytes, exactly matching the
+adjacent bad-label typed shape and sitting `2,024` bytes above the `40,700`
+two-proof frontier. Probe A improves to `41,508` typed bytes but remains `808`
+bytes above the frontier. Treat this as
+`NO_GO_POST_TAIL_LAYOUT_LABEL_STABILITY`: post-tail placement should be parked,
+and the next attack should be label-stable query/opening geometry or a larger
+native block boundary, not another local fixed-column reorder. See
+`docs/engineering/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05-18.md`.
+
+RMSNorm-input post-tail layout reproducibility metadata:
+
+- Backend binary/version: `zkai_native_attention_mlp_single_proof` with
+  `stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-post-tail-fixed-v1`.
+- Toolchain/features:
+  `cargo +nightly-2025-07-14 --locked --features stwo-backend`.
+- Timing mode: proof-size and verification evidence only; no median-of-5
+  timing claim.
+- Step counts: `3` post-tail build/prove/verify runs, `7` accounting rows,
+  `17 / 17` mutation guards rejected, `19 / 19` Python tests, and `21 / 21`
+  targeted Rust tests.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-layout-2026-05.input.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-layout-2026-05.envelope.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-label-probe-a-2026-05.envelope.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-label-probe-b-2026-05.envelope.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-post-tail-layout-accounting-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05.json`,
+  and
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05.tsv`.
+- Gate command:
+  `python3 scripts/zkai_native_attention_mlp_rmsnorm_post_tail_layout_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05.tsv`.
+- Local tests:
+  `python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_post_tail_layout_gate`;
   `cargo +nightly-2025-07-14 test --locked --features stwo-backend native_attention_mlp_single_proof --lib`.
 
 Latest minimal transformer-block benchmark contract: issue `#649` now has a
