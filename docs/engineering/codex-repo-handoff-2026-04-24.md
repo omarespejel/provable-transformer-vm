@@ -663,13 +663,20 @@ Claim-audit reproducibility metadata:
   `docs/engineering/evidence/zkai-claim-audit-comparison-artifacts-2026-05.json`,
   `docs/engineering/evidence/zkai-claim-audit-comparison-artifacts-2026-05.tsv`,
   `docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json`,
+  `docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.tsv`,
   `docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.json`,
+  `docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.tsv`,
   `docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.json`,
+  `docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.tsv`,
   `docs/engineering/evidence/zkai-tablero-hybrid-zkml-boundary-2026-05.json`,
+  `docs/engineering/evidence/zkai-tablero-hybrid-zkml-boundary-2026-05.tsv`,
   `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05.tsv`,
   `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05.tsv`,
   and
-  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.json`.
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.tsv`.
 - Gate command:
   `python3 scripts/zkai_claim_audit_comparison_artifacts_gate.py --write-json docs/engineering/evidence/zkai-claim-audit-comparison-artifacts-2026-05.json --write-tsv docs/engineering/evidence/zkai-claim-audit-comparison-artifacts-2026-05.tsv`.
 - Local tests:
