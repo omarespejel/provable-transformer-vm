@@ -26,6 +26,7 @@ ONE_BLOCK_SURFACE = EVIDENCE_DIR / "zkai-one-transformer-block-surface-2026-05.j
 BOUNDARY_FRONTIER = EVIDENCE_DIR / "zkai-d128-attention-mlp-boundary-frontier-2026-05.json"
 ADJACENT_LAYOUT = EVIDENCE_DIR / "zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.json"
 MATCHED_TABLE = EVIDENCE_DIR / "zkai-matched-d64-d128-evidence-table-2026-05.json"
+CANONICAL_SOURCE_PATHS = (ONE_BLOCK_SURFACE, BOUNDARY_FRONTIER, ADJACENT_LAYOUT, MATCHED_TABLE)
 
 SCHEMA = "zkai-minimal-transformer-block-benchmark-v1"
 DECISION = "GO_MINIMAL_BLOCK_BENCHMARK_CONTRACT_NO_GO_MATCHED_PROOF_CLAIM"
@@ -177,7 +178,7 @@ def read_source_bytes(path: pathlib.Path) -> bytes:
     return raw
 
 
-def load_json(path: pathlib.Path) -> dict[str, Any]:
+def load_json_source(path: pathlib.Path) -> tuple[dict[str, Any], bytes]:
     raw = read_source_bytes(path)
     try:
         payload = json.loads(
@@ -189,11 +190,10 @@ def load_json(path: pathlib.Path) -> dict[str, Any]:
         raise MinimalBlockBenchmarkError(f"failed to parse JSON source {path}: {err}") from err
     if not isinstance(payload, dict):
         raise MinimalBlockBenchmarkError(f"JSON source must be object: {path}")
-    return payload
+    return payload, raw
 
 
-def source_descriptor(path: pathlib.Path, payload: dict[str, Any]) -> dict[str, Any]:
-    raw = read_source_bytes(path)
+def source_descriptor(path: pathlib.Path, payload: dict[str, Any], raw: bytes) -> dict[str, Any]:
     descriptor = {
         "path": str(path.relative_to(ROOT)),
         "file_sha256": hashlib.sha256(raw).hexdigest(),
@@ -218,11 +218,11 @@ def _int(value: Any, label: str) -> int:
     return value
 
 
-def _load_sources() -> dict[str, dict[str, Any]]:
-    one_block = load_json(ONE_BLOCK_SURFACE)
-    frontier = load_json(BOUNDARY_FRONTIER)
-    adjacent = load_json(ADJACENT_LAYOUT)
-    matched = load_json(MATCHED_TABLE)
+def _load_sources() -> dict[str, Any]:
+    one_block, one_block_raw = load_json_source(ONE_BLOCK_SURFACE)
+    frontier, frontier_raw = load_json_source(BOUNDARY_FRONTIER)
+    adjacent, adjacent_raw = load_json_source(ADJACENT_LAYOUT)
+    matched, matched_raw = load_json_source(MATCHED_TABLE)
     if one_block.get("schema") != "zkai-one-transformer-block-surface-v1":
         raise MinimalBlockBenchmarkError("one-block surface schema drift")
     if frontier.get("schema") != "zkai-d128-attention-mlp-boundary-frontier-gate-v1":
@@ -236,6 +236,12 @@ def _load_sources() -> dict[str, dict[str, Any]]:
         "frontier": frontier,
         "adjacent": adjacent,
         "matched": matched,
+        "raw": {
+            "one_block": one_block_raw,
+            "frontier": frontier_raw,
+            "adjacent": adjacent_raw,
+            "matched": matched_raw,
+        },
     }
 
 
@@ -432,11 +438,12 @@ def _base_payload() -> dict[str, Any]:
     one_summary = _dict(sources["one_block"].get("summary"), "one-block summary")
     adjacent = sources["adjacent"]
     component_rows = _component_rows(sources)
+    raw_sources = _dict(sources["raw"], "source raw inventory")
     source_artifacts = [
-        source_descriptor(ONE_BLOCK_SURFACE, sources["one_block"]),
-        source_descriptor(BOUNDARY_FRONTIER, sources["frontier"]),
-        source_descriptor(ADJACENT_LAYOUT, sources["adjacent"]),
-        source_descriptor(MATCHED_TABLE, sources["matched"]),
+        source_descriptor(ONE_BLOCK_SURFACE, sources["one_block"], raw_sources["one_block"]),
+        source_descriptor(BOUNDARY_FRONTIER, sources["frontier"], raw_sources["frontier"]),
+        source_descriptor(ADJACENT_LAYOUT, sources["adjacent"], raw_sources["adjacent"]),
+        source_descriptor(MATCHED_TABLE, sources["matched"], raw_sources["matched"]),
     ]
     summary = {
         "component_count": len(component_rows),
@@ -694,7 +701,8 @@ def validated_output_targets(
             raise MinimalBlockBenchmarkError(f"JSON output must use .json suffix: {target}")
         if label == "tsv" and target.suffix != ".tsv":
             raise MinimalBlockBenchmarkError(f"TSV output must use .tsv suffix: {target}")
-    source_paths = {
+    source_paths = {path.resolve() for path in CANONICAL_SOURCE_PATHS}
+    source_paths |= {
         (ROOT / artifact["path"]).resolve()
         for artifact in payload.get("source_artifacts", [])
         if isinstance(artifact, dict) and isinstance(artifact.get("path"), str)
