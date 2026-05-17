@@ -46,6 +46,14 @@ class ClaimAuditComparisonArtifactsGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.ClaimAuditError, "exact non-claim missing"):
             gate.validate_payload(payload, final=False)
 
+    def test_remove_gkr_row_non_claim_mutation_handles_existing_drift(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        row = gate.row_by_id(payload["audit_rows"], "gkr_tiny_gemm_sidecar")
+        row["non_claims"].remove("not a GKR matched d128 proof-size win")
+        gate.mutate_remove_gkr_row_non_claim(payload)
+        with self.assertRaisesRegex(gate.ClaimAuditError, "exact non-claim missing"):
+            gate.validate_payload(payload, final=False)
+
     def test_rejects_unlisted_local_source_status(self) -> None:
         payload = gate.base_payload(gate.load_sources())
         gate.mutate_unlisted_local_source_status(payload)
