@@ -130,6 +130,139 @@ PINNED_BOUNDARY_CONTRACT_FIELDS = (
 
 NATIVE_PROOF_EQUIVALENT_OBJECT_CLASSES = frozenset({"local_two_proof_transformer_block_frontier"})
 
+PINNED_BINDING_OBJECTS = {
+    "stwo_two_proof_frontier_boundary": {
+        "model_binding": {
+            "availability": "bound",
+            "commitment": "blake2b-256:0b76dc0a0d2a78926b86a5d64afe895c28eb09c0e88058918147fb0c00d2e1ce",
+            "source": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+            "reason": "model/profile facts are bound through local benchmark contract",
+        },
+        "input_binding": {
+            "availability": "bound",
+            "commitment": "blake2b-256:9ea2a9e1d950e4a1d5cdf541205c881e63cd4b389ae795dfc78af13b26e0a03e",
+            "source": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+            "reason": "input facts are bound by source artifact digests",
+        },
+        "output_binding": {
+            "availability": "bound",
+            "commitment": "blake2b-256:9fe2cfe5c8e7f1b08a690739a850c6adb1154c273ba1f3305b4e2ff78bd235de",
+            "source": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+            "reason": "output statement-chain facts are source-bound",
+        },
+        "proof_object_binding": {
+            "availability": "bound",
+            "commitment": "blake2b-256:9fbde562ddec1d8fc522ff6258591e63757c681f7b956ad75c9368c601ce725a",
+            "source": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+            "reason": "two local proof objects, not one native block proof",
+        },
+    },
+    "compact_statement_chain_boundary": {
+        "model_binding": {
+            "availability": "bound",
+            "commitment": "blake2b-256:9f6d4835cd9b3d74ee78de97c64e809f10adfcbbdc4ca2c0d5de4dca397fd2b6",
+            "source": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+            "reason": "statement chain carries model/workload contract metadata",
+        },
+        "input_binding": {
+            "availability": "bound",
+            "commitment": "blake2b-256:1f824737eb4fefd08466ee94daa33e70d0fcfe55b128d389ea597103fb7e2632",
+            "source": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+            "reason": "statement input facts are bound but not re-proven here",
+        },
+        "output_binding": {
+            "availability": "bound",
+            "commitment": "blake2b-256:bdac5c3c829da69b33dc52ab1750901cb79c9f0a429ec2e2fb44d152adf31d8c",
+            "source": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+            "reason": "statement output facts are bound but not native proof execution",
+        },
+        "proof_object_binding": {
+            "availability": "bound",
+            "commitment": "blake2b-256:938fa4355b49e7131324a746586d1ad3b6dc4b11d42bfe165051f04b64073687",
+            "source": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+            "reason": "compact statement artifact, not native proof object",
+        },
+    },
+    "jstprove_statement_envelope_boundary": {
+        "model_binding": {
+            "availability": "bound",
+            "commitment": "blake2b-256:23f32b4e9d13eccef6418fd8fc53bb66397806d88c5e5b85ae484f9cd8623cc0",
+            "source": "docs/engineering/evidence/zkai-jstprove-statement-envelope-benchmark-2026-05.json",
+            "reason": "tiny model fixture metadata is statement-bound",
+        },
+        "input_binding": {
+            "availability": "bound",
+            "commitment": "blake2b-256:495ae5f9a20bf8793928cf85f4e769cfb42e498dd8f5d67d03dd07196ea2b93f",
+            "source": "docs/engineering/evidence/zkai-jstprove-statement-envelope-benchmark-2026-05.json",
+            "reason": "input fixture metadata is statement-bound",
+        },
+        "output_binding": {
+            "availability": "bound",
+            "commitment": "blake2b-256:bbb85a39560302aab7e2de864c91f36716fd1958d4c1324f06491a31d1f3539d",
+            "source": "docs/engineering/evidence/zkai-jstprove-statement-envelope-benchmark-2026-05.json",
+            "reason": "output fixture metadata is statement-bound",
+        },
+        "proof_object_binding": {
+            "availability": "bound",
+            "commitment": "blake2b-256:a25162be49d49b4aee5b17686ad96a96578c5c404e45522974115aeb65a505f4",
+            "source": "docs/engineering/evidence/zkai-jstprove-statement-envelope-benchmark-2026-05.json",
+            "reason": "external proof-backed statement envelope",
+        },
+    },
+    "gkr_dense_sidecar_boundary": {
+        "model_binding": {
+            "availability": "bound",
+            "commitment": "blake2b-256:4368b9d7680ffa07ae1dcd1871e103e489b43d3dc8511d326e7235d6eec72025",
+            "source": "docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.json",
+            "reason": "tiny Gemm fixture source-bound",
+        },
+        "input_binding": {
+            "availability": "bound",
+            "commitment": "blake2b-256:f45b3c34171dda67600d9d5b323ccbe066e8d90fe2bf5345a22333e873ac0388",
+            "source": "docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.json",
+            "reason": "tiny Gemm input fixture source-bound",
+        },
+        "output_binding": {
+            "availability": "bound",
+            "commitment": "blake2b-256:b4c5bec7d9955236a0a32416831e2078de984f86c205313fa9182c1c17bb5177",
+            "source": "docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.json",
+            "reason": "tiny Gemm output fixture source-bound",
+        },
+        "proof_object_binding": {
+            "availability": "bound",
+            "commitment": "blake2b-256:ed07b4cb8b6ef9e84a9bf5f8d29c3cd4be0bf33e8179b49c71d10d51e93f7524",
+            "source": "docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.json",
+            "reason": "local external GKR fixture proof bytes",
+        },
+    },
+    "jolt_atlas_self_attention_source_boundary": {
+        "model_binding": {
+            "availability": "source_reported",
+            "commitment": "blake2b-256:4ef4be4bbc87c73a14efd291a7fd8bd427c82ec3487a8d119045d3e5eac55aa8",
+            "source": "docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.json",
+            "reason": "repo command available; model/input details unavailable until local run",
+        },
+        "input_binding": {
+            "availability": "unavailable_explicit",
+            "commitment": "blake2b-256:6591a5528ef8d2d771c7cf39d0674c604414243a6fef0d9d0bb99f0ec3744e1c",
+            "source": "docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.json",
+            "reason": "input digest unavailable because Atlas was not locally reproduced",
+        },
+        "output_binding": {
+            "availability": "unavailable_explicit",
+            "commitment": "blake2b-256:b0c4738c13fb3e24b6b12314a2fc613d6535d7d502acfc41c413adb477a836a9",
+            "source": "docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.json",
+            "reason": "output digest unavailable because Atlas was not locally reproduced",
+        },
+        "proof_object_binding": {
+            "availability": "unavailable_explicit",
+            "commitment": "blake2b-256:d1fccd37c31245085495b97e772c2bd3fad1f054a7de8f461d40c899b6520c3b",
+            "source": "docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.json",
+            "reason": "proof bytes unavailable until local self-attention run",
+        },
+    },
+}
+
 PINNED_BASELINE = {
     "schema": "zkai-tablero-hybrid-zkml-boundary-v1",
     "decision": "GO_TABLERO_TYPED_BOUNDARIES_FOR_HYBRID_ZKML_OBJECTS",
@@ -352,6 +485,10 @@ class TableroHybridBoundaryError(ValueError):
     pass
 
 
+def normalized_source_bytes(raw: bytes) -> bytes:
+    return raw.replace(b"\r\n", b"\n")
+
+
 def canonical_json_bytes(value: Any) -> bytes:
     try:
         return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False).encode()
@@ -381,8 +518,8 @@ def statement_commitment(statement: dict[str, Any]) -> str:
 
 def source_descriptor(path: pathlib.Path, payload: dict[str, Any], raw: bytes) -> dict[str, Any]:
     descriptor = {
-        "path": str(path.relative_to(ROOT)),
-        "file_sha256": hashlib.sha256(raw).hexdigest(),
+        "path": path.relative_to(ROOT).as_posix(),
+        "file_sha256": hashlib.sha256(normalized_source_bytes(raw)).hexdigest(),
         "payload_sha256": hashlib.sha256(canonical_json_bytes(payload)).hexdigest(),
     }
     if isinstance(payload.get("schema"), str):
@@ -818,6 +955,14 @@ def validate_pinned_baseline(payload: dict[str, Any]) -> None:
     contracts = [boundary_contract(row) for row in payload["boundary_examples"]]
     if contracts != PINNED_BASELINE["boundary_examples"]:
         raise TableroHybridBoundaryError("boundary_examples drift")
+    for row in payload["boundary_examples"]:
+        statement_id = row["statement_id"]
+        if statement_id not in PINNED_BINDING_OBJECTS:
+            raise TableroHybridBoundaryError("binding object inventory drift")
+        pinned_bindings = PINNED_BINDING_OBJECTS[statement_id]
+        for field in ("model_binding", "input_binding", "output_binding", "proof_object_binding"):
+            if row[field] != pinned_bindings[field]:
+                raise TableroHybridBoundaryError("binding object drift")
 
 
 def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True) -> None:
@@ -890,6 +1035,14 @@ def mark_native_equivalent_external_backend(payload: dict[str, Any]) -> None:
     payload["boundary_examples"][0]["backend"] = "jstprove-gkr-sidecar"
 
 
+def bind_atlas_unavailable_input(payload: dict[str, Any]) -> None:
+    row = payload["boundary_examples"][4]
+    row["input_binding"] = copy.deepcopy(row["input_binding"])
+    row["input_binding"]["availability"] = "bound"
+    row["input_binding"]["reason"] = "fake bound input digest"
+    row["statement_commitment"] = statement_commitment(row)
+
+
 def mutate_statement_commitment(payload: dict[str, Any]) -> None:
     payload["boundary_examples"][3]["statement_commitment"] = "blake2b-256:" + "0" * 64
 
@@ -918,6 +1071,7 @@ MUTATIONS = (
     ("atlas_marked_local", mark_atlas_local),
     ("atlas_marked_creative_local", mark_atlas_creative_local),
     ("native_equivalent_external_backend", mark_native_equivalent_external_backend),
+    ("atlas_unavailable_binding_relabel", bind_atlas_unavailable_input),
     ("statement_commitment_drift", mutate_statement_commitment),
     ("unavailable_binding_field_removed", remove_unavailable_output_binding),
     ("atlas_proof_size_overclaim", promote_atlas_proof_size),

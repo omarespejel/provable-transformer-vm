@@ -21,8 +21,8 @@ class TableroHybridZkmlBoundaryGateTest(unittest.TestCase):
         self.assertFalse(payload["summary"]["jolt_atlas_local_reproduced"])
         self.assertFalse(payload["summary"]["jolt_atlas_proof_size_available"])
         self.assertEqual(payload["summary"]["tablero_role"], "typed_statement_boundary_not_external_verifier")
-        self.assertEqual(payload["mutation_count"], 12)
-        self.assertEqual(payload["mutations_rejected"], 12)
+        self.assertEqual(payload["mutation_count"], 13)
+        self.assertEqual(payload["mutations_rejected"], 13)
 
     def test_boundary_examples_keep_object_classes_separate(self) -> None:
         rows = {row["statement_id"]: row for row in gate.build_payload()["boundary_examples"]}
@@ -94,6 +94,13 @@ class TableroHybridZkmlBoundaryGateTest(unittest.TestCase):
         gate.mark_native_equivalent_external_backend(payload)
         payload["payload_commitment"] = gate.payload_commitment(payload)
         with self.assertRaisesRegex(gate.TableroHybridBoundaryError, "native proof equivalence backend overclaim"):
+            gate.validate_payload(payload)
+
+    def test_rejects_atlas_unavailable_binding_relabel(self) -> None:
+        payload = gate.build_payload()
+        gate.bind_atlas_unavailable_input(payload)
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaisesRegex(gate.TableroHybridBoundaryError, "binding object drift"):
             gate.validate_payload(payload)
 
     def test_rejects_statement_commitment_drift(self) -> None:
