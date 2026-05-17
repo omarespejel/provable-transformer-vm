@@ -25,7 +25,13 @@ class TableroHybridZkmlBoundaryGateTest(unittest.TestCase):
         self.assertEqual(payload["mutations_rejected"], 13)
 
     def test_boundary_examples_keep_object_classes_separate(self) -> None:
-        rows = {row["statement_id"]: row for row in gate.build_payload()["boundary_examples"]}
+        boundary_examples = gate.build_payload()["boundary_examples"]
+        self.assertEqual(
+            len({row["statement_id"] for row in boundary_examples}),
+            len(boundary_examples),
+            "duplicate statement_id in boundary_examples",
+        )
+        rows = {row["statement_id"]: row for row in boundary_examples}
         self.assertTrue(rows["stwo_two_proof_frontier_boundary"]["native_proof_equivalent"])
         self.assertEqual(rows["stwo_two_proof_frontier_boundary"]["primary_value"], 40_700)
         self.assertFalse(rows["compact_statement_chain_boundary"]["native_proof_equivalent"])
