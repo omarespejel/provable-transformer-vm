@@ -42,6 +42,20 @@ class RmsnormAdjacentLayoutGateTest(unittest.TestCase):
         with self.assertRaises(gate.AdjacentLayoutGateError):
             gate.validate_payload(payload)
 
+    def test_payload_rejects_top_level_summary_drift(self) -> None:
+        for key, value in (
+            ("compact_selector_typed_bytes", 1),
+            ("canonical_rmsnorm_input_fused_typed_bytes", 1),
+            ("adjacent_canonical_typed_bytes", 1),
+            ("source_accounting_path", "docs/engineering/evidence/other.json"),
+        ):
+            with self.subTest(key=key):
+                payload = gate.build_payload()
+                payload[key] = value
+                payload["payload_commitment"] = gate.payload_commitment(payload)
+                with self.assertRaises(gate.AdjacentLayoutGateError):
+                    gate.validate_payload(payload)
+
     def test_payload_rejects_non_claim_erasure(self) -> None:
         payload = gate.build_payload()
         payload["non_claims"] = []
@@ -61,6 +75,20 @@ class RmsnormAdjacentLayoutGateTest(unittest.TestCase):
         mutations.append({"name": "extra", "rejected": True, "reason": "extra"})
         with self.assertRaises(gate.AdjacentLayoutGateError):
             gate.validate_mutation_results(mutations)
+
+    def test_mutation_inventory_rejects_non_object_entries(self) -> None:
+        payload = gate.build_payload()
+        mutations = copy.deepcopy(payload["mutation_results"])
+        mutations[-1] = "not an object"
+        with self.assertRaises(gate.AdjacentLayoutGateError):
+            gate.validate_mutation_results(mutations)
+
+    def test_payload_can_validate_without_mutation_inventory(self) -> None:
+        payload = gate.build_payload(include_mutations=False)
+        self.assertEqual(payload["mutation_results"], [])
+        gate.validate_payload(payload, require_mutations=False)
+        with self.assertRaises(gate.AdjacentLayoutGateError):
+            gate.validate_payload(payload)
 
     def test_tsv_includes_adjacent_bad_label(self) -> None:
         payload = gate.build_payload()
