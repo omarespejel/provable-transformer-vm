@@ -21,6 +21,17 @@ class MinimalTransformerBlockBenchmarkGateTest(unittest.TestCase):
         self.assertTrue(payload["summary"]["missing_native_block_proof_object"])
         self.assertEqual(payload["summary"]["two_proof_frontier_typed_bytes"], 40_700)
         self.assertEqual(payload["summary"]["adjacent_worst_label_gap_typed_bytes"], 2_024)
+        self.assertEqual(payload["summary"]["gap_to_nanozk_from_two_proof_frontier_typed_bytes"], 33_800)
+        self.assertEqual(
+            payload["summary"]["adjacent_worst_label_gap_typed_bytes"],
+            payload["summary"]["adjacent_worst_label_typed_bytes"]
+            - payload["summary"]["two_proof_frontier_typed_bytes"],
+        )
+        self.assertEqual(
+            payload["summary"]["gap_to_nanozk_from_two_proof_frontier_typed_bytes"],
+            payload["summary"]["two_proof_frontier_typed_bytes"]
+            - payload["summary"]["nanozk_reported_d128_block_proof_bytes"],
+        )
         self.assertEqual(payload["summary"]["statement_chain_rows"], 199_553)
         self.assertEqual(payload["summary"]["external_statement_receipt_proof_bytes"], 807)
         self.assertEqual(payload["mutation_count"], 14)
