@@ -577,7 +577,7 @@ def write_atomic(path: pathlib.Path, data: bytes) -> None:
     except Exception:
         try:
             tmp.unlink()
-        except FileNotFoundError:
+        except OSError:
             pass
         raise
 

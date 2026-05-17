@@ -1,6 +1,7 @@
 import copy
 import tempfile
 import unittest
+from unittest import mock
 
 from scripts import zkai_native_attention_mlp_rmsnorm_adjacent_layout_gate as gate
 
@@ -128,6 +129,19 @@ class RmsnormAdjacentLayoutGateTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             with self.assertRaises(gate.AdjacentLayoutGateError):
                 gate.write_outputs(payload, gate.pathlib.Path(tmpdir) / "payload.json", None)
+
+    def test_write_atomic_preserves_original_failure_when_cleanup_fails(self) -> None:
+        with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".json", delete=False) as handle:
+            path = gate.pathlib.Path(handle.name)
+        try:
+            with (
+                mock.patch.object(gate.pathlib.Path, "write_bytes", side_effect=OSError("write failed")),
+                mock.patch.object(gate.pathlib.Path, "unlink", side_effect=PermissionError("cleanup failed")),
+            ):
+                with self.assertRaisesRegex(OSError, "write failed"):
+                    gate.write_atomic(path, b"{}")
+        finally:
+            path.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":
