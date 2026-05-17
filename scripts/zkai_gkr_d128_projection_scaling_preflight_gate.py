@@ -29,8 +29,8 @@ SOURCE_PATHS = (JSTPROVE_SHAPE_PROBE, STWO_GATE_VALUE_GATE, MINIMAL_BLOCK, HYBRI
 
 ISSUE = "https://github.com/omarespejel/provable-transformer-vm/issues/663"
 SCHEMA = "zkai-gkr-d128-projection-scaling-preflight-v1"
-DECISION = "NO_GO_JSTPROVE_D128_PROJECTION_SCALING_PREFLIGHT_KEEP_GKR_AS_BASELINE"
-RESULT = "TINY_GEMM_SIGNAL_DOES_NOT_SURVIVE_WIDTH_PRESERVING_PREFLIGHT"
+DECISION = "NO_GO_NOW_D128_PROJECTION_SCALING"
+RESULT = "TINY_GEMM_SIGNAL_DOES_NOT_SURVIVE_WIDTH_PRESERVING_PREFLIGHT_KEEP_GKR_AS_BASELINE"
 PAYLOAD_DOMAIN = "ptvm:zkai:gkr-d128-projection-scaling-preflight:v1"
 
 EXPECTED_STWO_GATE_VALUE_TYPED_BYTES = 16_360
@@ -80,6 +80,17 @@ ROW_COLUMNS = (
     "recommendation",
 )
 ROW_FIELDS = (*ROW_COLUMNS, "source_artifact", "non_claims")
+
+REQUIRED_ROW_NON_CLAIMS = {
+    "local_stwo_d128_gate_value_projection": ("typed local accounting, not external proof bytes",),
+    "local_stwo_d128_rmsnorm_mlp_substitute": ("not exact LayerNorm/GELU transformer MLP",),
+    "jstprove_tiny_gemm_scalar": ("tiny scalar fixture, not d128 and not width-preserving d128 projection",),
+    "jstprove_width_preserving_gemm_dim_1": ("dimension sweep is not d128 and not a matched workload",),
+    "jstprove_width_preserving_gemm_dim_2": ("dimension sweep is not d128 and not a matched workload",),
+    "jstprove_width_preserving_gemm_dim_4": ("dimension sweep is not d128 and not a matched workload",),
+    "tablero_statement_boundary_guardrail": ("not a proof object",),
+    "hybrid_selector_prior_attack_next": ("selector route is a hypothesis, not proof-size evidence",),
+}
 
 
 class GkrProjectionPreflightError(ValueError):
@@ -452,6 +463,12 @@ def validate_row(row: dict[str, Any]) -> None:
     require_str(row["source_artifact"], f"{row_id} source artifact")
     if not isinstance(row["non_claims"], list) or not set(NON_CLAIMS).issubset(set(row["non_claims"])):
         raise GkrProjectionPreflightError(f"{row_id} non-claim inventory drift")
+    row_non_claims = set(row["non_claims"])
+    required_row_non_claims = REQUIRED_ROW_NON_CLAIMS.get(row_id)
+    if required_row_non_claims is None:
+        raise GkrProjectionPreflightError(f"{row_id} required row non-claim inventory missing")
+    if not set(required_row_non_claims).issubset(row_non_claims):
+        raise GkrProjectionPreflightError(f"{row_id} row-specific non-claim inventory drift")
     if proof_size_comparable:
         raise GkrProjectionPreflightError(f"{row_id} proof-size comparability overclaim")
     if row["matched_workload"]:
@@ -531,6 +548,11 @@ def mutate_remove_non_claim(payload: dict[str, Any]) -> None:
     payload["non_claims"].remove("not a proof-size-comparable cross-system benchmark")
 
 
+def mutate_remove_width_preserving_non_claim(payload: dict[str, Any]) -> None:
+    non_claims = row_by_id(payload["rows"], "jstprove_width_preserving_gemm_dim_4")["non_claims"]
+    non_claims.remove("dimension sweep is not d128 and not a matched workload")
+
+
 def mutate_source_digest(payload: dict[str, Any]) -> None:
     payload["source_artifacts"][0]["sha256"] = "0" * 64
 
@@ -541,6 +563,7 @@ MUTATIONS: tuple[tuple[str, Callable[[dict[str, Any]], None]], ...] = (
     ("width_preserving_bytes_smuggling", mutate_width_preserving_bytes),
     ("recommendation_overclaim", mutate_recommendation),
     ("remove_non_claim", mutate_remove_non_claim),
+    ("remove_width_preserving_non_claim", mutate_remove_width_preserving_non_claim),
     ("source_digest_drift", mutate_source_digest),
 )
 

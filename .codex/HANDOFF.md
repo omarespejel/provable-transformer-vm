@@ -1953,7 +1953,7 @@ is `70,138` proof bytes, and the smallest width-preserving row is `4.287164x`
 the local Stwo gate/value baseline, `3.106751x` the local Stwo dense substitute
 of `22,576` typed bytes, and `10.164928x` the NANOZK paper context row of
 `6,900` bytes. Treat this as
-`NO_GO_JSTPROVE_D128_PROJECTION_SCALING_PREFLIGHT_KEEP_GKR_AS_BASELINE`: GKR
+`NO_GO_NOW_D128_PROJECTION_SCALING`: GKR
 stays useful as a baseline/sidecar lane, but the next main attack remains the
 native `d128` block object unless a live dim `8/16/32` GKR sweep or another GKR
 backend changes the evidence. See
