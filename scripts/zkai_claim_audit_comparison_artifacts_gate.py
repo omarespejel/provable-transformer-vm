@@ -818,20 +818,25 @@ def mutate_single_best_label_promoted(payload: dict[str, Any]) -> None:
     row_by_id(payload["audit_rows"], "rmsnorm_single_best_label_rejected")["proof_size_policy"] = "single best label accepted as frontier"
 
 
+def remove_if_present(values: list[str], value: str) -> None:
+    if value in values:
+        values.remove(value)
+
+
 def mutate_remove_nanozk_non_claim(payload: dict[str, Any]) -> None:
-    payload["non_claims"].remove("not a NANOZK proof-size win")
+    remove_if_present(payload["non_claims"], "not a NANOZK proof-size win")
 
 
 def mutate_remove_jolt_non_claim(payload: dict[str, Any]) -> None:
-    payload["non_claims"].remove("not a Jolt Atlas proof-size win")
+    remove_if_present(payload["non_claims"], "not a Jolt Atlas proof-size win")
 
 
 def mutate_remove_gkr_non_claim(payload: dict[str, Any]) -> None:
-    payload["non_claims"].remove("not a GKR matched d128 proof-size win")
+    remove_if_present(payload["non_claims"], "not a GKR matched d128 proof-size win")
 
 
 def mutate_remove_gkr_row_non_claim(payload: dict[str, Any]) -> None:
-    row_by_id(payload["audit_rows"], "gkr_tiny_gemm_sidecar")["non_claims"].remove("not a GKR matched d128 proof-size win")
+    remove_if_present(row_by_id(payload["audit_rows"], "gkr_tiny_gemm_sidecar")["non_claims"], "not a GKR matched d128 proof-size win")
 
 
 def mutate_unlisted_local_source_status(payload: dict[str, Any]) -> None:
