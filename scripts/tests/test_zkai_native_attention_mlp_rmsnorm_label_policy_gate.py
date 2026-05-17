@@ -153,6 +153,14 @@ class RmsnormLabelPolicyGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.LabelPolicyError, "duplicate output destination"):
             gate.write_outputs(payload, gate.JSON_OUT, gate.JSON_OUT)
 
+    def test_write_outputs_rejects_relative_absolute_duplicate_destinations(self) -> None:
+        payload = gate.build_payload()
+        relative = pathlib.Path("docs/engineering/evidence/rmsnorm-label-policy-collision.tmp")
+        absolute = gate.ROOT / relative
+
+        with self.assertRaisesRegex(gate.LabelPolicyError, "duplicate output destination"):
+            gate.write_outputs(payload, relative, absolute)
+
     def test_write_outputs_rejects_outside_evidence_dir(self) -> None:
         payload = gate.build_payload()
         with tempfile.TemporaryDirectory() as tmpdir:
