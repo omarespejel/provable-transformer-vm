@@ -368,8 +368,8 @@ RMSNorm-input label-sensitivity reproducibility metadata:
 - Timing mode: proof-size accounting only; no median-of-5 timing claim.
 - GO/NO-GO barrier: GO for a transcript-label guardrail if both probe envelopes
   verify, the accounting artifact has exactly one row for each probe, direct
-  value bytes stay unchanged, `18 / 18` metric/label/metadata/source/overclaim
-  mutations reject drift, and the best probe still fails the two-proof frontier;
+  value bytes stay unchanged, `21 / 21` metric/label/metadata/source/schema-extra/
+  missing-group/overclaim mutations reject drift, and the best probe still fails the two-proof frontier;
   NO-GO for frontier promotion unless a future route beats the frontier under a
   multi-label/query-inventory policy.
 - Checked surface: two explicitly supported RMSNorm-input fused label-probe

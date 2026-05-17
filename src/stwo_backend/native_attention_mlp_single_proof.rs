@@ -2300,6 +2300,29 @@ mod tests {
     }
 
     #[test]
+    fn rmsnorm_input_fused_label_probe_round_trip_verifies_and_rejects_tamper() {
+        let input = fixture_input_with_mode(
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedLabelProbeA,
+        );
+        let envelope = prove_zkai_native_attention_mlp_single_proof_envelope(&input)
+            .expect("label probe prove");
+        assert!(
+            verify_zkai_native_attention_mlp_single_proof_envelope(&envelope)
+                .expect("label probe verify")
+        );
+
+        let mut proof_tampered = envelope.clone();
+        proof_tampered.proof[0] ^= 1;
+        let proof_tamper_result =
+            verify_zkai_native_attention_mlp_single_proof_envelope(&proof_tampered);
+        assert!(matches!(proof_tamper_result, Ok(false) | Err(_)));
+
+        let mut relabeled = envelope;
+        relabeled.input.adapter_mode = ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedFixed;
+        assert!(verify_zkai_native_attention_mlp_single_proof_envelope(&relabeled).is_err());
+    }
+
+    #[test]
     fn legacy_json_without_adapter_mode_defaults_to_duplicate() {
         let input = fixture_input();
         let mut value = serde_json::to_value(&input).expect("input JSON value");

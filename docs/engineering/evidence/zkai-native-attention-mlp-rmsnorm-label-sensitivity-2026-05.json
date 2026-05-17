@@ -85,12 +85,24 @@
         "rejected": true
       },
       {
+        "name": "probe_a_missing_path_opening_group",
+        "rejected": true
+      },
+      {
+        "name": "summary_extra_key",
+        "rejected": true
+      },
+      {
+        "name": "variant_extra_key",
+        "rejected": true
+      },
+      {
         "name": "payload_commitment_drift",
         "rejected": true
       }
     ],
-    "mutation_count": 18,
-    "rejected_count": 18
+    "mutation_count": 21,
+    "rejected_count": 21
   },
   "non_claims": [
     "not a two-proof frontier beat",
@@ -101,7 +113,7 @@
     "not a full transformer block proof",
     "not production-ready zkML"
   ],
-  "payload_commitment": "blake2b-256:ffdc7a98d06c0354e60bc55f2c8b48b283a931a3dd08d57b996911cb25456af4",
+  "payload_commitment": "blake2b-256:ca919cd12acdfb5783a1c017d0b64bdba62adae082c8cf503af739076720df2a",
   "proof_backend_version": "stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-adapter-v1",
   "proof_schema_version": "stwo-native-attention-mlp-single-proof-object-native-adapter-payload-v1",
   "result": "LABEL_ONLY_PROBES_MOVE_PATH_OPENING_BYTES_MORE_THAN_THE_FRONTIER_BUDGET",
