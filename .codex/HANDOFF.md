@@ -1562,6 +1562,14 @@ Validate with
     decommitments, or trace decommitments while preserving source binding and
     the adapter equation. A separate RMSNorm-input opening-layout follow-up
     tracks that narrow attack.
+22. The first RMSNorm-input opening-layout follow-up is a label-sensitivity
+    hardening result, not a compression win. Two label-only probes preserve the
+    same adapter equation and direct value bytes, but move typed proof size from
+    `40,836` to `42,100` bytes. The best label probe is still `136` typed bytes
+    above the `40,700` two-proof frontier and `24` bytes above compact, while
+    the label-only span is `1,264` bytes, larger than the `729` byte reduction
+    needed to beat the frontier. Any future sub-kilobyte opening-layout win
+    needs a multi-label/query-inventory policy before promotion.
 
 Latest adapter opening-geometry budget: issue `#641` now has a checked
 attack-budget gate over the current adapter variants. The compact selector is
@@ -1575,6 +1583,62 @@ FRI samples, FRI decommitments, or trace decommitments while preserving source
 binding and the adapter equation. See
 `docs/engineering/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05-17.md`.
 The separate RMSNorm-input opening-layout follow-up tracks the narrow attack.
+
+Latest RMSNorm-input label-sensitivity gate: issue `#644` now has a checked
+guardrail against transcript cherry-picking. The canonical RMSNorm-input fused
+route is `41,428` local typed bytes. Label probe A is `40,836`; label probe B
+is `42,100`; both preserve the adapter equation, source binding, and direct
+value bytes. This means the same relation has a `1,264` byte label-only
+path/opening span, larger than the `729` byte frontier-reduction budget. The
+best label probe is still not a win (`+136` bytes versus the two-proof frontier,
+`+24` versus compact). See
+`docs/engineering/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05-17.md`.
+
+RMSNorm-input label-sensitivity reproducibility metadata:
+
+- Backend binary/runtime: `zkai_native_attention_mlp_single_proof` with
+  proof backend version
+  `stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-adapter-v1`.
+- Accounting binary: `zkai_stwo_proof_binary_accounting`.
+- Toolchain/features: `cargo +nightly-2025-07-14 --locked --features stwo-backend`;
+  targeted Rust test filter `rmsnorm_input_fused_label_probe`.
+- Probe identifiers:
+  `rmsnorm_input_fused_fixed_label_probe_a_v1` and
+  `rmsnorm_input_fused_fixed_label_probe_b_v1`; both intentionally share the
+  RMSNorm-input fused proof backend version above while carrying distinct
+  adapter-mode labels in the input/envelope metadata.
+- Timing mode: proof-size accounting only; no median-of-5 timing claim.
+- GO/NO-GO barrier: GO for a transcript-label guardrail if both probe envelopes
+  verify, the accounting artifact has exactly one row for each probe, direct
+  value bytes stay unchanged, `18 / 18` metric/label/metadata/source/overclaim
+  mutations reject drift, and the best probe still fails the two-proof frontier;
+  NO-GO for frontier promotion unless a future route beats the frontier under a
+  multi-label/query-inventory policy.
+- Checked surface: two explicitly supported RMSNorm-input fused label-probe
+  proof artifacts plus binary accounting.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05.tsv`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-accounting-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-a-2026-05.input.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-a-2026-05.envelope.json`,
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-b-2026-05.input.json`,
+  and
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-b-2026-05.envelope.json`.
+- Gate command:
+  `python3 scripts/zkai_native_attention_mlp_rmsnorm_label_sensitivity_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05.tsv`.
+- Full local reproduction sequence:
+  `cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-rmsnorm-fused-label-probe-a docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-a-2026-05.input.json`;
+  `cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-a-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-a-2026-05.envelope.json`;
+  `cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-a-2026-05.envelope.json`;
+  `cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-rmsnorm-fused-label-probe-b docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-b-2026-05.input.json`;
+  `cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-b-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-b-2026-05.envelope.json`;
+  `cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-b-2026-05.envelope.json`;
+  `cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-a-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-b-2026-05.envelope.json > docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-accounting-2026-05.json`;
+  `python3 scripts/zkai_native_attention_mlp_rmsnorm_label_sensitivity_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05.tsv`;
+  `python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_label_sensitivity_gate`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_fused_label_probe --lib`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend native_attention_mlp_single_proof --lib`.
 
 Adapter opening-geometry budget reproducibility metadata:
 

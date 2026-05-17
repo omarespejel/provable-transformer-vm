@@ -248,6 +248,26 @@ const EXPECTED_RMSNORM_INPUT_FUSED_VALIDATION_COMMANDS: &[&str] = &[
     "just gate-fast",
     "just gate",
 ];
+const EXPECTED_RMSNORM_INPUT_FUSED_LABEL_SENSITIVITY_VALIDATION_COMMANDS: &[&str] = &[
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-rmsnorm-fused-label-probe-a docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-a-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-a-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-a-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-a-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-rmsnorm-fused-label-probe-b docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-b-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-b-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-b-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-b-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-a-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-b-2026-05.envelope.json > docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-accounting-2026-05.json",
+    "python3 scripts/zkai_native_attention_mlp_rmsnorm_label_sensitivity_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05.tsv",
+    "python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_label_sensitivity_gate",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_fused_label_probe --lib",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_attention_mlp_single_proof --lib",
+    "git diff --check",
+    "just gate-fast",
+    "just gate",
+];
+const EXPECTED_RMSNORM_INPUT_FUSED_LABEL_PROBE_A_VALIDATION_COMMANDS: &[&str] =
+    EXPECTED_RMSNORM_INPUT_FUSED_LABEL_SENSITIVITY_VALIDATION_COMMANDS;
+const EXPECTED_RMSNORM_INPUT_FUSED_LABEL_PROBE_B_VALIDATION_COMMANDS: &[&str] =
+    EXPECTED_RMSNORM_INPUT_FUSED_LABEL_SENSITIVITY_VALIDATION_COMMANDS;
 const EXPECTED_DUPLICATE_SELECTOR_VALIDATION_COMMANDS: &[&str] = &[
     "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-duplicate-selector docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.input.json",
     "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.envelope.json",
@@ -273,6 +293,10 @@ pub enum ZkAiNativeAttentionMlpAdapterMode {
     PreprocessedOutputAnchorFixed,
     #[serde(rename = "rmsnorm_input_fused_fixed_v1")]
     RmsnormInputFusedFixed,
+    #[serde(rename = "rmsnorm_input_fused_fixed_label_probe_a_v1")]
+    RmsnormInputFusedLabelProbeA,
+    #[serde(rename = "rmsnorm_input_fused_fixed_label_probe_b_v1")]
+    RmsnormInputFusedLabelProbeB,
 }
 
 impl Default for ZkAiNativeAttentionMlpAdapterMode {
@@ -291,7 +315,9 @@ impl ZkAiNativeAttentionMlpAdapterMode {
             Self::PreprocessedOutputAnchorFixed => {
                 EXPECTED_PREPROCESSED_OUTPUT_ANCHOR_ADAPTER_STATUS
             }
-            Self::RmsnormInputFusedFixed => EXPECTED_RMSNORM_INPUT_FUSED_ADAPTER_STATUS,
+            Self::RmsnormInputFusedFixed
+            | Self::RmsnormInputFusedLabelProbeA
+            | Self::RmsnormInputFusedLabelProbeB => EXPECTED_RMSNORM_INPUT_FUSED_ADAPTER_STATUS,
         }
     }
 
@@ -303,7 +329,9 @@ impl ZkAiNativeAttentionMlpAdapterMode {
             Self::PreprocessedOutputAnchorFixed => {
                 PREPROCESSED_OUTPUT_ANCHOR_ADAPTER_BACKEND_VERSION
             }
-            Self::RmsnormInputFusedFixed => RMSNORM_INPUT_FUSED_ADAPTER_BACKEND_VERSION,
+            Self::RmsnormInputFusedFixed
+            | Self::RmsnormInputFusedLabelProbeA
+            | Self::RmsnormInputFusedLabelProbeB => RMSNORM_INPUT_FUSED_ADAPTER_BACKEND_VERSION,
         }
     }
 
@@ -316,7 +344,9 @@ impl ZkAiNativeAttentionMlpAdapterMode {
             Self::PreprocessedOutputAnchorFixed => {
                 ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_VALUE_COLUMNS
             }
-            Self::RmsnormInputFusedFixed => ADAPTER_RMSNORM_INPUT_FUSED_BASE_VALUE_COLUMNS,
+            Self::RmsnormInputFusedFixed
+            | Self::RmsnormInputFusedLabelProbeA
+            | Self::RmsnormInputFusedLabelProbeB => ADAPTER_RMSNORM_INPUT_FUSED_BASE_VALUE_COLUMNS,
         }
     }
 
@@ -329,7 +359,9 @@ impl ZkAiNativeAttentionMlpAdapterMode {
             Self::PreprocessedOutputAnchorFixed => {
                 ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_TRACE_CELLS
             }
-            Self::RmsnormInputFusedFixed => ADAPTER_RMSNORM_INPUT_FUSED_BASE_TRACE_CELLS,
+            Self::RmsnormInputFusedFixed
+            | Self::RmsnormInputFusedLabelProbeA
+            | Self::RmsnormInputFusedLabelProbeB => ADAPTER_RMSNORM_INPUT_FUSED_BASE_TRACE_CELLS,
         }
     }
 
@@ -344,6 +376,12 @@ impl ZkAiNativeAttentionMlpAdapterMode {
                 EXPECTED_PREPROCESSED_OUTPUT_ANCHOR_VALIDATION_COMMANDS
             }
             Self::RmsnormInputFusedFixed => EXPECTED_RMSNORM_INPUT_FUSED_VALIDATION_COMMANDS,
+            Self::RmsnormInputFusedLabelProbeA => {
+                EXPECTED_RMSNORM_INPUT_FUSED_LABEL_PROBE_A_VALIDATION_COMMANDS
+            }
+            Self::RmsnormInputFusedLabelProbeB => {
+                EXPECTED_RMSNORM_INPUT_FUSED_LABEL_PROBE_B_VALIDATION_COMMANDS
+            }
         }
     }
 
@@ -356,7 +394,12 @@ impl ZkAiNativeAttentionMlpAdapterMode {
     }
 
     fn uses_rmsnorm_input_fused_adapter(self) -> bool {
-        self == Self::RmsnormInputFusedFixed
+        matches!(
+            self,
+            Self::RmsnormInputFusedFixed
+                | Self::RmsnormInputFusedLabelProbeA
+                | Self::RmsnormInputFusedLabelProbeB
+        )
     }
 }
 
@@ -1385,7 +1428,9 @@ fn combined_base_trace(
         ZkAiNativeAttentionMlpAdapterMode::PreprocessedOutputAnchorFixed => {
             attention_base.extend(adapter_preprocessed_output_anchor_base_trace(input)?);
         }
-        ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedFixed => {}
+        ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedFixed
+        | ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedLabelProbeA
+        | ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedLabelProbeB => {}
     }
     attention_base.extend(mlp_trace(input)?);
     Ok(attention_base)
@@ -2222,6 +2267,39 @@ mod tests {
     }
 
     #[test]
+    fn rmsnorm_input_fused_label_probes_preserve_constraints_but_change_statement() {
+        let canonical =
+            fixture_input_with_mode(ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedFixed);
+        for mode in [
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedLabelProbeA,
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedLabelProbeB,
+        ] {
+            let input = fixture_input_with_mode(mode);
+            assert_eq!(input.adapter_status, canonical.adapter_status);
+            assert_eq!(input.adapter_value_columns, canonical.adapter_value_columns);
+            assert_eq!(input.adapter_trace_cells, canonical.adapter_trace_cells);
+            assert_ne!(input.statement_commitment, canonical.statement_commitment);
+            validate_single_input(&input).expect("label probe input validates");
+        }
+    }
+
+    #[test]
+    fn rmsnorm_input_fused_label_probe_rejects_relabeling() {
+        let mut relabeled = fixture_input_with_mode(
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedLabelProbeA,
+        );
+        relabeled.adapter_mode = ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedFixed;
+        assert!(validate_single_input(&relabeled).is_err());
+
+        let mut cross_labeled = fixture_input_with_mode(
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedLabelProbeB,
+        );
+        cross_labeled.adapter_mode =
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedLabelProbeA;
+        assert!(validate_single_input(&cross_labeled).is_err());
+    }
+
+    #[test]
     fn legacy_json_without_adapter_mode_defaults_to_duplicate() {
         let input = fixture_input();
         let mut value = serde_json::to_value(&input).expect("input JSON value");
@@ -2284,6 +2362,8 @@ mod tests {
             ZkAiNativeAttentionMlpAdapterMode::CompactBaseReferencedFixed,
             ZkAiNativeAttentionMlpAdapterMode::PreprocessedOutputAnchorFixed,
             ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedFixed,
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedLabelProbeA,
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedLabelProbeB,
         ] {
             let ids = combined_preprocessed_column_ids(mode).expect("ids");
             let unique = ids.iter().map(|id| id.id.clone()).collect::<BTreeSet<_>>();

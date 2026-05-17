@@ -52,7 +52,7 @@ fn main() -> ExitCode {
 fn run() -> Result<String, String> {
     let mut args = std::env::args_os().skip(1).collect::<Vec<_>>();
     if args.is_empty() {
-        return Err("usage: zkai_native_attention_mlp_single_proof build-input <attention-source.json> <mlp-input.json> <single-input.json> | build-input-duplicate-selector <attention-source.json> <mlp-input.json> <single-input.json> | build-input-compact <attention-source.json> <mlp-input.json> <single-input.json> | build-input-preprocessed-anchor <attention-source.json> <mlp-input.json> <single-input.json> | build-input-rmsnorm-fused <attention-source.json> <mlp-input.json> <single-input.json> | prove <single-input.json> <envelope.json> | verify <envelope.json>".to_string());
+        return Err("usage: zkai_native_attention_mlp_single_proof build-input <attention-source.json> <mlp-input.json> <single-input.json> | build-input-duplicate-selector <attention-source.json> <mlp-input.json> <single-input.json> | build-input-compact <attention-source.json> <mlp-input.json> <single-input.json> | build-input-preprocessed-anchor <attention-source.json> <mlp-input.json> <single-input.json> | build-input-rmsnorm-fused <attention-source.json> <mlp-input.json> <single-input.json> | build-input-rmsnorm-fused-label-probe-a <attention-source.json> <mlp-input.json> <single-input.json> | build-input-rmsnorm-fused-label-probe-b <attention-source.json> <mlp-input.json> <single-input.json> | prove <single-input.json> <envelope.json> | verify <envelope.json>".to_string());
     }
     let mode = args.remove(0).to_string_lossy().to_string();
     match mode.as_str() {
@@ -319,6 +319,18 @@ fn run() -> Result<String, String> {
             })
             .to_string())
         }
+        "build-input-rmsnorm-fused-label-probe-a" => build_input_with_adapter_mode(
+            &args,
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedLabelProbeA,
+            "build-input-rmsnorm-fused-label-probe-a",
+            "single proof RMSNorm-fused label probe A input",
+        ),
+        "build-input-rmsnorm-fused-label-probe-b" => build_input_with_adapter_mode(
+            &args,
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedLabelProbeB,
+            "build-input-rmsnorm-fused-label-probe-b",
+            "single proof RMSNorm-fused label probe B input",
+        ),
         "prove" => {
             if args.len() != 2 {
                 return Err("usage: prove <single-input.json> <envelope.json>".to_string());
@@ -389,6 +401,64 @@ fn run() -> Result<String, String> {
         }
         _ => Err(format!("unknown mode: {mode}")),
     }
+}
+
+#[cfg(feature = "stwo-backend")]
+fn build_input_with_adapter_mode(
+    args: &[std::ffi::OsString],
+    adapter_mode: ZkAiNativeAttentionMlpAdapterMode,
+    cli_mode: &str,
+    label: &str,
+) -> Result<String, String> {
+    if args.len() != 3 {
+        return Err(format!(
+            "usage: {cli_mode} <attention-source.json> <mlp-input.json> <single-input.json>"
+        ));
+    }
+    let attention_path = PathBuf::from(&args[0]);
+    let mlp_path = PathBuf::from(&args[1]);
+    let output_path = PathBuf::from(&args[2]);
+    let attention_raw = read_bounded_utf8(
+        &attention_path,
+        ZKAI_ATTENTION_KV_NATIVE_D8_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES,
+        "attention source input JSON",
+    )?;
+    let attention =
+        zkai_attention_kv_native_d8_fused_softmax_table_source_input_from_json_str(&attention_raw)
+            .map_err(|error| error.to_string())?;
+    let mlp_raw = read_bounded_utf8(
+        &mlp_path,
+        ZKAI_D128_RMSNORM_MLP_FUSED_MAX_JSON_BYTES,
+        "d128 RMSNorm-MLP fused input JSON",
+    )?;
+    let mlp = zkai_d128_rmsnorm_mlp_fused_input_from_json_str(&mlp_raw)
+        .map_err(|error| error.to_string())?;
+    let input = build_zkai_native_attention_mlp_single_proof_input_with_adapter_mode(
+        attention,
+        mlp,
+        adapter_mode,
+    )
+    .map_err(|error| error.to_string())?;
+    let bytes = pretty_json_bytes_with_trailing_newline(
+        &input,
+        ZKAI_NATIVE_ATTENTION_MLP_SINGLE_PROOF_MAX_INPUT_JSON_BYTES,
+        label,
+    )?;
+    atomic_write_file(&output_path, &bytes, label)?;
+    Ok(serde_json::json!({
+        "schema": "zkai-native-attention-mlp-single-proof-cli-summary-v1",
+        "mode": cli_mode,
+        "input_path": output_path.display().to_string(),
+        "input_size_bytes": bytes.len(),
+        "statement_commitment": input.statement_commitment,
+        "public_instance_commitment": input.public_instance_commitment,
+        "adapter_mode": input.adapter_mode,
+        "adapter_status": input.adapter_status,
+        "adapter_trace_cells": input.adapter_trace_cells,
+        "pcs_lifting_log_size": input.pcs_lifting_log_size,
+        "current_two_proof_frontier_typed_bytes": input.current_two_proof_frontier_typed_bytes,
+    })
+    .to_string())
 }
 
 #[cfg(feature = "stwo-backend")]
