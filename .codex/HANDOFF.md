@@ -1,8 +1,8 @@
 # HANDOFF
 
-Last refreshed: 2026-05-16
+Last refreshed: 2026-05-17
 Repository: `/Users/espejelomar/StarkNet/provable-transformer-vm`
-Mainline reference at refresh: `2cb41ca8`
+Mainline reference at refresh: `46b23ce3`
 
 ## Immediate orientation
 
@@ -1806,6 +1806,38 @@ GKR sidecar reproducibility metadata:
   `python3 scripts/zkai_gkr_dense_sidecar_baseline_gate.py --write-json docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.json --write-tsv docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.tsv`.
 - Local tests:
   `python3 -m unittest scripts.tests.test_zkai_gkr_dense_sidecar_baseline_gate`.
+
+Latest Jolt/Atlas lookup-tensor comparison: issue `#651` now has a checked
+source-backed comparison gate, not a local Atlas reproduction and not a
+proof-size or timing win. The gate records `8` rows: `3` local checked rows
+and `5` external source/context rows. The local context remains the Stwo
+attention/lookup grid typed saving of `51,288` bytes, the local two-proof
+frontier of `40,700` typed bytes, and the GKR tiny `Gemm` fixture at `11,645`
+proof bytes (`0.286118x` the two-proof frontier). Jolt Atlas is recorded as a
+serious lookup/tensor zkML lane with repo-reported README timings, not local
+numbers: GPT-2 proof time `14.889s` and nanoGPT proof time `2.288s`, both on
+the source-reported MacBook M3 setup. The public repo head was pinned as
+`53b7c873a6662cdc79d9818dececf337bb27d7d0`; core `a16z/jolt` was pinned as
+`cb1e464e5d0978758900fc279a08472bfb8b518d`. A bounded local clone probe did
+not complete during `git index-pack`, so the next reproduction target remains
+the Jolt Atlas `jolt-atlas-core --example transformer` self-attention example.
+See `docs/engineering/zkai-jolt-atlas-lookup-tensor-comparison-2026-05-17.md`.
+
+Jolt/Atlas comparison reproducibility metadata:
+
+- Timing mode: source-reported external timing context only; no local timing
+  claim and no median-of-5 policy.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.json`,
+  `docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.tsv`,
+  `docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json`,
+  `docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.json`,
+  and
+  `docs/engineering/evidence/zkai-attention-kv-stwo-controlled-component-grid-2026-05.json`.
+- Gate command:
+  `python3 scripts/zkai_jolt_atlas_lookup_tensor_comparison_gate.py --write-json docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.json --write-tsv docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.tsv`.
+- Local tests:
+  `python3 -m unittest scripts.tests.test_zkai_jolt_atlas_lookup_tensor_comparison_gate`.
 
 Adapter opening-geometry budget reproducibility metadata:
 

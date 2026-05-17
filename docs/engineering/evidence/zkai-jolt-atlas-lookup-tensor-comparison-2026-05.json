@@ -1,0 +1,287 @@
+{
+  "comparison_policy": {
+    "compact_statement_binding_not_model_proof": true,
+    "object_class_required": true,
+    "proof_size_comparison_requires_matched_workload": true,
+    "reproduction_status_required": true,
+    "timing_comparison_requires_local_or_same_host_reproduction": true,
+    "workload_required": true
+  },
+  "decision": "GO_JOLT_ATLAS_SOURCE_BACKED_COMPARISON_NO_GO_LOCAL_REPRODUCTION",
+  "external_reproduction_probe": {
+    "attempted": true,
+    "command": "git clone --depth 1 https://github.com/ICME-Lab/jolt-atlas.git /tmp/ptvm-jolt-atlas && cargo metadata --no-deps --format-version 1",
+    "date": "2026-05-17",
+    "local_reproduction_status": "not_reproduced",
+    "reason": "The public repo exists and exposes example commands, but the bounded local clone probe did not complete; no Atlas proof was run.",
+    "result": "NO_GO_BOUNDED_PROBE_INTERRUPTED_DURING_GIT_INDEX_PACK"
+  },
+  "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/651",
+  "mutation_count": 8,
+  "mutation_results": [
+    {
+      "name": "atlas_reproduced_overclaim",
+      "reason": "Atlas local reproduction overclaim",
+      "rejected": true
+    },
+    {
+      "name": "stwo_beats_atlas_overclaim",
+      "reason": "comparison overclaim",
+      "rejected": true
+    },
+    {
+      "name": "atlas_proof_size_overclaim",
+      "reason": "Atlas proof-size availability overclaim",
+      "rejected": true
+    },
+    {
+      "name": "external_row_marked_local",
+      "reason": "external reproduction overclaim",
+      "rejected": true
+    },
+    {
+      "name": "atlas_repo_head_drift",
+      "reason": "Atlas repo head drift",
+      "rejected": true
+    },
+    {
+      "name": "primary_source_removal",
+      "reason": "primary source inventory drift",
+      "rejected": true
+    },
+    {
+      "name": "object_class_collapse",
+      "reason": "object-class drift",
+      "rejected": true
+    },
+    {
+      "name": "non_claim_removal",
+      "reason": "proof-size non-claim drift",
+      "rejected": true
+    }
+  ],
+  "mutations_rejected": 8,
+  "non_claims": [
+    "not a local reproduction of Jolt Atlas",
+    "not a proof-size win over Jolt Atlas",
+    "not a timing win over Jolt Atlas",
+    "not a matched ONNX tensor workload",
+    "not a matched self-attention block benchmark",
+    "not a Jolt zkVM benchmark",
+    "not a NANOZK proof-size comparison",
+    "not evidence that Stwo replaces lookup/sumcheck tensor systems",
+    "not a claim that compact Tablero statement binding is a model proof"
+  ],
+  "payload_commitment": "blake2b-256:fc06b5bb96cf456fba877f3f8ae2d1c638bc7504c0883d4c253f0f67431b451c",
+  "primary_sources": [
+    {
+      "accessed_on": "2026-05-17",
+      "label": "Jolt Atlas arXiv paper",
+      "role": "lookup-centric ONNX/tensor zkML architecture context",
+      "source_kind": "paper",
+      "source_status": "paper_reported_not_locally_reproduced",
+      "url": "https://arxiv.org/abs/2602.17452"
+    },
+    {
+      "accessed_on": "2026-05-17",
+      "head_commit": "53b7c873a6662cdc79d9818dececf337bb27d7d0",
+      "label": "ICME-Lab/jolt-atlas repository",
+      "role": "public implementation and README-reported benchmark commands",
+      "source_kind": "repository",
+      "source_status": "repo_available_not_locally_reproduced",
+      "url": "https://github.com/ICME-Lab/jolt-atlas"
+    },
+    {
+      "accessed_on": "2026-05-17",
+      "head_commit": "53b7c873a6662cdc79d9818dececf337bb27d7d0",
+      "label": "ICME-Lab/jolt-atlas README",
+      "role": "source for GPT-2 and nanoGPT timing rows plus example commands",
+      "source_kind": "repository_readme",
+      "source_status": "repo_reported_not_locally_reproduced",
+      "url": "https://raw.githubusercontent.com/ICME-Lab/jolt-atlas/main/README.md"
+    },
+    {
+      "accessed_on": "2026-05-17",
+      "head_commit": "cb1e464e5d0978758900fc279a08472bfb8b518d",
+      "label": "a16z/jolt repository",
+      "role": "core Jolt zkVM object-class context",
+      "source_kind": "repository",
+      "source_status": "source_context_not_locally_reproduced",
+      "url": "https://github.com/a16z/jolt"
+    },
+    {
+      "accessed_on": "2026-05-17",
+      "label": "Jolt memory checking and lookup docs",
+      "role": "lookup and memory-checking mechanism context",
+      "source_kind": "documentation",
+      "source_status": "source_context_not_locally_reproduced",
+      "url": "https://a16z-jolt.mintlify.app/architecture/theory/memory-checking"
+    }
+  ],
+  "result": "ATLAS_REPO_AND_SOURCE_NUMBERS_EXIST_BUT_NO_MATCHED_LOCAL_PROOF_SIZE_OR_WORKLOAD",
+  "rows": [
+    {
+      "comparability": "LOCAL_MECHANISM_EVIDENCE_NOT_ONNX_TENSOR_WORKLOAD",
+      "evidence": "docs/engineering/evidence/zkai-attention-kv-stwo-controlled-component-grid-2026-05.json",
+      "object_class": "local_native_stwo_attention_lookup_grid",
+      "primary_metric": "typed_savings_bytes_total",
+      "primary_value": 51288,
+      "proof_size_status": "local_typed_component_accounting",
+      "row_id": "local_stwo_attention_lookup_grid",
+      "source_status": "local_checked",
+      "system": "Stwo/STARK",
+      "timing_status": "no_median_timing_claim",
+      "workload": "controlled fused attention plus Softmax-table LogUp profiles"
+    },
+    {
+      "comparability": "NOT_MATCHED_ATLAS_ONNX_OR_SINGLE_SELF_ATTENTION_BLOCK",
+      "evidence": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+      "object_class": "local_two_proof_transformer_block_frontier",
+      "primary_metric": "two_proof_frontier_typed_bytes",
+      "primary_value": 40700,
+      "proof_size_status": "local_typed_proof_field_accounting",
+      "row_id": "local_stwo_minimal_block_frontier",
+      "source_status": "local_checked",
+      "system": "Stwo/STARK",
+      "timing_status": "no_median_timing_claim",
+      "workload": "d8 attention proof plus d128 RMSNorm-MLP fused proof"
+    },
+    {
+      "comparability": "SIDE_CAR_BASELINE_ONLY_NOT_ATLAS_OR_D128_LAYER",
+      "evidence": "docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.json",
+      "object_class": "local_external_gkr_fixture",
+      "primary_metric": "proof_bytes",
+      "primary_value": 11645,
+      "proof_size_status": "local_fixture_proof_bytes",
+      "row_id": "local_gkr_dense_sidecar_tiny_gemm",
+      "source_status": "local_checked",
+      "system": "JSTprove/Remainder-GKR-sumcheck",
+      "timing_status": "fixture_timing_only_not_paper_timing",
+      "workload": "tiny Gemm projection fixture"
+    },
+    {
+      "comparability": "CORE_ZKVM_CONTEXT_NOT_ATLAS_TENSOR_WORKLOAD",
+      "evidence": "https://github.com/a16z/jolt",
+      "object_class": "external_lookup_centric_riscv_zkvm",
+      "primary_metric": "repo_head_commit",
+      "primary_value": "cb1e464e5d0978758900fc279a08472bfb8b518d",
+      "proof_size_status": "not_reported_in_this_gate",
+      "row_id": "jolt_core_zkvm_context",
+      "source_status": "source_context_not_locally_reproduced",
+      "system": "Jolt",
+      "timing_status": "not_reported_in_this_gate",
+      "workload": "RV64IMAC zkVM execution"
+    },
+    {
+      "comparability": "ARCHITECTURE_CONTEXT_NOT_NUMERIC_BENCHMARK",
+      "evidence": "https://arxiv.org/abs/2602.17452",
+      "object_class": "external_lookup_tensor_zkml_architecture",
+      "primary_metric": "architecture_class",
+      "primary_value": "ONNX_LOOKUP_TENSOR_ZKML",
+      "proof_size_status": "paper_context_no_local_proof_bytes",
+      "row_id": "jolt_atlas_paper_architecture",
+      "source_status": "paper_reported_not_locally_reproduced",
+      "system": "Jolt Atlas",
+      "timing_status": "paper_context_no_local_timing",
+      "workload": "ONNX tensor operations with lookup and sumcheck framing"
+    },
+    {
+      "comparability": "TIMING_CONTEXT_ONLY_NOT_LOCAL_AND_NOT_PROOF_SIZE",
+      "evidence": "https://github.com/ICME-Lab/jolt-atlas",
+      "object_class": "external_lookup_tensor_zkml_repo_benchmark",
+      "primary_metric": "readme_proof_time_seconds",
+      "primary_value": "14.889",
+      "proof_size_status": "not_reported_in_readme_row",
+      "row_id": "jolt_atlas_repo_gpt2_readme",
+      "source_status": "repo_reported_not_locally_reproduced",
+      "system": "Jolt Atlas",
+      "timing_status": "repo_reported_macbook_m3_16gb_not_local",
+      "workload": "GPT-2 125M ONNX inference"
+    },
+    {
+      "comparability": "TIMING_CONTEXT_ONLY_NOT_LOCAL_AND_NOT_PROOF_SIZE",
+      "evidence": "https://github.com/ICME-Lab/jolt-atlas",
+      "object_class": "external_lookup_tensor_zkml_repo_benchmark",
+      "primary_metric": "readme_proof_time_seconds",
+      "primary_value": "2.288",
+      "proof_size_status": "not_reported_in_readme_row",
+      "row_id": "jolt_atlas_repo_nanogpt_readme",
+      "source_status": "repo_reported_not_locally_reproduced",
+      "system": "Jolt Atlas",
+      "timing_status": "repo_reported_macbook_m3_16gb_not_local",
+      "workload": "nanoGPT roughly 0.25M parameters, 4 transformer layers"
+    },
+    {
+      "comparability": "NOT_IMPLEMENTED_BASELINE",
+      "evidence": "https://github.com/ICME-Lab/jolt-atlas",
+      "object_class": "external_lookup_tensor_zkml_reproduction_target",
+      "primary_metric": "example_command",
+      "primary_value": "cargo run --release --package jolt-atlas-core --example transformer",
+      "proof_size_status": "not_reported_until_local_run",
+      "row_id": "jolt_atlas_repo_self_attention_example",
+      "source_status": "repo_command_available_not_locally_reproduced",
+      "system": "Jolt Atlas",
+      "timing_status": "not_reported_until_local_run",
+      "workload": "single self-attention block example"
+    }
+  ],
+  "schema": "zkai-jolt-atlas-lookup-tensor-comparison-v1",
+  "source_artifacts": [
+    {
+      "decision": "GO_MINIMAL_BLOCK_BENCHMARK_CONTRACT_NO_GO_MATCHED_PROOF_CLAIM",
+      "file_sha256": "300ac6886019e7670e4a1dbb25a70803e9605dffd71907d8c1220fad1ba6436f",
+      "path": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+      "payload_sha256": "c5c9e6381c8a1ffe176552fc93fa64cd1421630045628dc22f07228967e358e1",
+      "schema": "zkai-minimal-transformer-block-benchmark-v1"
+    },
+    {
+      "decision": "GO_GKR_SIDECAR_BASELINE_NO_GO_MATCHED_D128_DENSE_LAYER_COMPARISON",
+      "file_sha256": "06c1d45d97fd027faf59d4d1a827bfa5b93218edb87cb9711ad233f865dc47b8",
+      "path": "docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.json",
+      "payload_sha256": "a434ca1ffdb09dfed4fbf89b5e2bd001aae49dc42f9b53481a8a84871879936d",
+      "schema": "zkai-gkr-dense-sidecar-baseline-v1"
+    },
+    {
+      "decision": "GO_CHECKED_STWO_COMPONENT_GRID_WITH_FULL_FACTORIAL_GRID_NO_GO",
+      "file_sha256": "f39d68a84070f0fc848d465fd260b711b42cacb2b6915e8da59181d355311f67",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-controlled-component-grid-2026-05.json",
+      "payload_sha256": "6ec514ffe250940d6c9283634ff2f7b7b63103426e7d34b203348c238e6a0944",
+      "schema": "zkai-attention-kv-stwo-controlled-component-grid-v1"
+    }
+  ],
+  "summary": {
+    "atlas_local_reproduced": false,
+    "atlas_proof_size_available": false,
+    "atlas_readme_gpt2_proof_seconds": "14.889",
+    "atlas_readme_nanogpt_proof_seconds": "2.288",
+    "atlas_repo_available": true,
+    "atlas_repo_head_commit": "53b7c873a6662cdc79d9818dececf337bb27d7d0",
+    "comparison_rows": 8,
+    "external_rows": 5,
+    "gkr_tiny_gemm_ratio_vs_stwo_two_proof_frontier": "0.286118",
+    "jolt_core_repo_head_commit": "cb1e464e5d0978758900fc279a08472bfb8b518d",
+    "local_gkr_tiny_gemm_proof_bytes": 11645,
+    "local_rows": 3,
+    "local_stwo_attention_lookup_typed_savings_bytes": 51288,
+    "local_stwo_two_proof_frontier_typed_bytes": 40700,
+    "matched_atlas_workload": false,
+    "matched_self_attention_block_local_run": false,
+    "next_reproduction_target": "jolt-atlas transformer.rs self-attention example",
+    "source_statuses": [
+      "local_checked",
+      "paper_reported_not_locally_reproduced",
+      "repo_command_available_not_locally_reproduced",
+      "repo_reported_not_locally_reproduced",
+      "source_context_not_locally_reproduced"
+    ]
+  },
+  "validation_commands": [
+    "python3 scripts/zkai_jolt_atlas_lookup_tensor_comparison_gate.py --write-json docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.json --write-tsv docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.tsv",
+    "python3 -m py_compile scripts/zkai_jolt_atlas_lookup_tensor_comparison_gate.py scripts/tests/test_zkai_jolt_atlas_lookup_tensor_comparison_gate.py",
+    "python3 -m unittest scripts.tests.test_zkai_jolt_atlas_lookup_tensor_comparison_gate",
+    "python3 scripts/research_issue_lint.py --repo-root .",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}
