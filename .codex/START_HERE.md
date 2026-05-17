@@ -130,8 +130,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 124. `docs/engineering/zkai-tablero-hybrid-zkml-boundary-2026-05-17.md`
 125. `docs/engineering/zkai-claim-audit-comparison-artifacts-2026-05-17.md`
 126. `docs/engineering/zkai-hybrid-proof-pressure-selector-2026-05-17.md`
-127. `docs/engineering/reproducibility.md`
-128. `git status --short --branch`
+127. `docs/engineering/zkai-gkr-d128-projection-scaling-preflight-2026-05-17.md`
+128. `docs/engineering/reproducibility.md`
+129. `git status --short --branch`
 
 ## What this repository is now
 
@@ -260,6 +261,16 @@ This repository currently has three live lanes.
      `12 / 12` selector-overclaim mutations. Treat this as a route selector,
      not a performance result; see
      `docs/engineering/zkai-hybrid-proof-pressure-selector-2026-05-17.md`.
+   - The first follow-up on that route selector is now a GKR d128 projection
+     scaling preflight. The tiny scalar GKR `Gemm` row remains compact at
+     `11,645` proof bytes (`0.711797x` the local Stwo `d128` gate/value
+     baseline), but the width-preserving dim `2/4` rows are `71,040` and
+     `70,138` proof bytes. The smallest width-preserving row is `4.287164x`
+     the local Stwo gate/value baseline and `10.164928x` the NANOZK paper
+     context row, so this is a current NO-GO for rushing into a JSTprove
+     `d128` projection. Keep GKR as a sidecar/baseline lane unless a live
+     dim `8/16/32` sweep changes the evidence; see
+     `docs/engineering/zkai-gkr-d128-projection-scaling-preflight-2026-05-17.md`.
    - The current attention-to-RMSNorm/MLP boundary is a checked NO-GO for one
      value-connected native proof object: the attention-derived d128 statement
      chain has `199,553` accounted rows (`1.010374x` the MLP fused surface),
