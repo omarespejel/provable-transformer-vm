@@ -123,8 +123,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 117. `docs/engineering/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05-17.md`
 118. `docs/engineering/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05-17.md`
 119. `docs/engineering/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05-17.md`
-120. `docs/engineering/reproducibility.md`
-121. `git status --short --branch`
+120. `docs/engineering/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05-17.md`
+121. `docs/engineering/reproducibility.md`
+122. `git status --short --branch`
 
 ## What this repository is now
 
@@ -225,8 +226,18 @@ This repository currently has three live lanes.
      `83.3929%` of that overhang while preserving source binding and value
      semantics. Full removal would model to `40,420` typed bytes, `280` below
      the current frontier, but this is not a proof-size win or a new proof
-     object and does not close issue `#644`; see
-     `docs/engineering/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05-17.md`.
+   object and does not close issue `#644`; see
+   `docs/engineering/zkai-native-attention-mlp-rmsnorm-opening-budget-route-2026-05-17.md`.
+   - The RMSNorm-input adjacent fixed-column layout is now a real regenerated
+     proof-object NO-GO that still teaches something useful. Moving the fixed
+     adapter columns next to the RMSNorm public-row columns keeps adapter base
+     cells at `0` and reduces canonical RMSNorm-input fused typed bytes from
+     `41,428` to `40,948`, a `480` byte saving from opening/decommitment
+     material. It still fails promotion: adjacent label probe B is `42,724`
+     typed bytes, `2,024` above the `40,700` frontier. Treat this as evidence
+     that opening layout matters, but current label stability is the blocker;
+     see
+     `docs/engineering/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05-17.md`.
    - The current attention-to-RMSNorm/MLP boundary is a checked NO-GO for one
      value-connected native proof object: the attention-derived d128 statement
      chain has `199,553` accounted rows (`1.010374x` the MLP fused surface),

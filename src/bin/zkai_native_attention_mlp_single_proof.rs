@@ -52,7 +52,7 @@ fn main() -> ExitCode {
 fn run() -> Result<String, String> {
     let mut args = std::env::args_os().skip(1).collect::<Vec<_>>();
     if args.is_empty() {
-        return Err("usage: zkai_native_attention_mlp_single_proof build-input <attention-source.json> <mlp-input.json> <single-input.json> | build-input-duplicate-selector <attention-source.json> <mlp-input.json> <single-input.json> | build-input-compact <attention-source.json> <mlp-input.json> <single-input.json> | build-input-preprocessed-anchor <attention-source.json> <mlp-input.json> <single-input.json> | build-input-rmsnorm-fused <attention-source.json> <mlp-input.json> <single-input.json> | build-input-rmsnorm-fused-label-probe-a <attention-source.json> <mlp-input.json> <single-input.json> | build-input-rmsnorm-fused-label-probe-b <attention-source.json> <mlp-input.json> <single-input.json> | prove <single-input.json> <envelope.json> | verify <envelope.json>".to_string());
+        return Err("usage: zkai_native_attention_mlp_single_proof build-input <attention-source.json> <mlp-input.json> <single-input.json> | build-input-duplicate-selector <attention-source.json> <mlp-input.json> <single-input.json> | build-input-compact <attention-source.json> <mlp-input.json> <single-input.json> | build-input-preprocessed-anchor <attention-source.json> <mlp-input.json> <single-input.json> | build-input-rmsnorm-fused <attention-source.json> <mlp-input.json> <single-input.json> | build-input-rmsnorm-fused-adjacent <attention-source.json> <mlp-input.json> <single-input.json> | build-input-rmsnorm-fused-adjacent-label-probe-a <attention-source.json> <mlp-input.json> <single-input.json> | build-input-rmsnorm-fused-adjacent-label-probe-b <attention-source.json> <mlp-input.json> <single-input.json> | build-input-rmsnorm-fused-label-probe-a <attention-source.json> <mlp-input.json> <single-input.json> | build-input-rmsnorm-fused-label-probe-b <attention-source.json> <mlp-input.json> <single-input.json> | prove <single-input.json> <envelope.json> | verify <envelope.json>".to_string());
     }
     let mode = args.remove(0).to_string_lossy().to_string();
     match mode.as_str() {
@@ -324,6 +324,24 @@ fn run() -> Result<String, String> {
             ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedLabelProbeA,
             "build-input-rmsnorm-fused-label-probe-a",
             "single proof RMSNorm-fused label probe A input",
+        ),
+        "build-input-rmsnorm-fused-adjacent" => build_input_with_adapter_mode(
+            &args,
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed,
+            "build-input-rmsnorm-fused-adjacent",
+            "single proof RMSNorm-fused adjacent fixed-column input",
+        ),
+        "build-input-rmsnorm-fused-adjacent-label-probe-a" => build_input_with_adapter_mode(
+            &args,
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeA,
+            "build-input-rmsnorm-fused-adjacent-label-probe-a",
+            "single proof RMSNorm-fused adjacent label probe A input",
+        ),
+        "build-input-rmsnorm-fused-adjacent-label-probe-b" => build_input_with_adapter_mode(
+            &args,
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeB,
+            "build-input-rmsnorm-fused-adjacent-label-probe-b",
+            "single proof RMSNorm-fused adjacent label probe B input",
         ),
         "build-input-rmsnorm-fused-label-probe-b" => build_input_with_adapter_mode(
             &args,

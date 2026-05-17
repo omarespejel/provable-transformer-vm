@@ -169,6 +169,8 @@ const PREPROCESSED_OUTPUT_ANCHOR_ADAPTER_BACKEND_VERSION: &str =
     "stwo-native-attention-mlp-single-proof-object-preprocessed-output-anchor-adapter-v1";
 const RMSNORM_INPUT_FUSED_ADAPTER_BACKEND_VERSION: &str =
     "stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-adapter-v1";
+const RMSNORM_INPUT_FUSED_ADJACENT_ADAPTER_BACKEND_VERSION: &str =
+    "stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1";
 const EXPECTED_NON_CLAIMS: &[&str] = &[
     "not proof-size savings",
     "not a full transformer block",
@@ -268,6 +270,24 @@ const EXPECTED_RMSNORM_INPUT_FUSED_LABEL_PROBE_A_VALIDATION_COMMANDS: &[&str] =
     EXPECTED_RMSNORM_INPUT_FUSED_LABEL_SENSITIVITY_VALIDATION_COMMANDS;
 const EXPECTED_RMSNORM_INPUT_FUSED_LABEL_PROBE_B_VALIDATION_COMMANDS: &[&str] =
     EXPECTED_RMSNORM_INPUT_FUSED_LABEL_SENSITIVITY_VALIDATION_COMMANDS;
+const EXPECTED_RMSNORM_INPUT_FUSED_ADJACENT_LAYOUT_VALIDATION_COMMANDS: &[&str] = &[
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-rmsnorm-fused-adjacent docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-rmsnorm-fused-adjacent-label-probe-a docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-rmsnorm-fused-adjacent-label-probe-b docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.envelope.json > docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-accounting-2026-05.json",
+    "python3 scripts/zkai_native_attention_mlp_rmsnorm_adjacent_layout_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.tsv",
+    "python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_adjacent_layout_gate",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_attention_mlp_single_proof --lib",
+    "git diff --check",
+    "just gate-fast",
+    "just gate",
+];
 const EXPECTED_DUPLICATE_SELECTOR_VALIDATION_COMMANDS: &[&str] = &[
     "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-duplicate-selector docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.input.json",
     "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.envelope.json",
@@ -293,6 +313,12 @@ pub enum ZkAiNativeAttentionMlpAdapterMode {
     PreprocessedOutputAnchorFixed,
     #[serde(rename = "rmsnorm_input_fused_fixed_v1")]
     RmsnormInputFusedFixed,
+    #[serde(rename = "rmsnorm_input_fused_adjacent_fixed_v1")]
+    RmsnormInputFusedAdjacentFixed,
+    #[serde(rename = "rmsnorm_input_fused_adjacent_label_probe_a_v1")]
+    RmsnormInputFusedAdjacentLabelProbeA,
+    #[serde(rename = "rmsnorm_input_fused_adjacent_label_probe_b_v1")]
+    RmsnormInputFusedAdjacentLabelProbeB,
     #[serde(rename = "rmsnorm_input_fused_fixed_label_probe_a_v1")]
     RmsnormInputFusedLabelProbeA,
     #[serde(rename = "rmsnorm_input_fused_fixed_label_probe_b_v1")]
@@ -316,6 +342,9 @@ impl ZkAiNativeAttentionMlpAdapterMode {
                 EXPECTED_PREPROCESSED_OUTPUT_ANCHOR_ADAPTER_STATUS
             }
             Self::RmsnormInputFusedFixed
+            | Self::RmsnormInputFusedAdjacentFixed
+            | Self::RmsnormInputFusedAdjacentLabelProbeA
+            | Self::RmsnormInputFusedAdjacentLabelProbeB
             | Self::RmsnormInputFusedLabelProbeA
             | Self::RmsnormInputFusedLabelProbeB => EXPECTED_RMSNORM_INPUT_FUSED_ADAPTER_STATUS,
         }
@@ -332,6 +361,11 @@ impl ZkAiNativeAttentionMlpAdapterMode {
             Self::RmsnormInputFusedFixed
             | Self::RmsnormInputFusedLabelProbeA
             | Self::RmsnormInputFusedLabelProbeB => RMSNORM_INPUT_FUSED_ADAPTER_BACKEND_VERSION,
+            Self::RmsnormInputFusedAdjacentFixed
+            | Self::RmsnormInputFusedAdjacentLabelProbeA
+            | Self::RmsnormInputFusedAdjacentLabelProbeB => {
+                RMSNORM_INPUT_FUSED_ADJACENT_ADAPTER_BACKEND_VERSION
+            }
         }
     }
 
@@ -345,6 +379,9 @@ impl ZkAiNativeAttentionMlpAdapterMode {
                 ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_VALUE_COLUMNS
             }
             Self::RmsnormInputFusedFixed
+            | Self::RmsnormInputFusedAdjacentFixed
+            | Self::RmsnormInputFusedAdjacentLabelProbeA
+            | Self::RmsnormInputFusedAdjacentLabelProbeB
             | Self::RmsnormInputFusedLabelProbeA
             | Self::RmsnormInputFusedLabelProbeB => ADAPTER_RMSNORM_INPUT_FUSED_BASE_VALUE_COLUMNS,
         }
@@ -360,6 +397,9 @@ impl ZkAiNativeAttentionMlpAdapterMode {
                 ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_TRACE_CELLS
             }
             Self::RmsnormInputFusedFixed
+            | Self::RmsnormInputFusedAdjacentFixed
+            | Self::RmsnormInputFusedAdjacentLabelProbeA
+            | Self::RmsnormInputFusedAdjacentLabelProbeB
             | Self::RmsnormInputFusedLabelProbeA
             | Self::RmsnormInputFusedLabelProbeB => ADAPTER_RMSNORM_INPUT_FUSED_BASE_TRACE_CELLS,
         }
@@ -376,6 +416,11 @@ impl ZkAiNativeAttentionMlpAdapterMode {
                 EXPECTED_PREPROCESSED_OUTPUT_ANCHOR_VALIDATION_COMMANDS
             }
             Self::RmsnormInputFusedFixed => EXPECTED_RMSNORM_INPUT_FUSED_VALIDATION_COMMANDS,
+            Self::RmsnormInputFusedAdjacentFixed
+            | Self::RmsnormInputFusedAdjacentLabelProbeA
+            | Self::RmsnormInputFusedAdjacentLabelProbeB => {
+                EXPECTED_RMSNORM_INPUT_FUSED_ADJACENT_LAYOUT_VALIDATION_COMMANDS
+            }
             Self::RmsnormInputFusedLabelProbeA => {
                 EXPECTED_RMSNORM_INPUT_FUSED_LABEL_PROBE_A_VALIDATION_COMMANDS
             }
@@ -397,8 +442,20 @@ impl ZkAiNativeAttentionMlpAdapterMode {
         matches!(
             self,
             Self::RmsnormInputFusedFixed
+                | Self::RmsnormInputFusedAdjacentFixed
+                | Self::RmsnormInputFusedAdjacentLabelProbeA
+                | Self::RmsnormInputFusedAdjacentLabelProbeB
                 | Self::RmsnormInputFusedLabelProbeA
                 | Self::RmsnormInputFusedLabelProbeB
+        )
+    }
+
+    fn uses_rmsnorm_adjacent_preprocessed_layout(self) -> bool {
+        matches!(
+            self,
+            Self::RmsnormInputFusedAdjacentFixed
+                | Self::RmsnormInputFusedAdjacentLabelProbeA
+                | Self::RmsnormInputFusedAdjacentLabelProbeB
         )
     }
 }
@@ -1404,6 +1461,17 @@ fn combined_preprocessed_trace(
         CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>,
     >,
 ) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
+    if input
+        .adapter_mode
+        .uses_rmsnorm_adjacent_preprocessed_layout()
+    {
+        attention_preprocessed.extend(zkai_d128_rmsnorm_public_row_trace(
+            &input.mlp_input.rmsnorm_input,
+        ));
+        attention_preprocessed.extend(adapter_rmsnorm_input_fused_preprocessed_trace(input)?);
+        attention_preprocessed.extend(mlp_tail_trace(input)?);
+        return Ok(attention_preprocessed);
+    }
     if input.adapter_mode.uses_rmsnorm_input_fused_adapter() {
         attention_preprocessed.extend(adapter_rmsnorm_input_fused_preprocessed_trace(input)?);
     } else {
@@ -1429,6 +1497,9 @@ fn combined_base_trace(
             attention_base.extend(adapter_preprocessed_output_anchor_base_trace(input)?);
         }
         ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedFixed
+        | ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed
+        | ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeA
+        | ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeB
         | ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedLabelProbeA
         | ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedLabelProbeB => {}
     }
@@ -1680,11 +1751,17 @@ fn adapter_bias_q8(index: usize) -> i64 {
 fn mlp_trace(
     input: &ZkAiNativeAttentionMlpSingleProofInput,
 ) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
-    let gate_rows = zkai_d128_gate_value_projection_rows(&input.mlp_input.gate_value_input)?;
     let mut trace = zkai_d128_rmsnorm_public_row_trace(&input.mlp_input.rmsnorm_input);
-    trace.extend(zkai_d128_rmsnorm_to_projection_bridge_trace(
-        &input.mlp_input.projection_bridge_input,
-    ));
+    trace.extend(mlp_tail_trace(input)?);
+    Ok(trace)
+}
+
+fn mlp_tail_trace(
+    input: &ZkAiNativeAttentionMlpSingleProofInput,
+) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
+    let gate_rows = zkai_d128_gate_value_projection_rows(&input.mlp_input.gate_value_input)?;
+    let mut trace =
+        zkai_d128_rmsnorm_to_projection_bridge_trace(&input.mlp_input.projection_bridge_input);
     trace.extend(zkai_d128_gate_value_projection_trace(&gate_rows)?);
     trace.extend(zkai_d128_activation_swiglu_trace(
         &input.mlp_input.activation_input,
@@ -1702,6 +1779,12 @@ fn combined_preprocessed_column_ids(
     adapter_mode: ZkAiNativeAttentionMlpAdapterMode,
 ) -> Result<Vec<PreProcessedColumnId>> {
     let mut ids = zkai_attention_kv_native_d8_fused_softmax_table_preprocessed_column_ids();
+    if adapter_mode.uses_rmsnorm_adjacent_preprocessed_layout() {
+        ids.extend(zkai_d128_rmsnorm_public_row_preprocessed_column_ids());
+        ids.extend(adapter_rmsnorm_input_fused_preprocessed_column_ids());
+        ids.extend(mlp_tail_preprocessed_column_ids());
+        return ensure_unique_preprocessed_ids(ids);
+    }
     if adapter_mode.uses_rmsnorm_input_fused_adapter() {
         ids.extend(adapter_rmsnorm_input_fused_preprocessed_column_ids());
     } else {
@@ -1713,6 +1796,21 @@ fn combined_preprocessed_column_ids(
     ids.extend(zkai_d128_activation_swiglu_preprocessed_column_ids());
     ids.extend(zkai_d128_down_projection_preprocessed_column_ids());
     ids.extend(zkai_d128_residual_add_preprocessed_column_ids());
+    ensure_unique_preprocessed_ids(ids)
+}
+
+fn mlp_tail_preprocessed_column_ids() -> Vec<PreProcessedColumnId> {
+    let mut ids = zkai_d128_rmsnorm_to_projection_bridge_preprocessed_column_ids();
+    ids.extend(zkai_d128_gate_value_projection_preprocessed_column_ids());
+    ids.extend(zkai_d128_activation_swiglu_preprocessed_column_ids());
+    ids.extend(zkai_d128_down_projection_preprocessed_column_ids());
+    ids.extend(zkai_d128_residual_add_preprocessed_column_ids());
+    ids
+}
+
+fn ensure_unique_preprocessed_ids(
+    ids: Vec<PreProcessedColumnId>,
+) -> Result<Vec<PreProcessedColumnId>> {
     let mut seen = BTreeSet::new();
     for id in &ids {
         if !seen.insert(id.id.clone()) {
@@ -2267,6 +2365,29 @@ mod tests {
     }
 
     #[test]
+    fn rmsnorm_input_adjacent_layout_keeps_zero_adapter_base_and_reorders_fixed_columns() {
+        let input = fixture_input_with_mode(
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed,
+        );
+        assert_eq!(
+            input.adapter_mode,
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed
+        );
+        assert_eq!(input.adapter_trace_cells, 0);
+        validate_single_input(&input).expect("adjacent layout input validates");
+
+        let ids =
+            combined_preprocessed_column_ids(input.adapter_mode).expect("adjacent layout ids");
+        let attention_count =
+            zkai_attention_kv_native_d8_fused_softmax_table_preprocessed_column_ids().len();
+        let rmsnorm_count = zkai_d128_rmsnorm_public_row_preprocessed_column_ids().len();
+        let adapter_ids = adapter_rmsnorm_input_fused_preprocessed_column_ids();
+        let adjacent_slice = &ids
+            [attention_count + rmsnorm_count..attention_count + rmsnorm_count + adapter_ids.len()];
+        assert_eq!(adjacent_slice, adapter_ids.as_slice());
+    }
+
+    #[test]
     fn rmsnorm_input_fused_label_probes_preserve_constraints_but_change_statement() {
         let canonical =
             fixture_input_with_mode(ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedFixed);
@@ -2387,6 +2508,9 @@ mod tests {
             ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedFixed,
             ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedLabelProbeA,
             ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedLabelProbeB,
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed,
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeA,
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeB,
         ] {
             let ids = combined_preprocessed_column_ids(mode).expect("ids");
             let unique = ids.iter().map(|id| id.id.clone()).collect::<BTreeSet<_>>();

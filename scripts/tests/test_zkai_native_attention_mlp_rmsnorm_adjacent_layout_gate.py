@@ -1,0 +1,79 @@
+import copy
+import tempfile
+import unittest
+
+from scripts import zkai_native_attention_mlp_rmsnorm_adjacent_layout_gate as gate
+
+
+class RmsnormAdjacentLayoutGateTest(unittest.TestCase):
+    def test_build_payload_records_no_go_and_layout_saving(self) -> None:
+        payload = gate.build_payload()
+        self.assertEqual(
+            payload["decision"],
+            "NO_GO_WORST_LABEL_FRONTIER_PROMOTION_BUT_GO_LAYOUT_LEVER",
+        )
+        self.assertEqual(payload["adjacent_canonical_typed_bytes"], 40_948)
+        self.assertEqual(payload["adjacent_canonical_saving_vs_canonical_typed_bytes"], 480)
+        self.assertEqual(payload["adjacent_canonical_delta_vs_frontier_typed_bytes"], 248)
+        self.assertEqual(payload["adjacent_worst_label_typed_bytes"], 42_724)
+        self.assertEqual(payload["adjacent_worst_label_delta_vs_frontier_typed_bytes"], 2_024)
+        self.assertEqual(payload["adjacent_label_span_typed_bytes"], 1_776)
+        self.assertEqual(len(payload["mutation_results"]), 12)
+        self.assertTrue(all(entry["rejected"] for entry in payload["mutation_results"]))
+
+    def test_payload_rejects_frontier_overclaim(self) -> None:
+        payload = gate.build_payload()
+        payload["decision"] = "GO_FRONTIER_PROMOTION"
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.AdjacentLayoutGateError):
+            gate.validate_payload(payload)
+
+    def test_payload_rejects_worst_label_erasure(self) -> None:
+        payload = gate.build_payload()
+        payload["adjacent_worst_label_typed_bytes"] = 40_699
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.AdjacentLayoutGateError):
+            gate.validate_payload(payload)
+
+    def test_payload_rejects_group_drift(self) -> None:
+        payload = gate.build_payload()
+        payload["variants"]["adjacent_layout"]["typed_groups"]["fri_decommitments"] = 0
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.AdjacentLayoutGateError):
+            gate.validate_payload(payload)
+
+    def test_payload_rejects_non_claim_erasure(self) -> None:
+        payload = gate.build_payload()
+        payload["non_claims"] = []
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        with self.assertRaises(gate.AdjacentLayoutGateError):
+            gate.validate_payload(payload)
+
+    def test_payload_rejects_commitment_drift(self) -> None:
+        payload = gate.build_payload()
+        payload["payload_commitment"] = "blake2b-256:" + "0" * 64
+        with self.assertRaises(gate.AdjacentLayoutGateError):
+            gate.validate_payload(payload)
+
+    def test_mutation_inventory_is_exact(self) -> None:
+        payload = gate.build_payload()
+        mutations = copy.deepcopy(payload["mutation_results"])
+        mutations.append({"name": "extra", "rejected": True, "reason": "extra"})
+        with self.assertRaises(gate.AdjacentLayoutGateError):
+            gate.validate_mutation_results(mutations)
+
+    def test_tsv_includes_adjacent_bad_label(self) -> None:
+        payload = gate.build_payload()
+        text = gate.tsv_text(payload)
+        self.assertIn("adjacent_label_probe_b\t42724\t2024\t21808", text)
+        self.assertIn("no_go_worst_label", text)
+
+    def test_write_outputs_rejects_non_evidence_path(self) -> None:
+        payload = gate.build_payload()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with self.assertRaises(gate.AdjacentLayoutGateError):
+                gate.write_outputs(payload, gate.pathlib.Path(tmpdir) / "payload.json", None)
+
+
+if __name__ == "__main__":
+    unittest.main()
