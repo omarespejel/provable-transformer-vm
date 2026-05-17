@@ -109,6 +109,33 @@ EXTERNAL_SOURCE_STATUSES = (
     "source_context",
 )
 
+REQUIRED_ROW_NON_CLAIMS = {
+    "nanozk_paper_reported_context": (
+        "not a NANOZK proof-size win",
+        "not locally reproduced",
+    ),
+    "gkr_tiny_gemm_sidecar": (
+        "not a matched d128 transformer-block proof",
+        "not a NANOZK proof-size win",
+    ),
+    "gkr_tiny_residual_add_heavier_shape": (
+        "not a matched d128 transformer-block proof",
+        "not a GKR matched d128 proof-size win",
+    ),
+    "gkr_tiny_layernorm_heavier_shape": (
+        "not a matched d128 transformer-block proof",
+        "not a GKR matched d128 proof-size win",
+    ),
+    "jolt_atlas_repo_gpt2_timing_context": (
+        "not a timing win over Jolt Atlas",
+        "not locally reproduced",
+    ),
+    "jolt_atlas_self_attention_reproduction_target": (
+        "not a local reproduction of Jolt Atlas",
+        "not a Jolt Atlas proof-size win",
+    ),
+}
+
 SOURCE_SCHEMAS = {
     "minimal": "zkai-minimal-transformer-block-benchmark-v1",
     "gkr": "zkai-gkr-dense-sidecar-baseline-v1",
@@ -569,16 +596,21 @@ def is_external_source_status(source_status: str) -> bool:
 
 
 def validate_non_claim_inventory(payload: dict[str, Any]) -> None:
-    non_claims = set(non_claims_from(payload))
-    required = {
-        "not a NANOZK proof-size win",
-        "not a Jolt Atlas proof-size win",
-        "not a GKR matched d128 proof-size win",
-        "not a compact statement-binding proof-size comparison",
-    }
-    missing = sorted(required - non_claims)
-    if missing:
-        raise ClaimAuditError(f"global non-claim drift: {missing[0]}")
+    claims = non_claims_from(payload)
+    claim_set = set(claims)
+    expected = set(NON_CLAIMS)
+    if len(claims) != len(NON_CLAIMS) or claim_set != expected:
+        missing = sorted(expected - claim_set)
+        extra = sorted(claim_set - expected)
+        raise ClaimAuditError(f"global non-claim drift: missing={missing[:1]} extra={extra[:1]}")
+
+
+def validate_source_artifacts(source_artifacts: list[Any]) -> None:
+    if len(source_artifacts) != len(SOURCE_PATHS):
+        raise ClaimAuditError("source artifact count drift")
+    expected_artifacts = base_payload(load_sources())["source_artifacts"]
+    if source_artifacts != expected_artifacts:
+        raise ClaimAuditError("source artifact descriptor drift")
 
 
 def validate_row(row: dict[str, Any]) -> None:
@@ -624,7 +656,8 @@ def validate_row(row: dict[str, Any]) -> None:
         raise ClaimAuditError(f"{row_id} proof-size comparability overclaim")
     if "not_reported" in proof_size_policy and proof_size_comparable:
         raise ClaimAuditError(f"{row_id} proof size not reported but comparable")
-    if "timing" in require_str(row["primary_metric"], f"{row_id} metric").lower() and "not local" not in timing_policy and "repo_reported" not in timing_policy:
+    metric_lower = require_str(row["primary_metric"], f"{row_id} metric").lower()
+    if ("time" in metric_lower or metric_lower.endswith("_seconds")) and "not local" not in timing_policy and "repo_reported" not in timing_policy:
         raise ClaimAuditError(f"{row_id} timing policy missing source qualifier")
     if timing_policy in {"", "NA", "unknown"}:
         raise ClaimAuditError(f"{row_id} timing policy missing")
@@ -632,12 +665,10 @@ def validate_row(row: dict[str, Any]) -> None:
         raise ClaimAuditError("favorable-label policy drift")
     if row_id == "rmsnorm_worst_label_opening_target" and row["primary_value"] != 1401:
         raise ClaimAuditError("worst-label required reduction drift")
-    if "nanozk" in row_id and not any("NANOZK" in claim for claim in non_claims):
-        raise ClaimAuditError(f"{row_id} NANOZK non-claim missing")
-    if "jolt" in row_id and not any("Jolt" in claim for claim in non_claims):
-        raise ClaimAuditError(f"{row_id} Jolt non-claim missing")
-    if "gkr" in row_id and not any("GKR" in claim or "matched d128" in claim for claim in non_claims):
-        raise ClaimAuditError(f"{row_id} GKR non-claim missing")
+    required_non_claims = REQUIRED_ROW_NON_CLAIMS.get(row_id, ())
+    for required in required_non_claims:
+        if required not in non_claims:
+            raise ClaimAuditError(f"{row_id} exact non-claim missing: {required}")
 
 
 def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
@@ -665,19 +696,7 @@ def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
     if payload.get("result") != RESULT:
         raise ClaimAuditError("result drift")
     validate_non_claim_inventory(payload)
-    source_artifacts = require_list(payload.get("source_artifacts"), "source artifacts")
-    if len(source_artifacts) != len(SOURCE_PATHS):
-        raise ClaimAuditError("source artifact count drift")
-    for descriptor in source_artifacts:
-        artifact = require_dict(descriptor, "source artifact")
-        if set(artifact) - {"path", "file_sha256", "payload_sha256", "schema", "decision"}:
-            raise ClaimAuditError("source artifact field drift")
-        file_sha = require_str(artifact.get("file_sha256"), "source file sha")
-        payload_sha = require_str(artifact.get("payload_sha256"), "source payload sha")
-        if len(file_sha) != 64 or set(file_sha) == {"0"}:
-            raise ClaimAuditError("source artifact file digest drift")
-        if len(payload_sha) != 64 or set(payload_sha) == {"0"}:
-            raise ClaimAuditError("source artifact payload digest drift")
+    validate_source_artifacts(require_list(payload.get("source_artifacts"), "source artifacts"))
     rows = require_list(payload.get("audit_rows"), "audit rows")
     row_ids = [require_str(require_dict(row, "audit row").get("row_id"), "row id") for row in rows]
     if len(row_ids) != len(set(row_ids)):
@@ -779,6 +798,10 @@ def mutate_missing_timing_policy(payload: dict[str, Any]) -> None:
     row_by_id(payload["audit_rows"], "jolt_atlas_repo_gpt2_timing_context")["timing_policy"] = ""
 
 
+def mutate_unqualified_timing_policy(payload: dict[str, Any]) -> None:
+    row_by_id(payload["audit_rows"], "jolt_atlas_repo_gpt2_timing_context")["timing_policy"] = "benchmark_timing"
+
+
 def mutate_single_best_label_promoted(payload: dict[str, Any]) -> None:
     row_by_id(payload["audit_rows"], "rmsnorm_single_best_label_rejected")["proof_size_policy"] = "single best label accepted as frontier"
 
@@ -815,6 +838,7 @@ MUTATIONS: tuple[tuple[str, Callable[[dict[str, Any]], None]], ...] = (
     ("gkr_matched_d128", mutate_gkr_matched_d128),
     ("missing_object_class", mutate_missing_object_class),
     ("missing_timing_policy", mutate_missing_timing_policy),
+    ("unqualified_timing_policy", mutate_unqualified_timing_policy),
     ("single_best_label_promoted", mutate_single_best_label_promoted),
     ("remove_nanozk_non_claim", mutate_remove_nanozk_non_claim),
     ("remove_jolt_non_claim", mutate_remove_jolt_non_claim),

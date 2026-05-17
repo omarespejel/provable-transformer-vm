@@ -21,8 +21,8 @@ class ClaimAuditComparisonArtifactsGateTest(unittest.TestCase):
         self.assertEqual(payload["summary"]["gkr_tiny_residual_add_proof_bytes"], 56_054)
         self.assertEqual(payload["summary"]["gkr_tiny_layernorm_proof_bytes"], 52_080)
         self.assertEqual(payload["summary"]["worst_label_required_reduction_bytes"], 1_401)
-        self.assertEqual(payload["mutation_count"], 13)
-        self.assertEqual(payload["mutations_rejected"], 13)
+        self.assertEqual(payload["mutation_count"], 14)
+        self.assertEqual(payload["mutations_rejected"], 14)
 
     def test_audit_rows_keep_object_classes_and_reproduction_status_explicit(self) -> None:
         rows = gate.build_payload()["audit_rows"]
@@ -80,6 +80,12 @@ class ClaimAuditComparisonArtifactsGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.ClaimAuditError, "timing policy"):
             gate.validate_payload(payload, final=False)
 
+    def test_rejects_unqualified_timing_policy(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        gate.mutate_unqualified_timing_policy(payload)
+        with self.assertRaisesRegex(gate.ClaimAuditError, "timing policy missing source qualifier"):
+            gate.validate_payload(payload, final=False)
+
     def test_rejects_single_best_label_promotion(self) -> None:
         payload = gate.base_payload(gate.load_sources())
         gate.mutate_single_best_label_promoted(payload)
@@ -101,7 +107,7 @@ class ClaimAuditComparisonArtifactsGateTest(unittest.TestCase):
     def test_rejects_source_artifact_digest_drift(self) -> None:
         payload = gate.base_payload(gate.load_sources())
         gate.mutate_source_artifact_digest(payload)
-        with self.assertRaisesRegex(gate.ClaimAuditError, "source artifact file digest drift"):
+        with self.assertRaisesRegex(gate.ClaimAuditError, "source artifact descriptor drift"):
             gate.validate_payload(payload, final=False)
 
     def test_payload_commitment_rejects_drift(self) -> None:

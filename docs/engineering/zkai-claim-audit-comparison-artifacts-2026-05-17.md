@@ -20,7 +20,7 @@ Checked inventory:
 - audit rows: `13`
 - object classes: `10`
 - proof-size-comparable rows: `0`
-- adversarial mutations rejected: `13 / 13`
+- adversarial mutations rejected: `14 / 14`
 - local Stwo two-proof frontier: `40,700` typed bytes
 - NANOZK paper-reported context row: `6,900` bytes
 - GKR tiny `Gemm` sidecar: `11,645` proof bytes
@@ -43,6 +43,7 @@ The gate rejects:
 - GKR tiny fixtures promoted to matched d128 transformer-layer comparisons;
 - rows without explicit object classes;
 - timing rows without timing policy;
+- timing rows losing their source qualifier;
 - favorable-label RMSNorm metrics replacing the worst-label policy;
 - required NANOZK, Jolt Atlas, GKR, and compact-statement non-claims being
   removed;

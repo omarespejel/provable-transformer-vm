@@ -284,7 +284,7 @@
   ],
   "decision": "GO_ADVERSARIAL_ZKML_CLAIM_AUDIT_NO_GO_UNTYPED_COMPARISONS",
   "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/653",
-  "mutation_count": 13,
+  "mutation_count": 14,
   "mutation_results": [
     {
       "accepted": false,
@@ -318,23 +318,28 @@
     },
     {
       "accepted": false,
+      "name": "unqualified_timing_policy",
+      "reason": "jolt_atlas_repo_gpt2_timing_context timing policy missing source qualifier"
+    },
+    {
+      "accepted": false,
       "name": "single_best_label_promoted",
       "reason": "favorable-label policy drift"
     },
     {
       "accepted": false,
       "name": "remove_nanozk_non_claim",
-      "reason": "global non-claim drift: not a NANOZK proof-size win"
+      "reason": "global non-claim drift: missing=['not a NANOZK proof-size win'] extra=[]"
     },
     {
       "accepted": false,
       "name": "remove_jolt_non_claim",
-      "reason": "global non-claim drift: not a Jolt Atlas proof-size win"
+      "reason": "global non-claim drift: missing=['not a Jolt Atlas proof-size win'] extra=[]"
     },
     {
       "accepted": false,
       "name": "remove_gkr_non_claim",
-      "reason": "global non-claim drift: not a GKR matched d128 proof-size win"
+      "reason": "global non-claim drift: missing=['not a GKR matched d128 proof-size win'] extra=[]"
     },
     {
       "accepted": false,
@@ -349,10 +354,10 @@
     {
       "accepted": false,
       "name": "source_artifact_digest",
-      "reason": "source artifact file digest drift"
+      "reason": "source artifact descriptor drift"
     }
   ],
-  "mutations_rejected": 13,
+  "mutations_rejected": 14,
   "non_claims": [
     "not a NANOZK proof-size win",
     "not a Jolt Atlas proof-size win",
@@ -362,7 +367,7 @@
     "not a full transformer block proof",
     "not timing evidence unless timing_policy is explicit"
   ],
-  "payload_commitment": "blake2b-256:984b45d8de15177a33029de8b59df7971378848545d860df29ce86a15cc8fd1a",
+  "payload_commitment": "blake2b-256:ede37dd96f9fa7717ce3c5bcc9dbc7e832cc78b799a8ea4ef4d533f52c979e98",
   "result": "COMPARISON_MATRIX_REJECTS_OBJECT_CLASS_AND_REPRODUCTION_OVERCLAIMS",
   "schema": "zkai-claim-audit-comparison-artifacts-v1",
   "source_artifacts": [
