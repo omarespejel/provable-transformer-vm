@@ -1,0 +1,215 @@
+{
+  "claim_boundary": "RMSNORM_INPUT_FUSED_OPENING_LAYOUT_CLAIMS_REQUIRE_A_MULTI_LABEL_INVENTORY;_CURRENT_INVENTORY_DOES_NOT_BEAT_THE_TWO_PROOF_FRONTIER",
+  "decision": "NO_GO_MULTI_LABEL_FRONTIER_PROMOTION",
+  "frontier": {
+    "compact_selector_typed_bytes": 40812,
+    "frontier_win_claimed": false,
+    "nanozk_reported_d128_block_proof_bytes": 6900,
+    "nanozk_win_claimed": false,
+    "nanozk_workload_matched": false,
+    "two_proof_frontier_typed_bytes": 40700
+  },
+  "interpretation": {
+    "human_read": "The best observed label is only 136 typed bytes above the two-proof frontier, but the worst label in the current RMSNorm-input inventory is 1,400 bytes above it. Under an honest worst-label policy the next route must remove 1,401 typed bytes, not 137, before a frontier promotion is allowed.",
+    "next_attack": "A future opening-layout variant must report the full label inventory and beat the two-proof frontier under the worst observed label. Single favorable labels are recorded as exploration only."
+  },
+  "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/644",
+  "label_inventory": [
+    {
+      "name": "rmsnorm_input_fused",
+      "path_opening_bytes": 20512,
+      "typed_bytes": 41428,
+      "value_bytes": 20868,
+      "value_delta_vs_canonical": 0
+    },
+    {
+      "name": "label_probe_a",
+      "path_opening_bytes": 19920,
+      "typed_bytes": 40836,
+      "value_bytes": 20868,
+      "value_delta_vs_canonical": 0
+    },
+    {
+      "name": "label_probe_b",
+      "path_opening_bytes": 21184,
+      "typed_bytes": 42100,
+      "value_bytes": 20868,
+      "value_delta_vs_canonical": 0
+    }
+  ],
+  "mutation_result": {
+    "cases": [
+      {
+        "name": "frontier_overclaim",
+        "rejected": true
+      },
+      {
+        "name": "nanozk_overclaim",
+        "rejected": true
+      },
+      {
+        "name": "worst_label_typed_drift",
+        "rejected": true
+      },
+      {
+        "name": "worst_policy_reduction_drift",
+        "rejected": true
+      },
+      {
+        "name": "single_label_promoted",
+        "rejected": true
+      },
+      {
+        "name": "label_span_erased",
+        "rejected": true
+      },
+      {
+        "name": "candidate_missing_worst_label",
+        "rejected": true
+      },
+      {
+        "name": "source_digest_drift",
+        "rejected": true
+      },
+      {
+        "name": "source_commitment_drift",
+        "rejected": true
+      },
+      {
+        "name": "decision_drift",
+        "rejected": true
+      },
+      {
+        "name": "result_drift",
+        "rejected": true
+      },
+      {
+        "name": "claim_boundary_drift",
+        "rejected": true
+      },
+      {
+        "name": "non_claims_erased",
+        "rejected": true
+      },
+      {
+        "name": "validation_commands_erased",
+        "rejected": true
+      },
+      {
+        "name": "interpretation_drift",
+        "rejected": true
+      },
+      {
+        "name": "policy_extra_key",
+        "rejected": true
+      },
+      {
+        "name": "payload_commitment_drift",
+        "rejected": true
+      }
+    ],
+    "mutation_count": 17,
+    "rejected_count": 17
+  },
+  "non_claims": [
+    "not a two-proof frontier beat",
+    "not a proof-size win",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not timing evidence",
+    "not a full transformer block proof",
+    "not production-ready zkML"
+  ],
+  "payload_commitment": "blake2b-256:7adbdfec5773bdd946ab2d745c2e449cd075269ff35587336d4d3f199d6ce4ac",
+  "policy_candidates": {
+    "canonical_label": {
+      "cherry_pick_risk": false,
+      "compact_promotable": false,
+      "delta_vs_compact_selector_bytes": 616,
+      "delta_vs_two_proof_frontier_bytes": 728,
+      "frontier_promotable": false,
+      "label_source": "rmsnorm_input_fused",
+      "name": "canonical_label",
+      "reduction_to_beat_compact_selector_bytes": 617,
+      "reduction_to_beat_frontier_bytes": 729,
+      "typed_bytes": 41428
+    },
+    "mean_two_label_probes": {
+      "cherry_pick_risk": true,
+      "compact_promotable": false,
+      "delta_vs_compact_selector_bytes": 656,
+      "delta_vs_two_proof_frontier_bytes": 768,
+      "frontier_promotable": false,
+      "label_source": "mean(label_probe_a,label_probe_b)",
+      "name": "mean_two_label_probes",
+      "reduction_to_beat_compact_selector_bytes": 657,
+      "reduction_to_beat_frontier_bytes": 769,
+      "typed_bytes": 41468
+    },
+    "single_best_label": {
+      "cherry_pick_risk": true,
+      "compact_promotable": false,
+      "delta_vs_compact_selector_bytes": 24,
+      "delta_vs_two_proof_frontier_bytes": 136,
+      "frontier_promotable": false,
+      "label_source": "label_probe_a",
+      "name": "single_best_label",
+      "reduction_to_beat_compact_selector_bytes": 25,
+      "reduction_to_beat_frontier_bytes": 137,
+      "typed_bytes": 40836
+    },
+    "worst_label_inventory": {
+      "cherry_pick_risk": false,
+      "compact_promotable": false,
+      "delta_vs_compact_selector_bytes": 1288,
+      "delta_vs_two_proof_frontier_bytes": 1400,
+      "frontier_promotable": false,
+      "label_source": "label_probe_b",
+      "name": "worst_label_inventory",
+      "reduction_to_beat_compact_selector_bytes": 1289,
+      "reduction_to_beat_frontier_bytes": 1401,
+      "typed_bytes": 42100
+    }
+  },
+  "promotion_policy": {
+    "multi_label_frontier_promotable": false,
+    "policy": "worst_label_inventory_must_beat_two_proof_frontier",
+    "required_reduction_to_beat_compact_selector_bytes": 1289,
+    "required_reduction_to_beat_frontier_bytes": 1401,
+    "single_label_cherry_pick_rejected": true,
+    "single_label_frontier_promotable": false
+  },
+  "result": "WORST_LABEL_INVENTORY_REQUIRES_1401_TYPED_BYTE_REDUCTION_BEFORE_PROMOTION",
+  "schema": "zkai-native-attention-mlp-rmsnorm-label-policy-gate-v1",
+  "source_artifacts": [
+    {
+      "name": "label_sensitivity_gate",
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05.json",
+      "payload_commitment": "blake2b-256:ca919cd12acdfb5783a1c017d0b64bdba62adae082c8cf503af739076720df2a",
+      "sha256": "03777754ecf0a99f1ef7371cc038be99bd4471aeac3861ddf9a225697cf29f30"
+    }
+  ],
+  "summary": {
+    "best_observed_label": "label_probe_a",
+    "best_observed_label_delta_vs_frontier_bytes": 136,
+    "best_observed_label_typed_bytes": 40836,
+    "canonical_label_reduction_to_beat_frontier_bytes": 729,
+    "label_span_typed_bytes": 1264,
+    "mean_two_label_probes_reduction_to_beat_frontier_bytes": 769,
+    "single_best_label_reduction_to_beat_frontier_bytes": 137,
+    "value_delta_preserved_across_labels": true,
+    "worst_label_inventory": "label_probe_b",
+    "worst_label_inventory_delta_vs_frontier_bytes": 1400,
+    "worst_label_inventory_reduction_to_beat_compact_selector_bytes": 1289,
+    "worst_label_inventory_reduction_to_beat_frontier_bytes": 1401,
+    "worst_label_inventory_typed_bytes": 42100
+  },
+  "validation_commands": [
+    "python3 scripts/zkai_native_attention_mlp_rmsnorm_label_policy_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05.tsv",
+    "python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_label_policy_gate",
+    "python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_label_sensitivity_gate",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}

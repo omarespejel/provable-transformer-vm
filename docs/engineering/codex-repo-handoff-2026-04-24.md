@@ -398,6 +398,35 @@ RMSNorm-input label-sensitivity reproducibility metadata:
   `cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_fused_label_probe --lib`;
   `cargo +nightly-2025-07-14 test --locked --features stwo-backend native_attention_mlp_single_proof --lib`.
 
+Latest RMSNorm-input label-policy gate: issue `#644` now has a checked
+multi-label promotion policy. A future RMSNorm-input opening-layout result must
+beat the `40,700` typed-byte two-proof frontier under the worst label in the
+checked inventory, not under one favorable transcript. The current best label is
+`40,836` typed bytes (`+136`, needing `137` bytes to beat the frontier), but the
+worst label is `42,100` typed bytes (`+1,400`, needing `1,401` bytes to beat the
+frontier). The policy gate rejects `17 / 17` promotion, metric, source,
+interpretation, non-claim, and payload-commitment drift cases. This is a
+NO-GO for frontier promotion and a GO for using worst-label inventory as the
+next opening-layout promotion rule; see
+`docs/engineering/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05-17.md`.
+
+RMSNorm-input label-policy reproducibility metadata:
+
+- Timing mode: proof-size accounting policy only; no new proof object and no
+  median-of-5 timing claim.
+- Source artifact:
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05.json`
+  with payload commitment
+  `blake2b-256:ca919cd12acdfb5783a1c017d0b64bdba62adae082c8cf503af739076720df2a`.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05.json`
+  and
+  `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05.tsv`.
+- Gate command:
+  `python3 scripts/zkai_native_attention_mlp_rmsnorm_label_policy_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-policy-2026-05.tsv`.
+- Local policy tests:
+  `python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_label_policy_gate`.
+
 Adapter opening-geometry budget reproducibility metadata:
 
 - Timing mode: proof-size accounting only; no proof regeneration, timing, or

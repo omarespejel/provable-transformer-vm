@@ -1,0 +1,5 @@
+policy_candidate	typed_bytes	delta_vs_two_proof_frontier_bytes	reduction_to_beat_frontier_bytes	delta_vs_compact_selector_bytes	reduction_to_beat_compact_selector_bytes	frontier_promotable	cherry_pick_risk
+single_best_label	40836	136	137	24	25	false	true
+canonical_label	41428	728	729	616	617	false	false
+mean_two_label_probes	41468	768	769	656	657	false	true
+worst_label_inventory	42100	1400	1401	1288	1289	false	false
