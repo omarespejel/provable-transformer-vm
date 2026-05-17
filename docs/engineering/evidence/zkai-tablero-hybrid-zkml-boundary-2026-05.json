@@ -243,7 +243,7 @@
   ],
   "decision": "GO_TABLERO_TYPED_BOUNDARIES_FOR_HYBRID_ZKML_OBJECTS",
   "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/652",
-  "mutation_count": 12,
+  "mutation_count": 13,
   "mutation_results": [
     {
       "name": "compact_statement_as_native_overclaim",
@@ -281,6 +281,11 @@
       "rejected": true
     },
     {
+      "name": "atlas_unavailable_binding_relabel",
+      "reason": "binding object drift",
+      "rejected": true
+    },
+    {
       "name": "statement_commitment_drift",
       "reason": "statement commitment drift",
       "rejected": true
@@ -306,7 +311,7 @@
       "rejected": true
     }
   ],
-  "mutations_rejected": 12,
+  "mutations_rejected": 13,
   "non_claims": [
     "not a recursive composition proof",
     "not a claim that Tablero verifies external proofs itself",
@@ -317,7 +322,7 @@
     "not a full transformer block proof",
     "not exact real-valued transformer arithmetic"
   ],
-  "payload_commitment": "blake2b-256:62dcf294c0b1a36bfb657f8599ebeb08994357c1ba7688b05a37b98d7254c1b6",
+  "payload_commitment": "blake2b-256:be90671e52a2bf38cc7106d55d615c5f390442a37dc5cae9e4226350e0fe9554",
   "result": "TYPED_BOUNDARY_SCHEMA_REJECTS_HYBRID_OBJECT_CLASS_CONFUSION",
   "schema": "zkai-tablero-hybrid-zkml-boundary-v1",
   "source_artifacts": [
