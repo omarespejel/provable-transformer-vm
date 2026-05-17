@@ -21,14 +21,14 @@ class MinimalTransformerBlockBenchmarkGateTest(unittest.TestCase):
         self.assertTrue(payload["summary"]["missing_native_block_proof_object"])
         self.assertEqual(payload["summary"]["two_proof_frontier_typed_bytes"], 40_700)
         self.assertEqual(payload["summary"]["adjacent_worst_label_gap_typed_bytes"], 2_024)
-        self.assertEqual(payload["summary"]["gap_to_nanozk_from_two_proof_frontier_typed_bytes"], 33_800)
+        self.assertEqual(payload["summary"]["typed_accounting_gap_to_nanozk_reported_proof_bytes"], 33_800)
         self.assertEqual(
             payload["summary"]["adjacent_worst_label_gap_typed_bytes"],
             payload["summary"]["adjacent_worst_label_typed_bytes"]
             - payload["summary"]["two_proof_frontier_typed_bytes"],
         )
         self.assertEqual(
-            payload["summary"]["gap_to_nanozk_from_two_proof_frontier_typed_bytes"],
+            payload["summary"]["typed_accounting_gap_to_nanozk_reported_proof_bytes"],
             payload["summary"]["two_proof_frontier_typed_bytes"]
             - payload["summary"]["nanozk_reported_d128_block_proof_bytes"],
         )
@@ -76,7 +76,9 @@ class MinimalTransformerBlockBenchmarkGateTest(unittest.TestCase):
 
     def test_accepts_component_rows_reordered_by_stable_component_key(self) -> None:
         payload = gate.build_payload()
+        original_commitment = payload["payload_commitment"]
         payload["component_rows"] = list(reversed(payload["component_rows"]))
+        self.assertEqual(gate.payload_commitment(payload), original_commitment)
         payload["payload_commitment"] = gate.payload_commitment(payload)
         gate.validate_payload(payload)
 
