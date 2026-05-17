@@ -635,7 +635,7 @@ def validate_row(row: dict[str, Any]) -> None:
         raise ClaimAuditError(f"{row_id} claim boundary too weak")
     if is_external_source_status(source_status) and locally_reproduced:
         raise ClaimAuditError(f"{row_id} external source marked local")
-    local_like_status = source_status.startswith("local") or source_status.startswith("GO") or source_status == "LOCAL_COMPONENT_FRONTIER"
+    local_like_status = source_status.startswith(("local", "GO")) or source_status == "LOCAL_COMPONENT_FRONTIER"
     if not local_like_status and locally_reproduced:
         raise ClaimAuditError(f"{row_id} non-local status marked reproduced")
     if "statement" in object_class and (native_equivalent or proof_size_comparable):
