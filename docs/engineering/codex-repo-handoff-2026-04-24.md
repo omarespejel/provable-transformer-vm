@@ -4,7 +4,7 @@ This is the tracked GitHub-safe mirror of the local `.codex` handoff notes.
 If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 `.codex/HANDOFF.md` first. This file is the durable shared resume surface.
 
-**Mainline tip at last refresh:** `4988e63a` (matches
+**Mainline tip at last refresh:** `b6008fb99d47c7daf2c187fc3f3322b30b8cf0e9` (matches
 `.codex/HANDOFF.md` “Mainline reference at refresh”; update both together).
 
 ## Read order for a fresh agent
@@ -86,8 +86,11 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 75. `docs/engineering/zkai-gkr-dense-sidecar-baseline-2026-05-17.md`
 76. `docs/engineering/zkai-jolt-atlas-lookup-tensor-comparison-2026-05-17.md`
 77. `docs/engineering/zkai-tablero-hybrid-zkml-boundary-2026-05-17.md`
-78. `docs/engineering/reproducibility.md`
-79. `git status --short --branch`
+78. `docs/engineering/zkai-claim-audit-comparison-artifacts-2026-05-17.md`
+79. `docs/engineering/zkai-hybrid-proof-pressure-selector-2026-05-17.md`
+80. `docs/engineering/zkai-gkr-d128-projection-scaling-preflight-2026-05-17.md`
+81. `docs/engineering/reproducibility.md`
+82. `git status --short --branch`
 
 ## Current lane split
 
@@ -710,6 +713,35 @@ Hybrid selector reproducibility metadata:
   `python3 scripts/zkai_hybrid_proof_pressure_selector_gate.py --write-json docs/engineering/evidence/zkai-hybrid-proof-pressure-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-hybrid-proof-pressure-selector-2026-05.tsv`.
 - Local tests:
   `python3 -m unittest scripts.tests.test_zkai_hybrid_proof_pressure_selector_gate`.
+
+Latest GKR d128 projection scaling preflight: issue `#663` checks the first
+route selected by the hybrid proof-pressure matrix before spending a full PR on
+a `d128` JSTprove/Remainder projection. The tempting tiny scalar GKR `Gemm`
+signal remains `11,645` proof bytes (`0.711797x` the local Stwo `d128`
+gate/value baseline of `16,360` typed bytes), but the width-preserving
+preflight does not survive scaling: dim `2` is `71,040` proof bytes, dim `4`
+is `70,138` proof bytes, and the smallest width-preserving row is `4.287164x`
+the local Stwo gate/value baseline, `3.106751x` the local Stwo dense substitute
+of `22,576` typed bytes, and `10.164928x` the NANOZK paper context row of
+`6,900` bytes. Treat this as
+`NO_GO_JSTPROVE_D128_PROJECTION_SCALING_PREFLIGHT_KEEP_GKR_AS_BASELINE`: GKR
+stays useful as a baseline/sidecar lane, but the next main attack remains the
+native `d128` block object unless a live dim `8/16/32` GKR sweep or another GKR
+backend changes the evidence. See
+`docs/engineering/zkai-gkr-d128-projection-scaling-preflight-2026-05-17.md`.
+
+GKR d128 projection preflight reproducibility metadata:
+
+- Timing mode: validation-only; no proof generation, local timing, or
+  median-of-5 claim.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-gkr-d128-projection-scaling-preflight-2026-05.json`
+  and
+  `docs/engineering/evidence/zkai-gkr-d128-projection-scaling-preflight-2026-05.tsv`.
+- Gate command:
+  `python3 scripts/zkai_gkr_d128_projection_scaling_preflight_gate.py --write-json docs/engineering/evidence/zkai-gkr-d128-projection-scaling-preflight-2026-05.json --write-tsv docs/engineering/evidence/zkai-gkr-d128-projection-scaling-preflight-2026-05.tsv`.
+- Local tests:
+  `python3 -m unittest scripts.tests.test_zkai_gkr_d128_projection_scaling_preflight_gate`.
 
 Adapter opening-geometry budget reproducibility metadata:
 
