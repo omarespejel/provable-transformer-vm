@@ -44,7 +44,7 @@
       "rejected": true
     },
     {
-      "error": "selected route evidence drift",
+      "error": "selected route evidence drift: expected 'six-component MLP fusion saves 32,144 typed bytes while current adapter/reorder routes are label-fragile', got 'ignore adapter binding and use the smaller statement artifact'",
       "name": "native_adapter_binding_demoted",
       "rejected": true
     },
@@ -78,7 +78,7 @@
     "not evidence that GKR replaces Stwo",
     "not production zkML"
   ],
-  "payload_commitment": "blake2b-256:14cbf1149f74bebb6fa96a8baf431eb93320a7ab943c02fe4ff49980cbaa7420",
+  "payload_commitment": "blake2b-256:e46dfc8259df538b1cc30681a8e99dfda93bf11c0bfb8b7b9b8e7196a1f4e053",
   "result": "PIVOT_TO_LARGER_NATIVE_BOUNDARY_NOT_LOCAL_REORDER_OR_CURRENT_GKR",
   "routes": [
     {
