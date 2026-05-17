@@ -2388,6 +2388,31 @@ mod tests {
     }
 
     #[test]
+    fn rmsnorm_input_adjacent_adapter_round_trip_verifies_and_rejects_relabeling() {
+        let input = fixture_input_with_mode(
+            ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed,
+        );
+        validate_single_input(&input).expect("adjacent layout input validates");
+
+        let envelope = prove_zkai_native_attention_mlp_single_proof_envelope(&input)
+            .expect("adjacent layout prove");
+        assert!(
+            verify_zkai_native_attention_mlp_single_proof_envelope(&envelope)
+                .expect("adjacent layout verify")
+        );
+
+        let mut proof_tampered = envelope.clone();
+        proof_tampered.proof[0] ^= 1;
+        let proof_tamper_result =
+            verify_zkai_native_attention_mlp_single_proof_envelope(&proof_tampered);
+        assert!(matches!(proof_tamper_result, Ok(false) | Err(_)));
+
+        let mut relabeled = envelope;
+        relabeled.input.adapter_mode = ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedFixed;
+        assert!(verify_zkai_native_attention_mlp_single_proof_envelope(&relabeled).is_err());
+    }
+
+    #[test]
     fn rmsnorm_input_fused_label_probes_preserve_constraints_but_change_statement() {
         let canonical =
             fixture_input_with_mode(ZkAiNativeAttentionMlpAdapterMode::RmsnormInputFusedFixed);

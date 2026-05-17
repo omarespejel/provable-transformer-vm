@@ -21,6 +21,7 @@ EVIDENCE_DIR = ROOT / "docs" / "engineering" / "evidence"
 ACCOUNTING_PATH = EVIDENCE_DIR / "zkai-native-attention-mlp-rmsnorm-adjacent-layout-accounting-2026-05.json"
 JSON_OUT = EVIDENCE_DIR / "zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.json"
 TSV_OUT = EVIDENCE_DIR / "zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.tsv"
+MAX_INPUT_JSON_BYTES = 64 * 1024 * 1024
 
 SCHEMA = "zkai-native-attention-mlp-rmsnorm-adjacent-layout-gate-v1"
 DECISION = "NO_GO_WORST_LABEL_FRONTIER_PROMOTION_BUT_GO_LAYOUT_LEVER"
@@ -191,18 +192,38 @@ def payload_commitment(payload: dict[str, Any]) -> str:
     return f"blake2b-256:{digest.hexdigest()}"
 
 
+def normalize_input_path(path: pathlib.Path) -> pathlib.Path:
+    try:
+        st = os.lstat(path)
+    except FileNotFoundError as err:
+        raise AdjacentLayoutGateError(f"missing input artifact: {path}") from err
+    if stat.S_ISLNK(st.st_mode):
+        raise AdjacentLayoutGateError(f"refusing to read through symlink: {path}")
+    if not stat.S_ISREG(st.st_mode):
+        raise AdjacentLayoutGateError(f"input artifact is not a regular file: {path}")
+    resolved = path.resolve()
+    evidence_root = EVIDENCE_DIR.resolve()
+    if evidence_root != resolved and evidence_root not in resolved.parents:
+        raise AdjacentLayoutGateError(f"input path outside evidence dir: {path}")
+    return resolved
+
+
 def sha256_file(path: pathlib.Path) -> str:
+    target = normalize_input_path(path)
+    if target.stat().st_size > MAX_INPUT_JSON_BYTES:
+        raise AdjacentLayoutGateError(f"input artifact too large to hash: {path}")
     digest = hashlib.sha256()
-    with path.open("rb") as handle:
+    with target.open("rb") as handle:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
 
 
 def read_json(path: pathlib.Path) -> dict[str, Any]:
-    raw = path.read_bytes()
-    if len(raw) > 64 * 1024 * 1024:
+    target = normalize_input_path(path)
+    if target.stat().st_size > MAX_INPUT_JSON_BYTES:
         raise AdjacentLayoutGateError(f"JSON input too large: {path}")
+    raw = target.read_bytes()
     try:
         value = json.loads(raw)
     except json.JSONDecodeError as err:
@@ -298,9 +319,10 @@ def rows_by_expected_path(accounting: dict[str, Any]) -> dict[str, dict[str, Any
 
 
 def build_payload(*, include_mutations: bool = True) -> dict[str, Any]:
-    if sha256_file(ACCOUNTING_PATH) != EXPECTED_ACCOUNTING_SHA256:
+    accounting_path = normalize_input_path(ACCOUNTING_PATH)
+    if sha256_file(accounting_path) != EXPECTED_ACCOUNTING_SHA256:
         raise AdjacentLayoutGateError("adjacent accounting source digest drift")
-    accounting = read_json(ACCOUNTING_PATH)
+    accounting = read_json(accounting_path)
     by_path = rows_by_expected_path(accounting)
     variants = {
         name: variant_from_row(name, by_path[entry["path"]])
@@ -361,11 +383,11 @@ def build_payload(*, include_mutations: bool = True) -> dict[str, Any]:
     if include_mutations:
         payload["mutation_results"] = run_mutations(payload)
         payload["payload_commitment"] = payload_commitment(payload)
-    validate_payload(payload)
+    validate_payload(payload, require_mutations=include_mutations)
     return payload
 
 
-def validate_payload(payload: dict[str, Any]) -> None:
+def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True) -> None:
     required = {
         "schema",
         "decision",
@@ -398,6 +420,8 @@ def validate_payload(payload: dict[str, Any]) -> None:
         raise AdjacentLayoutGateError("payload metadata drift")
     if payload["claim_boundary"] != CLAIM_BOUNDARY or payload["issue"] != ISSUE:
         raise AdjacentLayoutGateError("claim boundary drift")
+    if payload["source_accounting_path"] != str(ACCOUNTING_PATH.relative_to(ROOT)):
+        raise AdjacentLayoutGateError("source accounting path drift")
     if payload["source_accounting_sha256"] != EXPECTED_ACCOUNTING_SHA256:
         raise AdjacentLayoutGateError("source digest drift")
     if payload["two_proof_frontier_typed_bytes"] != TWO_PROOF_FRONTIER_TYPED_BYTES:
@@ -417,6 +441,7 @@ def validate_payload(payload: dict[str, Any]) -> None:
             raise AdjacentLayoutGateError(f"{name} group drift")
     adjacent = variants["adjacent_layout"]
     canonical = variants["rmsnorm_input_fused"]
+    compact = variants["compact_selector"]
     worst = max(
         [variants["adjacent_layout"], variants["adjacent_label_probe_a"], variants["adjacent_label_probe_b"]],
         key=lambda entry: entry["typed_bytes"],
@@ -425,6 +450,12 @@ def validate_payload(payload: dict[str, Any]) -> None:
         [variants["adjacent_layout"], variants["adjacent_label_probe_a"], variants["adjacent_label_probe_b"]],
         key=lambda entry: entry["typed_bytes"],
     )
+    if payload["compact_selector_typed_bytes"] != compact["typed_bytes"]:
+        raise AdjacentLayoutGateError("compact selector summary drift")
+    if payload["canonical_rmsnorm_input_fused_typed_bytes"] != canonical["typed_bytes"]:
+        raise AdjacentLayoutGateError("canonical RMSNorm-input summary drift")
+    if payload["adjacent_canonical_typed_bytes"] != adjacent["typed_bytes"]:
+        raise AdjacentLayoutGateError("adjacent canonical summary drift")
     if payload["adjacent_canonical_saving_vs_canonical_typed_bytes"] != canonical["typed_bytes"] - adjacent["typed_bytes"]:
         raise AdjacentLayoutGateError("adjacent canonical saving arithmetic drift")
     if payload["adjacent_canonical_delta_vs_frontier_typed_bytes"] != adjacent["typed_bytes"] - TWO_PROOF_FRONTIER_TYPED_BYTES:
@@ -433,6 +464,8 @@ def validate_payload(payload: dict[str, Any]) -> None:
         raise AdjacentLayoutGateError("worst label summary drift")
     if payload["adjacent_worst_label_delta_vs_frontier_typed_bytes"] != worst["typed_bytes"] - TWO_PROOF_FRONTIER_TYPED_BYTES:
         raise AdjacentLayoutGateError("worst label frontier delta drift")
+    if payload["adjacent_best_label_typed_bytes"] != best["typed_bytes"]:
+        raise AdjacentLayoutGateError("best label summary drift")
     if payload["adjacent_label_span_typed_bytes"] != worst["typed_bytes"] - best["typed_bytes"]:
         raise AdjacentLayoutGateError("label span drift")
     if payload["adjacent_worst_label_delta_vs_frontier_typed_bytes"] <= 0:
@@ -443,7 +476,8 @@ def validate_payload(payload: dict[str, Any]) -> None:
         raise AdjacentLayoutGateError("validation command drift")
     if payload["payload_commitment"] != payload_commitment(payload):
         raise AdjacentLayoutGateError("payload commitment drift")
-    validate_mutation_results(payload["mutation_results"])
+    if require_mutations:
+        validate_mutation_results(payload["mutation_results"])
 
 
 MUTATIONS = (
@@ -473,7 +507,7 @@ def run_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
         if name != "payload_commitment_drift":
             mutated["payload_commitment"] = payload_commitment(mutated)
         try:
-            validate_payload(mutated)
+            validate_payload(mutated, require_mutations=False)
         except AdjacentLayoutGateError as err:
             results.append({"name": name, "rejected": True, "reason": str(err)})
         else:
@@ -484,7 +518,12 @@ def run_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
 def validate_mutation_results(results: Any) -> None:
     if not isinstance(results, list):
         raise AdjacentLayoutGateError("mutation results must be a list")
-    names = [entry.get("name") for entry in results if isinstance(entry, dict)]
+    if len(results) != len(MUTATIONS):
+        raise AdjacentLayoutGateError("mutation inventory length drift")
+    for entry in results:
+        if not isinstance(entry, dict):
+            raise AdjacentLayoutGateError("mutation entry must be an object")
+    names = [entry.get("name") for entry in results]
     if names != [name for name, _ in MUTATIONS]:
         raise AdjacentLayoutGateError("mutation inventory drift")
     for entry in results:

@@ -479,8 +479,15 @@ behavior across labels or find a different component ordering. See
 
 RMSNorm-input adjacent layout reproducibility metadata:
 
+- Backend binary/version: `zkai_native_attention_mlp_single_proof` with
+  `stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1`.
+- Toolchain/features:
+  `cargo +nightly-2025-07-14 --locked --features stwo-backend`.
 - Timing mode: proof-size and verification evidence only; no median-of-5
   timing claim.
+- Step counts: `3` adjacent build/prove/verify runs, `5` accounting rows,
+  `12 / 12` mutation guards rejected, `9 / 9` Python tests, `17 / 17`
+  targeted Rust tests, and `14 / 14` full local release-gate steps.
 - Evidence paths:
   `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json`,
   `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.envelope.json`,

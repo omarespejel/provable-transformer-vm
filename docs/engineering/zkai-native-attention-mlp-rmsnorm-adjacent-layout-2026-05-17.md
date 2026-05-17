@@ -84,6 +84,31 @@ drift.
 
 ## Reproduction
 
+Metadata:
+
+- Backend binary/version:
+  `zkai_native_attention_mlp_single_proof` with
+  `stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1`.
+- Toolchain/features:
+  `cargo +nightly-2025-07-14 --locked --features stwo-backend`.
+- Timing mode: proof-size and verification evidence only; no timing claim and
+  no median-of-5 policy.
+- Step counts: `3` adjacent build/prove/verify runs, `5` accounting rows,
+  `12 / 12` mutation guards rejected, `9 / 9` Python tests, `17 / 17`
+  targeted Rust tests, and `14 / 14` full local release-gate steps.
+- Evidence paths:
+  - `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.input.json`
+  - `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json`
+  - `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.input.json`
+  - `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.envelope.json`
+  - `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.input.json`
+  - `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.envelope.json`
+  - `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-accounting-2026-05.json`
+  - `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.json`
+  - `docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.tsv`
+- Commands: the following shell block is the exact command list for the
+  checked run.
+
 ```sh
 cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- build-input-rmsnorm-fused-adjacent docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.input.json
 cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json
