@@ -19,6 +19,8 @@ The prior selector found a tempting tiny `Gemm` signal:
   from `zkai-jstprove-shape-probe-2026-05.json`
 - local Stwo `d128` gate/value projection baseline: `16,360` typed bytes
   from `zkai-d128-gate-value-compact-preprocessed-gate-2026-05.json`
+- local Stwo dense substitute baseline: `22,576` typed bytes
+  from `zkai-minimal-transformer-block-benchmark-2026-05.json`
 - tiny scalar ratio versus Stwo gate/value baseline: `0.711797x`
 
 That signal does not survive the current width-preserving preflight:

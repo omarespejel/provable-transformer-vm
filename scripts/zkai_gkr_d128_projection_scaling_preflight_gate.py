@@ -195,24 +195,30 @@ def load_sources() -> LoadedSources:
 
 
 def result_by_fixture(results: list[Any], fixture: str) -> dict[str, Any]:
-    for row in results:
-        if isinstance(row, dict) and row.get("fixture") == fixture:
-            return row
-    raise GkrProjectionPreflightError(f"fixture missing: {fixture}")
+    matches = [row for row in results if isinstance(row, dict) and row.get("fixture") == fixture]
+    if len(matches) == 1:
+        return matches[0]
+    if not matches:
+        raise GkrProjectionPreflightError(f"fixture missing: {fixture}")
+    raise GkrProjectionPreflightError(f"duplicate fixture: {fixture}")
 
 
 def sweep_by_dimension(rows: list[Any], dimension: int) -> dict[str, Any]:
-    for row in rows:
-        if isinstance(row, dict) and row.get("dimension") == dimension:
-            return row
-    raise GkrProjectionPreflightError(f"dimension sweep row missing: {dimension}")
+    matches = [row for row in rows if isinstance(row, dict) and row.get("dimension") == dimension]
+    if len(matches) == 1:
+        return matches[0]
+    if not matches:
+        raise GkrProjectionPreflightError(f"dimension sweep row missing: {dimension}")
+    raise GkrProjectionPreflightError(f"duplicate dimension: {dimension}")
 
 
 def component_by_name(rows: list[Any], component: str) -> dict[str, Any]:
-    for row in rows:
-        if isinstance(row, dict) and row.get("component") == component:
-            return row
-    raise GkrProjectionPreflightError(f"component row missing: {component}")
+    matches = [row for row in rows if isinstance(row, dict) and row.get("component") == component]
+    if len(matches) == 1:
+        return matches[0]
+    if not matches:
+        raise GkrProjectionPreflightError(f"component row missing: {component}")
+    raise GkrProjectionPreflightError(f"duplicate component: {component}")
 
 
 def route(
@@ -253,12 +259,15 @@ def route(
 def validate_source_numbers(sources: ParsedSources) -> None:
     stwo_aggregate = require_dict(sources["stwo_gate"].get("aggregate"), "Stwo gate aggregate")
     minimal_summary = require_dict(sources["minimal"].get("summary"), "minimal summary")
+    minimal_rows = require_list(sources["minimal"].get("component_rows"), "minimal component rows")
     selector_summary = require_dict(sources["selector"].get("summary"), "selector summary")
     shape_results = require_list(sources["shape"].get("results"), "shape results")
     shape_sweep = require_list(sources["shape"].get("dimension_sweep"), "dimension sweep")
+    dense_substitute = component_by_name(minimal_rows, "rmsnorm_mlp_residual_substitute")
 
     expect_equal(require_int(stwo_aggregate.get("baseline_local_typed_bytes"), "Stwo gate typed bytes"), EXPECTED_STWO_GATE_VALUE_TYPED_BYTES, "Stwo gate typed bytes")
     expect_equal(require_int(stwo_aggregate.get("row_count"), "Stwo gate row count"), EXPECTED_D128_GATE_VALUE_ROWS, "Stwo gate row count")
+    expect_equal(require_int(dense_substitute.get("primary_value"), "dense substitute typed bytes"), EXPECTED_STWO_DENSE_SUBSTITUTE_TYPED_BYTES, "dense substitute typed bytes")
     expect_equal(require_int(minimal_summary.get("two_proof_frontier_typed_bytes"), "Stwo frontier typed bytes"), EXPECTED_STWO_FRONTIER_TYPED_BYTES, "Stwo frontier typed bytes")
     expect_equal(require_int(minimal_summary.get("nanozk_reported_d128_block_proof_bytes"), "NANOZK reported bytes"), EXPECTED_NANOZK_REPORTED_BYTES, "NANOZK reported bytes")
     expect_equal(require_bool(minimal_summary.get("missing_native_block_proof_object"), "missing native block flag"), True, "missing native block flag")
