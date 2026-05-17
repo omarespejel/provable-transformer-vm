@@ -105,6 +105,9 @@ def canonical_json_bytes(value: Any) -> bytes:
 def payload_commitment(payload: dict[str, Any]) -> str:
     material = copy.deepcopy(payload)
     material.pop("payload_commitment", None)
+    rows = material.get("component_rows")
+    if isinstance(rows, list) and all(isinstance(row, dict) and isinstance(row.get("component"), str) for row in rows):
+        material["component_rows"] = sorted(rows, key=lambda row: row["component"])
     digest = hashlib.blake2b(digest_size=32)
     digest.update(PAYLOAD_DOMAIN.encode("ascii"))
     digest.update(b"\0")
@@ -467,7 +470,7 @@ def _base_payload() -> dict[str, Any]:
             one_summary.get("attention_derived_d128_snark_receipt_proof_bytes"), "receipt bytes"
         ),
         "nanozk_reported_d128_block_proof_bytes": nanozk_reported_d128_block_proof_bytes,
-        "gap_to_nanozk_from_two_proof_frontier_typed_bytes": max(
+        "typed_accounting_gap_to_nanozk_reported_proof_bytes": max(
             0, two_proof_frontier_typed_bytes - nanozk_reported_d128_block_proof_bytes
         ),
     }
