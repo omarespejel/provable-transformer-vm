@@ -1,7 +1,7 @@
-import copy
 import json
 import tempfile
 import unittest
+from copy import deepcopy
 
 from scripts import zkai_tablero_hybrid_zkml_boundary_gate as gate
 
@@ -154,20 +154,20 @@ class TableroHybridZkmlBoundaryGateTest(unittest.TestCase):
     def test_rejects_duplicate_component_rows(self) -> None:
         sources = gate.load_sources()
         rows = sources["minimal"]["component_rows"]
-        rows.append(copy.deepcopy(gate.row_by_component(rows, "two_proof_frontier")))
+        rows.append(deepcopy(gate.row_by_component(rows, "two_proof_frontier")))
         with self.assertRaisesRegex(gate.TableroHybridBoundaryError, "duplicate component row"):
             gate.build_boundary_examples(sources)
 
     def test_rejects_duplicate_row_ids(self) -> None:
         sources = gate.load_sources()
         rows = sources["gkr"]["rows"]
-        rows.append(copy.deepcopy(gate.row_by_id(rows, "tiny_gemm")))
+        rows.append(deepcopy(gate.row_by_id(rows, "tiny_gemm")))
         with self.assertRaisesRegex(gate.TableroHybridBoundaryError, "duplicate row"):
             gate.build_boundary_examples(sources)
 
     def test_mutation_inventory_is_strict(self) -> None:
         payload = gate.build_payload()
-        payload["mutation_results"] = copy.deepcopy(payload["mutation_results"])
+        payload["mutation_results"] = deepcopy(payload["mutation_results"])
         payload["mutation_results"].pop()
         payload["mutation_count"] -= 1
         payload["mutations_rejected"] -= 1
