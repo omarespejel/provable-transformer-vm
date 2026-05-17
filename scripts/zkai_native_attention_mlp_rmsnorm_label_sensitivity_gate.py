@@ -185,6 +185,9 @@ EXPECTED_MUTATION_NAMES = (
     "span_warning_erased",
     "value_delta_smuggled",
     "probe_a_group_drift",
+    "probe_a_missing_path_opening_group",
+    "summary_extra_key",
+    "variant_extra_key",
     "payload_commitment_drift",
 )
 
@@ -245,6 +248,20 @@ def _int(value: Any, label: str) -> int:
     return value
 
 
+def require_exact_keys(value: dict[str, Any], expected: set[str], label: str) -> None:
+    actual = set(value)
+    if actual != expected:
+        missing = sorted(expected - actual)
+        extra = sorted(actual - expected)
+        details = []
+        if missing:
+            details.append(f"missing={missing}")
+        if extra:
+            details.append(f"extra={extra}")
+        suffix = ", ".join(details) if details else "key drift"
+        raise RmsnormLabelSensitivityError(f"{label} key drift: {suffix}")
+
+
 def require_no_follow_flag(label: str) -> int:
     nofollow_flag = getattr(os, "O_NOFOLLOW", None)
     if not isinstance(nofollow_flag, int) or nofollow_flag == 0:
@@ -303,12 +320,21 @@ def sha256_hex(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
+def grouped_bytes(groups: dict[str, Any], group_names: tuple[str, ...], label: str) -> int:
+    total = 0
+    for group in group_names:
+        if group not in groups:
+            raise RmsnormLabelSensitivityError(f"missing {label} group: {group}")
+        total += _int(groups[group], f"{label}.{group}")
+    return total
+
+
 def path_opening_bytes(groups: dict[str, Any]) -> int:
-    return sum(_int(groups[group], group) for group in PATH_OPENING_GROUPS)
+    return grouped_bytes(groups, PATH_OPENING_GROUPS, "path_opening")
 
 
 def value_bytes(groups: dict[str, Any]) -> int:
-    return sum(_int(groups[group], group) for group in VALUE_GROUPS)
+    return grouped_bytes(groups, VALUE_GROUPS, "value")
 
 
 def row_by_path(accounting: dict[str, Any], relative_path: str) -> dict[str, Any]:
@@ -484,6 +510,26 @@ def validate_mutation_result(mutation_result: dict[str, Any]) -> None:
 
 
 def validate_payload(payload: dict[str, Any]) -> None:
+    top_level_keys = {
+        "schema",
+        "decision",
+        "result",
+        "issue",
+        "claim_boundary",
+        "proof_backend_version",
+        "proof_schema_version",
+        "frontier",
+        "source_artifacts",
+        "variants",
+        "summary",
+        "interpretation",
+        "non_claims",
+        "validation_commands",
+        "payload_commitment",
+    }
+    if "mutation_result" in payload:
+        top_level_keys.add("mutation_result")
+    require_exact_keys(payload, top_level_keys, "payload")
     if payload.get("schema") != SCHEMA:
         raise RmsnormLabelSensitivityError("schema drift")
     if payload.get("decision") != DECISION:
@@ -540,6 +586,23 @@ def validate_payload(payload: dict[str, Any]) -> None:
     if frontier.get("nanozk_win_claimed") is not False:
         raise RmsnormLabelSensitivityError("NANOZK overclaim")
     summary = _dict(payload.get("summary"), "summary")
+    require_exact_keys(
+        summary,
+        {
+            "canonical_rmsnorm_input_fused_typed_bytes",
+            "best_label_probe",
+            "best_label_probe_typed_bytes",
+            "best_label_probe_delta_vs_frontier_bytes",
+            "best_label_probe_delta_vs_compact_bytes",
+            "best_label_probe_reduction_vs_canonical_bytes",
+            "worst_label_probe",
+            "worst_label_probe_typed_bytes",
+            "label_only_typed_span_bytes",
+            "label_only_span_exceeds_required_frontier_reduction",
+            "label_probe_value_delta_vs_canonical_bytes",
+        },
+        "summary",
+    )
     if _int(summary.get("best_label_probe_typed_bytes"), "best probe") != LABEL_PROBE_A_TYPED_BYTES:
         raise RmsnormLabelSensitivityError("best label probe drift")
     if _int(summary.get("label_only_typed_span_bytes"), "span") != 1_264:
@@ -549,8 +612,28 @@ def validate_payload(payload: dict[str, Any]) -> None:
     if _int(summary.get("label_probe_value_delta_vs_canonical_bytes"), "value delta") != 0:
         raise RmsnormLabelSensitivityError("value delta drift")
     variants = _dict(payload.get("variants"), "variants")
+    require_exact_keys(variants, set(EXPECTED_VARIANTS), "variants")
     for name in EXPECTED_VARIANTS:
         variant = _dict(variants.get(name), f"variant {name}")
+        require_exact_keys(
+            variant,
+            {
+                "name",
+                "evidence_relative_path",
+                "typed_bytes",
+                "typed_delta_vs_two_proof_frontier",
+                "proof_json_bytes",
+                "typed_groups",
+                "path_opening_bytes",
+                "value_bytes",
+                "record_stream_sha256",
+                "label_probe",
+                "typed_delta_vs_canonical",
+                "path_opening_delta_vs_canonical",
+                "value_delta_vs_canonical",
+            },
+            f"variant {name}",
+        )
         expected = EXPECTED_VARIANTS[name]
         typed = _int(variant.get("typed_bytes"), f"{name}.typed")
         if typed != expected["typed"]:
@@ -719,6 +802,18 @@ def run_mutations(payload: dict[str, Any]) -> dict[str, Any]:
             lambda p: p["variants"]["label_probe_a"]["typed_groups"].__setitem__(
                 "fri_decommitments", 12_000
             ),
+        ),
+        (
+            "probe_a_missing_path_opening_group",
+            lambda p: p["variants"]["label_probe_a"]["typed_groups"].pop("fri_decommitments"),
+        ),
+        (
+            "summary_extra_key",
+            lambda p: p["summary"].__setitem__("frontier_win_claimed", True),
+        ),
+        (
+            "variant_extra_key",
+            lambda p: p["variants"]["label_probe_a"].__setitem__("unchecked_note", "misleading"),
         ),
         (
             "payload_commitment_drift",

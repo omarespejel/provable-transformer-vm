@@ -15,8 +15,8 @@ The result is a useful NO-GO:
 - required reduction to beat the two-proof frontier: `729` typed bytes;
 - best label probe is still `136` typed bytes above the two-proof frontier and
   `24` typed bytes above the compact selector;
-- mutation guard rejects `18 / 18` metric, label, metadata, source, and
-  overclaim drift cases.
+- mutation guard rejects `21 / 21` metric, label, metadata, source,
+  schema-extra, missing-group, and overclaim drift cases.
 
 Human interpretation: the route is real, but sub-kilobyte proof-size claims are
 not yet stable enough. The same adapter equation and direct value bytes can move

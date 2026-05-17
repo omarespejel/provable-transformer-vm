@@ -121,6 +121,20 @@ class RmsnormLabelSensitivityGateTest(unittest.TestCase):
         with self.assertRaises(gate.RmsnormLabelSensitivityError):
             gate.validate_payload(mutated)
 
+    def test_validate_payload_rejects_unexpected_summary_key(self) -> None:
+        payload = gate.build_payload(include_mutations=False)
+        mutated = copy.deepcopy(payload)
+        mutated["summary"]["unchecked_frontier_win"] = True
+        gate.refresh_payload_commitment(mutated)
+        with self.assertRaises(gate.RmsnormLabelSensitivityError):
+            gate.validate_payload(mutated)
+
+    def test_path_opening_bytes_rejects_missing_group(self) -> None:
+        groups = dict(gate.EXPECTED_VARIANTS["label_probe_a"]["groups"])
+        groups.pop("fri_decommitments")
+        with self.assertRaises(gate.RmsnormLabelSensitivityError):
+            gate.path_opening_bytes(groups)
+
     def test_accounting_row_lookup_rejects_duplicates(self) -> None:
         accounting, _ = gate.read_json(gate.LABEL_ACCOUNTING_PATH, "label accounting")
         path = gate.EXPECTED_VARIANTS["label_probe_a"]["path"]
