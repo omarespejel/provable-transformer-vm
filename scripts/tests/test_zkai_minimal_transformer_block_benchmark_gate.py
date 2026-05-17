@@ -1,7 +1,10 @@
 import copy
 import json
+import os
 import tempfile
+import types
 import unittest
+from unittest import mock
 
 from scripts import zkai_minimal_transformer_block_benchmark_gate as gate
 
@@ -52,7 +55,9 @@ class MinimalTransformerBlockBenchmarkGateTest(unittest.TestCase):
 
     def test_rejects_component_omission(self) -> None:
         payload = gate.build_payload()
-        payload["component_rows"].pop(0)
+        payload["component_rows"] = [
+            row for row in payload["component_rows"] if row["component"] != "attention_boundary_and_softmax_lookup"
+        ]
         payload["payload_commitment"] = gate.payload_commitment(payload)
         with self.assertRaises(gate.MinimalBlockBenchmarkError):
             gate.validate_payload(payload)
@@ -143,6 +148,42 @@ class MinimalTransformerBlockBenchmarkGateTest(unittest.TestCase):
         finally:
             link.unlink(missing_ok=True)
             target.unlink(missing_ok=True)
+
+    def test_write_outputs_resolves_repo_relative_path_from_root(self) -> None:
+        payload = gate.build_payload()
+        with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".json", delete=False) as handle:
+            path = gate.pathlib.Path(handle.name)
+        path.unlink()
+        relative = path.relative_to(gate.ROOT)
+        previous_cwd = os.getcwd()
+        try:
+            os.chdir(gate.ROOT / "scripts")
+            gate.write_outputs(payload, relative, None)
+            self.assertEqual(json.loads(path.read_text(encoding="utf-8")), payload)
+        finally:
+            os.chdir(previous_cwd)
+            path.unlink(missing_ok=True)
+
+    def test_read_source_bytes_rejects_in_place_rewrite_drift(self) -> None:
+        original_fstat = gate.os.fstat
+        calls = 0
+
+        def drifting_fstat(fd: int) -> types.SimpleNamespace:
+            nonlocal calls
+            calls += 1
+            current = original_fstat(fd)
+            return types.SimpleNamespace(
+                st_dev=current.st_dev,
+                st_ino=current.st_ino,
+                st_mode=current.st_mode,
+                st_size=current.st_size,
+                st_mtime_ns=current.st_mtime_ns + (1 if calls >= 2 else 0),
+                st_ctime_ns=current.st_ctime_ns,
+            )
+
+        with mock.patch.object(gate.os, "fstat", side_effect=drifting_fstat):
+            with self.assertRaises(gate.MinimalBlockBenchmarkError):
+                gate.read_source_bytes(gate.ONE_BLOCK_SURFACE)
 
 
 if __name__ == "__main__":
