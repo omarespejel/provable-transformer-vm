@@ -2,7 +2,7 @@
 
 Last refreshed: 2026-05-17
 Repository: `/Users/espejelomar/StarkNet/provable-transformer-vm`
-Mainline reference at refresh: `46b23ce3`
+Mainline reference at refresh: `a06a54ca`
 
 ## Immediate orientation
 
@@ -1838,6 +1838,40 @@ Jolt/Atlas comparison reproducibility metadata:
   `python3 scripts/zkai_jolt_atlas_lookup_tensor_comparison_gate.py --write-json docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.json --write-tsv docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.tsv`.
 - Local tests:
   `python3 -m unittest scripts.tests.test_zkai_jolt_atlas_lookup_tensor_comparison_gate`.
+
+Latest Tablero hybrid zkML boundary gate: issue `#652` now has a typed boundary
+schema for heterogeneous zkML proof objects and source-context rows. The gate
+records `5` boundary examples across `5` object classes: the local Stwo
+two-proof frontier at `40,700` typed bytes, the compact statement-chain
+boundary at `199,553` rows, the JSTprove/Remainder statement envelope with
+`13 / 13` relabeling mutations rejected, the GKR tiny `Gemm` sidecar at
+`11,645` proof bytes, and the Jolt Atlas self-attention source row as command
+available but not locally reproduced. It rejects `10 / 10` self-deception
+mutations including compact-statement-as-native-proof, missing model binding,
+erased approximation policy, backend-version drift, Atlas marked local,
+statement commitment drift, unavailable binding field removal, Atlas proof-size
+overclaim, schema field removal, and Tablero non-claim removal. Treat this as
+`GO_TABLERO_TYPED_BOUNDARIES_FOR_HYBRID_ZKML_OBJECTS`: Tablero is the statement
+validity layer for hybrid research rows, not an external verifier, not
+recursion, and not a proof-size result. See
+`docs/engineering/zkai-tablero-hybrid-zkml-boundary-2026-05-17.md`.
+
+Tablero hybrid-boundary reproducibility metadata:
+
+- Timing mode: typed-boundary validation only; no local or external timing
+  claim.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-tablero-hybrid-zkml-boundary-2026-05.json`,
+  `docs/engineering/evidence/zkai-tablero-hybrid-zkml-boundary-2026-05.tsv`,
+  `docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json`,
+  `docs/engineering/evidence/zkai-gkr-dense-sidecar-baseline-2026-05.json`,
+  `docs/engineering/evidence/zkai-jolt-atlas-lookup-tensor-comparison-2026-05.json`,
+  and
+  `docs/engineering/evidence/zkai-jstprove-statement-envelope-benchmark-2026-05.json`.
+- Gate command:
+  `python3 scripts/zkai_tablero_hybrid_zkml_boundary_gate.py --write-json docs/engineering/evidence/zkai-tablero-hybrid-zkml-boundary-2026-05.json --write-tsv docs/engineering/evidence/zkai-tablero-hybrid-zkml-boundary-2026-05.tsv`.
+- Local tests:
+  `python3 -m unittest scripts.tests.test_zkai_tablero_hybrid_zkml_boundary_gate`.
 
 Adapter opening-geometry budget reproducibility metadata:
 
