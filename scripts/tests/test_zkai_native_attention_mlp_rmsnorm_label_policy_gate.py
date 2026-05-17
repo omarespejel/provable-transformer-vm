@@ -95,6 +95,13 @@ class RmsnormLabelPolicyGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.LabelPolicyError, "source artifact drift"):
             gate.validate_payload(mutated)
 
+    def test_source_artifact_path_is_posix_stable(self) -> None:
+        payload = gate.build_payload(include_mutations=False)
+        path = payload["source_artifacts"][0]["path"]
+
+        self.assertEqual(path, gate.LABEL_SENSITIVITY_RELATIVE_PATH)
+        self.assertNotIn("\\", path)
+
     def test_mutation_result_rejects_extra_keys(self) -> None:
         payload = gate.build_payload()
         mutated = copy.deepcopy(payload["mutation_result"])
@@ -139,6 +146,12 @@ class RmsnormLabelPolicyGateTest(unittest.TestCase):
 
         with self.assertRaisesRegex(gate.LabelPolicyError, "multi-label frontier"):
             gate.write_outputs(payload, gate.JSON_OUT, None)
+
+    def test_write_outputs_rejects_duplicate_destinations(self) -> None:
+        payload = gate.build_payload()
+
+        with self.assertRaisesRegex(gate.LabelPolicyError, "duplicate output destination"):
+            gate.write_outputs(payload, gate.JSON_OUT, gate.JSON_OUT)
 
     def test_write_outputs_rejects_outside_evidence_dir(self) -> None:
         payload = gate.build_payload()

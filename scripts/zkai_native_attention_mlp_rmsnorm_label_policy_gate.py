@@ -25,6 +25,7 @@ EVIDENCE_DIR = ROOT / "docs" / "engineering" / "evidence"
 LABEL_SENSITIVITY_PATH = (
     EVIDENCE_DIR / "zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05.json"
 )
+LABEL_SENSITIVITY_RELATIVE_PATH = LABEL_SENSITIVITY_PATH.relative_to(ROOT).as_posix()
 JSON_OUT = EVIDENCE_DIR / "zkai-native-attention-mlp-rmsnorm-label-policy-2026-05.json"
 TSV_OUT = EVIDENCE_DIR / "zkai-native-attention-mlp-rmsnorm-label-policy-2026-05.tsv"
 
@@ -313,7 +314,7 @@ def build_payload(include_mutations: bool = True) -> dict[str, Any]:
         "source_artifacts": [
             {
                 "name": "label_sensitivity_gate",
-                "path": str(LABEL_SENSITIVITY_PATH.relative_to(ROOT)),
+                "path": LABEL_SENSITIVITY_RELATIVE_PATH,
                 "sha256": sha256_hex(raw),
                 "payload_commitment": source["payload_commitment"],
             }
@@ -438,7 +439,7 @@ def validate_payload(payload: dict[str, Any]) -> None:
     expected_source = [
         {
             "name": "label_sensitivity_gate",
-            "path": str(LABEL_SENSITIVITY_PATH.relative_to(ROOT)),
+            "path": LABEL_SENSITIVITY_RELATIVE_PATH,
             "sha256": EXPECTED_LABEL_SENSITIVITY_SHA256,
             "payload_commitment": EXPECTED_LABEL_SENSITIVITY_COMMITMENT,
         }
@@ -685,6 +686,8 @@ def tsv_text(payload: dict[str, Any]) -> str:
 
 def write_outputs(payload: dict[str, Any], json_path: pathlib.Path | None, tsv_path: pathlib.Path | None) -> None:
     validate_payload(payload)
+    if json_path is not None and tsv_path is not None and json_path.resolve() == tsv_path.resolve():
+        raise LabelPolicyError(f"duplicate output destination: {json_path}")
     try:
         if json_path is not None:
             sensitivity_gate.write_text_atomically(
