@@ -92,6 +92,24 @@ SOURCE_PATHS = (
     MINIMAL_BLOCK,
     ATTENTION_MLP_FRONTIER,
 )
+SOURCE_ARTIFACTS_KEY = "__source_artifacts"
+
+LARGER_NATIVE_BOUNDARY_EVIDENCE = (
+    "six-component MLP fusion saves 32,144 typed bytes while current adapter/reorder routes are label-fragile"
+)
+INTERPRETATION_HUMAN_READ = (
+    "The next serious attack is a larger native proof boundary. The local reorder route is now "
+    "label-fragile, current GKR projection scaling is parked, and the positive mechanism remains "
+    "shared native STARK plumbing across larger adjacent transformer surfaces."
+)
+INTERPRETATION_WHY_NOT_LOCAL_REORDER = (
+    "The compact selector is only 112 typed bytes above the two-proof frontier, but post-tail and "
+    "label probes move opening bytes by more than that. A small favorable label is not a robust result."
+)
+INTERPRETATION_WHY_LARGER_BOUNDARY = (
+    "The six-component d128 RMSNorm-to-residual MLP proof saves 32,144 typed bytes versus separate "
+    "native objects, which is a structural signal rather than a sub-kilobyte layout artifact."
+)
 
 ROW_COLUMNS = (
     "route_id",
@@ -130,7 +148,7 @@ def load_json(path: pathlib.Path) -> dict[str, Any]:
             payload = json.load(handle)
     except OSError as error:
         raise PivotSelectorError(f"unable to read JSON source: {path}") from error
-    except json.JSONDecodeError as error:
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
         raise PivotSelectorError(f"invalid JSON source: {path}") from error
     if not isinstance(payload, dict):
         raise PivotSelectorError(f"{path} must contain a JSON object")
@@ -178,17 +196,7 @@ def expect_equal(actual: Any, expected: Any, label: str) -> None:
         raise PivotSelectorError(f"{label} drift: expected {expected!r}, got {actual!r}")
 
 
-def source_descriptor(path: pathlib.Path) -> dict[str, Any]:
-    try:
-        raw = path.read_bytes()
-    except OSError as error:
-        raise PivotSelectorError(f"unable to read source artifact: {path}") from error
-    try:
-        data = json.loads(raw.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError) as error:
-        raise PivotSelectorError(f"invalid JSON source artifact: {path}") from error
-    if not isinstance(data, dict):
-        raise PivotSelectorError(f"{path} must contain a JSON object")
+def source_descriptor_from_snapshot(path: pathlib.Path, raw: bytes, data: dict[str, Any]) -> dict[str, Any]:
     return {
         "path": path.relative_to(ROOT).as_posix(),
         "schema": data.get("schema"),
@@ -199,17 +207,43 @@ def source_descriptor(path: pathlib.Path) -> dict[str, Any]:
     }
 
 
-def load_sources() -> dict[str, dict[str, Any]]:
-    sources = {
-        "post_tail": load_json(POST_TAIL),
-        "gkr": load_json(GKR_PREFLIGHT),
-        "compact_selector": load_json(COMPACT_SELECTOR),
-        "native_single": load_json(NATIVE_SINGLE),
-        "mlp_fused": load_json(MLP_FUSED),
-        "compact_preprocessed": load_json(COMPACT_PREPROCESSED),
-        "minimal_block": load_json(MINIMAL_BLOCK),
-        "attention_mlp_frontier": load_json(ATTENTION_MLP_FRONTIER),
-    }
+def load_source_artifact(path: pathlib.Path) -> tuple[dict[str, Any], dict[str, Any]]:
+    try:
+        raw = path.read_bytes()
+    except OSError as error:
+        raise PivotSelectorError(f"unable to read source artifact: {path}") from error
+    try:
+        data = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise PivotSelectorError(f"invalid JSON source artifact: {path}") from error
+    if not isinstance(data, dict):
+        raise PivotSelectorError(f"{path} must contain a JSON object")
+    return data, source_descriptor_from_snapshot(path, raw, data)
+
+
+def source_descriptor(path: pathlib.Path) -> dict[str, Any]:
+    _, descriptor = load_source_artifact(path)
+    return descriptor
+
+
+def load_sources() -> dict[str, Any]:
+    source_items = (
+        ("post_tail", POST_TAIL),
+        ("gkr", GKR_PREFLIGHT),
+        ("compact_selector", COMPACT_SELECTOR),
+        ("native_single", NATIVE_SINGLE),
+        ("mlp_fused", MLP_FUSED),
+        ("compact_preprocessed", COMPACT_PREPROCESSED),
+        ("minimal_block", MINIMAL_BLOCK),
+        ("attention_mlp_frontier", ATTENTION_MLP_FRONTIER),
+    )
+    sources: dict[str, Any] = {}
+    source_artifacts: list[dict[str, Any]] = []
+    for label, path in source_items:
+        payload, descriptor = load_source_artifact(path)
+        sources[label] = payload
+        source_artifacts.append(descriptor)
+    sources[SOURCE_ARTIFACTS_KEY] = source_artifacts
     expect_equal(sources["post_tail"].get("schema"), "zkai-native-attention-mlp-rmsnorm-post-tail-layout-gate-v1", "post-tail schema")
     expect_equal(sources["gkr"].get("schema"), "zkai-gkr-d128-projection-scaling-preflight-v1", "GKR schema")
     expect_equal(sources["compact_selector"].get("schema"), "zkai-native-attention-mlp-source-backed-adapter-selector-gate-v1", "compact selector schema")
@@ -221,7 +255,7 @@ def load_sources() -> dict[str, dict[str, Any]]:
     return sources
 
 
-def validate_source_numbers(sources: dict[str, dict[str, Any]]) -> None:
+def validate_source_numbers(sources: dict[str, Any]) -> None:
     post_tail = sources["post_tail"]
     expect_equal(post_tail.get("decision"), "NO_GO_POST_TAIL_LAYOUT_LABEL_STABILITY", "post-tail decision")
     expect_equal(
@@ -322,13 +356,13 @@ def route(
     }
 
 
-def base_payload(sources: dict[str, dict[str, Any]]) -> dict[str, Any]:
+def base_payload(sources: dict[str, Any]) -> dict[str, Any]:
     validate_source_numbers(sources)
     routes = [
         route(
             "larger_native_block_boundary",
             "ATTACK_NEXT",
-            "six-component MLP fusion saves 32,144 typed bytes while current adapter/reorder routes are label-fragile",
+            LARGER_NATIVE_BOUNDARY_EVIDENCE,
             STRICT_NATIVE_ADAPTER_TYPED_BYTES,
             STRICT_NATIVE_ADAPTER_GAP_BYTES,
             False,
@@ -404,21 +438,11 @@ def base_payload(sources: dict[str, dict[str, Any]]) -> dict[str, Any]:
         "summary": summary,
         "routes": routes,
         "interpretation": {
-            "human_read": (
-                "The next serious attack is a larger native proof boundary. The local reorder route is now "
-                "label-fragile, current GKR projection scaling is parked, and the positive mechanism remains "
-                "shared native STARK plumbing across larger adjacent transformer surfaces."
-            ),
-            "why_not_local_reorder": (
-                "The compact selector is only 112 typed bytes above the two-proof frontier, but post-tail and "
-                "label probes move opening bytes by more than that. A small favorable label is not a robust result."
-            ),
-            "why_larger_boundary": (
-                "The six-component d128 RMSNorm-to-residual MLP proof saves 32,144 typed bytes versus separate "
-                "native objects, which is a structural signal rather than a sub-kilobyte layout artifact."
-            ),
+            "human_read": INTERPRETATION_HUMAN_READ,
+            "why_not_local_reorder": INTERPRETATION_WHY_NOT_LOCAL_REORDER,
+            "why_larger_boundary": INTERPRETATION_WHY_LARGER_BOUNDARY,
         },
-        "source_artifacts": [source_descriptor(path) for path in SOURCE_PATHS],
+        "source_artifacts": copy.deepcopy(require_list(sources.get(SOURCE_ARTIFACTS_KEY), "source artifact snapshot")),
         "non_claims": list(NON_CLAIMS),
         "validation_commands": list(VALIDATION_COMMANDS),
     }
@@ -494,8 +518,7 @@ def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
     expect_equal(route_by_id[SELECTED_NEXT_ROUTE]["typed_bytes"], STRICT_NATIVE_ADAPTER_TYPED_BYTES, "selected route typed bytes")
     expect_equal(route_by_id[SELECTED_NEXT_ROUTE]["delta_vs_frontier_typed_bytes"], STRICT_NATIVE_ADAPTER_GAP_BYTES, "selected route frontier delta")
     selected_evidence = require_str(route_by_id[SELECTED_NEXT_ROUTE].get("primary_evidence"), "selected route evidence")
-    if "six-component MLP fusion saves 32,144 typed bytes" not in selected_evidence:
-        raise PivotSelectorError("selected route evidence drift")
+    expect_equal(selected_evidence, LARGER_NATIVE_BOUNDARY_EVIDENCE, "selected route evidence")
     expect_equal(route_by_id["sub_kilobyte_adapter_reorder"]["selector_status"], "PARK_NOW", "local reorder status")
     expect_equal(route_by_id["sub_kilobyte_adapter_reorder"]["typed_bytes"], POST_TAIL_TYPED_BYTES, "local reorder typed bytes")
     expect_equal(route_by_id["sub_kilobyte_adapter_reorder"]["delta_vs_frontier_typed_bytes"], POST_TAIL_GAP_BYTES, "local reorder frontier delta")
@@ -511,12 +534,17 @@ def validate_payload(payload: dict[str, Any], *, final: bool = True) -> None:
     expect_equal(route_by_id["comparison_claim_guardrail"]["selector_status"], "GUARDRAIL", "guardrail status")
 
     interpretation = require_dict(payload.get("interpretation"), "interpretation")
-    if "larger native proof boundary" not in require_str(interpretation.get("human_read"), "human interpretation"):
-        raise PivotSelectorError("interpretation no longer selects larger boundary")
-    if "not a robust result" not in require_str(interpretation.get("why_not_local_reorder"), "local reorder interpretation"):
-        raise PivotSelectorError("local-reorder warning erased")
-    if "32,144 typed bytes" not in require_str(interpretation.get("why_larger_boundary"), "larger boundary interpretation"):
-        raise PivotSelectorError("larger-boundary mechanism erased")
+    expect_equal(require_str(interpretation.get("human_read"), "human interpretation"), INTERPRETATION_HUMAN_READ, "human interpretation")
+    expect_equal(
+        require_str(interpretation.get("why_not_local_reorder"), "local reorder interpretation"),
+        INTERPRETATION_WHY_NOT_LOCAL_REORDER,
+        "local reorder interpretation",
+    )
+    expect_equal(
+        require_str(interpretation.get("why_larger_boundary"), "larger boundary interpretation"),
+        INTERPRETATION_WHY_LARGER_BOUNDARY,
+        "larger boundary interpretation",
+    )
 
     source_artifacts = [
         require_dict(row, "source artifact row")

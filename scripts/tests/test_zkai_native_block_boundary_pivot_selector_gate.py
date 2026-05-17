@@ -63,6 +63,16 @@ class NativeBlockBoundaryPivotSelectorGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.PivotSelectorError, "unable to read JSON source"):
             gate.load_json(missing)
 
+    def test_load_json_normalizes_utf8_failure(self) -> None:
+        with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".json", delete=False) as handle:
+            path = gate.pathlib.Path(handle.name)
+            handle.write(b"\xff")
+        try:
+            with self.assertRaisesRegex(gate.PivotSelectorError, "invalid JSON source"):
+                gate.load_json(path)
+        finally:
+            path.unlink(missing_ok=True)
+
     def test_source_descriptor_normalizes_parse_failure(self) -> None:
         with tempfile.NamedTemporaryFile(dir=gate.EVIDENCE_DIR, suffix=".json", delete=False) as handle:
             path = gate.pathlib.Path(handle.name)
@@ -118,6 +128,26 @@ class NativeBlockBoundaryPivotSelectorGateTest(unittest.TestCase):
         payload = gate.base_payload(gate.load_sources())
         payload["source_artifacts"][0] = "not-an-object"
         with self.assertRaisesRegex(gate.PivotSelectorError, "source artifact row must be an object"):
+            gate.validate_payload(payload, final=False)
+
+    def test_base_payload_uses_loaded_source_artifact_snapshot(self) -> None:
+        sources = gate.load_sources()
+        sources[gate.SOURCE_ARTIFACTS_KEY] = deepcopy(sources[gate.SOURCE_ARTIFACTS_KEY])
+        sources[gate.SOURCE_ARTIFACTS_KEY][0] = dict(sources[gate.SOURCE_ARTIFACTS_KEY][0])
+        sources[gate.SOURCE_ARTIFACTS_KEY][0]["sha256"] = "snapshot-sha"
+        payload = gate.base_payload(sources)
+        self.assertEqual(payload["source_artifacts"][0]["sha256"], "snapshot-sha")
+
+    def test_rejects_appended_selected_evidence_overclaim(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        payload["routes"][0]["primary_evidence"] = f"{gate.LARGER_NATIVE_BOUNDARY_EVIDENCE}; matched NANOZK benchmark"
+        with self.assertRaisesRegex(gate.PivotSelectorError, "selected route evidence drift"):
+            gate.validate_payload(payload, final=False)
+
+    def test_rejects_appended_interpretation_overclaim(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        payload["interpretation"]["human_read"] = f"{gate.INTERPRETATION_HUMAN_READ} Full block proof."
+        with self.assertRaisesRegex(gate.PivotSelectorError, "human interpretation drift"):
             gate.validate_payload(payload, final=False)
 
     def test_rejects_non_claim_erasure(self) -> None:
