@@ -445,15 +445,20 @@ def _base_payload() -> dict[str, Any]:
         source_descriptor(ADJACENT_LAYOUT, sources["adjacent"], raw_sources["adjacent"]),
         source_descriptor(MATCHED_TABLE, sources["matched"], raw_sources["matched"]),
     ]
+    two_proof_frontier_typed_bytes = _int(frontier_summary.get("two_proof_frontier_typed_bytes"), "frontier")
+    adjacent_worst_label_typed_bytes = _int(adjacent.get("adjacent_worst_label_typed_bytes"), "worst label")
+    nanozk_reported_d128_block_proof_bytes = _int(
+        frontier_summary.get("nanozk_reported_d128_block_proof_bytes"), "NANOZK bytes"
+    )
     summary = {
         "component_count": len(component_rows),
         "proof_component_count": sum(1 for row in component_rows if "proof_component" in row["object_class"]),
         "missing_native_block_proof_object": True,
-        "two_proof_frontier_typed_bytes": _int(frontier_summary.get("two_proof_frontier_typed_bytes"), "frontier"),
+        "two_proof_frontier_typed_bytes": two_proof_frontier_typed_bytes,
         "adjacent_layout_canonical_typed_bytes": _int(adjacent.get("adjacent_canonical_typed_bytes"), "adjacent"),
-        "adjacent_worst_label_typed_bytes": _int(adjacent.get("adjacent_worst_label_typed_bytes"), "worst label"),
-        "adjacent_worst_label_gap_typed_bytes": _int(
-            adjacent.get("adjacent_worst_label_delta_vs_frontier_typed_bytes"), "worst label gap"
+        "adjacent_worst_label_typed_bytes": adjacent_worst_label_typed_bytes,
+        "adjacent_worst_label_gap_typed_bytes": max(
+            0, adjacent_worst_label_typed_bytes - two_proof_frontier_typed_bytes
         ),
         "statement_chain_rows": _int(
             one_summary.get("attention_derived_d128_statement_chain_rows"), "statement rows"
@@ -461,11 +466,9 @@ def _base_payload() -> dict[str, Any]:
         "external_statement_receipt_proof_bytes": _int(
             one_summary.get("attention_derived_d128_snark_receipt_proof_bytes"), "receipt bytes"
         ),
-        "nanozk_reported_d128_block_proof_bytes": _int(
-            frontier_summary.get("nanozk_reported_d128_block_proof_bytes"), "NANOZK bytes"
-        ),
-        "gap_to_nanozk_from_two_proof_frontier_typed_bytes": _int(
-            frontier_summary.get("typed_gap_to_nanozk_reported_bytes"), "NANOZK gap"
+        "nanozk_reported_d128_block_proof_bytes": nanozk_reported_d128_block_proof_bytes,
+        "gap_to_nanozk_from_two_proof_frontier_typed_bytes": max(
+            0, two_proof_frontier_typed_bytes - nanozk_reported_d128_block_proof_bytes
         ),
     }
     return {
