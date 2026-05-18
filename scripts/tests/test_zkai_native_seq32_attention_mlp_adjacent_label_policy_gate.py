@@ -86,6 +86,14 @@ class NativeSeq32AdjacentLabelPolicyGateTest(unittest.TestCase):
         with self.assertRaisesRegex(self.gate.AdjacentLabelPolicyGateError, "variant path-opening bytes drift"):
             self.gate.validate_payload(payload)
 
+    def test_accounting_helpers_raise_gate_errors_for_missing_groups(self) -> None:
+        with self.assertRaisesRegex(self.gate.AdjacentLabelPolicyGateError, "local accounting must be object"):
+            self.gate.grouped({})
+        with self.assertRaisesRegex(self.gate.AdjacentLabelPolicyGateError, "missing accounting group"):
+            self.gate.path_opening_bytes({"fri_decommitments": 1, "fri_samples": 1})
+        with self.assertRaisesRegex(self.gate.AdjacentLabelPolicyGateError, "accounting group must be int"):
+            self.gate.value_bytes({"oods_samples": True, "queries_values": 1})
+
     def test_rejects_source_artifact_path_relabeling(self) -> None:
         payload = copy.deepcopy(self.__class__.payload)
         payload["source_artifacts"][0]["path"] = "docs/engineering/evidence/other.json"

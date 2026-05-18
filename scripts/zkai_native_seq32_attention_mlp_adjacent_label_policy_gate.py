@@ -267,16 +267,26 @@ def _list(value: Any, label: str) -> list[Any]:
     return value
 
 
+def _group_int(groups: dict[str, Any], group: str) -> int:
+    if group not in groups:
+        raise AdjacentLabelPolicyGateError(f"missing accounting group: {group}")
+    value = groups[group]
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise AdjacentLabelPolicyGateError(f"accounting group must be int: {group}")
+    return value
+
+
 def grouped(row: dict[str, Any]) -> dict[str, int]:
-    return _dict(_dict(row["local_binary_accounting"], "local accounting")["grouped_reconstruction"], "grouped")
+    local_accounting = _dict(row.get("local_binary_accounting"), "local accounting")
+    return _dict(local_accounting.get("grouped_reconstruction"), "grouped")
 
 
 def path_opening_bytes(groups: dict[str, int]) -> int:
-    return sum(int(groups[group]) for group in PATH_OPENING_GROUPS)
+    return sum(_group_int(groups, group) for group in PATH_OPENING_GROUPS)
 
 
 def value_bytes(groups: dict[str, int]) -> int:
-    return sum(int(groups[group]) for group in VALUE_GROUPS)
+    return sum(_group_int(groups, group) for group in VALUE_GROUPS)
 
 
 def expected_by_path() -> dict[str, dict[str, Any]]:

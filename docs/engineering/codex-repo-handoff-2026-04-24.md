@@ -2201,6 +2201,18 @@ base-cell removal. See
 Seq32 adapter-variant selector reproducibility metadata:
 
 - Backend binary: `zkai_native_seq32_attention_mlp_single_proof`.
+- Adjacent/probe backend version:
+  `stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1`.
+- Champion backend version:
+  `stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-v1`.
+- Proof schema:
+  `stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-payload-v1`.
+- Statement version:
+  `zkai-native-seq32-attention-mlp-single-proof-object-native-adapter-statement-v1`.
+- Workload target:
+  `attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1`.
+- Step/log-size metadata:
+  `pcs_lifting_log_size = 19`; adjacent/probe `adapter_trace_cells = 0`.
 - Timing mode: proof-size/accounting only; no timing claim and no median-of-5.
 - Gate schema:
   `zkai-native-seq32-attention-mlp-adapter-variant-selector-gate-v1`.
