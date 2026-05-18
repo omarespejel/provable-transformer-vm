@@ -2144,6 +2144,30 @@ Seq32-derived d128 native MLP reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
+Latest seq32+d128 native single-proof champion: PR `#679` built one native
+Stwo proof object over the selected two-head `seq32` fused attention surface,
+a native attention-output-to-d128 adapter AIR, and the seq32-derived d128
+RMSNorm/MLP fused surface. It verifies locally at `42,068` typed proof bytes /
+`121,996` JSON proof bytes versus the matched value-compatible two-proof
+frontier at `47,188` typed bytes / `140,838` JSON proof bytes, saving `5,120`
+typed bytes (`10.8502%`) and `18,842` JSON bytes (`13.3785%`). This is the
+current local seq32+d128 native-boundary champion, not a full transformer
+block, not a matched external benchmark, and not a NANOZK proof-size win. See
+`docs/engineering/zkai-native-seq32-attention-mlp-single-proof-2026-05-19.md`.
+
+Latest seq32+d128 adapter-variant selector: the first post-champion opening
+layout attack is a checked NO-GO for improving proof size through base-cell
+removal alone. Five variants verify locally: compact base (`42,548` typed
+bytes), output anchor (`42,976`), RMSNorm-input fused (`42,780`),
+RMSNorm-input adjacent (`42,156`), and RMSNorm-input post-tail (`42,780`).
+The current duplicate-base champion remains smallest at `42,068` typed bytes.
+The best zero-base adjacent layout misses by only `88` typed bytes: it saves
+`504` bytes in OODS/query values but pays `576` extra bytes in FRI/trace
+decommitment material plus `16` FRI sample bytes. The next attack is
+query/opening stability for the adjacent zero-base layout, not more adapter
+base-cell removal. See
+`docs/engineering/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05-19.md`.
+
 1. Treat `rmsnorm_mlp_fused` as the current positive MLP-side fusion result:
    the native fused proof saves `32,144` local typed bytes (`56.4167%`) versus
    separate RMSNorm, bridge, gate/value, activation, down-projection, and

@@ -14,12 +14,14 @@ use std::path::{Path, PathBuf};
 #[cfg(feature = "stwo-backend")]
 use llm_provable_computer::stwo_backend::{
     build_zkai_native_seq32_attention_mlp_single_proof_input,
+    build_zkai_native_seq32_attention_mlp_single_proof_input_with_adapter_mode,
     prove_zkai_native_seq32_attention_mlp_single_proof_envelope,
     verify_zkai_native_seq32_attention_mlp_single_proof_envelope,
     zkai_attention_kv_native_two_head_seq32_fused_softmax_table_source_input_from_json_str,
     zkai_d128_rmsnorm_mlp_fused_input_from_json_str,
     zkai_native_seq32_attention_mlp_single_proof_envelope_from_json_slice,
     zkai_native_seq32_attention_mlp_single_proof_input_from_json_str,
+    ZkAiNativeSeq32AttentionMlpAdapterMode,
     ZKAI_ATTENTION_KV_NATIVE_TWO_HEAD_SEQ32_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES,
     ZKAI_D128_RMSNORM_MLP_FUSED_MAX_JSON_BYTES,
     ZKAI_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_MAX_ENVELOPE_JSON_BYTES,
@@ -53,11 +55,31 @@ fn main() -> ExitCode {
 fn run() -> Result<String, String> {
     let mut args = std::env::args_os().skip(1).collect::<Vec<_>>();
     if args.is_empty() {
-        return Err("usage: zkai_native_seq32_attention_mlp_single_proof build-input <attention-source.json> <mlp-input.json> <single-input.json> | prove <single-input.json> <envelope.json> | verify <envelope.json>".to_string());
+        return Err(usage());
     }
     let mode = args.remove(0).to_string_lossy().to_string();
     match mode.as_str() {
         "build-input" => build_input(args),
+        "build-input-compact" => build_input_with_adapter_mode(
+            args,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::CompactBaseReferencedFixed,
+        ),
+        "build-input-preprocessed-anchor" => build_input_with_adapter_mode(
+            args,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::PreprocessedOutputAnchorFixed,
+        ),
+        "build-input-rmsnorm-fused" => build_input_with_adapter_mode(
+            args,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedFixed,
+        ),
+        "build-input-rmsnorm-fused-adjacent" => build_input_with_adapter_mode(
+            args,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed,
+        ),
+        "build-input-rmsnorm-fused-post-tail" => build_input_with_adapter_mode(
+            args,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedPostTailFixed,
+        ),
         "prove" => {
             if args.len() != 2 {
                 return Err("usage: prove <single-input.json> <envelope.json>".to_string());
@@ -125,17 +147,25 @@ fn run() -> Result<String, String> {
             })
             .to_string())
         }
-        _ => Err(format!("unknown mode: {mode}")),
+        _ => Err(format!("unknown mode: {mode}\n{}", usage())),
     }
 }
 
 #[cfg(feature = "stwo-backend")]
 fn build_input(args: Vec<std::ffi::OsString>) -> Result<String, String> {
+    build_input_with_adapter_mode(
+        args,
+        ZkAiNativeSeq32AttentionMlpAdapterMode::DuplicateBasePreprocessed,
+    )
+}
+
+#[cfg(feature = "stwo-backend")]
+fn build_input_with_adapter_mode(
+    args: Vec<std::ffi::OsString>,
+    adapter_mode: ZkAiNativeSeq32AttentionMlpAdapterMode,
+) -> Result<String, String> {
     if args.len() != 3 {
-        return Err(
-            "usage: build-input <attention-source.json> <mlp-input.json> <single-input.json>"
-                .to_string(),
-        );
+        return Err(usage());
     }
     let attention_path = PathBuf::from(&args[0]);
     let mlp_path = PathBuf::from(&args[1]);
@@ -157,8 +187,18 @@ fn build_input(args: Vec<std::ffi::OsString>) -> Result<String, String> {
     )?;
     let mlp = zkai_d128_rmsnorm_mlp_fused_input_from_json_str(&mlp_raw)
         .map_err(|error| error.to_string())?;
-    let input = build_zkai_native_seq32_attention_mlp_single_proof_input(attention, mlp)
-        .map_err(|error| error.to_string())?;
+    let input = if adapter_mode == ZkAiNativeSeq32AttentionMlpAdapterMode::DuplicateBasePreprocessed
+    {
+        build_zkai_native_seq32_attention_mlp_single_proof_input(attention, mlp)
+            .map_err(|error| error.to_string())?
+    } else {
+        build_zkai_native_seq32_attention_mlp_single_proof_input_with_adapter_mode(
+            attention,
+            mlp,
+            adapter_mode,
+        )
+        .map_err(|error| error.to_string())?
+    };
     let bytes = pretty_json_bytes_with_trailing_newline(
         &input,
         ZKAI_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_MAX_INPUT_JSON_BYTES,
@@ -179,6 +219,14 @@ fn build_input(args: Vec<std::ffi::OsString>) -> Result<String, String> {
         "current_two_proof_frontier_typed_bytes": input.current_two_proof_frontier_typed_bytes,
     })
     .to_string())
+}
+
+#[cfg(feature = "stwo-backend")]
+fn usage() -> String {
+    "usage: zkai_native_seq32_attention_mlp_single_proof \
+build-input|build-input-compact|build-input-preprocessed-anchor|build-input-rmsnorm-fused|build-input-rmsnorm-fused-adjacent|build-input-rmsnorm-fused-post-tail \
+<attention-source.json> <mlp-input.json> <single-input.json> | prove <single-input.json> <envelope.json> | verify <envelope.json>"
+        .to_string()
 }
 
 #[cfg(feature = "stwo-backend")]

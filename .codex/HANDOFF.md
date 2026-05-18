@@ -2238,6 +2238,52 @@ Seq32-derived d128 native MLP reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
+Latest seq32+d128 native single-proof champion: PR `#679` built one native
+Stwo proof object over the selected two-head `seq32` fused attention surface,
+a native attention-output-to-d128 adapter AIR, and the seq32-derived d128
+RMSNorm/MLP fused surface. It verifies locally at `42,068` typed proof bytes /
+`121,996` JSON proof bytes versus the matched value-compatible two-proof
+frontier at `47,188` typed bytes / `140,838` JSON proof bytes, saving `5,120`
+typed bytes (`10.8502%`) and `18,842` JSON bytes (`13.3785%`). This is the
+current local seq32+d128 native-boundary champion, not a full transformer
+block, not a matched external benchmark, and not a NANOZK proof-size win. See
+`docs/engineering/zkai-native-seq32-attention-mlp-single-proof-2026-05-19.md`.
+
+Latest seq32+d128 adapter-variant selector: the first post-champion opening
+layout attack is a checked NO-GO for improving proof size through base-cell
+removal alone. Five variants verify locally: compact base (`42,548` typed
+bytes), output anchor (`42,976`), RMSNorm-input fused (`42,780`),
+RMSNorm-input adjacent (`42,156`), and RMSNorm-input post-tail (`42,780`).
+The current duplicate-base champion remains smallest at `42,068` typed bytes.
+The best zero-base adjacent layout misses by only `88` typed bytes: it saves
+`504` bytes in OODS/query values but pays `576` extra bytes in FRI/trace
+decommitment material plus `16` FRI sample bytes. The next attack is
+query/opening stability for the adjacent zero-base layout, not more adapter
+base-cell removal. See
+`docs/engineering/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05-19.md`.
+
+Seq32 adapter-variant selector reproducibility metadata:
+
+- Backend binary: `zkai_native_seq32_attention_mlp_single_proof`.
+- Timing mode: proof-size/accounting only; no timing claim and no median-of-5.
+- Gate schema:
+  `zkai-native-seq32-attention-mlp-adapter-variant-selector-gate-v1`.
+- Decision:
+  `NO_GO_ADAPTER_VARIANTS_DO_NOT_BEAT_CURRENT_SEQ32_NATIVE_SINGLE_PROOF`.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05.tsv`,
+  and
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-accounting-2026-05.json`.
+- Local validation commands:
+  `python3.10 scripts/zkai_native_seq32_attention_mlp_adapter_variant_selector_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_adapter_variant_selector_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_adapter_variant_selector_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adapter_variant_selector_gate`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
 ## Resume protocol
 
 1. Read `AGENTS.md`.
