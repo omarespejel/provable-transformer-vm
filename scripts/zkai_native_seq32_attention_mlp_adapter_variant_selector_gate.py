@@ -490,13 +490,13 @@ def build_payload() -> dict[str, Any]:
         "source_artifacts": source_artifacts(),
         "validation_commands": list(VALIDATION_COMMANDS),
     }
-    payload["mutation_result"] = mutation_result(payload)
+    payload["mutation_result"] = mutation_result(payload, variants)
     payload["payload_commitment"] = payload_commitment(payload)
-    validate_payload(payload)
+    validate_payload(payload, expected_rows=variants)
     return payload
 
 
-def mutation_result(payload: dict[str, Any]) -> dict[str, Any]:
+def mutation_result(payload: dict[str, Any], expected_rows: list[dict[str, Any]]) -> dict[str, Any]:
     cases = []
     for name, mutate in mutation_functions():
         item = copy.deepcopy(payload)
@@ -512,7 +512,7 @@ def mutation_result(payload: dict[str, Any]) -> dict[str, Any]:
         if name != "payload_commitment_drift":
             item["payload_commitment"] = payload_commitment(item)
         try:
-            validate_payload(item)
+            validate_payload(item, expected_rows=expected_rows)
         except NativeSeq32AdapterVariantSelectorGateError as err:
             cases.append({"name": name, "rejected": True, "error": str(err)})
         else:
@@ -543,7 +543,7 @@ def mutation_functions() -> tuple[tuple[str, Callable[[dict[str, Any]], None]], 
     )
 
 
-def validate_payload(payload: dict[str, Any]) -> None:
+def validate_payload(payload: dict[str, Any], *, expected_rows: list[dict[str, Any]] | None = None) -> None:
     expected_top = {
         "schema": SCHEMA,
         "decision": DECISION,
@@ -559,7 +559,7 @@ def validate_payload(payload: dict[str, Any]) -> None:
     if payload.get("validation_commands") != list(VALIDATION_COMMANDS):
         raise NativeSeq32AdapterVariantSelectorGateError("validation command drift")
     validate_summary(_dict(payload.get("summary"), "summary"))
-    validate_variants(_list(payload.get("variants"), "variants"))
+    validate_variants(_list(payload.get("variants"), "variants"), expected_rows=expected_rows)
     validate_source_artifacts(_list(payload.get("source_artifacts"), "source artifacts"))
     if "mutation_result" in payload:
         validate_mutation_result(_dict(payload["mutation_result"], "mutation result"))
@@ -598,10 +598,11 @@ def validate_summary(summary: dict[str, Any]) -> None:
         raise NativeSeq32AdapterVariantSelectorGateError("summary drift")
 
 
-def validate_variants(variants: list[Any]) -> None:
+def validate_variants(variants: list[Any], *, expected_rows: list[dict[str, Any]] | None = None) -> None:
     if len(variants) != len(EXPECTED_ROWS):
         raise NativeSeq32AdapterVariantSelectorGateError("variant inventory drift")
-    expected_rows = load_variant_rows()
+    if expected_rows is None:
+        expected_rows = load_variant_rows()
     for actual, expected in zip(variants, expected_rows, strict=True):
         row = _dict(actual, "variant row")
         for key in (
