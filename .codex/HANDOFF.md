@@ -2315,6 +2315,45 @@ Seq32 adapter-variant selector reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
+Latest seq32+d128 adjacent label-policy gate: the first query/opening
+stability attack is a checked GO for the existing RMSNorm-input adjacent label
+probes. The fixed adjacent layout remained a near miss at `42,156` typed bytes
+(`+88` versus the `42,068` champion), but probe A verifies at `40,332` typed
+bytes / `116,321` JSON bytes and probe B verifies at `37,532` typed bytes /
+`106,317` JSON bytes. The worst checked probe saves `1,736` typed bytes
+(`4.1267%`) versus the current local seq32+d128 champion; the best saves
+`4,536` typed bytes (`10.7825%`). Direct value bytes stay fixed at `20,924`
+across fixed adjacent and both probes, so the savings come from path-opening
+and FRI material. This is a transcript/opening-stability signal, not a final
+production label policy, not a matched external benchmark, and not a NANOZK
+proof-size win. See
+`docs/engineering/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-policy-2026-05-19.md`.
+
+Seq32 adjacent label-policy reproducibility metadata:
+
+- Backend binary: `zkai_native_seq32_attention_mlp_single_proof`.
+- Timing mode: proof-size/accounting only; no timing claim and no median-of-5.
+- Gate schema:
+  `zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-policy-gate-v1`.
+- Decision:
+  `GO_ADJACENT_LABEL_PROBES_BEAT_CURRENT_SEQ32_CHAMPION`.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-policy-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-policy-2026-05.tsv`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-accounting-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05.envelope.json`,
+  and
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.envelope.json`.
+- Local validation commands:
+  `python3.10 scripts/zkai_native_seq32_attention_mlp_adjacent_label_policy_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-policy-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-policy-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_adjacent_label_policy_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_adjacent_label_policy_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adjacent_label_policy_gate`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_adjacent_label --lib`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
 ## Resume protocol
 
 1. Read `AGENTS.md`.
