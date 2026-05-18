@@ -112,6 +112,16 @@ class Seq32ValueCompatibleBoundaryFrontierGateTest(unittest.TestCase):
             with self.assertRaisesRegex(self.gate.Seq32ValueCompatibleBoundaryFrontierError, "symlink"):
                 self.gate.atomic_write_text(link, "{}\n")
 
+    def test_atomic_write_rejects_path_outside_repo(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            outside = pathlib.Path(tmpdir) / "outside.json"
+            with self.assertRaisesRegex(
+                self.gate.Seq32ValueCompatibleBoundaryFrontierError,
+                "output path escapes repo root",
+            ):
+                self.gate.atomic_write_text(outside, "{}\n")
+            self.assertFalse(outside.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

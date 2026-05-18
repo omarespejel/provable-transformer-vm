@@ -612,10 +612,23 @@ def pretty_json(value: Any) -> str:
     return json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + "\n"
 
 
+def normalize_repo_output_path(path: pathlib.Path) -> pathlib.Path:
+    candidate = path if path.is_absolute() else ROOT / path
+    resolved_root = ROOT.resolve()
+    resolved_candidate = candidate.resolve(strict=False)
+    try:
+        resolved_candidate.relative_to(resolved_root)
+    except ValueError as err:
+        raise Seq32ValueCompatibleBoundaryFrontierError("output path escapes repo root") from err
+    return resolved_candidate
+
+
 def atomic_write_text(path: pathlib.Path, text: str) -> None:
+    candidate = path if path.is_absolute() else ROOT / path
+    if candidate.exists() and candidate.is_symlink():
+        raise Seq32ValueCompatibleBoundaryFrontierError(f"refusing to write symlink: {candidate}")
+    path = normalize_repo_output_path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    if path.exists() and path.is_symlink():
-        raise Seq32ValueCompatibleBoundaryFrontierError(f"refusing to write symlink: {path}")
     suffix = path.suffix or ".tmp"
     temp_name = f".{path.name}.{secrets.token_hex(8)}.tmp{suffix}"
     temp_path = path.parent / temp_name
