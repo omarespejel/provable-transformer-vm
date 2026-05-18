@@ -108,6 +108,27 @@ class NativeSeq32AdjacentLabelPolicyGateTest(unittest.TestCase):
         with self.assertRaisesRegex(self.gate.AdjacentLabelPolicyGateError, "claim_boundary drift"):
             self.gate.validate_payload(payload)
 
+    def test_rejects_interpretation_drift(self) -> None:
+        payload = copy.deepcopy(self.__class__.payload)
+        payload["interpretation"]["human_read"] = "overclaim"
+        payload["payload_commitment"] = self.gate.payload_commitment(payload)
+        with self.assertRaisesRegex(self.gate.AdjacentLabelPolicyGateError, "interpretation drift"):
+            self.gate.validate_payload(payload)
+
+    def test_requires_mutation_result(self) -> None:
+        payload = copy.deepcopy(self.__class__.payload)
+        del payload["mutation_result"]
+        payload["payload_commitment"] = self.gate.payload_commitment(payload)
+        with self.assertRaisesRegex(self.gate.AdjacentLabelPolicyGateError, "mutation result must be object"):
+            self.gate.validate_payload(payload)
+
+    def test_rejects_variant_reordering(self) -> None:
+        payload = copy.deepcopy(self.__class__.payload)
+        payload["variants"][0], payload["variants"][1] = payload["variants"][1], payload["variants"][0]
+        payload["payload_commitment"] = self.gate.payload_commitment(payload)
+        with self.assertRaisesRegex(self.gate.AdjacentLabelPolicyGateError, "variant order drift"):
+            self.gate.validate_payload(payload)
+
     def test_rejects_payload_commitment_drift(self) -> None:
         payload = copy.deepcopy(self.__class__.payload)
         payload["payload_commitment"] = "blake2b-256:" + "0" * 64

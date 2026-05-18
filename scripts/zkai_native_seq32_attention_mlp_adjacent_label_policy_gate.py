@@ -36,6 +36,20 @@ CLAIM_BOUNDARY = (
 )
 ISSUE_HINT = "seq32-adjacent-opening-stability"
 PAYLOAD_DOMAIN = "ptvm:zkai:native-seq32-attention-mlp-rmsnorm-adjacent-label-policy:v1"
+EXPECTED_INTERPRETATION = {
+    "human_read": (
+        "The adjacent layout looked like an 88-byte NO-GO under its fixed label, but both existing "
+        "adjacent label probes verify and beat the current champion. The worst checked probe saves "
+        "1,736 typed bytes; the best saves 4,536 typed bytes."
+    ),
+    "mechanism_read": (
+        "The direct value bytes stay fixed across the adjacent label probes. The savings come from "
+        "path-opening and FRI material, so this is a transcript/opening-stability signal."
+    ),
+    "next_experiment": (
+        "Freeze a deterministic label policy before promoting this as a durable proof-size frontier."
+    ),
+}
 
 CURRENT_CHAMPION_ID = "current_duplicate_base"
 CURRENT_CHAMPION_TYPED_BYTES = 42_068
@@ -178,6 +192,7 @@ MUTATION_NAMES = (
     "source_artifact_digest_drift",
     "validation_command_drift",
     "removed_non_claim",
+    "interpretation_drift",
     "nanozk_overclaim",
     "payload_commitment_drift",
 )
@@ -413,20 +428,7 @@ def build_payload() -> dict[str, Any]:
         "issue_hint": ISSUE_HINT,
         "summary": summary,
         "variants": enriched_rows,
-        "interpretation": {
-            "human_read": (
-                "The adjacent layout looked like an 88-byte NO-GO under its fixed label, but both existing "
-                "adjacent label probes verify and beat the current champion. The worst checked probe saves "
-                "1,736 typed bytes; the best saves 4,536 typed bytes."
-            ),
-            "mechanism_read": (
-                "The direct value bytes stay fixed across the adjacent label probes. The savings come from "
-                "path-opening and FRI material, so this is a transcript/opening-stability signal."
-            ),
-            "next_experiment": (
-                "Freeze a deterministic label policy before promoting this as a durable proof-size frontier."
-            ),
-        },
+        "interpretation": copy.deepcopy(EXPECTED_INTERPRETATION),
         "non_claims": list(NON_CLAIMS),
         "source_artifacts": source_artifacts(),
         "validation_commands": list(VALIDATION_COMMANDS),
@@ -479,6 +481,7 @@ def mutation_functions() -> tuple[tuple[str, Callable[[dict[str, Any]], None]], 
         ("source_artifact_digest_drift", lambda item: item["source_artifacts"][0].update({"sha256": "0" * 64})),
         ("validation_command_drift", lambda item: item["validation_commands"].append("echo untracked")),
         ("removed_non_claim", lambda item: item["non_claims"].remove("not a final production label-selection policy")),
+        ("interpretation_drift", lambda item: item["interpretation"].update({"human_read": "overclaim"})),
         ("nanozk_overclaim", lambda item: item.update({"claim_boundary": item["claim_boundary"] + ";NANOZK_WIN"})),
         ("payload_commitment_drift", lambda item: item.update({"payload_commitment": "blake2b-256:" + "0" * 64})),
     )
@@ -499,11 +502,12 @@ def validate_payload(payload: dict[str, Any]) -> None:
         raise AdjacentLabelPolicyGateError("non_claims drift")
     if payload.get("validation_commands") != list(VALIDATION_COMMANDS):
         raise AdjacentLabelPolicyGateError("validation command drift")
+    if payload.get("interpretation") != EXPECTED_INTERPRETATION:
+        raise AdjacentLabelPolicyGateError("interpretation drift")
     validate_summary(_dict(payload.get("summary"), "summary"))
     validate_variants(_list(payload.get("variants"), "variants"))
     validate_source_artifacts(_list(payload.get("source_artifacts"), "source artifacts"))
-    if "mutation_result" in payload:
-        validate_mutation_result(_dict(payload["mutation_result"], "mutation result"))
+    validate_mutation_result(_dict(payload.get("mutation_result"), "mutation result"))
     if payload.get("payload_commitment") != payload_commitment(payload):
         raise AdjacentLabelPolicyGateError("payload commitment drift")
 
@@ -545,8 +549,14 @@ def validate_summary(summary: dict[str, Any]) -> None:
 def validate_variants(variants: list[Any]) -> None:
     if len(variants) != len(EXPECTED_ROWS):
         raise AdjacentLabelPolicyGateError("variant inventory drift")
+    if [_dict(item, "variant").get("variant_id") for item in variants] != [row["variant_id"] for row in EXPECTED_ROWS]:
+        raise AdjacentLabelPolicyGateError("variant order drift")
     expected = expected_by_path()
-    champion = _dict(variants[0], "champion")
+    champion = next(
+        _dict(item, "variant")
+        for item in variants
+        if _dict(item, "variant").get("variant_id") == CURRENT_CHAMPION_ID
+    )
     for actual in variants:
         row = _dict(actual, "variant")
         path = row.get("path")

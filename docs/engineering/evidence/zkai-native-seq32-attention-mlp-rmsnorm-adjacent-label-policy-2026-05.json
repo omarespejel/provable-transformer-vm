@@ -66,6 +66,11 @@
         "rejected": true
       },
       {
+        "error": "interpretation drift",
+        "name": "interpretation_drift",
+        "rejected": true
+      },
+      {
         "error": "claim_boundary drift",
         "name": "nanozk_overclaim",
         "rejected": true
@@ -88,10 +93,11 @@
       "source_artifact_digest_drift",
       "validation_command_drift",
       "removed_non_claim",
+      "interpretation_drift",
       "nanozk_overclaim",
       "payload_commitment_drift"
     ],
-    "mutations_rejected": 13
+    "mutations_rejected": 14
   },
   "non_claims": [
     "not a NANOZK proof-size win",
@@ -102,7 +108,7 @@
     "not production-ready zkML",
     "not a final production label-selection policy"
   ],
-  "payload_commitment": "blake2b-256:77b98ad1ee2583022289b6a50b2abb9029e32882509a779514fe4e6692d150cd",
+  "payload_commitment": "blake2b-256:f2bcfec2552cc89befcb489271b357063cf13ea302fb91732cb416249ea427a2",
   "result": "WORST_CHECKED_ADJACENT_LABEL_PROBE_SAVES_1736_TYPED_BYTES_VS_42068_CHAMPION",
   "schema": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-policy-gate-v1",
   "source_artifacts": [
