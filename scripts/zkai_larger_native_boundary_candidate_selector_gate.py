@@ -798,7 +798,7 @@ def run_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
         try:
             mutator(mutated)
         except Exception as err:
-            results.append({"name": name, "rejected": True, "error": str(err)})
+            results.append({"name": name, "rejected": False, "error": f"mutator failed: {err}"})
             continue
         if name != "payload_commitment_drift":
             refresh_payload_commitment(mutated)
