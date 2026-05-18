@@ -487,31 +487,61 @@ def validate_without_commitment(payload: dict[str, Any]) -> None:
             raise Seq32ValueCompatibleBoundaryFrontierError("source artifact size drift")
 
     if has_mutation_metadata:
+        expected_mutation_names = mutation_case_names()
+        if expected_mutation_names != MUTATION_NAMES:
+            raise Seq32ValueCompatibleBoundaryFrontierError("mutation inventory drift")
+
         inventory = payload.get("mutation_inventory")
         if not isinstance(inventory, dict):
             raise Seq32ValueCompatibleBoundaryFrontierError("mutation inventory drift")
-        if inventory.get("mutation_count") != len(MUTATION_NAMES):
+        if inventory.get("mutation_count") != len(expected_mutation_names):
             raise Seq32ValueCompatibleBoundaryFrontierError("mutation inventory drift")
-        if tuple(inventory.get("mutation_names", ())) != MUTATION_NAMES:
+        if tuple(inventory.get("mutation_names", ())) != expected_mutation_names:
             raise Seq32ValueCompatibleBoundaryFrontierError("mutation inventory drift")
 
         mutation_result = payload.get("mutation_result")
         if not isinstance(mutation_result, dict):
             raise Seq32ValueCompatibleBoundaryFrontierError("mutation result drift")
-        if mutation_result.get("mutation_count") != len(MUTATION_NAMES):
+        if mutation_result.get("mutation_count") != len(expected_mutation_names):
             raise Seq32ValueCompatibleBoundaryFrontierError("mutation result drift")
-        if tuple(mutation_result.get("mutation_names", ())) != MUTATION_NAMES:
+        if tuple(mutation_result.get("mutation_names", ())) != expected_mutation_names:
             raise Seq32ValueCompatibleBoundaryFrontierError("mutation result drift")
-        if mutation_result.get("mutations_rejected") != len(MUTATION_NAMES):
+        if mutation_result.get("mutations_rejected") != len(expected_mutation_names):
             raise Seq32ValueCompatibleBoundaryFrontierError("mutation result drift")
         if mutation_result.get("all_mutations_rejected") is not True:
             raise Seq32ValueCompatibleBoundaryFrontierError("mutation rejection drift")
+        cases = mutation_result.get("cases")
+        if not isinstance(cases, list) or len(cases) != len(expected_mutation_names):
+            raise Seq32ValueCompatibleBoundaryFrontierError("mutation result drift")
+        case_names = []
+        rejected_count = 0
+        for case in cases:
+            if not isinstance(case, dict) or set(case) != {"name", "rejected", "error"}:
+                raise Seq32ValueCompatibleBoundaryFrontierError("mutation result drift")
+            name = case.get("name")
+            if not isinstance(name, str):
+                raise Seq32ValueCompatibleBoundaryFrontierError("mutation result drift")
+            case_names.append(name)
+            if case.get("rejected") is not True:
+                raise Seq32ValueCompatibleBoundaryFrontierError("mutation result drift")
+            error = case.get("error")
+            if not isinstance(error, str) or not error:
+                raise Seq32ValueCompatibleBoundaryFrontierError("mutation result drift")
+            rejected_count += 1
+        if tuple(case_names) != expected_mutation_names:
+            raise Seq32ValueCompatibleBoundaryFrontierError("mutation result drift")
+        if rejected_count != mutation_result.get("mutations_rejected"):
+            raise Seq32ValueCompatibleBoundaryFrontierError("mutation result drift")
 
 
 def validate_payload(payload: dict[str, Any]) -> None:
     validate_without_commitment(payload)
     if payload.get("payload_commitment") != payload_commitment(payload):
         raise Seq32ValueCompatibleBoundaryFrontierError("payload commitment drift")
+
+
+def mutation_case_names() -> tuple[str, ...]:
+    return tuple(name for name, _mutate in mutation_cases())
 
 
 def mutate_source_artifact_valid_path_drift(payload: dict[str, Any]) -> None:
@@ -572,7 +602,9 @@ def mutation_cases() -> list[tuple[str, Callable[[dict[str, Any]], None]]]:
 def run_mutations() -> dict[str, Any]:
     baseline = build_payload()
     cases = []
+    executed_names = []
     for name, mutate in mutation_cases():
+        executed_names.append(name)
         candidate = copy.deepcopy(baseline)
         mutate(candidate)
         if name != "payload_commitment_drift":
@@ -583,12 +615,14 @@ def run_mutations() -> dict[str, Any]:
             cases.append({"name": name, "rejected": True, "error": str(err)})
         else:
             cases.append({"name": name, "rejected": False, "error": ""})
+    if tuple(executed_names) != MUTATION_NAMES:
+        raise Seq32ValueCompatibleBoundaryFrontierError("mutation inventory drift")
     rejected = sum(1 for case in cases if case["rejected"])
     return {
-        "mutation_count": len(MUTATION_NAMES),
-        "mutation_names": list(MUTATION_NAMES),
+        "mutation_count": len(executed_names),
+        "mutation_names": executed_names,
         "mutations_rejected": rejected,
-        "all_mutations_rejected": rejected == len(MUTATION_NAMES),
+        "all_mutations_rejected": rejected == len(executed_names),
         "cases": cases,
     }
 
@@ -597,8 +631,8 @@ def payload_with_mutations() -> dict[str, Any]:
     payload = build_payload()
     mutation_result = run_mutations()
     payload["mutation_inventory"] = {
-        "mutation_count": len(MUTATION_NAMES),
-        "mutation_names": list(MUTATION_NAMES),
+        "mutation_count": len(mutation_result["mutation_names"]),
+        "mutation_names": list(mutation_result["mutation_names"]),
     }
     payload["mutation_result"] = mutation_result
     payload["payload_commitment"] = payload_commitment(payload)
@@ -625,7 +659,7 @@ def normalize_repo_output_path(path: pathlib.Path) -> pathlib.Path:
 
 def atomic_write_text(path: pathlib.Path, text: str) -> None:
     candidate = path if path.is_absolute() else ROOT / path
-    if candidate.exists() and candidate.is_symlink():
+    if candidate.is_symlink():
         raise Seq32ValueCompatibleBoundaryFrontierError(f"refusing to write symlink: {candidate}")
     path = normalize_repo_output_path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
