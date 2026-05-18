@@ -82,6 +82,7 @@ class LargerNativeBoundaryCandidateSelectorGateTests(unittest.TestCase):
         payload = self.payload()
         text = gate.tsv_bytes(payload).decode("utf-8")
         lines = text.strip().splitlines()
+        # This pins the reproducibility artifact schema, not only happy-path output presence.
         self.assertEqual(len(lines), 6)
         self.assertEqual(
             lines[0],
@@ -115,24 +116,35 @@ class LargerNativeBoundaryCandidateSelectorGateTests(unittest.TestCase):
         original = gate.mutation_cases
 
         def broken_cases():
+            cases = list(original())
             return [
                 (
-                    "forced_mutator_failure",
-                    lambda _mutated: gate.mutate_source_artifact_digest(
-                        _mutated,
-                        "missing_artifact",
-                    ),
+                    name,
+                    (
+                        lambda _mutated: gate.mutate_source_artifact_digest(
+                            _mutated,
+                            "missing_artifact",
+                        )
+                    )
+                    if name == "source_artifact_digest_drift"
+                    else mutator,
                 )
+                for name, mutator in cases
             ]
 
         try:
             gate.mutation_cases = broken_cases
             results = gate.run_mutations(payload)
+            with self.assertRaisesRegex(
+                gate.LargerNativeBoundaryCandidateSelectorError,
+                "failed coverage: source_artifact_digest_drift: mutator failed",
+            ):
+                gate.finalize_payload(payload)
         finally:
             gate.mutation_cases = original
-        self.assertEqual(results[0]["name"], "forced_mutator_failure")
-        self.assertFalse(results[0]["rejected"])
-        self.assertIn("mutator failed: missing source artifact missing_artifact", results[0]["error"])
+        failed = [item for item in results if item["name"] == "source_artifact_digest_drift"][0]
+        self.assertFalse(failed["rejected"])
+        self.assertIn("mutator failed: missing source artifact missing_artifact", failed["error"])
 
     def test_rejects_selected_candidate_drift(self):
         payload = self.payload()
