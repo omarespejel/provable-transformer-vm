@@ -11,6 +11,7 @@ import io
 import json
 import os
 import pathlib
+import secrets
 import stat
 import sys
 from collections.abc import Callable
@@ -581,33 +582,71 @@ def tsv_text(payload: dict[str, Any]) -> str:
     return buffer.getvalue()
 
 
-def atomic_write_text(path: pathlib.Path, text: str) -> None:
-    root = ROOT.resolve()
+def require_output_path(path: pathlib.Path) -> pathlib.Path:
     target = pathlib.Path(os.path.abspath(path if path.is_absolute() else ROOT / path))
+    evidence_root = EVIDENCE_DIR.resolve()
     try:
-        target.relative_to(root)
+        relative = target.relative_to(evidence_root)
     except ValueError as err:
-        raise NativeSeq32AttentionMlpSingleProofGateError("output path escapes repo root") from err
-    if target.exists() or target.is_symlink():
-        if target.is_symlink():
-            raise NativeSeq32AttentionMlpSingleProofGateError("output path must not be symlink")
-    parent = target.parent
-    parent.mkdir(parents=True, exist_ok=True)
-    tmp = parent / f".{target.name}.{os.getpid()}.tmp"
-    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
-    fd = os.open(tmp, flags, 0o600)
+        raise NativeSeq32AttentionMlpSingleProofGateError("output path escapes evidence dir") from err
+    current = evidence_root
+    for part in relative.parent.parts:
+        current = current / part
+        try:
+            mode = current.lstat().st_mode
+        except OSError as err:
+            raise NativeSeq32AttentionMlpSingleProofGateError(f"output parent must exist: {current}") from err
+        if stat.S_ISLNK(mode):
+            raise NativeSeq32AttentionMlpSingleProofGateError("output path must not traverse symlinks")
+        if not stat.S_ISDIR(mode):
+            raise NativeSeq32AttentionMlpSingleProofGateError(f"output parent must be directory: {current}")
+    if target.is_symlink() or (target.exists() and target.is_dir()):
+        raise NativeSeq32AttentionMlpSingleProofGateError("output path must be a non-symlink file")
+    return target
+
+
+def atomic_write_text(path: pathlib.Path, text: str) -> None:
+    target = require_output_path(path)
+    parent_fd = os.open(
+        target.parent,
+        os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0),
+    )
+    tmp_name = f".{target.name}.{os.getpid()}.{secrets.token_hex(8)}.tmp"
+    tmp_created = False
+    fd: int | None = None
     try:
-        with os.fdopen(fd, "w", encoding="utf-8", newline="") as handle:
+        fd = os.open(
+            tmp_name,
+            os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0),
+            0o600,
+            dir_fd=parent_fd,
+        )
+        tmp_created = True
+        try:
+            handle = os.fdopen(fd, "w", encoding="utf-8", newline="")
+        except Exception:
+            os.close(fd)
             fd = None
+            raise
+        fd = None
+        with handle:
             handle.write(text)
             handle.flush()
             os.fsync(handle.fileno())
-        os.replace(tmp, target)
+        os.replace(tmp_name, target.name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
+        tmp_created = False
+        os.fsync(parent_fd)
+    except Exception:
+        if tmp_created:
+            try:
+                os.unlink(tmp_name, dir_fd=parent_fd)
+            except OSError:
+                pass
+        raise
     finally:
         if fd is not None:
             os.close(fd)
-        if tmp.exists():
-            tmp.unlink()
+        os.close(parent_fd)
 
 
 def main() -> int:
