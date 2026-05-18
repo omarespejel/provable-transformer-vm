@@ -101,6 +101,17 @@ class Seq32ValueCompatibleBoundaryFrontierGateTest(unittest.TestCase):
         self.assertTrue(result["all_mutations_rejected"])
         self.assertEqual(result["mutations_rejected"], len(self.gate.MUTATION_NAMES))
         self.assertEqual(tuple(result["mutation_names"]), self.gate.MUTATION_NAMES)
+        self.assertEqual(tuple(case["name"] for case in result["cases"]), self.gate.MUTATION_NAMES)
+
+    def test_rejects_mutation_result_case_name_drift(self) -> None:
+        payload = copy.deepcopy(self.__class__.payload)
+        payload["mutation_result"]["cases"][0]["name"] = "different_mutation"
+        payload["payload_commitment"] = self.gate.payload_commitment(payload)
+        with self.assertRaisesRegex(
+            self.gate.Seq32ValueCompatibleBoundaryFrontierError,
+            "mutation result drift",
+        ):
+            self.gate.validate_payload(payload)
 
     def test_atomic_write_rejects_symlink(self) -> None:
         with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmpdir:
@@ -109,6 +120,14 @@ class Seq32ValueCompatibleBoundaryFrontierGateTest(unittest.TestCase):
             target.write_text("{}", encoding="utf-8")
             link = tmp / "link.json"
             link.symlink_to(target)
+            with self.assertRaisesRegex(self.gate.Seq32ValueCompatibleBoundaryFrontierError, "symlink"):
+                self.gate.atomic_write_text(link, "{}\n")
+
+    def test_atomic_write_rejects_broken_symlink(self) -> None:
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmpdir:
+            tmp = pathlib.Path(tmpdir)
+            link = tmp / "broken-link.json"
+            link.symlink_to(tmp / "missing-target.json")
             with self.assertRaisesRegex(self.gate.Seq32ValueCompatibleBoundaryFrontierError, "symlink"):
                 self.gate.atomic_write_text(link, "{}\n")
 
