@@ -219,6 +219,9 @@ const EXPECTED_VALIDATION_COMMANDS: &[&str] = &[
     "just gate",
 ];
 const EXPECTED_SEQ32_ADAPTER_VARIANT_SELECTOR_VALIDATION_COMMANDS: &[&str] = &[
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json",
     "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-compact docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-compact-adapter-2026-05.input.json",
     "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-seq32-attention-mlp-compact-adapter-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-compact-adapter-2026-05.envelope.json",
     "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-seq32-attention-mlp-compact-adapter-2026-05.envelope.json",
@@ -238,6 +241,12 @@ const EXPECTED_SEQ32_ADAPTER_VARIANT_SELECTOR_VALIDATION_COMMANDS: &[&str] = &[
     "python3.10 scripts/zkai_native_seq32_attention_mlp_adapter_variant_selector_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05.tsv",
     "python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_adapter_variant_selector_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_adapter_variant_selector_gate.py",
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adapter_variant_selector_gate",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib",
+    "git diff --check",
+    "just gate-fast",
+    "just gate",
+];
+const EXPECTED_EXPERIMENTAL_ADAPTER_MODE_VALIDATION_COMMANDS: &[&str] = &[
     "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib",
     "git diff --check",
     "just gate-fast",
@@ -370,22 +379,21 @@ impl ZkAiNativeSeq32AttentionMlpAdapterMode {
     fn validation_commands(self) -> &'static [&'static str] {
         match self {
             Self::DuplicateBasePreprocessed => EXPECTED_VALIDATION_COMMANDS,
-            Self::DuplicateBasePreprocessedSelector
-            | Self::CompactBaseReferencedFixed
+            Self::CompactBaseReferencedFixed
             | Self::PreprocessedOutputAnchorFixed
-            | Self::RmsnormInputFusedFixed => {
+            | Self::RmsnormInputFusedFixed
+            | Self::RmsnormInputFusedAdjacentFixed
+            | Self::RmsnormInputFusedPostTailFixed => {
                 EXPECTED_SEQ32_ADAPTER_VARIANT_SELECTOR_VALIDATION_COMMANDS
             }
-            Self::RmsnormInputFusedAdjacentFixed
+            Self::DuplicateBasePreprocessedSelector
+            | Self::RmsnormInputFusedLabelProbeA
+            | Self::RmsnormInputFusedLabelProbeB
             | Self::RmsnormInputFusedAdjacentLabelProbeA
             | Self::RmsnormInputFusedAdjacentLabelProbeB
-            | Self::RmsnormInputFusedPostTailFixed
             | Self::RmsnormInputFusedPostTailLabelProbeA
             | Self::RmsnormInputFusedPostTailLabelProbeB => {
-                EXPECTED_SEQ32_ADAPTER_VARIANT_SELECTOR_VALIDATION_COMMANDS
-            }
-            Self::RmsnormInputFusedLabelProbeA | Self::RmsnormInputFusedLabelProbeB => {
-                EXPECTED_SEQ32_ADAPTER_VARIANT_SELECTOR_VALIDATION_COMMANDS
+                EXPECTED_EXPERIMENTAL_ADAPTER_MODE_VALIDATION_COMMANDS
             }
         }
     }
@@ -2628,6 +2636,45 @@ mod tests {
             let ids = combined_preprocessed_column_ids(mode).expect("ids");
             let unique = ids.iter().map(|id| id.id.clone()).collect::<BTreeSet<_>>();
             assert_eq!(ids.len(), unique.len());
+        }
+    }
+
+    #[test]
+    fn adapter_variant_validation_commands_are_self_contained_for_checked_modes() {
+        let commands = EXPECTED_SEQ32_ADAPTER_VARIANT_SELECTOR_VALIDATION_COMMANDS;
+        for needle in [
+            "zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json",
+            "zkai-native-seq32-attention-mlp-compact-adapter-2026-05.envelope.json",
+            "zkai-native-seq32-attention-mlp-output-anchor-adapter-2026-05.envelope.json",
+            "zkai-native-seq32-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json",
+            "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.envelope.json",
+            "zkai-native-seq32-attention-mlp-rmsnorm-post-tail-layout-2026-05.envelope.json",
+            "zkai-native-seq32-attention-mlp-adapter-variant-selector-accounting-2026-05.json",
+        ] {
+            assert!(commands.iter().any(|command| command.contains(needle)));
+        }
+        for mode in [
+            ZkAiNativeSeq32AttentionMlpAdapterMode::CompactBaseReferencedFixed,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::PreprocessedOutputAnchorFixed,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedFixed,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedPostTailFixed,
+        ] {
+            assert_eq!(mode.validation_commands(), commands);
+        }
+        for mode in [
+            ZkAiNativeSeq32AttentionMlpAdapterMode::DuplicateBasePreprocessedSelector,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedLabelProbeA,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedLabelProbeB,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeA,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeB,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedPostTailLabelProbeA,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedPostTailLabelProbeB,
+        ] {
+            assert_eq!(
+                mode.validation_commands(),
+                EXPECTED_EXPERIMENTAL_ADAPTER_MODE_VALIDATION_COMMANDS
+            );
         }
     }
 

@@ -212,6 +212,7 @@ MUTATION_NAMES = (
     "current_champion_typed_drift",
     "variant_typed_metric_drift",
     "variant_json_metric_drift",
+    "variant_metadata_drift",
     "variant_inventory_drift",
     "claim_boundary_overclaim",
     "removed_non_claim",
@@ -265,44 +266,54 @@ def payload_commitment(payload: dict[str, Any]) -> str:
 
 
 def require_output_path(path: pathlib.Path) -> pathlib.Path:
-    resolved = path.resolve()
+    target = pathlib.Path(os.path.abspath(path if path.is_absolute() else ROOT / path))
     evidence = EVIDENCE_DIR.resolve()
     try:
-        resolved.relative_to(evidence)
+        relative = target.relative_to(evidence)
     except ValueError as err:
         raise NativeSeq32AdapterVariantSelectorGateError(
-            f"output path escapes evidence dir: {resolved}"
+            f"output path escapes evidence dir: {target}"
         ) from err
-    return resolved
-
-
-def reject_symlinked_ancestors(path: pathlib.Path) -> None:
-    for ancestor in path.resolve().parents:
-        if ancestor == ancestor.parent:
-            break
+    current = evidence
+    for part in relative.parent.parts:
+        current = current / part
         try:
-            if ancestor.is_symlink():
-                raise NativeSeq32AdapterVariantSelectorGateError(f"refusing symlinked parent: {ancestor}")
+            mode = current.lstat().st_mode
         except OSError as err:
-            raise NativeSeq32AdapterVariantSelectorGateError(f"failed to inspect parent {ancestor}: {err}") from err
+            raise NativeSeq32AdapterVariantSelectorGateError(f"output parent must exist: {current}") from err
+        if stat.S_ISLNK(mode):
+            raise NativeSeq32AdapterVariantSelectorGateError("output path must not traverse symlinks")
+        if not stat.S_ISDIR(mode):
+            raise NativeSeq32AdapterVariantSelectorGateError(f"output parent must be directory: {current}")
+    if target.is_symlink() or (target.exists() and target.is_dir()):
+        raise NativeSeq32AdapterVariantSelectorGateError("output path must be a non-symlink file")
+    return target
 
 
 def read_repo_file(path: pathlib.Path, label: str) -> bytes:
-    resolved = path.resolve()
+    root = ROOT.resolve()
+    candidate = pathlib.Path(os.path.abspath(path if path.is_absolute() else ROOT / path))
     try:
-        resolved.relative_to(ROOT.resolve())
+        relative = candidate.relative_to(root)
     except ValueError as err:
         raise NativeSeq32AdapterVariantSelectorGateError(f"{label} escapes repo: {path}") from err
-    reject_symlinked_ancestors(resolved)
     try:
-        metadata = os.lstat(resolved)
-    except FileNotFoundError as err:
-        raise NativeSeq32AdapterVariantSelectorGateError(f"missing {label}: {path}") from err
-    if stat.S_ISLNK(metadata.st_mode):
-        raise NativeSeq32AdapterVariantSelectorGateError(f"{label} is a symlink: {path}")
-    if not stat.S_ISREG(metadata.st_mode):
-        raise NativeSeq32AdapterVariantSelectorGateError(f"{label} is not a regular file: {path}")
-    return resolved.read_bytes()
+        current = root
+        for part in relative.parts:
+            current = current / part
+            mode = current.lstat().st_mode
+            if stat.S_ISLNK(mode):
+                raise NativeSeq32AdapterVariantSelectorGateError(f"{label} must not traverse symlinks")
+        fd = os.open(candidate, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+        try:
+            with os.fdopen(fd, "rb") as handle:
+                fd = None
+                return handle.read()
+        finally:
+            if fd is not None:
+                os.close(fd)
+    except OSError as err:
+        raise NativeSeq32AdapterVariantSelectorGateError(f"failed to read {label}: {err}") from err
 
 
 def read_json_file(path: pathlib.Path, label: str) -> Any:
@@ -360,13 +371,23 @@ def load_variant_rows() -> list[dict[str, Any]]:
         path = _str(row.get("evidence_relative_path"), "evidence path")
         if path != expected["path"]:
             raise NativeSeq32AdapterVariantSelectorGateError("variant path drift")
-        envelope = _dict(read_json_file(EVIDENCE_DIR / path, f"{path} envelope"), "envelope")
+        envelope_raw = read_repo_file(EVIDENCE_DIR / path, f"{path} envelope")
+        try:
+            envelope = _dict(json.loads(envelope_raw), "envelope")
+        except json.JSONDecodeError as err:
+            raise NativeSeq32AdapterVariantSelectorGateError(f"invalid {path} envelope JSON: {err}") from err
         envelope_input = _dict(envelope.get("input"), "envelope input")
         proof = _list(envelope.get("proof"), "envelope proof")
         try:
             proof_bytes = bytes(proof)
         except (TypeError, ValueError) as err:
             raise NativeSeq32AdapterVariantSelectorGateError("envelope proof must contain bytes") from err
+        proof_sha = _str(row.get("proof_sha256"), "proof sha256")
+        envelope_sha = _str(row.get("envelope_sha256"), "envelope sha256")
+        if sha256(proof_bytes) != proof_sha:
+            raise NativeSeq32AdapterVariantSelectorGateError("proof sha drift")
+        if sha256(envelope_raw) != envelope_sha:
+            raise NativeSeq32AdapterVariantSelectorGateError("envelope sha drift")
         accounting_row = _dict(row.get("local_binary_accounting"), "local binary accounting")
         grouped = _dict(accounting_row.get("grouped_reconstruction"), "grouped reconstruction")
         actual = {
@@ -380,8 +401,8 @@ def load_variant_rows() -> list[dict[str, Any]]:
             - CURRENT_CHAMPION_TYPED_BYTES,
             "proof_json_delta_vs_champion": _int(row.get("proof_json_size_bytes"), "proof JSON bytes")
             - CURRENT_CHAMPION_JSON_BYTES,
-            "proof_sha256": _str(row.get("proof_sha256"), "proof sha256"),
-            "envelope_sha256": _str(row.get("envelope_sha256"), "envelope sha256"),
+            "proof_sha256": proof_sha,
+            "envelope_sha256": envelope_sha,
             "proof_backend_version": _str(
                 _dict(row.get("envelope_metadata"), "envelope metadata").get("proof_backend_version"),
                 "proof backend version",
@@ -511,6 +532,7 @@ def mutation_functions() -> tuple[tuple[str, Callable[[dict[str, Any]], None]], 
         ("current_champion_typed_drift", lambda item: item["summary"].update({"current_champion_typed_bytes": 42_156})),
         ("variant_typed_metric_drift", lambda item: item["variants"][4].update({"typed_bytes": 42_000})),
         ("variant_json_metric_drift", lambda item: item["variants"][4].update({"proof_json_bytes": 121_000})),
+        ("variant_metadata_drift", lambda item: item["variants"][4].update({"proof_sha256": "0" * 64})),
         ("variant_inventory_drift", lambda item: item["variants"].pop()),
         ("claim_boundary_overclaim", lambda item: item.update({"claim_boundary": item["claim_boundary"] + ";NANOZK_WIN"})),
         ("removed_non_claim", lambda item: item["non_claims"].remove("not a new proof-size frontier")),
@@ -579,7 +601,8 @@ def validate_summary(summary: dict[str, Any]) -> None:
 def validate_variants(variants: list[Any]) -> None:
     if len(variants) != len(EXPECTED_ROWS):
         raise NativeSeq32AdapterVariantSelectorGateError("variant inventory drift")
-    for actual, expected in zip(variants, EXPECTED_ROWS):
+    expected_rows = load_variant_rows()
+    for actual, expected in zip(variants, expected_rows, strict=True):
         row = _dict(actual, "variant row")
         for key in (
             "variant_id",
@@ -595,6 +618,9 @@ def validate_variants(variants: list[Any]) -> None:
                 raise NativeSeq32AdapterVariantSelectorGateError("variant summary drift")
         if _dict(row.get("grouped"), "variant grouped") != expected["grouped"]:
             raise NativeSeq32AdapterVariantSelectorGateError("variant grouped drift")
+        for key in ("proof_sha256", "envelope_sha256", "proof_backend_version", "proof_len_bytes"):
+            if row.get(key) != expected[key]:
+                raise NativeSeq32AdapterVariantSelectorGateError("variant metadata drift")
 
 
 def validate_source_artifacts(artifacts: list[Any]) -> None:
@@ -656,30 +682,54 @@ def render_tsv(payload: dict[str, Any]) -> str:
 
 def atomic_write_text(path: pathlib.Path, text: str) -> None:
     target = require_output_path(path)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    reject_symlinked_ancestors(target)
-    if target.exists() and target.is_symlink():
-        raise NativeSeq32AdapterVariantSelectorGateError(f"refusing to overwrite symlink: {target}")
-    for attempt in range(DETERMINISTIC_TEMP_ATTEMPTS):
-        tmp = target.with_name(f".{target.name}.tmp.{attempt}")
-        try:
-            fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-        except FileExistsError:
-            continue
-        try:
-            with os.fdopen(fd, "w", encoding="utf-8") as handle:
-                handle.write(text)
-                handle.flush()
-                os.fsync(handle.fileno())
-            os.replace(tmp, target)
-            return
-        except Exception:
+    parent_fd = os.open(
+        target.parent,
+        os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0),
+    )
+    try:
+        for attempt in range(DETERMINISTIC_TEMP_ATTEMPTS):
+            tmp_name = f".{target.name}.tmp.{attempt}"
+            tmp_created = False
+            fd: int | None = None
             try:
-                tmp.unlink()
-            except FileNotFoundError:
-                pass
-            raise
-    raise NativeSeq32AdapterVariantSelectorGateError(f"deterministic temp file collision for {target}")
+                fd = os.open(
+                    tmp_name,
+                    os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0),
+                    0o600,
+                    dir_fd=parent_fd,
+                )
+            except FileExistsError:
+                continue
+            try:
+                tmp_created = True
+                try:
+                    handle = os.fdopen(fd, "w", encoding="utf-8", newline="")
+                except Exception:
+                    os.close(fd)
+                    fd = None
+                    raise
+                fd = None
+                with handle:
+                    handle.write(text)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                os.replace(tmp_name, target.name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
+                tmp_created = False
+                os.fsync(parent_fd)
+                return
+            except Exception:
+                if tmp_created:
+                    try:
+                        os.unlink(tmp_name, dir_fd=parent_fd)
+                    except OSError:
+                        pass
+                raise
+            finally:
+                if fd is not None:
+                    os.close(fd)
+        raise NativeSeq32AdapterVariantSelectorGateError(f"deterministic temp file collision for {target}")
+    finally:
+        os.close(parent_fd)
 
 
 def main() -> int:

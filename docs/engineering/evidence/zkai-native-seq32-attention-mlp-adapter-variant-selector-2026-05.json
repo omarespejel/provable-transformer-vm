@@ -37,6 +37,11 @@
         "rejected": true
       },
       {
+        "error": "variant metadata drift",
+        "name": "variant_metadata_drift",
+        "rejected": true
+      },
+      {
         "error": "variant inventory drift",
         "name": "variant_inventory_drift",
         "rejected": true
@@ -78,6 +83,7 @@
       "current_champion_typed_drift",
       "variant_typed_metric_drift",
       "variant_json_metric_drift",
+      "variant_metadata_drift",
       "variant_inventory_drift",
       "claim_boundary_overclaim",
       "removed_non_claim",
@@ -86,7 +92,7 @@
       "validation_command_drift",
       "payload_commitment_drift"
     ],
-    "mutations_rejected": 12
+    "mutations_rejected": 13
   },
   "non_claims": [
     "not a new proof-size frontier",
@@ -97,14 +103,14 @@
     "not timing evidence",
     "not production-ready zkML"
   ],
-  "payload_commitment": "blake2b-256:53cd8d4131b30c66b7cb69493326caf57b24444b4ac0ba98c658846cd5b4eb83",
+  "payload_commitment": "blake2b-256:9560faa1d85e091147a07440a0c0d0d0d20895d134f6d8afba5e4c8f3c7c1cdc",
   "result": "BEST_ZERO_BASE_ADJACENT_VARIANT_MISSES_CURRENT_CHAMPION_BY_88_TYPED_BYTES",
   "schema": "zkai-native-seq32-attention-mlp-adapter-variant-selector-gate-v1",
   "source_artifacts": [
     {
       "id": "variant_accounting",
       "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-accounting-2026-05.json",
-      "sha256": "3c8de20a317dd770f5747a995a7df4707e8368d1876df527496aaedd55e2ef7a",
+      "sha256": "4bb7fa212c436a184cebe91535d5dd8c8d0a50187226566331d19d7dbe25e4e5",
       "size_bytes": 30935
     },
     {
@@ -116,32 +122,32 @@
     {
       "id": "compact_base_envelope",
       "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-compact-adapter-2026-05.envelope.json",
-      "sha256": "f072708a5ef751579185f69bb0ba065f138dbfdec53a4f16ac6d6dd5f9e7b080",
-      "size_bytes": 3332380
+      "sha256": "7df707d7fcdd9e1e9e170d635e310b475b2394abad107c0d826b04b4f16b7831",
+      "size_bytes": 3333354
     },
     {
       "id": "output_anchor_envelope",
       "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-output-anchor-adapter-2026-05.envelope.json",
-      "sha256": "3028913f22fcab9e30983027ac0b8dfcf70faa2acf881378e3afac7aae126045",
-      "size_bytes": 3344752
+      "sha256": "220cc6af678c7a249546e98b2632ca74b39022aed9b410fddb1b3da5d9c17040",
+      "size_bytes": 3345726
     },
     {
       "id": "rmsnorm_input_fused_envelope",
       "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json",
-      "sha256": "82203bb22a42f86896c9872d0120fd09a6a36b6f1832c5e8c3104e46c9927e7a",
-      "size_bytes": 3340685
+      "sha256": "7d24322420f600767ca9b31fc001eb516070ea041a150a2bfbb032c2850caa0a",
+      "size_bytes": 3341659
     },
     {
       "id": "rmsnorm_adjacent_layout_envelope",
       "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.envelope.json",
-      "sha256": "e1e5f84900e5f2860762b675e708b7c2016425c0ff66ecb0108e9355266afb8d",
-      "size_bytes": 3323485
+      "sha256": "91d6866982629e829ef4b53502c99c7215e0d6bb257336cdf2910b8c94ce52b3",
+      "size_bytes": 3324459
     },
     {
       "id": "rmsnorm_post_tail_layout_envelope",
       "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-post-tail-layout-2026-05.envelope.json",
-      "sha256": "e72e58486044f4560b7bc06c306cbb249c71dae5229eb67459c5d05def977c71",
-      "size_bytes": 3340175
+      "sha256": "9b6e088b8bb98581a787075ea74a148c5380da16b4c253f114c3356a9dcd994b",
+      "size_bytes": 3341149
     }
   ],
   "summary": {
@@ -220,7 +226,7 @@
     {
       "adapter_mode": "compact_base_referenced_fixed_v1",
       "adapter_trace_cells": 1024,
-      "envelope_sha256": "f072708a5ef751579185f69bb0ba065f138dbfdec53a4f16ac6d6dd5f9e7b080",
+      "envelope_sha256": "7df707d7fcdd9e1e9e170d635e310b475b2394abad107c0d826b04b4f16b7831",
       "grouped": {
         "fixed_overhead": 48,
         "fri_decommitments": 13696,
@@ -242,7 +248,7 @@
     {
       "adapter_mode": "preprocessed_output_anchor_fixed_v1",
       "adapter_trace_cells": 128,
-      "envelope_sha256": "3028913f22fcab9e30983027ac0b8dfcf70faa2acf881378e3afac7aae126045",
+      "envelope_sha256": "220cc6af678c7a249546e98b2632ca74b39022aed9b410fddb1b3da5d9c17040",
       "grouped": {
         "fixed_overhead": 48,
         "fri_decommitments": 14176,
@@ -264,7 +270,7 @@
     {
       "adapter_mode": "rmsnorm_input_fused_fixed_v1",
       "adapter_trace_cells": 0,
-      "envelope_sha256": "82203bb22a42f86896c9872d0120fd09a6a36b6f1832c5e8c3104e46c9927e7a",
+      "envelope_sha256": "7d24322420f600767ca9b31fc001eb516070ea041a150a2bfbb032c2850caa0a",
       "grouped": {
         "fixed_overhead": 48,
         "fri_decommitments": 14176,
@@ -286,7 +292,7 @@
     {
       "adapter_mode": "rmsnorm_input_fused_adjacent_fixed_v1",
       "adapter_trace_cells": 0,
-      "envelope_sha256": "e1e5f84900e5f2860762b675e708b7c2016425c0ff66ecb0108e9355266afb8d",
+      "envelope_sha256": "91d6866982629e829ef4b53502c99c7215e0d6bb257336cdf2910b8c94ce52b3",
       "grouped": {
         "fixed_overhead": 48,
         "fri_decommitments": 13696,
@@ -308,7 +314,7 @@
     {
       "adapter_mode": "rmsnorm_input_fused_post_tail_fixed_v1",
       "adapter_trace_cells": 0,
-      "envelope_sha256": "e72e58486044f4560b7bc06c306cbb249c71dae5229eb67459c5d05def977c71",
+      "envelope_sha256": "9b6e088b8bb98581a787075ea74a148c5380da16b4c253f114c3356a9dcd994b",
       "grouped": {
         "fixed_overhead": 48,
         "fri_decommitments": 14176,
