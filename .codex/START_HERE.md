@@ -304,7 +304,8 @@ This repository currently has three live lanes.
      the paper-reported `6,900` byte context row from the strict native single
      object would require `35,033` typed bytes, `108.9877%` of the MLP fusion
      saving, and the object class is not matched. The gate rejects `14 / 14`
-     route, metric, NANOZK-overclaim, source, non-claim, and payload mutations;
+     route, metric, NANOZK-overclaim, source, non-claim,
+     validation-command, and payload mutations;
      see
      `docs/engineering/zkai-larger-native-block-boundary-amortization-budget-2026-05-18.md`.
    - The current attention-to-RMSNorm/MLP boundary is a checked NO-GO for one

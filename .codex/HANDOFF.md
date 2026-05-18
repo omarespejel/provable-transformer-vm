@@ -2089,8 +2089,14 @@ Larger native block-boundary amortization reproducibility metadata:
   `docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.tsv`.
 - Gate command:
   `python3 scripts/zkai_larger_native_block_boundary_amortization_budget_gate.py --write-json docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.json --write-tsv docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.tsv`.
-- Local tests:
-  `python3 -m unittest scripts.tests.test_zkai_larger_native_block_boundary_amortization_budget_gate`.
+- Local validation commands, kept in sync with the gate contract:
+  `python3 -m py_compile scripts/zkai_larger_native_block_boundary_amortization_budget_gate.py scripts/tests/test_zkai_larger_native_block_boundary_amortization_budget_gate.py`;
+  `python3 -m unittest scripts.tests.test_zkai_larger_native_block_boundary_amortization_budget_gate`;
+  `python3 scripts/research_issue_lint.py --repo-root .`;
+  `python3 scripts/paper/paper_preflight.py --repo-root .`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
 
 ## Resume protocol
 
