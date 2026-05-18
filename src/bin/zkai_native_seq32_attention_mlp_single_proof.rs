@@ -27,6 +27,9 @@ use llm_provable_computer::stwo_backend::{
 };
 
 #[cfg(feature = "stwo-backend")]
+const DETERMINISTIC_TEMP_ATTEMPTS: usize = 16;
+
+#[cfg(feature = "stwo-backend")]
 fn main() -> ExitCode {
     match run() {
         Ok(summary) => {
@@ -277,14 +280,23 @@ fn atomic_write_file(path: &Path, bytes: &[u8], label: &str) -> Result<(), Strin
                 path.display()
             )
         })?;
-    let tmp_path = parent.join(format!(".{file_name}.tmp"));
-    reject_symlinked_ancestors(&tmp_path, label)?;
-    write_new_file(&tmp_path, bytes)?;
-    publish_temp_file(&tmp_path, path, label)
+    for attempt in 0..DETERMINISTIC_TEMP_ATTEMPTS {
+        let tmp_path = parent.join(format!(".{file_name}.tmp.{attempt}"));
+        reject_symlinked_ancestors(&tmp_path, label)?;
+        if !write_new_file(&tmp_path, bytes)? {
+            continue;
+        }
+        return publish_temp_file(&tmp_path, path, label);
+    }
+    Err(format!(
+        "deterministic temp file collision for {label}: all {} slots occupied under {}",
+        DETERMINISTIC_TEMP_ATTEMPTS,
+        parent.display()
+    ))
 }
 
 #[cfg(feature = "stwo-backend")]
-fn write_new_file(path: &Path, bytes: &[u8]) -> Result<(), String> {
+fn write_new_file(path: &Path, bytes: &[u8]) -> Result<bool, String> {
     let mut options = fs::OpenOptions::new();
     options.write(true).create_new(true);
     #[cfg(unix)]
@@ -294,7 +306,7 @@ fn write_new_file(path: &Path, bytes: &[u8]) -> Result<(), String> {
     let mut file = match options.open(path) {
         Ok(file) => file,
         Err(error) if error.kind() == ErrorKind::AlreadyExists => {
-            return Err(format!("temp file collision at {}", path.display()));
+            return Ok(false);
         }
         Err(error) => {
             return Err(format!(
@@ -306,7 +318,8 @@ fn write_new_file(path: &Path, bytes: &[u8]) -> Result<(), String> {
     file.write_all(bytes)
         .map_err(|error| format!("failed to write temp file {}: {error}", path.display()))?;
     file.sync_all()
-        .map_err(|error| format!("failed to sync temp file {}: {error}", path.display()))
+        .map_err(|error| format!("failed to sync temp file {}: {error}", path.display()))?;
+    Ok(true)
 }
 
 #[cfg(feature = "stwo-backend")]
@@ -511,6 +524,20 @@ mod tests {
         atomic_write_file(&output, b"{\"ok\":true}\n", "test output").expect("atomic write");
         let contents = fs::read_to_string(output).expect("read output");
         assert_eq!(contents, "{\"ok\":true}\n");
+    }
+
+    #[test]
+    fn atomic_write_file_skips_stale_temp_slot() {
+        let tmp = tempdir();
+        let output = tmp.path().join("out.json");
+        let stale = tmp.path().join(".out.json.tmp.0");
+        fs::write(&stale, b"stale\n").expect("stale temp");
+        atomic_write_file(&output, b"fresh\n", "test output").expect("atomic write");
+        let contents = fs::read_to_string(&output).expect("read output");
+        assert_eq!(contents, "fresh\n");
+        let stale_contents = fs::read_to_string(&stale).expect("read stale temp");
+        assert_eq!(stale_contents, "stale\n");
+        assert!(!tmp.path().join(".out.json.tmp.1").exists());
     }
 
     #[cfg(unix)]

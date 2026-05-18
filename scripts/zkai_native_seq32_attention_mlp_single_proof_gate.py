@@ -186,6 +186,7 @@ TSV_COLUMNS = (
     "typed_ratio_to_nanozk_reported_row",
     "proof_size_comparable_external_rows",
 )
+DETERMINISTIC_TEMP_ATTEMPTS = 16
 
 
 class NativeSeq32AttentionMlpSingleProofGateError(ValueError):
@@ -320,6 +321,7 @@ def load_checked_metrics() -> dict[str, Any]:
         "input": input_value,
         "input_size": len(input_raw),
         "envelope": envelope,
+        "envelope_bytes": envelope_raw,
         "envelope_size": len(envelope_raw),
         "proof_bytes": proof_bytes,
         "accounting_row": row,
@@ -352,8 +354,7 @@ def checked_summary(metrics: dict[str, Any]) -> dict[str, Any]:
         raise NativeSeq32AttentionMlpSingleProofGateError("proof payload byte length drift")
     if sha256(proof_bytes) != row.get("proof_sha256"):
         raise NativeSeq32AttentionMlpSingleProofGateError("proof sha drift")
-    envelope_raw = read_repo_file(SINGLE_ENVELOPE, "native single envelope")
-    if sha256(envelope_raw) != row.get("envelope_sha256"):
+    if sha256(metrics["envelope_bytes"]) != row.get("envelope_sha256"):
         raise NativeSeq32AttentionMlpSingleProofGateError("envelope sha drift")
 
     typed = metrics["typed_bytes"]
@@ -510,6 +511,9 @@ def validate_payload(payload: dict[str, Any]) -> None:
         cases = _list(result.get("cases"), "mutation cases")
         if tuple(case.get("name") for case in cases) != MUTATION_NAMES:
             raise NativeSeq32AttentionMlpSingleProofGateError("mutation result drift")
+        for case in cases:
+            if case.get("rejected") is not True or not case.get("error"):
+                raise NativeSeq32AttentionMlpSingleProofGateError("mutation result drift")
 
 
 def mutation_result(payload: dict[str, Any]) -> dict[str, Any]:
@@ -614,41 +618,51 @@ def atomic_write_text(path: pathlib.Path, text: str) -> None:
         target.parent,
         os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0),
     )
-    tmp_name = f".{target.name}.tmp"
-    tmp_created = False
-    fd: int | None = None
     try:
-        fd = os.open(
-            tmp_name,
-            os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0),
-            0o600,
-            dir_fd=parent_fd,
-        )
-        tmp_created = True
-        try:
-            handle = os.fdopen(fd, "w", encoding="utf-8", newline="")
-        except Exception:
-            os.close(fd)
-            fd = None
-            raise
-        fd = None
-        with handle:
-            handle.write(text)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(tmp_name, target.name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
-        tmp_created = False
-        os.fsync(parent_fd)
-    except Exception:
-        if tmp_created:
+        for attempt in range(DETERMINISTIC_TEMP_ATTEMPTS):
+            tmp_name = f".{target.name}.tmp.{attempt}"
+            tmp_created = False
+            fd: int | None = None
             try:
-                os.unlink(tmp_name, dir_fd=parent_fd)
-            except OSError:
-                pass
-        raise
+                fd = os.open(
+                    tmp_name,
+                    os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0),
+                    0o600,
+                    dir_fd=parent_fd,
+                )
+            except FileExistsError:
+                continue
+            try:
+                tmp_created = True
+                try:
+                    handle = os.fdopen(fd, "w", encoding="utf-8", newline="")
+                except Exception:
+                    os.close(fd)
+                    fd = None
+                    raise
+                fd = None
+                with handle:
+                    handle.write(text)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                os.replace(tmp_name, target.name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
+                tmp_created = False
+                os.fsync(parent_fd)
+                return
+            except Exception:
+                if tmp_created:
+                    try:
+                        os.unlink(tmp_name, dir_fd=parent_fd)
+                    except OSError:
+                        pass
+                raise
+            finally:
+                if fd is not None:
+                    os.close(fd)
+        raise NativeSeq32AttentionMlpSingleProofGateError(
+            f"deterministic temp file collision for output: {target}"
+        )
     finally:
-        if fd is not None:
-            os.close(fd)
         os.close(parent_fd)
 
 
