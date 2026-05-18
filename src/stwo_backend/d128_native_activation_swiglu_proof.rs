@@ -1309,6 +1309,9 @@ mod tests {
     const DERIVED_INPUT_JSON: &str = include_str!(
         "../../docs/engineering/evidence/zkai-attention-derived-d128-native-activation-swiglu-proof-2026-05.json"
     );
+    const SEQ32_DERIVED_INPUT_JSON: &str = include_str!(
+        "../../docs/engineering/evidence/zkai-seq32-derived-d128-native-activation-swiglu-proof-2026-05.json"
+    );
 
     fn input() -> ZkAiD128ActivationSwiGluProofInput {
         zkai_d128_activation_swiglu_input_from_json_str(INPUT_JSON)
@@ -1318,6 +1321,11 @@ mod tests {
     fn derived_input() -> ZkAiD128ActivationSwiGluProofInput {
         zkai_d128_activation_swiglu_input_from_json_str(DERIVED_INPUT_JSON)
             .expect("derived activation/SwiGLU input")
+    }
+
+    fn seq32_derived_input() -> ZkAiD128ActivationSwiGluProofInput {
+        zkai_d128_activation_swiglu_input_from_json_str(SEQ32_DERIVED_INPUT_JSON)
+            .expect("seq32-derived activation/SwiGLU input")
     }
 
     #[test]
@@ -1401,6 +1409,33 @@ mod tests {
     }
 
     #[test]
+    fn activation_swiglu_accepts_seq32_derived_gate_value_source_anchor() {
+        let input = seq32_derived_input();
+        assert_eq!(
+            input.source_gate_value_projection_statement_commitment,
+            ZKAI_D128_SEQ32_DERIVED_GATE_VALUE_PROJECTION_STATEMENT_COMMITMENT
+        );
+        assert_eq!(
+            input.source_gate_value_projection_public_instance_commitment,
+            ZKAI_D128_SEQ32_DERIVED_GATE_VALUE_PROJECTION_PUBLIC_INSTANCE_COMMITMENT
+        );
+        assert_eq!(
+            input.source_gate_value_projection_output_commitment,
+            ZKAI_D128_SEQ32_DERIVED_GATE_VALUE_PROJECTION_OUTPUT_COMMITMENT
+        );
+        assert_eq!(
+            input.hidden_activation_commitment,
+            "blake2b-256:0fdb6968a15701bafe8362bce37359677ab521863556952984bf7c0b9d540344"
+        );
+        expect_str_set_eq(
+            input.validation_commands.iter().map(String::as_str),
+            EXPECTED_SEQ32_DERIVED_VALIDATION_COMMANDS,
+            "seq32-derived validation commands",
+        )
+        .expect("seq32-derived validation command anchor");
+    }
+
+    #[test]
     fn activation_swiglu_rejects_mixed_anchor_commitments() {
         let mut value: Value = serde_json::from_str(DERIVED_INPUT_JSON).expect("json");
         value["source_gate_value_projection_statement_commitment"] =
@@ -1412,6 +1447,20 @@ mod tests {
         assert!(error
             .to_string()
             .contains("attention_derived anchor: statement_commitment mismatch"));
+    }
+
+    #[test]
+    fn activation_swiglu_rejects_mixed_seq32_anchor_commitments() {
+        let mut value: Value = serde_json::from_str(SEQ32_DERIVED_INPUT_JSON).expect("json");
+        value["source_gate_value_projection_statement_commitment"] =
+            Value::String(ZKAI_D128_GATE_VALUE_PROJECTION_STATEMENT_COMMITMENT.to_string());
+        let error = zkai_d128_activation_swiglu_input_from_json_str(
+            &serde_json::to_string(&value).expect("json"),
+        )
+        .unwrap_err();
+        assert!(error
+            .to_string()
+            .contains("seq32_derived anchor: statement_commitment mismatch"));
     }
 
     #[test]

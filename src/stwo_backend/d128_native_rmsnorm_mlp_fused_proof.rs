@@ -805,7 +805,7 @@ fn approved_fused_source_profile_fields(
         diagnostics.push(format!("profile_{index}:{}", mismatches.join(",")));
     }
     Err(fused_error(format!(
-        "fused source profile is not approved: expected synthetic or attention_derived component anchors; mismatches={}",
+        "fused source profile is not approved: expected synthetic, attention_derived, or seq32_derived component anchors; mismatches={}",
         diagnostics.join(";")
     )))
 }
@@ -2046,6 +2046,13 @@ mod tests {
             .expect("derived fused input")
     }
 
+    fn seq32_derived_fixture_input() -> ZkAiD128RmsnormMlpFusedInput {
+        zkai_d128_rmsnorm_mlp_fused_input_from_json_str(include_str!(
+            "../../docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json"
+        ))
+        .expect("seq32-derived fused input")
+    }
+
     fn fixture_envelope() -> ZkAiD128RmsnormMlpFusedEnvelope {
         zkai_d128_rmsnorm_mlp_fused_envelope_from_json_slice(include_bytes!(
             "../../docs/engineering/evidence/zkai-d128-rmsnorm-mlp-fused-proof-2026-05.envelope.json"
@@ -2090,6 +2097,28 @@ mod tests {
     }
 
     #[test]
+    fn fused_input_accepts_seq32_derived_component_chain() {
+        let input = seq32_derived_fixture_input();
+        assert_eq!(
+            input.input_activation_commitment,
+            ZKAI_D128_SEQ32_DERIVED_INPUT_ACTIVATION_COMMITMENT
+        );
+        assert_eq!(
+            input.residual_add_input.source_rmsnorm_proof_version,
+            ZKAI_D128_SEQ32_DERIVED_INPUT_PROOF_VERSION
+        );
+        assert_eq!(
+            input.projection_bridge_statement_commitment,
+            ZKAI_D128_SEQ32_DERIVED_RMSNORM_TO_PROJECTION_BRIDGE_STATEMENT_COMMITMENT
+        );
+        assert_eq!(
+            input.validation_commands,
+            EXPECTED_SEQ32_DERIVED_VALIDATION_COMMANDS
+        );
+        validate_fused_input(&input).expect("seq32-derived input validates");
+    }
+
+    #[test]
     fn fused_input_rejects_mixed_attention_derived_source_profile() {
         let mut input = derived_fixture_input();
         input.residual_add_input.source_rmsnorm_statement_commitment =
@@ -2100,6 +2129,20 @@ mod tests {
         input.proof_native_parameter_commitment =
             proof_native_parameter_commitment(&input.statement_commitment).expect("proof params");
         assert!(validate_fused_input(&input).is_err());
+    }
+
+    #[test]
+    fn fused_input_rejects_mixed_seq32_source_profile() {
+        let mut input = seq32_derived_fixture_input();
+        input.residual_add_input.source_rmsnorm_statement_commitment =
+            ZKAI_D128_RMSNORM_PUBLIC_ROW_STATEMENT_COMMITMENT.to_string();
+        input.statement_commitment = statement_commitment(&input).expect("statement commitment");
+        input.public_instance_commitment =
+            public_instance_commitment(&input.statement_commitment).expect("public instance");
+        input.proof_native_parameter_commitment =
+            proof_native_parameter_commitment(&input.statement_commitment).expect("proof params");
+        let error = validate_fused_input(&input).unwrap_err();
+        assert!(error.to_string().contains("seq32_derived"));
     }
 
     #[test]

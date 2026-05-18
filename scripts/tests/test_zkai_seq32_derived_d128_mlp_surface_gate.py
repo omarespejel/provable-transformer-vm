@@ -61,10 +61,42 @@ class Seq32DerivedD128MlpSurfaceGateTest(unittest.TestCase):
         with self.assertRaisesRegex(self.gate.Seq32DerivedD128MlpSurfaceError, "source attention statement drift"):
             self.gate.validate_seq32_input_payload(payload)
 
+    def test_seq32_input_rejects_non_claim_drift(self) -> None:
+        payload = copy.deepcopy(self.__class__.seq32_input_payload)
+        payload["non_claims"][0] = "claims a learned model projection"
+        payload["payload_commitment"] = self.gate.payload_commitment(payload)
+        with self.assertRaisesRegex(self.gate.Seq32DerivedD128MlpSurfaceError, "seq32 input field drift: non_claims"):
+            self.gate.validate_seq32_input_payload(payload)
+
+    def test_anchor_patching_is_idempotent(self) -> None:
+        def count_dict_anchors(anchors, statement):
+            return sum(
+                1
+                for anchor in anchors
+                if isinstance(anchor, dict)
+                and anchor.get("kind") == "seq32_derived"
+                and anchor.get("statement_commitment") == statement
+            )
+
+        self.assertEqual(
+            sum(list(commands) == self.gate.SEQ32_BRIDGE_COMMANDS for commands in self.gate.BRIDGE.ALLOWED_VALIDATION_COMMANDS),
+            1,
+        )
+        self.assertEqual(count_dict_anchors(self.gate.GATE_VALUE.SOURCE_BRIDGE_ANCHORS, self.gate.SEQ32_BRIDGE_STMT), 1)
+        self.assertEqual(
+            count_dict_anchors(self.gate.ACTIVATION.SOURCE_GATE_VALUE_ANCHORS, self.gate.SEQ32_GATE_VALUE_STMT),
+            1,
+        )
+        self.assertEqual(count_dict_anchors(self.gate.DOWN.SOURCE_ACTIVATION_ANCHORS, self.gate.SEQ32_ACT_STMT), 1)
+        self.assertEqual(
+            count_dict_anchors(self.gate.RESIDUAL.DOWN_PROJECTION.SOURCE_ACTIVATION_ANCHORS, self.gate.SEQ32_ACT_STMT),
+            1,
+        )
+
     def test_rejects_overclaim_mutations(self) -> None:
         result = self.__class__.mutation_result
         self.assertTrue(result["all_mutations_rejected"])
-        self.assertEqual(result["case_count"], 7)
+        self.assertEqual(result["case_count"], self.gate.EXPECTED_MUTATION_CASE_COUNT)
 
     def test_output_path_guard_rejects_symlink(self) -> None:
         with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmpdir:

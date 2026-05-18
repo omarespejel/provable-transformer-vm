@@ -885,6 +885,9 @@ mod tests {
     const DERIVED_INPUT_JSON: &str = include_str!(
         "../../docs/engineering/evidence/zkai-attention-derived-d128-native-rmsnorm-to-projection-bridge-proof-2026-05.json"
     );
+    const SEQ32_DERIVED_INPUT_JSON: &str = include_str!(
+        "../../docs/engineering/evidence/zkai-seq32-derived-d128-native-rmsnorm-to-projection-bridge-proof-2026-05.json"
+    );
     const DERIVED_PROJECTION_BOUNDARY_JSON: &str = include_str!(
         "../../docs/engineering/evidence/zkai-attention-derived-d128-projection-boundary-2026-05.json"
     );
@@ -897,6 +900,11 @@ mod tests {
     fn derived_input() -> ZkAiD128RmsnormToProjectionBridgeInput {
         zkai_d128_rmsnorm_to_projection_bridge_input_from_json_str(DERIVED_INPUT_JSON)
             .expect("derived bridge input")
+    }
+
+    fn seq32_derived_input() -> ZkAiD128RmsnormToProjectionBridgeInput {
+        zkai_d128_rmsnorm_to_projection_bridge_input_from_json_str(SEQ32_DERIVED_INPUT_JSON)
+            .expect("seq32-derived bridge input")
     }
 
     fn adapted_derived_bridge_input() -> ZkAiD128RmsnormToProjectionBridgeInput {
@@ -1024,6 +1032,36 @@ mod tests {
             "blake2b-256:17cee19d55e1280536ba3e884359c2728e07b7302a9992802b48db98657cc9ba"
         );
         assert!(input.validation_commands[0].contains("--source-json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-public-row-2026-05.json"));
+    }
+
+    #[test]
+    fn bridge_accepts_generated_seq32_derived_bridge_input() {
+        let input = seq32_derived_input();
+        assert_ne!(
+            input.source_rmsnorm_statement_commitment,
+            SOURCE_RMSNORM_STATEMENT_COMMITMENT
+        );
+        assert_eq!(
+            input.source_rmsnorm_statement_commitment,
+            "blake2b-256:bfe0e37bd0830057018212ada60c1c3c6378d343fb97f0fb14a607b699b49d48"
+        );
+        assert_eq!(
+            input.projection_input_row_commitment,
+            "blake2b-256:de110b5c13a34e16c97b08499cd076354944f4ef9ea721950ac462a53773e2cf"
+        );
+        expect_validation_commands(input.validation_commands.iter().map(String::as_str))
+            .expect("seq32-derived validation commands");
+    }
+
+    #[test]
+    fn bridge_rejects_seq32_validation_command_drift() {
+        let mut value: Value = serde_json::from_str(SEQ32_DERIVED_INPUT_JSON).expect("json");
+        value["validation_commands"] = Value::Array(vec![Value::String("cargo test".to_owned())]);
+        let error = zkai_d128_rmsnorm_to_projection_bridge_input_from_json_str(
+            &serde_json::to_string(&value).expect("json"),
+        )
+        .unwrap_err();
+        assert!(error.to_string().contains("validation commands mismatch"));
     }
 
     #[test]

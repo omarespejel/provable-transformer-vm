@@ -1612,6 +1612,9 @@ mod tests {
     const DERIVED_INPUT_JSON: &str = include_str!(
         "../../docs/engineering/evidence/zkai-attention-derived-d128-native-gate-value-projection-proof-2026-05.json"
     );
+    const SEQ32_DERIVED_INPUT_JSON: &str = include_str!(
+        "../../docs/engineering/evidence/zkai-seq32-derived-d128-native-gate-value-projection-proof-2026-05.json"
+    );
 
     fn input() -> ZkAiD128GateValueProjectionProofInput {
         zkai_d128_gate_value_projection_input_from_json_str(INPUT_JSON).expect("gate/value input")
@@ -1620,6 +1623,11 @@ mod tests {
     fn derived_input() -> ZkAiD128GateValueProjectionProofInput {
         zkai_d128_gate_value_projection_input_from_json_str(DERIVED_INPUT_JSON)
             .expect("attention-derived gate/value input")
+    }
+
+    fn seq32_derived_input() -> ZkAiD128GateValueProjectionProofInput {
+        zkai_d128_gate_value_projection_input_from_json_str(SEQ32_DERIVED_INPUT_JSON)
+            .expect("seq32-derived gate/value input")
     }
 
     #[test]
@@ -1680,6 +1688,28 @@ mod tests {
         let rows = build_rows(&input.projection_input_q8).expect("derived rows");
         assert_eq!(rows.len(), ZKAI_D128_GATE_VALUE_ROW_COUNT);
         assert_eq!(rows[0].projection_input_q8, 0);
+    }
+
+    #[test]
+    fn seq32_derived_gate_value_input_validates_checked_bridge_anchor() {
+        let input = seq32_derived_input();
+        assert_eq!(
+            input.source_projection_input_row_commitment,
+            ZKAI_D128_SEQ32_DERIVED_PROJECTION_INPUT_ROW_COMMITMENT
+        );
+        assert_eq!(
+            input.source_bridge_statement_commitment.as_deref(),
+            Some(ZKAI_D128_SEQ32_DERIVED_RMSNORM_TO_PROJECTION_BRIDGE_STATEMENT_COMMITMENT)
+        );
+        assert_eq!(
+            input.source_bridge_public_instance_commitment.as_deref(),
+            Some(ZKAI_D128_SEQ32_DERIVED_RMSNORM_TO_PROJECTION_BRIDGE_PUBLIC_INSTANCE_COMMITMENT)
+        );
+        let anchor = approved_source_bridge_anchor(&input).expect("seq32 bridge anchor");
+        assert_eq!(
+            anchor.projection_input_row_commitment,
+            ZKAI_D128_SEQ32_DERIVED_PROJECTION_INPUT_ROW_COMMITMENT
+        );
     }
 
     #[test]
@@ -1880,6 +1910,18 @@ mod tests {
     #[test]
     fn gate_value_rejects_unapproved_source_bridge_anchor() {
         let mut value: Value = serde_json::from_str(DERIVED_INPUT_JSON).expect("json");
+        value["source_bridge_statement_commitment"] =
+            Value::String(ZKAI_D128_RMSNORM_TO_PROJECTION_BRIDGE_STATEMENT_COMMITMENT.to_string());
+        let error = zkai_d128_gate_value_projection_input_from_json_str(
+            &serde_json::to_string(&value).expect("json"),
+        )
+        .unwrap_err();
+        assert!(error.to_string().contains("source bridge anchor"));
+    }
+
+    #[test]
+    fn gate_value_rejects_mixed_seq32_source_bridge_anchor() {
+        let mut value: Value = serde_json::from_str(SEQ32_DERIVED_INPUT_JSON).expect("json");
         value["source_bridge_statement_commitment"] =
             Value::String(ZKAI_D128_RMSNORM_TO_PROJECTION_BRIDGE_STATEMENT_COMMITMENT.to_string());
         let error = zkai_d128_gate_value_projection_input_from_json_str(
