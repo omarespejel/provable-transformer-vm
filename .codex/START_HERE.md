@@ -133,8 +133,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 127. `docs/engineering/zkai-gkr-d128-projection-scaling-preflight-2026-05-17.md`
 128. `docs/engineering/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05-18.md`
 129. `docs/engineering/zkai-native-block-boundary-pivot-selector-2026-05-18.md`
-130. `docs/engineering/reproducibility.md`
-131. `git status --short --branch`
+130. `docs/engineering/zkai-larger-native-block-boundary-amortization-budget-2026-05-18.md`
+131. `docs/engineering/reproducibility.md`
+132. `git status --short --branch`
 
 ## What this repository is now
 
@@ -290,9 +291,22 @@ This repository currently has three live lanes.
      smallest width-preserving row), keep compact-preprocessed public rows as a
      scoped mechanism lead (`6,264` typed bytes, not a full block comparison),
      and attack a larger source-bound native boundary next. The reason is the
-     structural positive signal: six-component MLP fusion saves `32,144` typed
-     bytes (`56.4167%`) versus separate native objects. See
-     `docs/engineering/zkai-native-block-boundary-pivot-selector-2026-05-18.md`.
+   structural positive signal: six-component MLP fusion saves `32,144` typed
+   bytes (`56.4167%`) versus separate native objects. See
+   `docs/engineering/zkai-native-block-boundary-pivot-selector-2026-05-18.md`.
+   - The larger native block-boundary amortization budget now sharpens that
+     route into an implementation threshold. Beating the `40,700` typed-byte
+     local two-proof frontier from the strict native single object requires
+     recovering `1,233` typed bytes, only `3.8359%` of the observed `32,144`
+     typed-byte MLP fusion saving. A `4%` transfer model would land at `40,646`
+     typed bytes, `54` below the local frontier. This is a GO to attempt the
+     larger boundary locally, but the NANOZK guardrail remains hard: beating
+     the paper-reported `6,900` byte context row from the strict native single
+     object would require `35,033` typed bytes, `108.9877%` of the MLP fusion
+     saving, and the object class is not matched. The gate rejects `13 / 13`
+     route, metric, NANOZK-overclaim, source, non-claim, and payload mutations;
+     see
+     `docs/engineering/zkai-larger-native-block-boundary-amortization-budget-2026-05-18.md`.
    - The current attention-to-RMSNorm/MLP boundary is a checked NO-GO for one
      value-connected native proof object: the attention-derived d128 statement
      chain has `199,553` accounted rows (`1.010374x` the MLP fused surface),
