@@ -2058,6 +2058,36 @@ Native block-boundary pivot reproducibility metadata:
 - Local tests:
   `python3 -m unittest scripts.tests.test_zkai_native_block_boundary_pivot_selector_gate`.
 
+Latest larger native block-boundary amortization budget: issue `#669` turns the
+pivot route into a strict implementation threshold. The strict native single
+object is `41,932` typed bytes versus the `40,700` typed-byte two-proof
+frontier, so the next larger native boundary must recover `1,233` typed bytes
+to beat the local frontier by one byte. That is only `3.8359%` of the checked
+six-component MLP-side fusion saving (`32,144` typed bytes), and a modeled `4%`
+transfer would land at `40,646` typed bytes, `54` bytes below the local
+frontier. This is a local GO for the next implementation attack, not an
+external comparison. The NANOZK guardrail remains hard: beating the
+paper-reported `6,900` byte context row from the strict native single object
+would require removing `35,033` typed bytes (`108.9877%` of the MLP-side fusion
+saving), and the workload/object class is still not matched. The gate rejects
+`13 / 13` NANOZK, selected-route, metric, compact-preprocessed promotion, GKR
+unparking, interpretation, source-descriptor, non-claim, validation-command,
+and payload mutations. See
+`docs/engineering/zkai-larger-native-block-boundary-amortization-budget-2026-05-18.md`.
+
+Larger native block-boundary amortization reproducibility metadata:
+
+- Timing mode: budget/validation only; no new proof object, no timing, and no
+  median-of-5 claim.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.json`
+  and
+  `docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.tsv`.
+- Gate command:
+  `python3 scripts/zkai_larger_native_block_boundary_amortization_budget_gate.py --write-json docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.json --write-tsv docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.tsv`.
+- Local tests:
+  `python3 -m unittest scripts.tests.test_zkai_larger_native_block_boundary_amortization_budget_gate`.
+
 ## Resume protocol
 
 1. Read `AGENTS.md`.

@@ -1,0 +1,279 @@
+{
+  "budget_rows": [
+    {
+      "comparison_scope": "local_frontier",
+      "current_typed_bytes": 41932,
+      "delta_vs_reference_typed_bytes": 1232,
+      "interpretation": "Recovering 1,233 typed bytes would beat the local two-proof frontier; this is only 3.8359% of observed MLP fusion saving.",
+      "proof_size_comparable_to_nanozk": false,
+      "reduction_to_beat_reference_bytes": 1233,
+      "reference_typed_bytes": 40700,
+      "row_id": "strict_native_single_vs_two_proof_frontier",
+      "share_of_mlp_fusion_saving_to_beat_reference": "0.038359",
+      "status": "ATTACK_NEXT_LOCAL_FRONTIER"
+    },
+    {
+      "comparison_scope": "local_frontier",
+      "current_typed_bytes": 40812,
+      "delta_vs_reference_typed_bytes": 112,
+      "interpretation": "The raw gap is tiny, but prior label probes make this unsafe as the next headline route.",
+      "proof_size_comparable_to_nanozk": false,
+      "reduction_to_beat_reference_bytes": 113,
+      "reference_typed_bytes": 40700,
+      "row_id": "compact_selector_vs_two_proof_frontier",
+      "share_of_mlp_fusion_saving_to_beat_reference": "0.003515",
+      "status": "PARK_LABEL_FRAGILE"
+    },
+    {
+      "comparison_scope": "local_frontier",
+      "current_typed_bytes": 42724,
+      "delta_vs_reference_typed_bytes": 2024,
+      "interpretation": "Another local reorder has to recover 2,025 typed bytes under worst-label policy, so it is parked behind the larger boundary attack.",
+      "proof_size_comparable_to_nanozk": false,
+      "reduction_to_beat_reference_bytes": 2025,
+      "reference_typed_bytes": 40700,
+      "row_id": "post_tail_worst_label_vs_two_proof_frontier",
+      "share_of_mlp_fusion_saving_to_beat_reference": "0.062998",
+      "status": "PARK_LOCAL_REORDER"
+    },
+    {
+      "comparison_scope": "local_frontier",
+      "current_typed_bytes": 70138,
+      "delta_vs_reference_typed_bytes": 29438,
+      "interpretation": "The current GKR projection preflight would need 91.5847% of the MLP fusion saving just to beat the local frontier.",
+      "proof_size_comparable_to_nanozk": false,
+      "reduction_to_beat_reference_bytes": 29439,
+      "reference_typed_bytes": 40700,
+      "row_id": "gkr_width_preserving_vs_two_proof_frontier",
+      "share_of_mlp_fusion_saving_to_beat_reference": "0.915847",
+      "status": "PARK_CURRENT_GKR"
+    },
+    {
+      "comparison_scope": "external_context_guardrail",
+      "current_typed_bytes": 41932,
+      "delta_vs_reference_typed_bytes": 35032,
+      "interpretation": "Beating the NANOZK context row would require more typed bytes than the entire observed MLP-side fusion saving, and the workload is not matched.",
+      "proof_size_comparable_to_nanozk": false,
+      "reduction_to_beat_reference_bytes": 35033,
+      "reference_typed_bytes": 6900,
+      "row_id": "strict_native_single_vs_nanozk_context",
+      "share_of_mlp_fusion_saving_to_beat_reference": "1.089877",
+      "status": "BLOCKED_NOT_MATCHED"
+    },
+    {
+      "comparison_scope": "external_context_guardrail",
+      "current_typed_bytes": 40700,
+      "delta_vs_reference_typed_bytes": 33800,
+      "interpretation": "The current local frontier is still 33,800 typed bytes above the NANOZK context row and is not a matched external comparison.",
+      "proof_size_comparable_to_nanozk": false,
+      "reduction_to_beat_reference_bytes": 33801,
+      "reference_typed_bytes": 6900,
+      "row_id": "two_proof_frontier_vs_nanozk_context",
+      "share_of_mlp_fusion_saving_to_beat_reference": "1.051549",
+      "status": "CONTEXT_ONLY_NOT_MATCHED"
+    },
+    {
+      "comparison_scope": "external_context_guardrail",
+      "current_typed_bytes": 6264,
+      "delta_vs_reference_typed_bytes": -636,
+      "interpretation": "This is below the paper-reported row only for a scoped public-row surface, not for a full d128 block proof.",
+      "proof_size_comparable_to_nanozk": false,
+      "reduction_to_beat_reference_bytes": 0,
+      "reference_typed_bytes": 6900,
+      "row_id": "compact_preprocessed_vs_nanozk_context",
+      "share_of_mlp_fusion_saving_to_beat_reference": "0.000000",
+      "status": "MECHANISM_LEAD_NOT_COMPARABLE"
+    }
+  ],
+  "claim_boundary": "BUDGETS_NEXT_LARGER_NATIVE_BLOCK_BOUNDARY_FROM_CHECKED_LOCAL_EVIDENCE;_NO_NEW_PROOF_OBJECT_NO_NANOZK_OR_FULL_BLOCK_CLAIM",
+  "decision": "GO_ATTACK_LARGER_NATIVE_BOUNDARY_LOCAL_FRONTIER_BUDGET",
+  "interpretation": {
+    "human_read": "The larger native boundary is worth one implementation attack on local-frontier grounds: the strict single native object needs 1,233 typed bytes to beat the current 40,700 typed-byte two-proof frontier, which is only 3.8359% of the checked 32,144 typed-byte MLP fusion saving.",
+    "nanozk_guardrail": "The same budget says not to frame this as NANOZK-comparable: the strict native single object would need 35,033 typed bytes to beat the paper-reported 6,900 byte context row, which is 108.9877% of the observed MLP-side fusion saving and still not a matched workload or object class.",
+    "next_experiment": "Build the next source-bound native boundary only if it targets shared opening, FRI, and trace decommitment amortization; kill or narrow the route if it cannot recover at least 1,233 typed bytes without using compact public-row artifacts as full-block proof rows."
+  },
+  "mutation_count": 13,
+  "mutation_results": [
+    {
+      "error": "NANOZK proof-size comparability overclaim",
+      "name": "promote_nanozk_comparable",
+      "rejected": true
+    },
+    {
+      "error": "selected next route drift: expected 'larger_native_block_boundary_amortization', got 'sub_kilobyte_adapter_reorder'",
+      "name": "selected_route_changed_to_local_reorder",
+      "rejected": true
+    },
+    {
+      "error": "strict beat frontier drift: expected 1233, got 0",
+      "name": "strict_frontier_gap_erased",
+      "rejected": true
+    },
+    {
+      "error": "four percent margin drift: expected 54, got 0",
+      "name": "four_percent_projection_erased",
+      "rejected": true
+    },
+    {
+      "error": "MLP saving drift: expected 32144, got 64288",
+      "name": "mlp_saving_inflated",
+      "rejected": true
+    },
+    {
+      "error": "strict_native_single_vs_nanozk_context reduction to beat drift: expected 35033, got 0",
+      "name": "nanozk_gap_erased",
+      "rejected": true
+    },
+    {
+      "error": "NANOZK proof-size comparability overclaim",
+      "name": "compact_preprocessed_promoted",
+      "rejected": true
+    },
+    {
+      "error": "GKR row status drift: expected 'PARK_CURRENT_GKR', got 'ATTACK_NEXT_LOCAL_FRONTIER'",
+      "name": "gkr_unparked",
+      "rejected": true
+    },
+    {
+      "error": "NANOZK interpretation drift: expected 'The same budget says not to frame this as NANOZK-comparable: the strict native single object would need 35,033 typed bytes to beat the paper-reported 6,900 byte context row, which is 108.9877% of the observed MLP-side fusion saving and still not a matched workload or object class.', got 'This is now a matched NANOZK proof-size win.'",
+      "name": "interpretation_overclaim",
+      "rejected": true
+    },
+    {
+      "error": "source artifact descriptor drift: expected [{'path': 'docs/engineering/evidence/zkai-native-block-boundary-pivot-selector-2026-05.json', 'schema': 'zkai-native-block-boundary-pivot-selector-v1', 'decision': 'ATTACK_NEXT_LARGER_NATIVE_BLOCK_BOUNDARY', 'result': 'PIVOT_TO_LARGER_NATIVE_BOUNDARY_NOT_LOCAL_REORDER_OR_CURRENT_GKR', 'sha256': '62e591d7a1716fabe41e7b6e4345cc0443568b155756bd8a4d40b1a70b7f51ab', 'bytes': 22336}, {'path': 'docs/engineering/evidence/zkai-native-attention-mlp-single-proof-2026-05.json', 'schema': 'zkai-native-attention-mlp-single-proof-object-gate-v1', 'decision': 'GO_NATIVE_ATTENTION_MLP_SINGLE_STWO_PROOF_OBJECT_VERIFIES', 'result': 'NARROW_CLAIM_NATIVE_ADAPTER_AIR_VERIFIES_WITH_TYPED_SIZE_COST', 'sha256': '7e68dac61d177b61b98468d1ad788756af7e06890585fa726fa3a5fdfbaade4c', 'bytes': 9134}, {'path': 'docs/engineering/evidence/zkai-d128-attention-mlp-boundary-frontier-2026-05.json', 'schema': 'zkai-d128-attention-mlp-boundary-frontier-gate-v1', 'decision': 'NARROW_CLAIM_ATTENTION_PLUS_DERIVED_MLP_BOUNDARY_FRONTIER_PINNED', 'result': 'GO_TWO_PROOF_TARGET_PINNED_NO_GO_SINGLE_NATIVE_ATTENTION_MLP_OBJECT_YET', 'sha256': '04db68f8005ed11a5d593b7ad39b8e602fa4ea2899191a0a438ac5f8b3080679', 'bytes': 10330}, {'path': 'docs/engineering/evidence/zkai-d128-rmsnorm-mlp-fused-gate-2026-05.json', 'schema': 'zkai-d128-rmsnorm-mlp-fused-gate-v1', 'decision': 'GO_D128_RMSNORM_MLP_FUSED_TYPED_PROOF_SAVING', 'result': 'GO_SIX_COMPONENT_D128_RMSNORM_MLP_FUSION_SAVES_32144_TYPED_BYTES', 'sha256': '1c9512076b0d814c1501dc0e3160529a33674ef3fd5f28695e939a98fbd7f0cc', 'bytes': 6070}, {'path': 'docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05.json', 'schema': 'zkai-native-attention-mlp-rmsnorm-post-tail-layout-gate-v1', 'decision': 'NO_GO_POST_TAIL_LAYOUT_LABEL_STABILITY', 'result': 'POST_TAIL_CANONICAL_MATCHES_ADJACENT_BAD_LABEL_42724_TYPED_BYTES_AND_DOES_NOT_PROMOTE_FRONTIER', 'sha256': '441fe78e6d139b553e0f53c233a23a7b2aa1c9e824563c536dad5c9b1f3ec6e2', 'bytes': 15497}, {'path': 'docs/engineering/evidence/zkai-gkr-d128-projection-scaling-preflight-2026-05.json', 'schema': 'zkai-gkr-d128-projection-scaling-preflight-v1', 'decision': 'NO_GO_NOW_D128_PROJECTION_SCALING', 'result': 'TINY_GEMM_SIGNAL_DOES_NOT_SURVIVE_WIDTH_PRESERVING_PREFLIGHT_KEEP_GKR_AS_BASELINE', 'sha256': '5e509ebe2cb8ccafdbce0a187e55c046b71081ec44372650a638e65294abe380', 'bytes': 15646}, {'path': 'docs/engineering/evidence/zkai-d128-component-compact-preprocessed-reprove-gate-2026-05.json', 'schema': 'zkai-d128-component-compact-preprocessed-reprove-gate-v1', 'decision': 'GO_D128_COMPONENT_NATIVE_COMPACT_PREPROCESSED_REPROVE', 'result': 'GO_BELOW_NANOZK_REPORTED_ROW_UNDER_LOCAL_TYPED_ACCOUNTING_WITH_STRICT_NON_CLAIMS', 'sha256': 'c981f3d309aaf06b91c2c4fb1b57d15821d1cc5a91d8a9258b10c61edb30d177', 'bytes': 17173}, {'path': 'docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json', 'schema': 'zkai-minimal-transformer-block-benchmark-v1', 'decision': 'GO_MINIMAL_BLOCK_BENCHMARK_CONTRACT_NO_GO_MATCHED_PROOF_CLAIM', 'result': 'BENCHMARK_CONTRACT_READY_MISSING_NATIVE_BLOCK_PROOF_OBJECT', 'sha256': '300ac6886019e7670e4a1dbb25a70803e9605dffd71907d8c1220fad1ba6436f', 'bytes': 13069}], got [{'path': 'docs/engineering/evidence/zkai-native-block-boundary-pivot-selector-2026-05.json', 'schema': 'zkai-native-block-boundary-pivot-selector-v1', 'decision': 'ATTACK_NEXT_LARGER_NATIVE_BLOCK_BOUNDARY', 'result': 'PIVOT_TO_LARGER_NATIVE_BOUNDARY_NOT_LOCAL_REORDER_OR_CURRENT_GKR', 'sha256': '0000000000000000000000000000000000000000000000000000000000000000', 'bytes': 22336}, {'path': 'docs/engineering/evidence/zkai-native-attention-mlp-single-proof-2026-05.json', 'schema': 'zkai-native-attention-mlp-single-proof-object-gate-v1', 'decision': 'GO_NATIVE_ATTENTION_MLP_SINGLE_STWO_PROOF_OBJECT_VERIFIES', 'result': 'NARROW_CLAIM_NATIVE_ADAPTER_AIR_VERIFIES_WITH_TYPED_SIZE_COST', 'sha256': '7e68dac61d177b61b98468d1ad788756af7e06890585fa726fa3a5fdfbaade4c', 'bytes': 9134}, {'path': 'docs/engineering/evidence/zkai-d128-attention-mlp-boundary-frontier-2026-05.json', 'schema': 'zkai-d128-attention-mlp-boundary-frontier-gate-v1', 'decision': 'NARROW_CLAIM_ATTENTION_PLUS_DERIVED_MLP_BOUNDARY_FRONTIER_PINNED', 'result': 'GO_TWO_PROOF_TARGET_PINNED_NO_GO_SINGLE_NATIVE_ATTENTION_MLP_OBJECT_YET', 'sha256': '04db68f8005ed11a5d593b7ad39b8e602fa4ea2899191a0a438ac5f8b3080679', 'bytes': 10330}, {'path': 'docs/engineering/evidence/zkai-d128-rmsnorm-mlp-fused-gate-2026-05.json', 'schema': 'zkai-d128-rmsnorm-mlp-fused-gate-v1', 'decision': 'GO_D128_RMSNORM_MLP_FUSED_TYPED_PROOF_SAVING', 'result': 'GO_SIX_COMPONENT_D128_RMSNORM_MLP_FUSION_SAVES_32144_TYPED_BYTES', 'sha256': '1c9512076b0d814c1501dc0e3160529a33674ef3fd5f28695e939a98fbd7f0cc', 'bytes': 6070}, {'path': 'docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05.json', 'schema': 'zkai-native-attention-mlp-rmsnorm-post-tail-layout-gate-v1', 'decision': 'NO_GO_POST_TAIL_LAYOUT_LABEL_STABILITY', 'result': 'POST_TAIL_CANONICAL_MATCHES_ADJACENT_BAD_LABEL_42724_TYPED_BYTES_AND_DOES_NOT_PROMOTE_FRONTIER', 'sha256': '441fe78e6d139b553e0f53c233a23a7b2aa1c9e824563c536dad5c9b1f3ec6e2', 'bytes': 15497}, {'path': 'docs/engineering/evidence/zkai-gkr-d128-projection-scaling-preflight-2026-05.json', 'schema': 'zkai-gkr-d128-projection-scaling-preflight-v1', 'decision': 'NO_GO_NOW_D128_PROJECTION_SCALING', 'result': 'TINY_GEMM_SIGNAL_DOES_NOT_SURVIVE_WIDTH_PRESERVING_PREFLIGHT_KEEP_GKR_AS_BASELINE', 'sha256': '5e509ebe2cb8ccafdbce0a187e55c046b71081ec44372650a638e65294abe380', 'bytes': 15646}, {'path': 'docs/engineering/evidence/zkai-d128-component-compact-preprocessed-reprove-gate-2026-05.json', 'schema': 'zkai-d128-component-compact-preprocessed-reprove-gate-v1', 'decision': 'GO_D128_COMPONENT_NATIVE_COMPACT_PREPROCESSED_REPROVE', 'result': 'GO_BELOW_NANOZK_REPORTED_ROW_UNDER_LOCAL_TYPED_ACCOUNTING_WITH_STRICT_NON_CLAIMS', 'sha256': 'c981f3d309aaf06b91c2c4fb1b57d15821d1cc5a91d8a9258b10c61edb30d177', 'bytes': 17173}, {'path': 'docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json', 'schema': 'zkai-minimal-transformer-block-benchmark-v1', 'decision': 'GO_MINIMAL_BLOCK_BENCHMARK_CONTRACT_NO_GO_MATCHED_PROOF_CLAIM', 'result': 'BENCHMARK_CONTRACT_READY_MISSING_NATIVE_BLOCK_PROOF_OBJECT', 'sha256': '300ac6886019e7670e4a1dbb25a70803e9605dffd71907d8c1220fad1ba6436f', 'bytes': 13069}]",
+      "name": "source_descriptor_drift",
+      "rejected": true
+    },
+    {
+      "error": "payload missing non-claims",
+      "name": "non_claim_removed",
+      "rejected": true
+    },
+    {
+      "error": "validation command inventory drift: expected ('python3 scripts/zkai_larger_native_block_boundary_amortization_budget_gate.py --write-json docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.json --write-tsv docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.tsv', 'python3 -m py_compile scripts/zkai_larger_native_block_boundary_amortization_budget_gate.py scripts/tests/test_zkai_larger_native_block_boundary_amortization_budget_gate.py', 'python3 -m unittest scripts.tests.test_zkai_larger_native_block_boundary_amortization_budget_gate', 'python3 scripts/research_issue_lint.py --repo-root .', 'python3 scripts/paper/paper_preflight.py --repo-root .', 'git diff --check', 'just gate-fast', 'just gate'), got ('python3 scripts/zkai_larger_native_block_boundary_amortization_budget_gate.py --write-json docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.json --write-tsv docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.tsv', 'python3 -m py_compile scripts/zkai_larger_native_block_boundary_amortization_budget_gate.py scripts/tests/test_zkai_larger_native_block_boundary_amortization_budget_gate.py', 'python3 -m unittest scripts.tests.test_zkai_larger_native_block_boundary_amortization_budget_gate', 'python3 scripts/research_issue_lint.py --repo-root .', 'python3 scripts/paper/paper_preflight.py --repo-root .', 'git diff --check', 'just gate-fast')",
+      "name": "validation_command_drift",
+      "rejected": true
+    },
+    {
+      "error": "payload commitment drift: expected 'blake2b-256:010c0e71a7de56cc698bc12d85c2edc231112695587d1703acde6082edd6b517', got 'blake2b-256:0000000000000000000000000000000000000000000000000000000000000000'",
+      "name": "payload_commitment_drift",
+      "rejected": true
+    }
+  ],
+  "mutations_rejected": 13,
+  "non_claims": [
+    "not a NANOZK proof-size win",
+    "not a matched NANOZK benchmark",
+    "not a full transformer block proof",
+    "not a new native proof object",
+    "not timing evidence",
+    "not evidence that GKR replaces Stwo",
+    "not production zkML"
+  ],
+  "payload_commitment": "blake2b-256:44f478bedc5ddf023e21c2734ddee86f1468537f9fd7d6152e29ec3494934ac2",
+  "result": "LOCAL_FRONTIER_REQUIRES_1233_TYPED_BYTES_OR_3_8359_PERCENT_OF_MLP_FUSION_SAVING_NANOZK_REMAINS_BLOCKED",
+  "schema": "zkai-larger-native-block-boundary-amortization-budget-v1",
+  "source_artifacts": [
+    {
+      "bytes": 22336,
+      "decision": "ATTACK_NEXT_LARGER_NATIVE_BLOCK_BOUNDARY",
+      "path": "docs/engineering/evidence/zkai-native-block-boundary-pivot-selector-2026-05.json",
+      "result": "PIVOT_TO_LARGER_NATIVE_BOUNDARY_NOT_LOCAL_REORDER_OR_CURRENT_GKR",
+      "schema": "zkai-native-block-boundary-pivot-selector-v1",
+      "sha256": "62e591d7a1716fabe41e7b6e4345cc0443568b155756bd8a4d40b1a70b7f51ab"
+    },
+    {
+      "bytes": 9134,
+      "decision": "GO_NATIVE_ATTENTION_MLP_SINGLE_STWO_PROOF_OBJECT_VERIFIES",
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-single-proof-2026-05.json",
+      "result": "NARROW_CLAIM_NATIVE_ADAPTER_AIR_VERIFIES_WITH_TYPED_SIZE_COST",
+      "schema": "zkai-native-attention-mlp-single-proof-object-gate-v1",
+      "sha256": "7e68dac61d177b61b98468d1ad788756af7e06890585fa726fa3a5fdfbaade4c"
+    },
+    {
+      "bytes": 10330,
+      "decision": "NARROW_CLAIM_ATTENTION_PLUS_DERIVED_MLP_BOUNDARY_FRONTIER_PINNED",
+      "path": "docs/engineering/evidence/zkai-d128-attention-mlp-boundary-frontier-2026-05.json",
+      "result": "GO_TWO_PROOF_TARGET_PINNED_NO_GO_SINGLE_NATIVE_ATTENTION_MLP_OBJECT_YET",
+      "schema": "zkai-d128-attention-mlp-boundary-frontier-gate-v1",
+      "sha256": "04db68f8005ed11a5d593b7ad39b8e602fa4ea2899191a0a438ac5f8b3080679"
+    },
+    {
+      "bytes": 6070,
+      "decision": "GO_D128_RMSNORM_MLP_FUSED_TYPED_PROOF_SAVING",
+      "path": "docs/engineering/evidence/zkai-d128-rmsnorm-mlp-fused-gate-2026-05.json",
+      "result": "GO_SIX_COMPONENT_D128_RMSNORM_MLP_FUSION_SAVES_32144_TYPED_BYTES",
+      "schema": "zkai-d128-rmsnorm-mlp-fused-gate-v1",
+      "sha256": "1c9512076b0d814c1501dc0e3160529a33674ef3fd5f28695e939a98fbd7f0cc"
+    },
+    {
+      "bytes": 15497,
+      "decision": "NO_GO_POST_TAIL_LAYOUT_LABEL_STABILITY",
+      "path": "docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05.json",
+      "result": "POST_TAIL_CANONICAL_MATCHES_ADJACENT_BAD_LABEL_42724_TYPED_BYTES_AND_DOES_NOT_PROMOTE_FRONTIER",
+      "schema": "zkai-native-attention-mlp-rmsnorm-post-tail-layout-gate-v1",
+      "sha256": "441fe78e6d139b553e0f53c233a23a7b2aa1c9e824563c536dad5c9b1f3ec6e2"
+    },
+    {
+      "bytes": 15646,
+      "decision": "NO_GO_NOW_D128_PROJECTION_SCALING",
+      "path": "docs/engineering/evidence/zkai-gkr-d128-projection-scaling-preflight-2026-05.json",
+      "result": "TINY_GEMM_SIGNAL_DOES_NOT_SURVIVE_WIDTH_PRESERVING_PREFLIGHT_KEEP_GKR_AS_BASELINE",
+      "schema": "zkai-gkr-d128-projection-scaling-preflight-v1",
+      "sha256": "5e509ebe2cb8ccafdbce0a187e55c046b71081ec44372650a638e65294abe380"
+    },
+    {
+      "bytes": 17173,
+      "decision": "GO_D128_COMPONENT_NATIVE_COMPACT_PREPROCESSED_REPROVE",
+      "path": "docs/engineering/evidence/zkai-d128-component-compact-preprocessed-reprove-gate-2026-05.json",
+      "result": "GO_BELOW_NANOZK_REPORTED_ROW_UNDER_LOCAL_TYPED_ACCOUNTING_WITH_STRICT_NON_CLAIMS",
+      "schema": "zkai-d128-component-compact-preprocessed-reprove-gate-v1",
+      "sha256": "c981f3d309aaf06b91c2c4fb1b57d15821d1cc5a91d8a9258b10c61edb30d177"
+    },
+    {
+      "bytes": 13069,
+      "decision": "GO_MINIMAL_BLOCK_BENCHMARK_CONTRACT_NO_GO_MATCHED_PROOF_CLAIM",
+      "path": "docs/engineering/evidence/zkai-minimal-transformer-block-benchmark-2026-05.json",
+      "result": "BENCHMARK_CONTRACT_READY_MISSING_NATIVE_BLOCK_PROOF_OBJECT",
+      "schema": "zkai-minimal-transformer-block-benchmark-v1",
+      "sha256": "300ac6886019e7670e4a1dbb25a70803e9605dffd71907d8c1220fad1ba6436f"
+    }
+  ],
+  "summary": {
+    "attack_next_count": 1,
+    "compact_preprocessed_typed_bytes": 6264,
+    "external_context_guardrail_count": 3,
+    "four_percent_transfer_model_bytes": 1286,
+    "four_percent_transfer_model_margin_vs_frontier_bytes": 54,
+    "four_percent_transfer_model_typed_bytes": 40646,
+    "gkr_reduction_to_beat_frontier_bytes": 29439,
+    "issue": 669,
+    "mlp_fusion_typed_saving_bytes": 32144,
+    "mlp_fusion_typed_saving_ratio": "0.564167",
+    "nanozk_reported_d128_block_proof_bytes": 6900,
+    "park_count": 3,
+    "post_tail_reduction_to_beat_frontier_bytes": 2025,
+    "proof_size_comparable_rows": 0,
+    "row_count": 7,
+    "selected_next_route": "larger_native_block_boundary_amortization",
+    "strict_native_delta_vs_frontier_typed_bytes": 1232,
+    "strict_native_reduction_to_beat_frontier_bytes": 1233,
+    "strict_native_reduction_to_beat_nanozk_context_bytes": 35033,
+    "strict_native_share_of_mlp_fusion_saving_to_beat_frontier": "0.038359",
+    "strict_native_share_of_mlp_fusion_saving_to_beat_nanozk_context": "1.089877",
+    "strict_native_single_typed_bytes": 41932,
+    "two_proof_frontier_typed_bytes": 40700,
+    "two_proof_reduction_to_beat_nanozk_context_bytes": 33801,
+    "two_proof_share_of_mlp_fusion_saving_to_beat_nanozk_context": "1.051549"
+  },
+  "validation_commands": [
+    "python3 scripts/zkai_larger_native_block_boundary_amortization_budget_gate.py --write-json docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.json --write-tsv docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.tsv",
+    "python3 -m py_compile scripts/zkai_larger_native_block_boundary_amortization_budget_gate.py scripts/tests/test_zkai_larger_native_block_boundary_amortization_budget_gate.py",
+    "python3 -m unittest scripts.tests.test_zkai_larger_native_block_boundary_amortization_budget_gate",
+    "python3 scripts/research_issue_lint.py --repo-root .",
+    "python3 scripts/paper/paper_preflight.py --repo-root .",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}
