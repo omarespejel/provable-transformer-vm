@@ -78,7 +78,7 @@ class LargerNativeBoundaryCandidateSelectorGateTests(unittest.TestCase):
         payload = self.payload()
         self.assertEqual(payload["payload_commitment"], gate.payload_commitment(payload))
 
-    def test_tsv_schema_and_selected_row_are_pinned_exactly(self):
+    def test_tsv_output_contract_compatibility(self):
         payload = self.payload()
         text = gate.tsv_bytes(payload).decode("utf-8")
         lines = text.strip().splitlines()
