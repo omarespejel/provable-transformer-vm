@@ -10,7 +10,9 @@ import csv
 import hashlib
 import io
 import json
+import os
 import pathlib
+import secrets
 import sys
 from typing import Any
 
@@ -423,8 +425,8 @@ def build_payload() -> dict[str, Any]:
         ),
         "selected_lookup_growth_vs_d8": ratio(selected["lookup_claims"], d8["lookup_claims"]),
         "selected_bytes_per_lookup_improvement_vs_d8": ratio(
-            int(float(d8["typed_bytes_per_lookup_claim"]) * 1_000_000),
-            int(float(selected["typed_bytes_per_lookup_claim"]) * 1_000_000),
+            d8["attention_typed_bytes"] * selected["lookup_claims"],
+            d8["lookup_claims"] * selected["attention_typed_bytes"],
         ),
         "selected_incremental_typed_bytes_per_extra_lookup_vs_d8": ratio(
             selected["attention_typed_bytes"] - d8["attention_typed_bytes"],
@@ -477,6 +479,33 @@ def validate_payload_without_commitment(payload: dict[str, Any]) -> None:
         raise LargerNativeBoundaryCandidateSelectorError("non-claim inventory drift")
     if tuple(payload.get("validation_commands", ())) != VALIDATION_COMMANDS:
         raise LargerNativeBoundaryCandidateSelectorError("validation command inventory drift")
+    if "mutation_inventory" in payload:
+        inventory = payload.get("mutation_inventory")
+        if not isinstance(inventory, dict):
+            raise LargerNativeBoundaryCandidateSelectorError("mutation inventory must be object")
+        if inventory.get("mutation_count") != len(MUTATION_NAMES):
+            raise LargerNativeBoundaryCandidateSelectorError("mutation count drift")
+        if tuple(inventory.get("mutation_names", ())) != MUTATION_NAMES:
+            raise LargerNativeBoundaryCandidateSelectorError("mutation name inventory drift")
+        mutation_result = payload.get("mutation_result")
+        if not isinstance(mutation_result, dict):
+            raise LargerNativeBoundaryCandidateSelectorError("mutation result must be object")
+        if mutation_result.get("mutations_rejected") != len(MUTATION_NAMES):
+            raise LargerNativeBoundaryCandidateSelectorError("mutation rejected count drift")
+        if mutation_result.get("all_mutations_rejected") is not True:
+            raise LargerNativeBoundaryCandidateSelectorError("mutation rejection drift")
+        cases = mutation_result.get("cases")
+        if not isinstance(cases, list) or len(cases) != len(MUTATION_NAMES):
+            raise LargerNativeBoundaryCandidateSelectorError("mutation case inventory drift")
+        for expected_name, case in zip(MUTATION_NAMES, cases, strict=True):
+            if not isinstance(case, dict):
+                raise LargerNativeBoundaryCandidateSelectorError("mutation case must be object")
+            if case.get("name") != expected_name:
+                raise LargerNativeBoundaryCandidateSelectorError("mutation case name drift")
+            if case.get("rejected") is not True:
+                raise LargerNativeBoundaryCandidateSelectorError("mutation case rejection drift")
+            if not isinstance(case.get("error"), str) or not case["error"]:
+                raise LargerNativeBoundaryCandidateSelectorError("mutation case error drift")
     if payload.get("interpretation") != EXPECTED_INTERPRETATION:
         raise LargerNativeBoundaryCandidateSelectorError("interpretation drift")
     if payload.get("summary") != EXPECTED_SUMMARY:
@@ -582,6 +611,10 @@ def finalize_payload(payload: dict[str, Any]) -> dict[str, Any]:
     if mutation_names != MUTATION_NAMES:
         raise LargerNativeBoundaryCandidateSelectorError("mutation inventory drift")
     rejected = sum(1 for item in mutations if item["rejected"])
+    if rejected != len(mutations):
+        raise LargerNativeBoundaryCandidateSelectorError(
+            f"mutation rejection drift: rejected {rejected} / {len(mutations)}"
+        )
     payload = copy.deepcopy(payload)
     payload["mutation_inventory"] = {
         "mutation_count": len(mutations),
@@ -609,9 +642,26 @@ def tsv_bytes(payload: dict[str, Any]) -> bytes:
 def write_bytes(path: pathlib.Path, data: bytes) -> None:
     if path.exists() and path.is_symlink():
         raise LargerNativeBoundaryCandidateSelectorError(f"refusing to write symlink: {path}")
-    tmp = path.with_name(f".{path.name}.tmp")
-    tmp.write_bytes(data)
-    tmp.replace(path)
+    tmp = path.with_name(f".{path.name}.{secrets.token_hex(8)}.tmp")
+    fd = None
+    try:
+        fd = os.open(str(tmp), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, "wb") as handle:
+            fd = None
+            handle.write(data)
+            handle.flush()
+            os.fsync(handle.fileno())
+        tmp.replace(path)
+    except OSError as err:
+        raise LargerNativeBoundaryCandidateSelectorError(f"failed to write {path}: {err}") from err
+    finally:
+        if fd is not None:
+            os.close(fd)
+        if tmp.exists():
+            try:
+                tmp.unlink()
+            except OSError:
+                pass
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:

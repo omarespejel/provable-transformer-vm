@@ -131,6 +131,18 @@ class LargerNativeBoundaryCandidateSelectorGateTests(unittest.TestCase):
         ):
             gate.validate_payload(payload)
 
+    def test_rejects_mutation_result_drift(self):
+        payload = self.payload()
+        payload["mutation_result"]["cases"][0]["rejected"] = False
+        payload["mutation_result"]["all_mutations_rejected"] = False
+        payload["mutation_result"]["mutations_rejected"] -= 1
+        gate.refresh_payload_commitment(payload)
+        with self.assertRaisesRegex(
+            gate.LargerNativeBoundaryCandidateSelectorError,
+            "mutation rejected count drift|mutation rejection drift|mutation case rejection drift",
+        ):
+            gate.validate_payload(payload)
+
     def test_write_bytes_rejects_symlink(self):
         with tempfile.TemporaryDirectory() as tmp:
             target = pathlib.Path(tmp) / "target"
