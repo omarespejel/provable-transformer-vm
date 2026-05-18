@@ -2155,6 +2155,36 @@ current local seq32+d128 native-boundary champion, not a full transformer
 block, not a matched external benchmark, and not a NANOZK proof-size win. See
 `docs/engineering/zkai-native-seq32-attention-mlp-single-proof-2026-05-19.md`.
 
+Seq32 native single-proof champion reproducibility metadata:
+
+- Backend binary: `zkai_native_seq32_attention_mlp_single_proof`.
+- Backend version:
+  `stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-v1`.
+- Timing mode: proof-size/accounting only; no timing claim and no median-of-5.
+- Gate schema:
+  `zkai-native-seq32-attention-mlp-single-proof-gate-v1`.
+- Decision:
+  `GO_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_OBJECT_BEATS_MATCHED_FRONTIER`.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.tsv`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.input.json`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json`,
+  and
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-binary-accounting-2026-05.json`.
+- Local validation commands:
+  `cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.input.json`;
+  `cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json`;
+  `cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json`;
+  `cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json > docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-binary-accounting-2026-05.json`;
+  `python3.10 scripts/zkai_native_seq32_attention_mlp_single_proof_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_single_proof_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_single_proof_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_single_proof_gate`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
 Latest seq32+d128 adapter-variant selector: the first post-champion opening
 layout attack is a checked NO-GO for improving proof size through base-cell
 removal alone. Five variants verify locally: compact base (`42,548` typed
@@ -2182,6 +2212,7 @@ Seq32 adapter-variant selector reproducibility metadata:
   and
   `docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-accounting-2026-05.json`.
 - Local validation commands:
+  `cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-compact-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-output-anchor-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-post-tail-layout-2026-05.envelope.json > docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-accounting-2026-05.json`;
   `python3.10 scripts/zkai_native_seq32_attention_mlp_adapter_variant_selector_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05.tsv`;
   `python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_adapter_variant_selector_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_adapter_variant_selector_gate.py`;
   `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adapter_variant_selector_gate`;
