@@ -11,7 +11,6 @@ import io
 import json
 import os
 import pathlib
-import secrets
 import stat
 import sys
 from collections.abc import Callable
@@ -615,7 +614,7 @@ def atomic_write_text(path: pathlib.Path, text: str) -> None:
         target.parent,
         os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0),
     )
-    tmp_name = f".{target.name}.{os.getpid()}.{secrets.token_hex(8)}.tmp"
+    tmp_name = f".{target.name}.tmp"
     tmp_created = False
     fd: int | None = None
     try:
