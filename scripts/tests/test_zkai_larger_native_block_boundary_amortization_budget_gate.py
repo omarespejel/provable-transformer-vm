@@ -23,16 +23,18 @@ class LargerNativeBlockBoundaryAmortizationBudgetGateTest(unittest.TestCase):
         self.assertEqual(payload["summary"]["strict_native_reduction_to_beat_nanozk_context_bytes"], 35_033)
         self.assertEqual(payload["summary"]["strict_native_share_of_mlp_fusion_saving_to_beat_nanozk_context"], "1.089877")
         self.assertEqual(payload["summary"]["proof_size_comparable_rows"], 0)
-        self.assertEqual(payload["mutation_count"], 13)
-        self.assertEqual(payload["mutations_rejected"], 13)
+        self.assertEqual(payload["mutation_count"], 14)
+        self.assertEqual(payload["mutations_rejected"], 14)
 
     def test_build_payload_is_deterministic(self) -> None:
         self.assertEqual(gate.build_payload(), gate.build_payload())
 
     def test_budget_rows_are_ordered_and_guarded(self) -> None:
         payload = gate.build_payload()
+        row_ids = [row["row_id"] for row in payload["budget_rows"]]
+        self.assertEqual(row_ids, list(gate.EXPECTED_ROW_IDS))
+        self.assertEqual(len(set(row_ids)), len(row_ids), "duplicate budget row_id detected")
         rows = {row["row_id"]: row for row in payload["budget_rows"]}
-        self.assertEqual(list(rows), list(gate.EXPECTED_ROW_IDS))
         self.assertEqual(rows["strict_native_single_vs_two_proof_frontier"]["status"], "ATTACK_NEXT_LOCAL_FRONTIER")
         self.assertEqual(rows["strict_native_single_vs_two_proof_frontier"]["reduction_to_beat_reference_bytes"], 1_233)
         self.assertEqual(rows["strict_native_single_vs_two_proof_frontier"]["share_of_mlp_fusion_saving_to_beat_reference"], "0.038359")
@@ -189,7 +191,13 @@ class LargerNativeBlockBoundaryAmortizationBudgetGateTest(unittest.TestCase):
     def test_rejects_non_claim_erasure(self) -> None:
         payload = gate.base_payload(gate.load_sources())
         gate.mutate_remove_non_claim(payload)
-        with self.assertRaisesRegex(gate.AmortizationBudgetError, "payload missing non-claims"):
+        with self.assertRaisesRegex(gate.AmortizationBudgetError, "non-claim inventory drift"):
+            gate.validate_payload(payload, final=False)
+
+    def test_rejects_non_claim_addition(self) -> None:
+        payload = gate.base_payload(gate.load_sources())
+        gate.mutate_add_non_claim(payload)
+        with self.assertRaisesRegex(gate.AmortizationBudgetError, "non-claim inventory drift"):
             gate.validate_payload(payload, final=False)
 
     def test_rejects_validation_command_drift(self) -> None:

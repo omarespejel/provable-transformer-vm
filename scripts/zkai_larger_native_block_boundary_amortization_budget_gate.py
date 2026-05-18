@@ -568,9 +568,8 @@ def validate_payload(
         ]
     expect_equal(source_artifacts, expected_source_artifacts, "source artifact descriptor")
 
-    non_claims = require_list(payload.get("non_claims"), "non-claims")
-    if not set(NON_CLAIMS).issubset(set(non_claims)):
-        raise AmortizationBudgetError("payload missing non-claims")
+    non_claims = tuple(require_str(item, "non-claim entry") for item in require_list(payload.get("non_claims"), "non-claims"))
+    expect_equal(non_claims, NON_CLAIMS, "non-claim inventory")
     expect_equal(tuple(payload.get("validation_commands", ())), VALIDATION_COMMANDS, "validation command inventory")
 
     if final:
@@ -629,6 +628,10 @@ def mutate_remove_non_claim(payload: dict[str, Any]) -> None:
     payload["non_claims"] = payload["non_claims"][:-1]
 
 
+def mutate_add_non_claim(payload: dict[str, Any]) -> None:
+    payload["non_claims"] = payload["non_claims"] + ["extra claim-boundary drift"]
+
+
 def mutate_validation_command_drift(payload: dict[str, Any]) -> None:
     payload["validation_commands"] = payload["validation_commands"][:-1]
 
@@ -649,6 +652,7 @@ MUTATIONS: tuple[tuple[str, Callable[[dict[str, Any]], None]], ...] = (
     ("interpretation_overclaim", mutate_interpretation_overclaim),
     ("source_descriptor_drift", mutate_source_descriptor_drift),
     ("non_claim_removed", mutate_remove_non_claim),
+    ("non_claim_added", mutate_add_non_claim),
     ("validation_command_drift", mutate_validation_command_drift),
     ("payload_commitment_drift", mutate_payload_commitment),
 )

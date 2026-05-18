@@ -303,7 +303,7 @@ This repository currently has three live lanes.
      larger boundary locally, but the NANOZK guardrail remains hard: beating
      the paper-reported `6,900` byte context row from the strict native single
      object would require `35,033` typed bytes, `108.9877%` of the MLP fusion
-     saving, and the object class is not matched. The gate rejects `13 / 13`
+     saving, and the object class is not matched. The gate rejects `14 / 14`
      route, metric, NANOZK-overclaim, source, non-claim, and payload mutations;
      see
      `docs/engineering/zkai-larger-native-block-boundary-amortization-budget-2026-05-18.md`.
