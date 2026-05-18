@@ -818,8 +818,14 @@ def finalize_payload(payload: dict[str, Any]) -> dict[str, Any]:
         raise LargerNativeBoundaryCandidateSelectorError("mutation inventory drift")
     rejected = sum(1 for item in mutations if item["rejected"])
     if rejected != len(mutations):
+        failures = [
+            f"{item.get('name', '<unknown>')}: {item.get('error', '<no error>')}"
+            for item in mutations
+            if not item.get("rejected")
+        ]
         raise LargerNativeBoundaryCandidateSelectorError(
-            f"mutation rejection drift: rejected {rejected} / {len(mutations)}"
+            "mutation rejection drift: rejected "
+            f"{rejected} / {len(mutations)}; failed coverage: {'; '.join(failures)}"
         )
     payload = copy.deepcopy(payload)
     payload["mutation_inventory"] = {
