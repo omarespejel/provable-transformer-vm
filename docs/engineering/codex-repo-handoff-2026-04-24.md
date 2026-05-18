@@ -4,7 +4,7 @@ This is the tracked GitHub-safe mirror of the local `.codex` handoff notes.
 If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 `.codex/HANDOFF.md` first. This file is the durable shared resume surface.
 
-**Mainline tip at last refresh:** `b6008fb99d47c7daf2c187fc3f3322b30b8cf0e9` (matches
+**Mainline tip at last refresh:** `0ef8aeac97a02326533e0a18776a9d8a952d9ec0` (matches
 `.codex/HANDOFF.md` “Mainline reference at refresh”; update both together).
 
 ## Read order for a fresh agent
@@ -90,8 +90,9 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 79. `docs/engineering/zkai-hybrid-proof-pressure-selector-2026-05-17.md`
 80. `docs/engineering/zkai-gkr-d128-projection-scaling-preflight-2026-05-17.md`
 81. `docs/engineering/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05-18.md`
-82. `docs/engineering/reproducibility.md`
-83. `git status --short --branch`
+82. `docs/engineering/zkai-seq32-derived-d128-native-mlp-surface-2026-05-18.md`
+83. `docs/engineering/reproducibility.md`
+84. `git status --short --branch`
 
 ## Current lane split
 
@@ -103,6 +104,20 @@ truth under `.codex/research/`. Fresh agents should read
 before opening or executing frontier issues. The north star is STARK-native
 proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
+
+Latest seq32-derived d128 native MLP surface: issue `#674` fixes the
+source-value mismatch discovered by issue `#673`. The selected two-head seq32
+attention surface now feeds a regenerated d128 RMSNorm/MLP input with `0 / 128`
+adapter mismatches. The regenerated fused native Stwo RMSNorm/MLP proof
+verifies at `74,511` JSON proof bytes / `24,272` local typed bytes, versus
+`181,194` JSON / `54,336` typed bytes for the six separate regenerated MLP
+component proofs. The MLP-side fused saving is `106,683` JSON bytes and
+`30,064` typed bytes (`0.446702x` typed ratio). The honest value-compatible
+two-proof frontier for the next larger native attention-plus-MLP attempt is now
+`47,188` typed bytes / `140,838` JSON bytes: `22,916` typed seq32 attention
+bytes plus `24,272` typed seq32-derived MLP bytes. This is not one native
+attention-plus-MLP object, not a full transformer block, and not a NANOZK win.
+See `docs/engineering/zkai-seq32-derived-d128-native-mlp-surface-2026-05-18.md`.
 
 Latest attention-derived d128 native RMSNorm-MLP fused result: the derived input
 and six derived native component inputs now feed a regenerated native

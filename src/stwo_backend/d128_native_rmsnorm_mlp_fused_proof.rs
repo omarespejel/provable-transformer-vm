@@ -35,6 +35,11 @@ use super::d128_native_activation_swiglu_proof::{
     ZKAI_D128_ATTENTION_DERIVED_GATE_VALUE_PROJECTION_STATEMENT_COMMITMENT,
     ZKAI_D128_ATTENTION_DERIVED_VALUE_PROJECTION_OUTPUT_COMMITMENT,
     ZKAI_D128_HIDDEN_ACTIVATION_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_GATE_PROJECTION_OUTPUT_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_GATE_VALUE_PROJECTION_OUTPUT_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_GATE_VALUE_PROJECTION_PUBLIC_INSTANCE_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_GATE_VALUE_PROJECTION_STATEMENT_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_VALUE_PROJECTION_OUTPUT_COMMITMENT,
 };
 use super::d128_native_down_projection_proof::{
     zkai_d128_down_projection_component_with_allocator,
@@ -48,6 +53,12 @@ use super::d128_native_down_projection_proof::{
     ZKAI_D128_ATTENTION_DERIVED_HIDDEN_ACTIVATION_COMMITMENT,
     ZKAI_D128_DOWN_PROJECTION_PROOF_VERSION, ZKAI_D128_DOWN_PROJECTION_PUBLIC_INSTANCE_COMMITMENT,
     ZKAI_D128_DOWN_PROJECTION_STATEMENT_COMMITMENT, ZKAI_D128_RESIDUAL_DELTA_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_ACTIVATION_SWIGLU_PUBLIC_INSTANCE_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_ACTIVATION_SWIGLU_STATEMENT_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_DOWN_PROJECTION_PUBLIC_INSTANCE_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_DOWN_PROJECTION_STATEMENT_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_HIDDEN_ACTIVATION_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_RESIDUAL_DELTA_COMMITMENT,
 };
 use super::d128_native_gate_value_projection_proof::{
     zkai_d128_gate_value_projection_component_with_allocator,
@@ -62,6 +73,9 @@ use super::d128_native_gate_value_projection_proof::{
     ZKAI_D128_GATE_VALUE_PROJECTION_PROOF_VERSION,
     ZKAI_D128_GATE_VALUE_PROJECTION_PUBLIC_INSTANCE_COMMITMENT,
     ZKAI_D128_GATE_VALUE_PROJECTION_STATEMENT_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_PROJECTION_INPUT_ROW_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_RMSNORM_TO_PROJECTION_BRIDGE_PUBLIC_INSTANCE_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_RMSNORM_TO_PROJECTION_BRIDGE_STATEMENT_COMMITMENT,
     ZKAI_D128_VALUE_PROJECTION_OUTPUT_COMMITMENT,
 };
 use super::d128_native_residual_add_proof::{
@@ -78,6 +92,13 @@ use super::d128_native_residual_add_proof::{
     ZKAI_D128_OUTPUT_ACTIVATION_COMMITMENT, ZKAI_D128_RESIDUAL_ADD_PROOF_VERSION,
     ZKAI_D128_RESIDUAL_ADD_PUBLIC_INSTANCE_COMMITMENT, ZKAI_D128_RESIDUAL_ADD_ROW_COMMITMENT,
     ZKAI_D128_RESIDUAL_ADD_STATEMENT_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_INPUT_ACTIVATION_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_INPUT_PROOF_VERSION,
+    ZKAI_D128_SEQ32_DERIVED_INPUT_STATEMENT_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_OUTPUT_ACTIVATION_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_RESIDUAL_ADD_PUBLIC_INSTANCE_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_RESIDUAL_ADD_ROW_COMMITMENT,
+    ZKAI_D128_SEQ32_DERIVED_RESIDUAL_ADD_STATEMENT_COMMITMENT,
 };
 use super::d128_native_rmsnorm_public_row_proof::{
     zkai_d128_rmsnorm_public_row_component_with_allocator,
@@ -192,6 +213,17 @@ const EXPECTED_ATTENTION_DERIVED_VALIDATION_COMMANDS: &[&str] = &[
     "just gate-fast",
     "just gate",
 ];
+const EXPECTED_SEQ32_DERIVED_VALIDATION_COMMANDS: &[&str] = &[
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_d128_rmsnorm_mlp_fused_proof -- build-input docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-public-row-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-native-rmsnorm-to-projection-bridge-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-native-gate-value-projection-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-native-activation-swiglu-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-native-down-projection-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-native-residual-add-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_d128_rmsnorm_mlp_fused_proof -- prove docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_d128_rmsnorm_mlp_fused_proof -- verify docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.envelope.json",
+    "python3.10 scripts/zkai_seq32_derived_d128_mlp_surface_gate.py --write-inputs --write-json docs/engineering/evidence/zkai-seq32-derived-d128-native-mlp-surface-2026-05.json --write-tsv docs/engineering/evidence/zkai-seq32-derived-d128-native-mlp-surface-2026-05.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_seq32_derived_d128_mlp_surface_gate",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend d128_native_rmsnorm_mlp_fused_proof --lib",
+    "git diff --check",
+    "just gate-fast",
+    "just gate",
+];
 
 const ZKAI_D128_ATTENTION_DERIVED_RMSNORM_PUBLIC_ROW_STATEMENT_COMMITMENT: &str =
     "blake2b-256:5abd10e4a7bb9ed3eea14b6ea2beb22caac45c8cb6f6b10928585001d57ad57d";
@@ -199,6 +231,12 @@ const ZKAI_D128_ATTENTION_DERIVED_RMSNORM_PUBLIC_ROW_PUBLIC_INSTANCE_COMMITMENT:
     "blake2b-256:21316dfa0e32f91879bf13b85f99e16db0aa4c6e5f91c0dfc106f300c0c50fff";
 const ZKAI_D128_ATTENTION_DERIVED_RMSNORM_OUTPUT_ROW_COMMITMENT: &str =
     "blake2b-256:fbc611c011d2209476aca2055f5f9abe0d6cda12bd0f6fabeec7d1657ce1e1f9";
+const ZKAI_D128_SEQ32_DERIVED_RMSNORM_PUBLIC_ROW_STATEMENT_COMMITMENT: &str =
+    "blake2b-256:bfe0e37bd0830057018212ada60c1c3c6378d343fb97f0fb14a607b699b49d48";
+const ZKAI_D128_SEQ32_DERIVED_RMSNORM_PUBLIC_ROW_PUBLIC_INSTANCE_COMMITMENT: &str =
+    "blake2b-256:ee8af8fb5bc69c8d0b965a156d2da636ba31cf848075ca663ee88e461cef8ecd";
+const ZKAI_D128_SEQ32_DERIVED_RMSNORM_OUTPUT_ROW_COMMITMENT: &str =
+    "blake2b-256:bee594cd2dd38e8e2d6eed98f41f74c756b18b44aab2840e79ec84e9ef9c0964";
 #[derive(Clone, Copy)]
 struct FusedSourceProfile {
     residual_source_proof_version: &'static str,
@@ -524,7 +562,7 @@ fn validate_fused_envelope(envelope: &ZkAiD128RmsnormMlpFusedEnvelope) -> Result
     validate_fused_input(&envelope.input)
 }
 
-fn fused_source_profiles() -> [FusedSourceProfile; 2] {
+fn fused_source_profiles() -> [FusedSourceProfile; 3] {
     [
         FusedSourceProfile {
             residual_source_proof_version: ZKAI_D128_RMSNORM_PUBLIC_ROW_PROOF_VERSION,
@@ -605,6 +643,50 @@ fn fused_source_profiles() -> [FusedSourceProfile; 2] {
             output_activation_commitment: ZKAI_D128_ATTENTION_DERIVED_OUTPUT_ACTIVATION_COMMITMENT,
             residual_add_row_commitment: ZKAI_D128_ATTENTION_DERIVED_RESIDUAL_ADD_ROW_COMMITMENT,
             validation_commands: EXPECTED_ATTENTION_DERIVED_VALIDATION_COMMANDS,
+        },
+        FusedSourceProfile {
+            residual_source_proof_version: ZKAI_D128_SEQ32_DERIVED_INPUT_PROOF_VERSION,
+            residual_source_statement_commitment:
+                ZKAI_D128_SEQ32_DERIVED_INPUT_STATEMENT_COMMITMENT,
+            rmsnorm_statement_commitment:
+                ZKAI_D128_SEQ32_DERIVED_RMSNORM_PUBLIC_ROW_STATEMENT_COMMITMENT,
+            rmsnorm_public_instance_commitment:
+                ZKAI_D128_SEQ32_DERIVED_RMSNORM_PUBLIC_ROW_PUBLIC_INSTANCE_COMMITMENT,
+            input_activation_commitment: ZKAI_D128_SEQ32_DERIVED_INPUT_ACTIVATION_COMMITMENT,
+            rmsnorm_output_row_commitment: ZKAI_D128_SEQ32_DERIVED_RMSNORM_OUTPUT_ROW_COMMITMENT,
+            projection_bridge_statement_commitment:
+                ZKAI_D128_SEQ32_DERIVED_RMSNORM_TO_PROJECTION_BRIDGE_STATEMENT_COMMITMENT,
+            projection_bridge_public_instance_commitment:
+                ZKAI_D128_SEQ32_DERIVED_RMSNORM_TO_PROJECTION_BRIDGE_PUBLIC_INSTANCE_COMMITMENT,
+            projection_input_row_commitment:
+                ZKAI_D128_SEQ32_DERIVED_PROJECTION_INPUT_ROW_COMMITMENT,
+            gate_value_statement_commitment:
+                ZKAI_D128_SEQ32_DERIVED_GATE_VALUE_PROJECTION_STATEMENT_COMMITMENT,
+            gate_value_public_instance_commitment:
+                ZKAI_D128_SEQ32_DERIVED_GATE_VALUE_PROJECTION_PUBLIC_INSTANCE_COMMITMENT,
+            gate_projection_output_commitment:
+                ZKAI_D128_SEQ32_DERIVED_GATE_PROJECTION_OUTPUT_COMMITMENT,
+            value_projection_output_commitment:
+                ZKAI_D128_SEQ32_DERIVED_VALUE_PROJECTION_OUTPUT_COMMITMENT,
+            gate_value_projection_output_commitment:
+                ZKAI_D128_SEQ32_DERIVED_GATE_VALUE_PROJECTION_OUTPUT_COMMITMENT,
+            activation_statement_commitment:
+                ZKAI_D128_SEQ32_DERIVED_ACTIVATION_SWIGLU_STATEMENT_COMMITMENT,
+            activation_public_instance_commitment:
+                ZKAI_D128_SEQ32_DERIVED_ACTIVATION_SWIGLU_PUBLIC_INSTANCE_COMMITMENT,
+            hidden_activation_commitment: ZKAI_D128_SEQ32_DERIVED_HIDDEN_ACTIVATION_COMMITMENT,
+            down_projection_statement_commitment:
+                ZKAI_D128_SEQ32_DERIVED_DOWN_PROJECTION_STATEMENT_COMMITMENT,
+            down_projection_public_instance_commitment:
+                ZKAI_D128_SEQ32_DERIVED_DOWN_PROJECTION_PUBLIC_INSTANCE_COMMITMENT,
+            residual_delta_commitment: ZKAI_D128_SEQ32_DERIVED_RESIDUAL_DELTA_COMMITMENT,
+            residual_add_statement_commitment:
+                ZKAI_D128_SEQ32_DERIVED_RESIDUAL_ADD_STATEMENT_COMMITMENT,
+            residual_add_public_instance_commitment:
+                ZKAI_D128_SEQ32_DERIVED_RESIDUAL_ADD_PUBLIC_INSTANCE_COMMITMENT,
+            output_activation_commitment: ZKAI_D128_SEQ32_DERIVED_OUTPUT_ACTIVATION_COMMITMENT,
+            residual_add_row_commitment: ZKAI_D128_SEQ32_DERIVED_RESIDUAL_ADD_ROW_COMMITMENT,
+            validation_commands: EXPECTED_SEQ32_DERIVED_VALIDATION_COMMANDS,
         },
     ]
 }

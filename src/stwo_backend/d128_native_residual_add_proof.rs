@@ -73,6 +73,28 @@ pub const ZKAI_D128_ATTENTION_DERIVED_RESIDUAL_ADD_PUBLIC_INSTANCE_COMMITMENT: &
     "blake2b-256:35d93e7086d773fdba30b455374533df6271b1d98d6b35418f1af0d250be8ee8";
 pub const ZKAI_D128_ATTENTION_DERIVED_RESIDUAL_ADD_STATEMENT_COMMITMENT: &str =
     "blake2b-256:106bf2581e2588d8ed28f31d93438ba0f546a752d743bea533df8640a6048c5d";
+pub const ZKAI_D128_SEQ32_DERIVED_INPUT_PROOF_VERSION: &str =
+    "zkai-seq32-derived-d128-input-gate-v1";
+pub const ZKAI_D128_SEQ32_DERIVED_INPUT_STATEMENT_COMMITMENT: &str =
+    "blake2b-256:03267fbc084726c1249fbd6025cc3ec3fdc30214f7c75693810c5b72188ace55";
+pub const ZKAI_D128_SEQ32_DERIVED_INPUT_ACTIVATION_COMMITMENT: &str =
+    "blake2b-256:f1145a876ece5ad4154ce254ae284d3c2f673d76db0ff74a7a48bf9e4cfa8223";
+pub const ZKAI_D128_SEQ32_DERIVED_DOWN_PROJECTION_STATEMENT_COMMITMENT: &str =
+    "blake2b-256:4b8ae8318c0a74ba251265527e3aa25ad62df16a57b5714b285a41b5708c76d3";
+pub const ZKAI_D128_SEQ32_DERIVED_DOWN_PROJECTION_PUBLIC_INSTANCE_COMMITMENT: &str =
+    "blake2b-256:74e827de64a586efe23692f7d4503e19187804525add71e23809a8482b8c3da3";
+pub const ZKAI_D128_SEQ32_DERIVED_RESIDUAL_DELTA_COMMITMENT: &str =
+    "blake2b-256:89af7b3b0f22f7f590d945ba659afa3fc0ef6d67cd982e31f87e1cf825f05efd";
+pub const ZKAI_D128_SEQ32_DERIVED_OUTPUT_ACTIVATION_COMMITMENT: &str =
+    "blake2b-256:864505937d7fe562b549dacdb2143e2c8290c2757978a3dd4b2ebbf0a4696b98";
+pub const ZKAI_D128_SEQ32_DERIVED_RESIDUAL_ADD_ROW_COMMITMENT: &str =
+    "blake2b-256:eb0e783dd6b048c14f38ba6cef33f7f7ea40cb4604b375288986c45eafae93f3";
+pub const ZKAI_D128_SEQ32_DERIVED_RESIDUAL_ADD_PROOF_NATIVE_PARAMETER_COMMITMENT: &str =
+    "blake2b-256:96bbdb8923fb0c3984a531f31c0b22a13b256a24253669a48366f979e5e74044";
+pub const ZKAI_D128_SEQ32_DERIVED_RESIDUAL_ADD_PUBLIC_INSTANCE_COMMITMENT: &str =
+    "blake2b-256:1454ebcfb035a3883f08b8aa2449d7c085f538857cd4700a80f687907e566424";
+pub const ZKAI_D128_SEQ32_DERIVED_RESIDUAL_ADD_STATEMENT_COMMITMENT: &str =
+    "blake2b-256:b775ed46ff4e4ff043a4c886667a9771bb71859a3ee9e7ed19d9925cc27dcf94";
 pub const ZKAI_D128_RESIDUAL_ADD_PROOF_NATIVE_PARAMETER_COMMITMENT: &str =
     "blake2b-256:f958da6fa72df8bc32873b3602a128ed35b65f9427e8627af0b39ff7e21b31bc";
 pub const ZKAI_D128_RESIDUAL_ADD_PUBLIC_INSTANCE_COMMITMENT: &str =
@@ -95,6 +117,8 @@ const ZKAI_D128_RESIDUAL_DELTA_REMAINDER_SHA256: &str =
     "a99010fcd4f0898287b58960f979b086208ea7eff6ca51f0e8af827ec916ef3d";
 const ZKAI_D128_ATTENTION_DERIVED_RESIDUAL_DELTA_REMAINDER_SHA256: &str =
     "745d0cc14f1f5c595db32b81dd4b58b49df2e9b98b4ca6e7ec5fc3065811f895";
+const ZKAI_D128_SEQ32_DERIVED_RESIDUAL_DELTA_REMAINDER_SHA256: &str =
+    "90815085e4a5fbfa3bdf3cdc6a38c23a9b55f7a27bd127a78092a004974e7907";
 const INPUT_ACTIVATION_DOMAIN: &str = "ptvm:zkai:d128-input-activation:v1";
 const RESIDUAL_DELTA_DOMAIN: &str = "ptvm:zkai:d128-residual-delta:v1";
 const OUTPUT_ACTIVATION_DOMAIN: &str = "ptvm:zkai:d128-output-activation:v1";
@@ -144,6 +168,13 @@ const EXPECTED_VALIDATION_COMMANDS: &[&str] = &[
 const EXPECTED_DERIVED_VALIDATION_COMMANDS: &[&str] = &[
     "python3 scripts/zkai_d128_residual_add_proof_input.py --rmsnorm-source-json docs/engineering/evidence/zkai-attention-derived-d128-input-2026-05.json --down-source-json docs/engineering/evidence/zkai-attention-derived-d128-native-down-projection-proof-2026-05.json --write-json docs/engineering/evidence/zkai-attention-derived-d128-native-residual-add-proof-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-derived-d128-native-residual-add-proof-2026-05.tsv",
     "python3 -m unittest scripts.tests.test_zkai_d128_residual_add_proof_input",
+    "cargo +nightly-2025-07-14 test d128_native_residual_add_proof --lib --features stwo-backend",
+    "just gate-fast",
+    "just gate",
+];
+const EXPECTED_SEQ32_DERIVED_VALIDATION_COMMANDS: &[&str] = &[
+    "python3.10 scripts/zkai_seq32_derived_d128_mlp_surface_gate.py --write-inputs",
+    "python3.10 -m unittest scripts.tests.test_zkai_seq32_derived_d128_mlp_surface_gate",
     "cargo +nightly-2025-07-14 test d128_native_residual_add_proof --lib --features stwo-backend",
     "just gate-fast",
     "just gate",
@@ -609,6 +640,27 @@ fn approved_residual_add_source_anchor(
                 ZKAI_D128_ATTENTION_DERIVED_RESIDUAL_ADD_PUBLIC_INSTANCE_COMMITMENT,
             statement_commitment: ZKAI_D128_ATTENTION_DERIVED_RESIDUAL_ADD_STATEMENT_COMMITMENT,
             validation_commands: EXPECTED_DERIVED_VALIDATION_COMMANDS,
+        },
+        ResidualAddSourceAnchor {
+            name: "seq32_derived",
+            source_rmsnorm_proof_version: ZKAI_D128_SEQ32_DERIVED_INPUT_PROOF_VERSION,
+            source_rmsnorm_statement_commitment: ZKAI_D128_SEQ32_DERIVED_INPUT_STATEMENT_COMMITMENT,
+            source_down_projection_statement_commitment:
+                ZKAI_D128_SEQ32_DERIVED_DOWN_PROJECTION_STATEMENT_COMMITMENT,
+            source_down_projection_public_instance_commitment:
+                ZKAI_D128_SEQ32_DERIVED_DOWN_PROJECTION_PUBLIC_INSTANCE_COMMITMENT,
+            input_activation_commitment: ZKAI_D128_SEQ32_DERIVED_INPUT_ACTIVATION_COMMITMENT,
+            residual_delta_commitment: ZKAI_D128_SEQ32_DERIVED_RESIDUAL_DELTA_COMMITMENT,
+            residual_delta_remainder_sha256:
+                ZKAI_D128_SEQ32_DERIVED_RESIDUAL_DELTA_REMAINDER_SHA256,
+            output_activation_commitment: ZKAI_D128_SEQ32_DERIVED_OUTPUT_ACTIVATION_COMMITMENT,
+            residual_add_row_commitment: ZKAI_D128_SEQ32_DERIVED_RESIDUAL_ADD_ROW_COMMITMENT,
+            proof_native_parameter_commitment:
+                ZKAI_D128_SEQ32_DERIVED_RESIDUAL_ADD_PROOF_NATIVE_PARAMETER_COMMITMENT,
+            public_instance_commitment:
+                ZKAI_D128_SEQ32_DERIVED_RESIDUAL_ADD_PUBLIC_INSTANCE_COMMITMENT,
+            statement_commitment: ZKAI_D128_SEQ32_DERIVED_RESIDUAL_ADD_STATEMENT_COMMITMENT,
+            validation_commands: EXPECTED_SEQ32_DERIVED_VALIDATION_COMMANDS,
         },
     ];
     anchors
