@@ -2285,8 +2285,8 @@ removal alone. Five variants verify locally: compact base (`42,548` typed
 bytes), output anchor (`42,976`), RMSNorm-input fused (`42,780`),
 RMSNorm-input adjacent (`42,156`), and RMSNorm-input post-tail (`42,780`).
 The current duplicate-base champion remains smallest at `42,068` typed bytes.
-The best zero-base adjacent layout misses by only `88` typed bytes: it saves
-`504` bytes in OODS/query values but pays `576` extra bytes in FRI/trace
+The best zero-base adjacent layout misses by only `88` typed bytes / `692` JSON
+bytes: it saves `504` bytes in OODS/query values but pays `576` extra bytes in FRI/trace
 decommitment material plus `16` FRI sample bytes. The next attack is
 query/opening stability for the adjacent zero-base layout, not more adapter
 base-cell removal. See

@@ -606,25 +606,31 @@ def validate_variants(variants: list[Any], *, expected_rows: list[dict[str, Any]
         expected_rows = load_variant_rows()
     if len(expected_rows) != len(EXPECTED_ROWS) or len(expected_rows) != len(variants):
         raise NativeSeq32AdapterVariantSelectorGateError("variant inventory drift")
-    for actual, expected in zip(variants, expected_rows, strict=True):
-        row = _dict(actual, "variant row")
-        for key in (
-            "variant_id",
-            "path",
-            "adapter_mode",
-            "adapter_trace_cells",
-            "typed_bytes",
-            "proof_json_bytes",
-            "typed_delta_vs_champion",
-            "proof_json_delta_vs_champion",
-        ):
-            if row.get(key) != expected[key]:
-                raise NativeSeq32AdapterVariantSelectorGateError("variant summary drift")
-        if _dict(row.get("grouped"), "variant grouped") != expected["grouped"]:
-            raise NativeSeq32AdapterVariantSelectorGateError("variant grouped drift")
-        for key in ("proof_sha256", "envelope_sha256", "proof_backend_version", "proof_len_bytes"):
-            if row.get(key) != expected[key]:
-                raise NativeSeq32AdapterVariantSelectorGateError("variant metadata drift")
+    try:
+        variant_pairs = zip(variants, expected_rows, strict=True)
+        for actual, expected in variant_pairs:
+            row = _dict(actual, "variant row")
+            for key in (
+                "variant_id",
+                "path",
+                "adapter_mode",
+                "adapter_trace_cells",
+                "typed_bytes",
+                "proof_json_bytes",
+                "typed_delta_vs_champion",
+                "proof_json_delta_vs_champion",
+            ):
+                if row.get(key) != expected[key]:
+                    raise NativeSeq32AdapterVariantSelectorGateError("variant summary drift")
+            if _dict(row.get("grouped"), "variant grouped") != expected["grouped"]:
+                raise NativeSeq32AdapterVariantSelectorGateError("variant grouped drift")
+            for key in ("proof_sha256", "envelope_sha256", "proof_backend_version", "proof_len_bytes"):
+                if row.get(key) != expected[key]:
+                    raise NativeSeq32AdapterVariantSelectorGateError("variant metadata drift")
+    except ValueError as err:
+        if isinstance(err, NativeSeq32AdapterVariantSelectorGateError):
+            raise
+        raise NativeSeq32AdapterVariantSelectorGateError("variant inventory drift") from err
 
 
 def validate_source_artifacts(artifacts: list[Any]) -> None:
