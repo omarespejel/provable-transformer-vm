@@ -292,7 +292,7 @@ def proof_bytes_from_envelope(envelope: dict[str, Any]) -> bytes:
     proof = _list(envelope.get("proof"), "envelope proof")
     try:
         return bytes(proof)
-    except ValueError as err:
+    except (TypeError, ValueError) as err:
         raise NativeSeq32AttentionMlpSingleProofGateError("envelope proof must contain bytes") from err
 
 
