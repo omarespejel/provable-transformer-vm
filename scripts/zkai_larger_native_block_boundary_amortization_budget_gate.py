@@ -49,7 +49,8 @@ SELECTED_NEXT_ROUTE = "larger_native_block_boundary_amortization"
 TWO_PROOF_FRONTIER_TYPED_BYTES = 40_700
 STRICT_NATIVE_SINGLE_TYPED_BYTES = 41_932
 COMPACT_SELECTOR_TYPED_BYTES = 40_812
-POST_TAIL_TYPED_BYTES = 42_724
+POST_TAIL_CANONICAL_TYPED_BYTES = 42_724
+POST_TAIL_WORST_LABEL_TYPED_BYTES = 42_724
 GKR_WIDTH_PRESERVING_TYPED_BYTES = 70_138
 COMPACT_PREPROCESSED_TYPED_BYTES = 6_264
 NANOZK_REPORTED_D128_BLOCK_PROOF_BYTES = 6_900
@@ -257,6 +258,8 @@ def validate_source_numbers(sources: dict[str, Any]) -> None:
     expect_equal(require_int(pivot_summary.get("proof_size_comparable_rows"), "pivot comparable rows"), 0, "pivot comparable rows")
     expect_equal(require_int(pivot_summary.get("strict_native_adapter_typed_bytes"), "pivot strict typed"), STRICT_NATIVE_SINGLE_TYPED_BYTES, "pivot strict typed")
     expect_equal(require_int(pivot_summary.get("strict_native_adapter_gap_bytes"), "pivot strict gap"), STRICT_NATIVE_SINGLE_TYPED_BYTES - TWO_PROOF_FRONTIER_TYPED_BYTES, "pivot strict gap")
+    expect_equal(require_int(pivot_summary.get("compact_selector_typed_bytes"), "pivot compact selector typed"), COMPACT_SELECTOR_TYPED_BYTES, "pivot compact selector typed")
+    expect_equal(require_int(pivot_summary.get("compact_selector_gap_bytes"), "pivot compact selector gap"), COMPACT_SELECTOR_TYPED_BYTES - TWO_PROOF_FRONTIER_TYPED_BYTES, "pivot compact selector gap")
     expect_equal(require_int(pivot_summary.get("mlp_fusion_typed_saving_bytes"), "pivot MLP saving"), MLP_FUSION_TYPED_SAVING_BYTES, "pivot MLP saving")
 
     native_summary = require_dict(sources["native_single"].get("summary"), "native single summary")
@@ -282,8 +285,9 @@ def validate_source_numbers(sources: dict[str, Any]) -> None:
     expect_equal(require_int(mlp_aggregate.get("fused_total_row_count"), "MLP fused rows"), 197_504, "MLP fused rows")
 
     expect_equal(sources["post_tail"].get("decision"), "NO_GO_POST_TAIL_LAYOUT_LABEL_STABILITY", "post-tail decision")
-    expect_equal(require_int(sources["post_tail"].get("post_tail_canonical_typed_bytes"), "post-tail typed"), POST_TAIL_TYPED_BYTES, "post-tail typed")
-    expect_equal(require_int(sources["post_tail"].get("post_tail_delta_vs_two_proof_frontier_typed_bytes"), "post-tail gap"), POST_TAIL_TYPED_BYTES - TWO_PROOF_FRONTIER_TYPED_BYTES, "post-tail gap")
+    expect_equal(require_int(sources["post_tail"].get("post_tail_canonical_typed_bytes"), "post-tail canonical typed"), POST_TAIL_CANONICAL_TYPED_BYTES, "post-tail canonical typed")
+    expect_equal(require_int(sources["post_tail"].get("post_tail_worst_label_typed_bytes"), "post-tail worst-label typed"), POST_TAIL_WORST_LABEL_TYPED_BYTES, "post-tail worst-label typed")
+    expect_equal(require_int(sources["post_tail"].get("post_tail_delta_vs_two_proof_frontier_typed_bytes"), "post-tail gap"), POST_TAIL_WORST_LABEL_TYPED_BYTES - TWO_PROOF_FRONTIER_TYPED_BYTES, "post-tail gap")
     expect_equal(require_bool(sources["post_tail"].get("post_tail_matches_adjacent_bad_label_record_stream"), "post-tail bad-label match"), True, "post-tail bad-label match")
 
     gkr_summary = require_dict(sources["gkr"].get("summary"), "GKR summary")
@@ -356,7 +360,7 @@ def base_payload(sources: dict[str, Any]) -> dict[str, Any]:
             "post_tail_worst_label_vs_two_proof_frontier",
             "PARK_LOCAL_REORDER",
             "local_frontier",
-            POST_TAIL_TYPED_BYTES,
+            POST_TAIL_WORST_LABEL_TYPED_BYTES,
             TWO_PROOF_FRONTIER_TYPED_BYTES,
             False,
             "Another local reorder has to recover 2,025 typed bytes under worst-label policy, so it is parked behind the larger boundary attack.",
