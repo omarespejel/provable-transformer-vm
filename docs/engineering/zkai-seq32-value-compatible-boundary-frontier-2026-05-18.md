@@ -59,6 +59,25 @@ work to beat the matched two-proof frontier.
 
 ## Reproduction
 
+Reproducibility metadata:
+
+- Gate schema/version:
+  `zkai-seq32-value-compatible-boundary-frontier-v1`.
+- Source backend versions:
+  `stwo-attention-kv-two-head-seq32-fused-bounded-softmax-table-logup-v1`
+  and `stwo-d128-rmsnorm-mlp-fused-air-proof-v1`.
+- Source statement versions:
+  `zkai-attention-kv-stwo-native-two-head-seq32-fused-softmax-table-logup-statement-v1`
+  and `zkai-d128-rmsnorm-mlp-fused-statement-v1`.
+- Runtime/toolchain:
+  Python `3.10+`; source Stwo artifacts were generated under the repo-pinned
+  `nightly-2025-07-14` flow.
+- Timing mode:
+  proof-size/accounting only; no timing claim and no median-of-5 run.
+- Step-count scope:
+  two proof envelopes only: one two-head `seq32` fused attention proof and one
+  seq32-derived `d128` RMSNorm/MLP fused proof.
+
 ```bash
 python3.10 scripts/zkai_seq32_value_compatible_boundary_frontier_gate.py --write-json docs/engineering/evidence/zkai-seq32-value-compatible-boundary-frontier-2026-05.json --write-tsv docs/engineering/evidence/zkai-seq32-value-compatible-boundary-frontier-2026-05.tsv
 python3.10 -m py_compile scripts/zkai_seq32_value_compatible_boundary_frontier_gate.py scripts/tests/test_zkai_seq32_value_compatible_boundary_frontier_gate.py
@@ -73,7 +92,8 @@ python3.10 -m unittest scripts.tests.test_zkai_seq32_derived_d128_mlp_surface_ga
 - `scripts/zkai_seq32_value_compatible_boundary_frontier_gate.py`
 - `scripts/tests/test_zkai_seq32_value_compatible_boundary_frontier_gate.py`
 
-The gate rejects `12 / 12` mutations covering stale-frontier overclaim,
+The gate rejects `13 / 13` mutations covering stale-frontier overclaim,
 metric drift, adapter mismatch drift, NANOZK overclaim, native-object
-overclaim, source artifact digest drift, path traversal, non-claim drift,
-validation-command drift, and payload commitment drift.
+overclaim, source artifact digest drift, valid in-repo source path drift,
+path traversal, non-claim drift, validation-command drift, and payload
+commitment drift.

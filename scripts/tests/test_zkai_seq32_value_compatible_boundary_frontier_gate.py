@@ -83,6 +83,19 @@ class Seq32ValueCompatibleBoundaryFrontierGateTest(unittest.TestCase):
         ):
             self.gate.validate_payload(payload)
 
+    def test_rejects_valid_in_repo_source_path_swap(self) -> None:
+        payload = copy.deepcopy(self.__class__.payload)
+        raw = self.gate.read_repo_file(self.gate.SEQ32_MLP_SURFACE, "valid path swap")
+        payload["source_artifacts"][0]["path"] = str(self.gate.SEQ32_MLP_SURFACE.relative_to(self.gate.ROOT))
+        payload["source_artifacts"][0]["sha256"] = self.gate.sha256(raw)
+        payload["source_artifacts"][0]["size_bytes"] = len(raw)
+        payload["payload_commitment"] = self.gate.payload_commitment(payload)
+        with self.assertRaisesRegex(
+            self.gate.Seq32ValueCompatibleBoundaryFrontierError,
+            "source artifact inventory drift",
+        ):
+            self.gate.validate_payload(payload)
+
     def test_mutation_inventory_is_exact(self) -> None:
         result = self.__class__.payload["mutation_result"]
         self.assertTrue(result["all_mutations_rejected"])

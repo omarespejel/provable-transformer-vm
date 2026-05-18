@@ -139,6 +139,7 @@ python3.10 scripts/zkai_seq32_derived_d128_mlp_surface_gate.py --write-inputs --
 python3.10 -m py_compile scripts/zkai_seq32_derived_d128_mlp_surface_gate.py scripts/tests/test_zkai_seq32_derived_d128_mlp_surface_gate.py
 python3.10 -m unittest scripts.tests.test_zkai_seq32_derived_d128_mlp_surface_gate
 cargo +nightly-2025-07-14 test --locked --features stwo-backend d128_native_rmsnorm_mlp_fused_proof --lib
+cargo +nightly-2025-07-14 test --locked --features stwo-backend d128_native --lib
 python3 scripts/research_issue_lint.py --repo-root .
 python3 scripts/paper/paper_preflight.py --repo-root .
 git diff --check

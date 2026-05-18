@@ -47,7 +47,7 @@ TSV_OUT = EVIDENCE_DIR / "zkai-seq32-value-compatible-boundary-frontier-2026-05.
 SCHEMA = "zkai-seq32-value-compatible-boundary-frontier-v1"
 DECISION = "GO_PIN_SEQ32_VALUE_COMPATIBLE_TWO_PROOF_FRONTIER_FOR_NEXT_NATIVE_BOUNDARY"
 RESULT = "SEQ32_ATTENTION_AND_SEQ32_DERIVED_D128_MLP_FORM_47188_TYPED_BYTE_FRONTIER"
-ISSUE = "https://github.com/omarespejel/provable-transformer-vm/issues/674"
+ISSUE = "https://github.com/omarespejel/provable-transformer-vm/issues/678"
 NEXT_ISSUE_HINT = "native-seq32-attention-mlp-single-proof-object"
 PAYLOAD_DOMAIN = "ptvm:zkai:seq32-value-compatible-boundary-frontier:v1"
 CLAIM_BOUNDARY = (
@@ -180,10 +180,23 @@ MUTATION_NAMES = (
     "nanozk_overclaim",
     "native_object_overclaim",
     "source_artifact_digest_drift",
+    "source_artifact_valid_path_drift",
     "source_artifact_path_traversal",
     "non_claim_removed",
     "validation_command_drift",
     "payload_commitment_drift",
+)
+
+SOURCE_ARTIFACT_SPECS = (
+    ("seq32_attention_gate", SEQ32_ATTENTION_GATE),
+    ("seq32_attention_envelope", SEQ32_ATTENTION_ENVELOPE),
+    ("attention_accounting", ATTENTION_ACCOUNTING),
+    ("seq32_mlp_surface_gate", SEQ32_MLP_SURFACE),
+    ("seq32_mlp_fused_envelope", SEQ32_MLP_ENVELOPE),
+    ("seq32_mlp_accounting", SEQ32_MLP_ACCOUNTING),
+)
+EXPECTED_SOURCE_ARTIFACTS = tuple(
+    (artifact_id, str(path.relative_to(ROOT))) for artifact_id, path in SOURCE_ARTIFACT_SPECS
 )
 
 
@@ -450,9 +463,11 @@ def validate_without_commitment(payload: dict[str, Any]) -> None:
     if not isinstance(artifacts, list) or len(artifacts) != 6:
         raise Seq32ValueCompatibleBoundaryFrontierError("source artifact inventory drift")
     seen: set[str] = set()
-    for artifact in artifacts:
+    for artifact, expected in zip(artifacts, EXPECTED_SOURCE_ARTIFACTS, strict=True):
         if not isinstance(artifact, dict):
             raise Seq32ValueCompatibleBoundaryFrontierError("source artifact must be object")
+        if set(artifact) != {"id", "path", "sha256", "size_bytes"}:
+            raise Seq32ValueCompatibleBoundaryFrontierError("source artifact key drift")
         artifact_id = artifact.get("id")
         if not isinstance(artifact_id, str) or not artifact_id:
             raise Seq32ValueCompatibleBoundaryFrontierError("source artifact id drift")
@@ -463,6 +478,8 @@ def validate_without_commitment(payload: dict[str, Any]) -> None:
         if not isinstance(path_text, str):
             raise Seq32ValueCompatibleBoundaryFrontierError("source artifact path drift")
         path = validate_source_path(path_text)
+        if (artifact_id, path_text) != expected:
+            raise Seq32ValueCompatibleBoundaryFrontierError("source artifact inventory drift")
         raw = read_repo_file(path, f"source artifact {artifact_id}")
         if artifact.get("sha256") != sha256(raw):
             raise Seq32ValueCompatibleBoundaryFrontierError("source artifact digest drift")
@@ -495,6 +512,13 @@ def validate_payload(payload: dict[str, Any]) -> None:
     validate_without_commitment(payload)
     if payload.get("payload_commitment") != payload_commitment(payload):
         raise Seq32ValueCompatibleBoundaryFrontierError("payload commitment drift")
+
+
+def mutate_source_artifact_valid_path_drift(payload: dict[str, Any]) -> None:
+    raw = read_repo_file(SEQ32_MLP_SURFACE, "valid in-repo source-artifact path drift")
+    payload["source_artifacts"][0]["path"] = str(SEQ32_MLP_SURFACE.relative_to(ROOT))
+    payload["source_artifacts"][0]["sha256"] = sha256(raw)
+    payload["source_artifacts"][0]["size_bytes"] = len(raw)
 
 
 def mutation_cases() -> list[tuple[str, Callable[[dict[str, Any]], None]]]:
@@ -531,6 +555,7 @@ def mutation_cases() -> list[tuple[str, Callable[[dict[str, Any]], None]]]:
             "source_artifact_digest_drift",
             lambda p: p["source_artifacts"][0].__setitem__("sha256", "0" * 64),
         ),
+        ("source_artifact_valid_path_drift", mutate_source_artifact_valid_path_drift),
         (
             "source_artifact_path_traversal",
             lambda p: p["source_artifacts"][0].__setitem__("path", "../outside.json"),
