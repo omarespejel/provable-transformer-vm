@@ -1,0 +1,5 @@
+variant_id	typed_bytes	proof_json_bytes	typed_delta_vs_champion	proof_json_delta_vs_champion	path_opening_bytes	path_opening_delta_vs_champion	value_bytes	value_delta_vs_champion
+current_duplicate_base	42068	121996	0	0	20592	0	21428	0
+fixed_adjacent_layout	42156	122688	88	692	21184	592	20924	-504
+adjacent_label_probe_a	40332	116321	-1736	-5675	19360	-1232	20924	-504
+adjacent_label_probe_b	37532	106317	-4536	-15679	16560	-4032	20924	-504

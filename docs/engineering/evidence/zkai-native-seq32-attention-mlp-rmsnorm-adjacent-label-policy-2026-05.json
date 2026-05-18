@@ -1,0 +1,288 @@
+{
+  "claim_boundary": "TWO_EXISTING_RMSNORM_ADJACENT_LABEL_PROBES_VERIFY_AND_BOTH_BEAT_THE_CURRENT_LOCAL_SEQ32_D128_NATIVE_CHAMPION;NOT_A_NANOZK_WIN_NOT_A_FINAL_LABEL_POLICY_NOT_AN_EXTERNAL_BENCHMARK",
+  "decision": "GO_ADJACENT_LABEL_PROBES_BEAT_CURRENT_SEQ32_CHAMPION",
+  "interpretation": {
+    "human_read": "The adjacent layout looked like an 88-byte NO-GO under its fixed label, but both existing adjacent label probes verify and beat the current champion. The worst checked probe saves 1,736 typed bytes; the best saves 4,536 typed bytes.",
+    "mechanism_read": "The direct value bytes stay fixed across the adjacent label probes. The savings come from path-opening and FRI material, so this is a transcript/opening-stability signal.",
+    "next_experiment": "Freeze a deterministic label policy before promoting this as a durable proof-size frontier."
+  },
+  "issue_hint": "seq32-adjacent-opening-stability",
+  "mutation_result": {
+    "all_mutations_rejected": true,
+    "cases": [
+      {
+        "error": "decision drift",
+        "name": "decision_drift",
+        "rejected": true
+      },
+      {
+        "error": "result drift",
+        "name": "result_drift",
+        "rejected": true
+      },
+      {
+        "error": "summary drift",
+        "name": "worst_probe_saving_erased",
+        "rejected": true
+      },
+      {
+        "error": "variant metadata drift",
+        "name": "best_probe_typed_drift",
+        "rejected": true
+      },
+      {
+        "error": "variant metadata drift",
+        "name": "probe_adapter_mode_relabel",
+        "rejected": true
+      },
+      {
+        "error": "variant metadata drift",
+        "name": "probe_value_group_drift",
+        "rejected": true
+      },
+      {
+        "error": "summary drift",
+        "name": "path_opening_saving_erased",
+        "rejected": true
+      },
+      {
+        "error": "summary drift",
+        "name": "label_span_erased",
+        "rejected": true
+      },
+      {
+        "error": "source artifact digest drift",
+        "name": "source_artifact_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "validation command drift",
+        "name": "validation_command_drift",
+        "rejected": true
+      },
+      {
+        "error": "non_claims drift",
+        "name": "removed_non_claim",
+        "rejected": true
+      },
+      {
+        "error": "claim_boundary drift",
+        "name": "nanozk_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "payload commitment drift",
+        "name": "payload_commitment_drift",
+        "rejected": true
+      }
+    ],
+    "mutation_names": [
+      "decision_drift",
+      "result_drift",
+      "worst_probe_saving_erased",
+      "best_probe_typed_drift",
+      "probe_adapter_mode_relabel",
+      "probe_value_group_drift",
+      "path_opening_saving_erased",
+      "label_span_erased",
+      "source_artifact_digest_drift",
+      "validation_command_drift",
+      "removed_non_claim",
+      "nanozk_overclaim",
+      "payload_commitment_drift"
+    ],
+    "mutations_rejected": 13
+  },
+  "non_claims": [
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not a full transformer block proof",
+    "not exact real-valued Softmax",
+    "not timing evidence",
+    "not production-ready zkML",
+    "not a final production label-selection policy"
+  ],
+  "payload_commitment": "blake2b-256:77b98ad1ee2583022289b6a50b2abb9029e32882509a779514fe4e6692d150cd",
+  "result": "WORST_CHECKED_ADJACENT_LABEL_PROBE_SAVES_1736_TYPED_BYTES_VS_42068_CHAMPION",
+  "schema": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-policy-gate-v1",
+  "source_artifacts": [
+    {
+      "id": "accounting",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-accounting-2026-05.json",
+      "sha256": "0841dd4dbf6d3ff76ede4c3e088b301745e04f649024d50aa378fb239cd1ef5c",
+      "size_bytes": 20962
+    },
+    {
+      "id": "current_duplicate_base",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json",
+      "sha256": "c5107022445b27d8061c2c96c1f5a5710e94695e8647efdf903682385be03414",
+      "size_bytes": 3312940
+    },
+    {
+      "id": "fixed_adjacent_layout",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.envelope.json",
+      "sha256": "91d6866982629e829ef4b53502c99c7215e0d6bb257336cdf2910b8c94ce52b3",
+      "size_bytes": 3324459
+    },
+    {
+      "id": "adjacent_label_probe_a",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05.envelope.json",
+      "sha256": "2f15a7b6c6e15b889ffc61c6a74235efc43b416fe7384452ca07d5818447f0aa",
+      "size_bytes": 3265912
+    },
+    {
+      "id": "adjacent_label_probe_b",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.envelope.json",
+      "sha256": "8e3ba831ac7e858d069f1edfcb6ad46783b0d72f3f47666ae621bc159ac2c0df",
+      "size_bytes": 3185880
+    }
+  ],
+  "summary": {
+    "best_probe_id": "adjacent_label_probe_b",
+    "best_probe_json_bytes": 106317,
+    "best_probe_path_opening_saving_vs_champion": 4032,
+    "best_probe_saving_json_bytes": 15679,
+    "best_probe_saving_share": "0.107825",
+    "best_probe_saving_typed_bytes": 4536,
+    "best_probe_typed_bytes": 37532,
+    "current_champion_id": "current_duplicate_base",
+    "current_champion_json_bytes": 121996,
+    "current_champion_typed_bytes": 42068,
+    "fixed_adjacent_json_bytes": 122688,
+    "fixed_adjacent_json_delta_vs_champion": 692,
+    "fixed_adjacent_typed_bytes": 42156,
+    "fixed_adjacent_typed_delta_vs_champion": 88,
+    "label_span_json_bytes": 10004,
+    "label_span_typed_bytes": 2800,
+    "nanozk_reported_d128_block_proof_bytes": 6900,
+    "probe_count": 2,
+    "probe_value_bytes_equal_fixed_adjacent": true,
+    "proof_size_comparable_external_rows": 0,
+    "worst_probe_id": "adjacent_label_probe_a",
+    "worst_probe_json_bytes": 116321,
+    "worst_probe_path_opening_saving_vs_champion": 1232,
+    "worst_probe_saving_json_bytes": 5675,
+    "worst_probe_saving_share": "0.041267",
+    "worst_probe_saving_typed_bytes": 1736,
+    "worst_probe_typed_bytes": 40332
+  },
+  "validation_commands": [
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-adjacent-label-probe-a docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-adjacent-label-probe-b docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.envelope.json > docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-accounting-2026-05.json",
+    "python3.10 scripts/zkai_native_seq32_attention_mlp_adjacent_label_policy_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-policy-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-policy-2026-05.tsv",
+    "python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_adjacent_label_policy_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_adjacent_label_policy_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adjacent_label_policy_gate",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_adjacent_label --lib",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ],
+  "variants": [
+    {
+      "adapter_mode": "duplicate_base_preprocessed_v1",
+      "envelope_sha256": "c5107022445b27d8061c2c96c1f5a5710e94695e8647efdf903682385be03414",
+      "grouped": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 13248,
+        "fri_samples": 816,
+        "oods_samples": 12272,
+        "queries_values": 9156,
+        "trace_decommitments": 6528
+      },
+      "path": "zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json",
+      "path_opening_bytes": 20592,
+      "path_opening_delta_vs_champion": 0,
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-v1",
+      "proof_json_bytes": 121996,
+      "proof_json_delta_vs_champion": 0,
+      "proof_sha256": "9242c16a3aba3ebd1a39c77bffcbec3f78c93db4d097e6872c4e640316692ce1",
+      "record_stream_sha256": "d2b9ef1587963a0c1b2c10c396e0e1f23c1f108696c0a9b275c21d85b75736fa",
+      "typed_bytes": 42068,
+      "typed_delta_vs_champion": 0,
+      "value_bytes": 21428,
+      "value_delta_vs_champion": 0,
+      "variant_id": "current_duplicate_base"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_fixed_v1",
+      "envelope_sha256": "91d6866982629e829ef4b53502c99c7215e0d6bb257336cdf2910b8c94ce52b3",
+      "grouped": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 13696,
+        "fri_samples": 832,
+        "oods_samples": 11984,
+        "queries_values": 8940,
+        "trace_decommitments": 6656
+      },
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.envelope.json",
+      "path_opening_bytes": 21184,
+      "path_opening_delta_vs_champion": 592,
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_json_bytes": 122688,
+      "proof_json_delta_vs_champion": 692,
+      "proof_sha256": "f1a495236e06cb3bb76e7f7cb900b9b96eb203809f791d28238fc948514126ed",
+      "record_stream_sha256": "24e3f16bf92320fd79059257ec70ca97bbf76b5859610c2013c58a7511f1feaf",
+      "typed_bytes": 42156,
+      "typed_delta_vs_champion": 88,
+      "value_bytes": 20924,
+      "value_delta_vs_champion": -504,
+      "variant_id": "fixed_adjacent_layout"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_a_v1",
+      "envelope_sha256": "2f15a7b6c6e15b889ffc61c6a74235efc43b416fe7384452ca07d5818447f0aa",
+      "grouped": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 12320,
+        "fri_samples": 768,
+        "oods_samples": 11984,
+        "queries_values": 8940,
+        "trace_decommitments": 6272
+      },
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05.envelope.json",
+      "path_opening_bytes": 19360,
+      "path_opening_delta_vs_champion": -1232,
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_json_bytes": 116321,
+      "proof_json_delta_vs_champion": -5675,
+      "proof_sha256": "3421ac16f96bda07540698ccdbf1ea705ca384583c3b3275fc99471b5a156d7d",
+      "record_stream_sha256": "ab9c27d7b780f81ec8f8f562997392362c18c9ddc6315d1db303520e3fd7e682",
+      "typed_bytes": 40332,
+      "typed_delta_vs_champion": -1736,
+      "value_bytes": 20924,
+      "value_delta_vs_champion": -504,
+      "variant_id": "adjacent_label_probe_a"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+      "envelope_sha256": "8e3ba831ac7e858d069f1edfcb6ad46783b0d72f3f47666ae621bc159ac2c0df",
+      "grouped": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 10240,
+        "fri_samples": 688,
+        "oods_samples": 11984,
+        "queries_values": 8940,
+        "trace_decommitments": 5632
+      },
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.envelope.json",
+      "path_opening_bytes": 16560,
+      "path_opening_delta_vs_champion": -4032,
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_json_bytes": 106317,
+      "proof_json_delta_vs_champion": -15679,
+      "proof_sha256": "4a5dc66d63ee3ddd3acad65e88c42259fb925ee31768a3fdecdb528722630845",
+      "record_stream_sha256": "d0540f5cd1a69991226bcfb81475cec78ba0d416a39317503ad204b660aae1e0",
+      "typed_bytes": 37532,
+      "typed_delta_vs_champion": -4536,
+      "value_bytes": 20924,
+      "value_delta_vs_champion": -504,
+      "variant_id": "adjacent_label_probe_b"
+    }
+  ]
+}
