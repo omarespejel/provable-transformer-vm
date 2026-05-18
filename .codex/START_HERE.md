@@ -137,8 +137,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 131. `docs/engineering/zkai-larger-native-boundary-candidate-selector-2026-05-18.md`
 132. `docs/engineering/zkai-larger-native-boundary-source-compatibility-2026-05-18.md`
 133. `docs/engineering/zkai-seq32-derived-d128-native-mlp-surface-2026-05-18.md`
-134. `docs/engineering/reproducibility.md`
-135. `git status --short --branch`
+134. `docs/engineering/zkai-seq32-value-compatible-boundary-frontier-2026-05-18.md`
+135. `docs/engineering/reproducibility.md`
+136. `git status --short --branch`
 
 ## What this repository is now
 
@@ -169,17 +170,20 @@ This repository currently has three live lanes.
      block, and not a NANOZK benchmark win; see
      `docs/engineering/zkai-d128-rmsnorm-mlp-fused-proof-2026-05-15.md` and
      `docs/engineering/zkai-attention-derived-d128-native-mlp-proof-route-2026-05-15.md`.
-   - The current d128 attention-plus-MLP frontier is now pinned as a
-     value-connected two-proof target, not one native proof object. The d8
-     fused attention proof is `18,124` local typed bytes, the derived d128
-     RMSNorm-MLP fused proof is `22,576` local typed bytes, and the combined
-     frontier is `40,700` typed bytes / `116,258` JSON proof bytes. This still
-     saves `36,768` typed bytes versus the same attention proof plus six
-     separate derived MLP-side proof objects (`0.525378x` ratio), but matching
+   - The current seq32-compatible attention-plus-MLP frontier is now pinned as
+     a value-compatible two-proof target, not one native proof object. The
+     selected two-head `seq32` fused attention proof is `22,916` local typed
+     bytes / `66,327` JSON proof bytes, the seq32-derived d128 RMSNorm-MLP
+     fused proof is `24,272` local typed bytes / `74,511` JSON proof bytes, and
+     the combined frontier is `47,188` typed bytes / `140,838` JSON proof
+     bytes. The prior `45,492` typed-byte selector target is obsolete because
+     it was pinned before the source-value compatibility fix. Matching
      NANOZK's paper-reported `6,900` byte d128 row would require removing
-     `33,800` typed bytes (`83.0467%`) and the workload/object class is not
-     matched. See
-     `docs/engineering/zkai-d128-attention-mlp-boundary-frontier-2026-05-16.md`.
+     `40,288` typed bytes (`85.3776%`), and there are zero proof-size-comparable
+     external rows. See
+     `docs/engineering/zkai-seq32-derived-d128-native-mlp-surface-2026-05-18.md`
+     and
+     `docs/engineering/zkai-seq32-value-compatible-boundary-frontier-2026-05-18.md`.
    - The next native attention-plus-MLP probe now has one real Stwo proof
      object over the d8 fused attention + Softmax-table LogUp surface and the
      attention-derived d128 RMSNorm-MLP fused surface. It verifies locally at

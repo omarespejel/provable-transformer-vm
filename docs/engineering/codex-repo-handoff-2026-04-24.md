@@ -91,8 +91,9 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 80. `docs/engineering/zkai-gkr-d128-projection-scaling-preflight-2026-05-17.md`
 81. `docs/engineering/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05-18.md`
 82. `docs/engineering/zkai-seq32-derived-d128-native-mlp-surface-2026-05-18.md`
-83. `docs/engineering/reproducibility.md`
-84. `git status --short --branch`
+83. `docs/engineering/zkai-seq32-value-compatible-boundary-frontier-2026-05-18.md`
+84. `docs/engineering/reproducibility.md`
+85. `git status --short --branch`
 
 ## Current lane split
 
@@ -118,6 +119,18 @@ two-proof frontier for the next larger native attention-plus-MLP attempt is now
 bytes plus `24,272` typed seq32-derived MLP bytes. This is not one native
 attention-plus-MLP object, not a full transformer block, and not a NANOZK win.
 See `docs/engineering/zkai-seq32-derived-d128-native-mlp-surface-2026-05-18.md`.
+
+Latest seq32 value-compatible boundary frontier: the stale `45,492` typed-byte
+selector target is now explicitly obsolete. The target above is pinned by a
+dedicated gate as the next honest local frontier. The gate preserves the
+attention-side signal (`1,184` lookup claims for `22,916` typed bytes; lookup
+work grew `22.769231x` versus d8 while attention typed bytes grew `1.264401x`)
+and the seq32-derived MLP-side fusion saving (`30,064` typed bytes versus six
+separate regenerated component proofs). It also records the external gap:
+matching NANOZK's paper-reported `6,900` byte d128 row would require removing
+`40,288` typed bytes (`85.3776%`) from the current local typed frontier, with
+zero proof-size-comparable external rows. See
+`docs/engineering/zkai-seq32-value-compatible-boundary-frontier-2026-05-18.md`.
 
 Latest attention-derived d128 native RMSNorm-MLP fused result: the derived input
 and six derived native component inputs now feed a regenerated native
