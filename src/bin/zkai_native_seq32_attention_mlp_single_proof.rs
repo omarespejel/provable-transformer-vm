@@ -10,8 +10,6 @@ use std::io::{Read, Write};
 use std::os::unix::fs::OpenOptionsExt;
 #[cfg(feature = "stwo-backend")]
 use std::path::{Path, PathBuf};
-#[cfg(feature = "stwo-backend")]
-use std::time::{SystemTime, UNIX_EPOCH};
 
 #[cfg(feature = "stwo-backend")]
 use llm_provable_computer::stwo_backend::{
@@ -279,11 +277,7 @@ fn atomic_write_file(path: &Path, bytes: &[u8], label: &str) -> Result<(), Strin
                 path.display()
             )
         })?;
-    let stamp = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map_err(|error| format!("system clock before UNIX_EPOCH: {error}"))?
-        .as_nanos();
-    let tmp_path = parent.join(format!(".{file_name}.tmp.{}.{}", std::process::id(), stamp));
+    let tmp_path = parent.join(format!(".{file_name}.tmp"));
     reject_symlinked_ancestors(&tmp_path, label)?;
     write_new_file(&tmp_path, bytes)?;
     publish_temp_file(&tmp_path, path, label)
