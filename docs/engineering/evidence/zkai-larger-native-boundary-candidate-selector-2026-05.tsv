@@ -1,0 +1,6 @@
+candidate_id	status	attention_typed_bytes	attention_json_proof_bytes	lookup_claims	typed_bytes_per_lookup_claim	matched_two_proof_frontier_typed_bytes	matched_two_proof_frontier_json_bytes	fused_to_source_plus_sidecar_ratio	fused_saves_vs_source_plus_sidecar_json_bytes
+d8_fused_attention	BASELINE_CURRENT_LOCAL_FRONTIER	18124	47698	52	348.538462	40700	116258	0.802497	11739
+d16_fused_attention	PARK_TYPED_PER_LOOKUP_WORSE_THAN_D8	28876	64503	52	555.307692	51452	133063	0.860487	10458
+d16_two_head_fused_attention	PARK_RATIO_WORSE_THAN_SEQ32	29908	78211	104	287.576923	52484	146771	0.853869	13385
+d16_two_head_longseq_fused_attention	PARK_HEAVIER_THAN_SEQ32	31508	84868	336	93.773810	54084	153428	0.784667	23290
+two_head_seq32_fused_attention	ATTACK_NEXT_LARGER_NATIVE_BOUNDARY	22916	66327	1184	19.354730	45492	134887	0.676723	31685

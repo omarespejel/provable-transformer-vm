@@ -134,8 +134,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 128. `docs/engineering/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05-18.md`
 129. `docs/engineering/zkai-native-block-boundary-pivot-selector-2026-05-18.md`
 130. `docs/engineering/zkai-larger-native-block-boundary-amortization-budget-2026-05-18.md`
-131. `docs/engineering/reproducibility.md`
-132. `git status --short --branch`
+131. `docs/engineering/zkai-larger-native-boundary-candidate-selector-2026-05-18.md`
+132. `docs/engineering/reproducibility.md`
+133. `git status --short --branch`
 
 ## What this repository is now
 
@@ -308,6 +309,15 @@ This repository currently has three live lanes.
      validation-command, and payload mutations;
      see
      `docs/engineering/zkai-larger-native-block-boundary-amortization-budget-2026-05-18.md`.
+   - The larger native boundary candidate selector now chooses the next concrete
+     implementation surface: two-head seq32 fused attention plus the
+     attention-derived d128 RMSNorm-MLP fused surface. The selected attention
+     proof has `1,184` lookup claims and `22,916` typed bytes, or `19.354730`
+     typed bytes per lookup claim. Compared with d8 fused attention, lookup
+     claims grow `22.769231x` while typed bytes grow only `1.264401x`; the
+     matched local two-proof frontier for the next implementation is `45,492`
+     typed bytes. This is not a new proof object and not NANOZK-comparable; see
+     `docs/engineering/zkai-larger-native-boundary-candidate-selector-2026-05-18.md`.
    - The current attention-to-RMSNorm/MLP boundary is a checked NO-GO for one
      value-connected native proof object: the attention-derived d128 statement
      chain has `199,553` accounted rows (`1.010374x` the MLP fused surface),

@@ -1,0 +1,270 @@
+{
+  "candidates": [
+    {
+      "attention_envelope_path": "zkai-attention-kv-stwo-native-d8-fused-softmax-table-proof-2026-05.envelope.json",
+      "attention_gate_path": "zkai-attention-kv-stwo-native-d8-fused-softmax-table-gate-2026-05.json",
+      "attention_json_proof_bytes": 47698,
+      "attention_typed_bytes": 18124,
+      "candidate_id": "d8_fused_attention",
+      "fused_saves_vs_source_plus_sidecar_json_bytes": 11739,
+      "fused_to_source_plus_sidecar_ratio": "0.802497",
+      "lookup_claims": 52,
+      "matched_two_proof_frontier_json_bytes": 116258,
+      "matched_two_proof_frontier_typed_bytes": 40700,
+      "source_plus_sidecar_json_proof_bytes": 59437,
+      "status": "BASELINE_CURRENT_LOCAL_FRONTIER",
+      "typed_bytes_per_lookup_claim": "348.538462"
+    },
+    {
+      "attention_envelope_path": "zkai-attention-kv-stwo-native-d16-fused-softmax-table-proof-2026-05.envelope.json",
+      "attention_gate_path": "zkai-attention-kv-stwo-native-d16-fused-softmax-table-gate-2026-05.json",
+      "attention_json_proof_bytes": 64503,
+      "attention_typed_bytes": 28876,
+      "candidate_id": "d16_fused_attention",
+      "fused_saves_vs_source_plus_sidecar_json_bytes": 10458,
+      "fused_to_source_plus_sidecar_ratio": "0.860487",
+      "lookup_claims": 52,
+      "matched_two_proof_frontier_json_bytes": 133063,
+      "matched_two_proof_frontier_typed_bytes": 51452,
+      "source_plus_sidecar_json_proof_bytes": 74961,
+      "status": "PARK_TYPED_PER_LOOKUP_WORSE_THAN_D8",
+      "typed_bytes_per_lookup_claim": "555.307692"
+    },
+    {
+      "attention_envelope_path": "zkai-attention-kv-stwo-native-d16-two-head-fused-softmax-table-proof-2026-05.envelope.json",
+      "attention_gate_path": "zkai-attention-kv-stwo-native-d16-two-head-fused-softmax-table-gate-2026-05.json",
+      "attention_json_proof_bytes": 78211,
+      "attention_typed_bytes": 29908,
+      "candidate_id": "d16_two_head_fused_attention",
+      "fused_saves_vs_source_plus_sidecar_json_bytes": 13385,
+      "fused_to_source_plus_sidecar_ratio": "0.853869",
+      "lookup_claims": 104,
+      "matched_two_proof_frontier_json_bytes": 146771,
+      "matched_two_proof_frontier_typed_bytes": 52484,
+      "source_plus_sidecar_json_proof_bytes": 91596,
+      "status": "PARK_RATIO_WORSE_THAN_SEQ32",
+      "typed_bytes_per_lookup_claim": "287.576923"
+    },
+    {
+      "attention_envelope_path": "zkai-attention-kv-stwo-native-d16-two-head-longseq-fused-softmax-table-proof-2026-05.envelope.json",
+      "attention_gate_path": "zkai-attention-kv-stwo-native-d16-two-head-longseq-fused-softmax-table-gate-2026-05.json",
+      "attention_json_proof_bytes": 84868,
+      "attention_typed_bytes": 31508,
+      "candidate_id": "d16_two_head_longseq_fused_attention",
+      "fused_saves_vs_source_plus_sidecar_json_bytes": 23290,
+      "fused_to_source_plus_sidecar_ratio": "0.784667",
+      "lookup_claims": 336,
+      "matched_two_proof_frontier_json_bytes": 153428,
+      "matched_two_proof_frontier_typed_bytes": 54084,
+      "source_plus_sidecar_json_proof_bytes": 108158,
+      "status": "PARK_HEAVIER_THAN_SEQ32",
+      "typed_bytes_per_lookup_claim": "93.773810"
+    },
+    {
+      "attention_envelope_path": "zkai-attention-kv-stwo-native-two-head-seq32-fused-softmax-table-proof-2026-05.envelope.json",
+      "attention_gate_path": "zkai-attention-kv-stwo-native-two-head-seq32-fused-softmax-table-gate-2026-05.json",
+      "attention_json_proof_bytes": 66327,
+      "attention_typed_bytes": 22916,
+      "candidate_id": "two_head_seq32_fused_attention",
+      "fused_saves_vs_source_plus_sidecar_json_bytes": 31685,
+      "fused_to_source_plus_sidecar_ratio": "0.676723",
+      "lookup_claims": 1184,
+      "matched_two_proof_frontier_json_bytes": 134887,
+      "matched_two_proof_frontier_typed_bytes": 45492,
+      "source_plus_sidecar_json_proof_bytes": 98012,
+      "status": "ATTACK_NEXT_LARGER_NATIVE_BOUNDARY",
+      "typed_bytes_per_lookup_claim": "19.354730"
+    }
+  ],
+  "claim_boundary": "SELECTS_A_SOURCE_BACKED_LARGER_NATIVE_BOUNDARY_IMPLEMENTATION_CANDIDATE;_NO_NEW_NATIVE_ATTENTION_MLP_PROOF_OBJECT_NO_NANOZK_OR_FULL_BLOCK_CLAIM",
+  "decision": "GO_SELECT_TWO_HEAD_SEQ32_LARGER_NATIVE_BOUNDARY_IMPLEMENTATION_CANDIDATE",
+  "interpretation": {
+    "guardrail": "This is not NANOZK-comparable and not a proof-size win: it selects an implementation candidate using local typed accounting over existing artifacts.",
+    "human_read": "The two-head seq32 attention surface is the strongest next larger-boundary candidate: lookup claims grow from 52 to 1,184 versus d8, while local typed attention proof bytes grow only from 18,124 to 22,916.",
+    "next_experiment": "Implement a source-bound native proof object for the selected two-head seq32 attention surface plus the attention-derived d128 RMSNorm-MLP fused surface, then compare against its matched 45,492 typed-byte two-proof frontier.",
+    "why_selected": "It has 19.354730 typed bytes per lookup claim, an 18.007922x improvement over the d8 fused-attention baseline, and the best source-plus-sidecar JSON fusion ratio in this candidate set at 0.676723x."
+  },
+  "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/671",
+  "mutation_inventory": {
+    "mutation_count": 14,
+    "mutation_names": [
+      "selected_candidate_drift",
+      "selected_typed_bytes_drift",
+      "selected_lookup_claims_drift",
+      "d8_baseline_typed_bytes_drift",
+      "bytes_per_lookup_overclaim",
+      "nanozk_overclaim",
+      "full_block_overclaim",
+      "source_artifact_digest_drift",
+      "accounting_row_removed",
+      "non_claim_removed",
+      "non_claim_added",
+      "validation_command_drift",
+      "interpretation_overclaim",
+      "payload_commitment_drift"
+    ]
+  },
+  "mutation_result": {
+    "all_mutations_rejected": true,
+    "cases": [
+      {
+        "error": "summary drift",
+        "name": "selected_candidate_drift",
+        "rejected": true
+      },
+      {
+        "error": "summary drift",
+        "name": "selected_typed_bytes_drift",
+        "rejected": true
+      },
+      {
+        "error": "summary drift",
+        "name": "selected_lookup_claims_drift",
+        "rejected": true
+      },
+      {
+        "error": "summary drift",
+        "name": "d8_baseline_typed_bytes_drift",
+        "rejected": true
+      },
+      {
+        "error": "summary drift",
+        "name": "bytes_per_lookup_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "claim_boundary drift",
+        "name": "nanozk_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "result drift",
+        "name": "full_block_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "source artifact digest drift",
+        "name": "source_artifact_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "candidate row count drift",
+        "name": "accounting_row_removed",
+        "rejected": true
+      },
+      {
+        "error": "non-claim inventory drift",
+        "name": "non_claim_removed",
+        "rejected": true
+      },
+      {
+        "error": "non-claim inventory drift",
+        "name": "non_claim_added",
+        "rejected": true
+      },
+      {
+        "error": "validation command inventory drift",
+        "name": "validation_command_drift",
+        "rejected": true
+      },
+      {
+        "error": "interpretation drift",
+        "name": "interpretation_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "payload commitment drift",
+        "name": "payload_commitment_drift",
+        "rejected": true
+      }
+    ],
+    "mutations_rejected": 14
+  },
+  "non_claims": [
+    "not a new native attention-plus-MLP proof object",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not a full transformer block proof",
+    "not exact real-valued Softmax",
+    "not timing evidence",
+    "not production-ready zkML"
+  ],
+  "payload_commitment": "blake2b-256:35a81dc3c8c6216d6c8652dad263c5c54d89a485bcd36530cbd38ba25449723a",
+  "result": "TWO_HEAD_SEQ32_HAS_1184_LOOKUP_CLAIMS_22916_TYPED_BYTES_AND_19_354730_TYPED_BYTES_PER_LOOKUP",
+  "schema": "zkai-larger-native-boundary-candidate-selector-v1",
+  "source_artifacts": [
+    {
+      "id": "candidate_accounting",
+      "path": "docs/engineering/evidence/zkai-larger-native-boundary-candidate-accounting-2026-05.json",
+      "sha256": "b3b94b703b5bfd4551efbb866efee5e3726a27d9a9e4a5bf6a19b2d2783b1635",
+      "size_bytes": 30662
+    },
+    {
+      "id": "d8_fused_attention_gate",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-fused-softmax-table-gate-2026-05.json",
+      "sha256": "789a72d27fd202d9a17f6f207887f30424d686b810f4262c0b047816575cd1cd",
+      "size_bytes": 7723
+    },
+    {
+      "id": "d16_fused_attention_gate",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d16-fused-softmax-table-gate-2026-05.json",
+      "sha256": "f9129883c7d6bf7c80cacfbc94ead4a4a86737212d707e5cf970ba79daf78110",
+      "size_bytes": 7980
+    },
+    {
+      "id": "d16_two_head_fused_attention_gate",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d16-two-head-fused-softmax-table-gate-2026-05.json",
+      "sha256": "6722d26a5bea1c0c0b3cd9ca22e0f6b410b36e6fb22beb8854cbe15705c3b548",
+      "size_bytes": 8668
+    },
+    {
+      "id": "d16_two_head_longseq_fused_attention_gate",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d16-two-head-longseq-fused-softmax-table-gate-2026-05.json",
+      "sha256": "eebe81c4cad045a1de91fb9e9588fbbd9aaec43b3e3ada46ca0613e1987feb97",
+      "size_bytes": 12345
+    },
+    {
+      "id": "two_head_seq32_fused_attention_gate",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-fused-softmax-table-gate-2026-05.json",
+      "sha256": "519ba7ffe309e01fe3e491191b6322fe62f59fec6d616e887ca67100144a860c",
+      "size_bytes": 8649
+    }
+  ],
+  "summary": {
+    "candidate_count": 5,
+    "d8_attention_typed_bytes": 18124,
+    "d8_lookup_claims": 52,
+    "d8_matched_two_proof_frontier_typed_bytes": 40700,
+    "issue": 671,
+    "mlp_fused_json_proof_bytes": 68560,
+    "mlp_fused_typed_bytes": 22576,
+    "nanozk_reported_d128_block_proof_bytes": 6900,
+    "proof_size_comparable_external_rows": 0,
+    "selected_attention_json_proof_bytes": 66327,
+    "selected_attention_typed_bytes": 22916,
+    "selected_attention_typed_growth_vs_d8": "1.264401",
+    "selected_bytes_per_lookup_improvement_vs_d8": "18.007922",
+    "selected_candidate": "two_head_seq32_fused_attention",
+    "selected_extra_lookup_claims_vs_d8": 1132,
+    "selected_extra_typed_bytes_vs_d8_attention": 4792,
+    "selected_fused_to_source_plus_sidecar_ratio": "0.676723",
+    "selected_incremental_typed_bytes_per_extra_lookup_vs_d8": "4.233216",
+    "selected_lookup_claims": 1184,
+    "selected_lookup_growth_vs_d8": "22.769231",
+    "selected_matched_two_proof_frontier_json_bytes": 134887,
+    "selected_matched_two_proof_frontier_typed_bytes": 45492,
+    "selected_source_plus_sidecar_json_saving_bytes": 31685,
+    "selected_status": "ATTACK_NEXT_LARGER_NATIVE_BOUNDARY"
+  },
+  "validation_commands": [
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-fused-softmax-table-proof-2026-05.envelope.json docs/engineering/evidence/zkai-attention-kv-stwo-native-d16-fused-softmax-table-proof-2026-05.envelope.json docs/engineering/evidence/zkai-attention-kv-stwo-native-d16-two-head-fused-softmax-table-proof-2026-05.envelope.json docs/engineering/evidence/zkai-attention-kv-stwo-native-d16-two-head-longseq-fused-softmax-table-proof-2026-05.envelope.json docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-fused-softmax-table-proof-2026-05.envelope.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.envelope.json > docs/engineering/evidence/zkai-larger-native-boundary-candidate-accounting-2026-05.json",
+    "python3 scripts/zkai_larger_native_boundary_candidate_selector_gate.py --write-json docs/engineering/evidence/zkai-larger-native-boundary-candidate-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-larger-native-boundary-candidate-selector-2026-05.tsv",
+    "python3 -m py_compile scripts/zkai_larger_native_boundary_candidate_selector_gate.py scripts/tests/test_zkai_larger_native_boundary_candidate_selector_gate.py",
+    "python3 -m unittest scripts.tests.test_zkai_larger_native_boundary_candidate_selector_gate",
+    "python3 scripts/research_issue_lint.py --repo-root .",
+    "python3 scripts/paper/paper_preflight.py --repo-root .",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}

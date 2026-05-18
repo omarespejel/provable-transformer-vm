@@ -2001,6 +2001,48 @@ Larger native block-boundary amortization reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
+Latest larger native boundary candidate selector: issue `#671` selects the next
+concrete implementation surface after the amortization budget. The selected
+route is `two_head_seq32_fused_attention` plus the attention-derived d128
+RMSNorm-MLP fused surface. The two-head seq32 attention proof has `1,184`
+lookup claims, `22,916` local typed bytes, and `66,327` JSON proof bytes. Its
+typed bytes per lookup claim are `19.354730`, an `18.007922x` improvement over
+the d8 fused-attention baseline (`348.538462` typed bytes per lookup). Lookup
+claims grow `22.769231x` versus d8 while attention typed bytes grow only
+`1.264401x`; the selected route's source-plus-sidecar JSON fusion ratio is
+`0.676723x`, saving `31,685` JSON proof bytes. The matched local two-proof
+frontier for the next implementation is now `45,492` typed bytes (`22,916`
+attention + `22,576` MLP). This is a selector and accounting result, not a new
+native attention-plus-MLP proof object and not NANOZK-comparable. The gate
+rejects `14 / 14` selected-route, metric, d8-baseline, bytes-per-lookup,
+NANOZK/full-block overclaim, source-digest, accounting-row, non-claim,
+validation-command, interpretation, and payload mutations. See
+`docs/engineering/zkai-larger-native-boundary-candidate-selector-2026-05-18.md`.
+
+Larger native boundary candidate selector reproducibility metadata:
+
+- Timing mode: selector/validation only; no new proof object, no timing, and no
+  median-of-5 claim.
+- Backend/source version: no new proving backend; selector gate schema
+  `zkai-larger-native-boundary-candidate-selector-v1`, decision
+  `GO_SELECT_TWO_HEAD_SEQ32_LARGER_NATIVE_BOUNDARY_IMPLEMENTATION_CANDIDATE`,
+  and source artifact SHA-256 descriptors embedded in the gate JSON.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-larger-native-boundary-candidate-accounting-2026-05.json`,
+  `docs/engineering/evidence/zkai-larger-native-boundary-candidate-selector-2026-05.json`,
+  and
+  `docs/engineering/evidence/zkai-larger-native-boundary-candidate-selector-2026-05.tsv`.
+- Local validation commands, kept in sync with the gate contract:
+  `cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-fused-softmax-table-proof-2026-05.envelope.json docs/engineering/evidence/zkai-attention-kv-stwo-native-d16-fused-softmax-table-proof-2026-05.envelope.json docs/engineering/evidence/zkai-attention-kv-stwo-native-d16-two-head-fused-softmax-table-proof-2026-05.envelope.json docs/engineering/evidence/zkai-attention-kv-stwo-native-d16-two-head-longseq-fused-softmax-table-proof-2026-05.envelope.json docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-fused-softmax-table-proof-2026-05.envelope.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.envelope.json > docs/engineering/evidence/zkai-larger-native-boundary-candidate-accounting-2026-05.json`;
+  `python3 scripts/zkai_larger_native_boundary_candidate_selector_gate.py --write-json docs/engineering/evidence/zkai-larger-native-boundary-candidate-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-larger-native-boundary-candidate-selector-2026-05.tsv`;
+  `python3 -m py_compile scripts/zkai_larger_native_boundary_candidate_selector_gate.py scripts/tests/test_zkai_larger_native_boundary_candidate_selector_gate.py`;
+  `python3 -m unittest scripts.tests.test_zkai_larger_native_boundary_candidate_selector_gate`;
+  `python3 scripts/research_issue_lint.py --repo-root .`;
+  `python3 scripts/paper/paper_preflight.py --repo-root .`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
 1. Treat `rmsnorm_mlp_fused` as the current positive MLP-side fusion result:
    the native fused proof saves `32,144` local typed bytes (`56.4167%`) versus
    separate RMSNorm, bridge, gate/value, activation, down-projection, and
