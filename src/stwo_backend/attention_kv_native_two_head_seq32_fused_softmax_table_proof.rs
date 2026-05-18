@@ -99,7 +99,7 @@ const EXPECTED_NON_CLAIMS: &[&str] = &[
 relation!(AttentionKvTwoHeadSeq32FusedSoftmaxTableRelation, 2);
 
 #[derive(Debug, Clone)]
-struct AttentionKvNativeTwoHeadSeq32FusedSoftmaxTableEval {
+pub(super) struct AttentionKvNativeTwoHeadSeq32FusedSoftmaxTableEval {
     lookup_elements: AttentionKvTwoHeadSeq32FusedSoftmaxTableRelation,
 }
 
@@ -496,13 +496,19 @@ fn validate_envelope(
     Ok(())
 }
 
-fn validate_source_input(
+pub(super) fn zkai_attention_kv_native_two_head_seq32_fused_softmax_table_validate_source_input(
     input: &ZkAiAttentionKvNativeTwoHeadSeq32BoundedSoftmaxTableProofInput,
 ) -> Result<()> {
     validate_zkai_attention_kv_native_two_head_seq32_bounded_softmax_table_input(input)
 }
 
-fn fused_summary(
+fn validate_source_input(
+    input: &ZkAiAttentionKvNativeTwoHeadSeq32BoundedSoftmaxTableProofInput,
+) -> Result<()> {
+    zkai_attention_kv_native_two_head_seq32_fused_softmax_table_validate_source_input(input)
+}
+
+pub(super) fn zkai_attention_kv_native_two_head_seq32_fused_softmax_table_summary(
     input: &ZkAiAttentionKvNativeTwoHeadSeq32BoundedSoftmaxTableProofInput,
 ) -> Result<ZkAiAttentionKvNativeTwoHeadSeq32FusedSoftmaxTableSummary> {
     let mut multiplicities = input
@@ -568,6 +574,12 @@ fn fused_summary(
     })
 }
 
+fn fused_summary(
+    input: &ZkAiAttentionKvNativeTwoHeadSeq32BoundedSoftmaxTableProofInput,
+) -> Result<ZkAiAttentionKvNativeTwoHeadSeq32FusedSoftmaxTableSummary> {
+    zkai_attention_kv_native_two_head_seq32_fused_softmax_table_summary(input)
+}
+
 fn build_fused_bundle(
     input: &ZkAiAttentionKvNativeTwoHeadSeq32BoundedSoftmaxTableProofInput,
 ) -> Result<FusedBundle> {
@@ -587,7 +599,7 @@ fn build_fused_bundle(
     })
 }
 
-fn fused_preprocessed_trace(
+pub(super) fn zkai_attention_kv_native_two_head_seq32_fused_softmax_table_preprocessed_trace(
     input: &ZkAiAttentionKvNativeTwoHeadSeq32BoundedSoftmaxTableProofInput,
     summary: &ZkAiAttentionKvNativeTwoHeadSeq32FusedSoftmaxTableSummary,
 ) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
@@ -644,7 +656,14 @@ fn fused_preprocessed_trace(
         .collect())
 }
 
-fn fused_base_trace(
+fn fused_preprocessed_trace(
+    input: &ZkAiAttentionKvNativeTwoHeadSeq32BoundedSoftmaxTableProofInput,
+    summary: &ZkAiAttentionKvNativeTwoHeadSeq32FusedSoftmaxTableSummary,
+) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
+    zkai_attention_kv_native_two_head_seq32_fused_softmax_table_preprocessed_trace(input, summary)
+}
+
+pub(super) fn zkai_attention_kv_native_two_head_seq32_fused_softmax_table_base_trace(
     input: &ZkAiAttentionKvNativeTwoHeadSeq32BoundedSoftmaxTableProofInput,
 ) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
     let domain = CanonicCoset::new(LOG_SIZE).circle_domain();
@@ -678,6 +697,12 @@ fn fused_base_trace(
             .bit_reverse()
         })
         .collect())
+}
+
+fn fused_base_trace(
+    input: &ZkAiAttentionKvNativeTwoHeadSeq32BoundedSoftmaxTableProofInput,
+) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
+    zkai_attention_kv_native_two_head_seq32_fused_softmax_table_base_trace(input)
 }
 
 fn row_values(
@@ -916,7 +941,7 @@ fn fused_commitment_roots(
     Ok(commitment_scheme.roots())
 }
 
-fn fused_interaction_trace(
+pub(super) fn zkai_attention_kv_native_two_head_seq32_fused_softmax_table_interaction_trace(
     log_size: u32,
     base_trace: &ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
     preprocessed_trace: &ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
@@ -948,11 +973,38 @@ fn fused_interaction_trace(
     Ok(logup_gen.finalize_last())
 }
 
+fn fused_interaction_trace(
+    log_size: u32,
+    base_trace: &ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
+    preprocessed_trace: &ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
+    lookup_elements: &AttentionKvTwoHeadSeq32FusedSoftmaxTableRelation,
+) -> Result<(
+    ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
+    SecureField,
+)> {
+    zkai_attention_kv_native_two_head_seq32_fused_softmax_table_interaction_trace(
+        log_size,
+        base_trace,
+        preprocessed_trace,
+        lookup_elements,
+    )
+}
+
 fn fused_component(
     lookup_elements: AttentionKvTwoHeadSeq32FusedSoftmaxTableRelation,
 ) -> FrameworkComponent<AttentionKvNativeTwoHeadSeq32FusedSoftmaxTableEval> {
-    FrameworkComponent::new(
+    zkai_attention_kv_native_two_head_seq32_fused_softmax_table_component_with_allocator(
         &mut TraceLocationAllocator::new_with_preprocessed_columns(&fused_preprocessed_column_ids()),
+        lookup_elements,
+    )
+}
+
+pub(super) fn zkai_attention_kv_native_two_head_seq32_fused_softmax_table_component_with_allocator(
+    allocator: &mut TraceLocationAllocator,
+    lookup_elements: AttentionKvTwoHeadSeq32FusedSoftmaxTableRelation,
+) -> FrameworkComponent<AttentionKvNativeTwoHeadSeq32FusedSoftmaxTableEval> {
+    FrameworkComponent::new(
+        allocator,
         AttentionKvNativeTwoHeadSeq32FusedSoftmaxTableEval { lookup_elements },
         SecureField::zero(),
     )
@@ -1088,7 +1140,8 @@ fn fused_preprocessed_column_index(ids: &[PreProcessedColumnId], target: &str) -
         .ok_or_else(|| fused_error(format!("missing fused preprocessed column id: {target}")))
 }
 
-fn fused_preprocessed_column_ids() -> Vec<PreProcessedColumnId> {
+pub(super) fn zkai_attention_kv_native_two_head_seq32_fused_softmax_table_preprocessed_column_ids(
+) -> Vec<PreProcessedColumnId> {
     let mut ids = fused_row_column_ids()
         .iter()
         .map(|id| preprocessed_column_id(id))
@@ -1097,6 +1150,10 @@ fn fused_preprocessed_column_ids() -> Vec<PreProcessedColumnId> {
     ids.push(preprocessed_column_id(PREPROCESSED_TABLE_WEIGHT));
     ids.push(preprocessed_column_id(PREPROCESSED_TABLE_MULTIPLICITY));
     ids
+}
+
+fn fused_preprocessed_column_ids() -> Vec<PreProcessedColumnId> {
+    zkai_attention_kv_native_two_head_seq32_fused_softmax_table_preprocessed_column_ids()
 }
 
 fn score_gap_usize(score_gap: i64, label: &str) -> Result<usize> {
