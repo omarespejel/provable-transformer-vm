@@ -85,11 +85,11 @@ This gate has `0` proof-size-comparable external rows.
 - Probe B envelope:
   `docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.envelope.json`
 
-The gate rejects `13 / 13` mutation cases: decision drift, result drift,
+The gate rejects `14 / 14` mutation cases: decision drift, result drift,
 saving erasure, best-probe typed drift, adapter-mode relabeling, value-group
 drift, path-opening saving erasure, label-span erasure, source-artifact digest
-drift, validation-command drift, removed non-claims, NANOZK overclaim, and
-payload-commitment drift.
+drift, validation-command drift, removed non-claims, interpretation drift,
+NANOZK overclaim, and payload-commitment drift.
 
 ## Reproduction
 
