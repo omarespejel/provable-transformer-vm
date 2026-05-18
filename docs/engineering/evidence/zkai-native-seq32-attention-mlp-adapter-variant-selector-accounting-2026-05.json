@@ -149,7 +149,7 @@
         "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
         "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1"
       },
-      "envelope_sha256": "f072708a5ef751579185f69bb0ba065f138dbfdec53a4f16ac6d6dd5f9e7b080",
+      "envelope_sha256": "7df707d7fcdd9e1e9e170d635e310b475b2394abad107c0d826b04b4f16b7831",
       "evidence_relative_path": "zkai-native-seq32-attention-mlp-compact-adapter-2026-05.envelope.json",
       "local_binary_accounting": {
         "component_sum_bytes": 42548,
@@ -285,7 +285,7 @@
         "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
         "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1"
       },
-      "envelope_sha256": "3028913f22fcab9e30983027ac0b8dfcf70faa2acf881378e3afac7aae126045",
+      "envelope_sha256": "220cc6af678c7a249546e98b2632ca74b39022aed9b410fddb1b3da5d9c17040",
       "evidence_relative_path": "zkai-native-seq32-attention-mlp-output-anchor-adapter-2026-05.envelope.json",
       "local_binary_accounting": {
         "component_sum_bytes": 42976,
@@ -421,7 +421,7 @@
         "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
         "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1"
       },
-      "envelope_sha256": "82203bb22a42f86896c9872d0120fd09a6a36b6f1832c5e8c3104e46c9927e7a",
+      "envelope_sha256": "7d24322420f600767ca9b31fc001eb516070ea041a150a2bfbb032c2850caa0a",
       "evidence_relative_path": "zkai-native-seq32-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json",
       "local_binary_accounting": {
         "component_sum_bytes": 42780,
@@ -557,7 +557,7 @@
         "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
         "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1"
       },
-      "envelope_sha256": "e1e5f84900e5f2860762b675e708b7c2016425c0ff66ecb0108e9355266afb8d",
+      "envelope_sha256": "91d6866982629e829ef4b53502c99c7215e0d6bb257336cdf2910b8c94ce52b3",
       "evidence_relative_path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.envelope.json",
       "local_binary_accounting": {
         "component_sum_bytes": 42156,
@@ -693,7 +693,7 @@
         "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
         "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1"
       },
-      "envelope_sha256": "e72e58486044f4560b7bc06c306cbb249c71dae5229eb67459c5d05def977c71",
+      "envelope_sha256": "9b6e088b8bb98581a787075ea74a148c5380da16b4c253f114c3356a9dcd994b",
       "evidence_relative_path": "zkai-native-seq32-attention-mlp-rmsnorm-post-tail-layout-2026-05.envelope.json",
       "local_binary_accounting": {
         "component_sum_bytes": 42780,

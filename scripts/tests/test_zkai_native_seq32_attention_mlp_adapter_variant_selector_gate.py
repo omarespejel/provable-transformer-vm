@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import importlib.util
+import os
 import pathlib
 import tempfile
 import unittest
@@ -72,6 +73,13 @@ class NativeSeq32AdapterVariantSelectorGateTest(unittest.TestCase):
         with self.assertRaisesRegex(self.gate.NativeSeq32AdapterVariantSelectorGateError, "variant summary drift"):
             self.gate.validate_payload(payload)
 
+    def test_rejects_variant_metadata_drift(self) -> None:
+        payload = copy.deepcopy(self.__class__.payload)
+        payload["variants"][4]["proof_sha256"] = "0" * 64
+        payload["payload_commitment"] = self.gate.payload_commitment(payload)
+        with self.assertRaisesRegex(self.gate.NativeSeq32AdapterVariantSelectorGateError, "variant metadata drift"):
+            self.gate.validate_payload(payload)
+
     def test_rejects_overclaim_boundary(self) -> None:
         payload = copy.deepcopy(self.__class__.payload)
         payload["claim_boundary"] = payload["claim_boundary"] + ";NANOZK_WIN"
@@ -127,6 +135,35 @@ class NativeSeq32AdapterVariantSelectorGateTest(unittest.TestCase):
             self.gate.atomic_write_text(output, "fresh\n")
             self.assertEqual(output.read_text(encoding="utf-8"), "fresh\n")
             self.assertEqual(stale.read_text(encoding="utf-8"), "stale\n")
+
+    @unittest.skipUnless(hasattr(os, "symlink"), "symlink support required")
+    def test_read_repo_file_rejects_symlink_leaf(self) -> None:
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmpdir:
+            tmp = pathlib.Path(tmpdir)
+            target = tmp / "target.json"
+            link = tmp / "link.json"
+            target.write_text("{}", encoding="utf-8")
+            os.symlink(target, link)
+            with self.assertRaisesRegex(
+                self.gate.NativeSeq32AdapterVariantSelectorGateError,
+                "must not traverse symlinks",
+            ):
+                self.gate.read_repo_file(link, "symlink leaf")
+
+    @unittest.skipUnless(hasattr(os, "symlink"), "symlink support required")
+    def test_atomic_write_rejects_symlink_parent(self) -> None:
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmpdir:
+            tmp = pathlib.Path(tmpdir)
+            real_parent = tmp / "real"
+            link_parent = tmp / "link-parent"
+            real_parent.mkdir()
+            os.symlink(real_parent, link_parent)
+            with self.assertRaisesRegex(
+                self.gate.NativeSeq32AdapterVariantSelectorGateError,
+                "output path must not traverse symlinks",
+            ):
+                self.gate.atomic_write_text(link_parent / "out.json", "{}\n")
+            self.assertFalse((real_parent / "out.json").exists())
 
 
 if __name__ == "__main__":

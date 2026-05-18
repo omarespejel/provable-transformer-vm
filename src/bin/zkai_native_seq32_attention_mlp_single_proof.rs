@@ -58,28 +58,10 @@ fn run() -> Result<String, String> {
         return Err(usage());
     }
     let mode = args.remove(0).to_string_lossy().to_string();
+    if let Some(adapter_mode) = build_input_adapter_mode(mode.as_str()) {
+        return build_input_with_adapter_mode(args, adapter_mode);
+    }
     match mode.as_str() {
-        "build-input" => build_input(args),
-        "build-input-compact" => build_input_with_adapter_mode(
-            args,
-            ZkAiNativeSeq32AttentionMlpAdapterMode::CompactBaseReferencedFixed,
-        ),
-        "build-input-preprocessed-anchor" => build_input_with_adapter_mode(
-            args,
-            ZkAiNativeSeq32AttentionMlpAdapterMode::PreprocessedOutputAnchorFixed,
-        ),
-        "build-input-rmsnorm-fused" => build_input_with_adapter_mode(
-            args,
-            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedFixed,
-        ),
-        "build-input-rmsnorm-fused-adjacent" => build_input_with_adapter_mode(
-            args,
-            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed,
-        ),
-        "build-input-rmsnorm-fused-post-tail" => build_input_with_adapter_mode(
-            args,
-            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedPostTailFixed,
-        ),
         "prove" => {
             if args.len() != 2 {
                 return Err("usage: prove <single-input.json> <envelope.json>".to_string());
@@ -152,11 +134,26 @@ fn run() -> Result<String, String> {
 }
 
 #[cfg(feature = "stwo-backend")]
-fn build_input(args: Vec<std::ffi::OsString>) -> Result<String, String> {
-    build_input_with_adapter_mode(
-        args,
-        ZkAiNativeSeq32AttentionMlpAdapterMode::DuplicateBasePreprocessed,
-    )
+fn build_input_adapter_mode(mode: &str) -> Option<ZkAiNativeSeq32AttentionMlpAdapterMode> {
+    match mode {
+        "build-input" => Some(ZkAiNativeSeq32AttentionMlpAdapterMode::DuplicateBasePreprocessed),
+        "build-input-compact" => {
+            Some(ZkAiNativeSeq32AttentionMlpAdapterMode::CompactBaseReferencedFixed)
+        }
+        "build-input-preprocessed-anchor" => {
+            Some(ZkAiNativeSeq32AttentionMlpAdapterMode::PreprocessedOutputAnchorFixed)
+        }
+        "build-input-rmsnorm-fused" => {
+            Some(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedFixed)
+        }
+        "build-input-rmsnorm-fused-adjacent" => {
+            Some(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed)
+        }
+        "build-input-rmsnorm-fused-post-tail" => {
+            Some(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedPostTailFixed)
+        }
+        _ => None,
+    }
 }
 
 #[cfg(feature = "stwo-backend")]
@@ -563,6 +560,43 @@ mod tests {
             .prefix("zkai-seq32-single-proof-cli-test-")
             .tempdir_in(std::env::current_dir().expect("current dir"))
             .expect("tempdir")
+    }
+
+    #[test]
+    fn build_input_command_routing_maps_adapter_modes() {
+        let cases = [
+            (
+                "build-input",
+                ZkAiNativeSeq32AttentionMlpAdapterMode::DuplicateBasePreprocessed,
+            ),
+            (
+                "build-input-compact",
+                ZkAiNativeSeq32AttentionMlpAdapterMode::CompactBaseReferencedFixed,
+            ),
+            (
+                "build-input-preprocessed-anchor",
+                ZkAiNativeSeq32AttentionMlpAdapterMode::PreprocessedOutputAnchorFixed,
+            ),
+            (
+                "build-input-rmsnorm-fused",
+                ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedFixed,
+            ),
+            (
+                "build-input-rmsnorm-fused-adjacent",
+                ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed,
+            ),
+            (
+                "build-input-rmsnorm-fused-post-tail",
+                ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedPostTailFixed,
+            ),
+        ];
+        for (command, expected) in cases {
+            assert_eq!(build_input_adapter_mode(command), Some(expected));
+        }
+        assert_eq!(
+            build_input_adapter_mode("build-input-rmsnorm-fused-typo"),
+            None
+        );
     }
 
     #[test]
