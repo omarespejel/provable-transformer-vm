@@ -100,6 +100,13 @@ class NativeSeq32AttentionMlpSingleProofGateTest(unittest.TestCase):
         ):
             self.gate.validate_payload(payload)
 
+    def test_rejects_non_integer_proof_byte_entry(self) -> None:
+        with self.assertRaisesRegex(
+            self.gate.NativeSeq32AttentionMlpSingleProofGateError,
+            "envelope proof must contain bytes",
+        ):
+            self.gate.proof_bytes_from_envelope({"proof": ["not-an-integer"]})
+
     def test_mutation_inventory_is_exact(self) -> None:
         result = self.__class__.payload["mutation_result"]
         self.assertTrue(result["all_mutations_rejected"])
