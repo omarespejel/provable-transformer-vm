@@ -56,8 +56,12 @@ class LargerNativeBoundaryCandidateSelectorGateTests(unittest.TestCase):
     def test_source_artifacts_are_pinned_to_real_files(self):
         payload = self.payload()
         self.assertEqual(len(payload["source_artifacts"]), 6)
+        self.assertEqual(
+            tuple((artifact["id"], artifact["path"]) for artifact in payload["source_artifacts"]),
+            gate.expected_source_artifacts(),
+        )
         for artifact in payload["source_artifacts"]:
-            path = gate.ROOT / artifact["path"]
+            path = gate.repo_relative_path(artifact["path"], "source artifact path")
             raw = path.read_bytes()
             self.assertEqual(artifact["sha256"], gate.digest(raw))
             self.assertEqual(artifact["size_bytes"], len(raw))
@@ -142,6 +146,36 @@ class LargerNativeBoundaryCandidateSelectorGateTests(unittest.TestCase):
             "mutation rejected count drift|mutation rejection drift|mutation case rejection drift",
         ):
             gate.validate_payload(payload)
+
+    def test_rejects_source_artifact_id_drift(self):
+        payload = self.payload()
+        payload["source_artifacts"][0]["id"] = "external_accounting"
+        gate.refresh_payload_commitment(payload)
+        with self.assertRaisesRegex(
+            gate.LargerNativeBoundaryCandidateSelectorError,
+            "source artifact inventory drift",
+        ):
+            gate.validate_payload(payload)
+
+    def test_rejects_source_artifact_path_traversal(self):
+        payload = self.payload()
+        payload["source_artifacts"][0]["path"] = "../../tmp/external.json"
+        gate.refresh_payload_commitment(payload)
+        with self.assertRaisesRegex(
+            gate.LargerNativeBoundaryCandidateSelectorError,
+            "source artifact path must not contain traversal",
+        ):
+            gate.validate_payload(payload)
+
+    def test_rejects_mlp_accounting_drift(self):
+        accounting = copy.deepcopy(json.loads(gate.ACCOUNTING_PATH.read_text()))
+        rows = gate.row_by_relative_path(accounting)
+        rows[gate.MLP_FUSED_ENVELOPE]["local_binary_accounting"]["component_sum_bytes"] -= 1
+        with self.assertRaisesRegex(
+            gate.LargerNativeBoundaryCandidateSelectorError,
+            "MLP fused typed bytes drift",
+        ):
+            gate.verified_mlp_accounting(rows)
 
     def test_write_bytes_rejects_symlink(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -2014,8 +2014,8 @@ claims grow `22.769231x` versus d8 while attention typed bytes grow only
 frontier for the next implementation is now `45,492` typed bytes (`22,916`
 attention + `22,576` MLP). This is a selector and accounting result, not a new
 native attention-plus-MLP proof object and not NANOZK-comparable. The gate
-rejects `14 / 14` selected-route, metric, d8-baseline, bytes-per-lookup,
-NANOZK/full-block overclaim, source-digest, accounting-row, non-claim,
+rejects `16 / 16` selected-route, metric, d8-baseline, bytes-per-lookup,
+NANOZK/full-block overclaim, source-digest/id/path, accounting-row, non-claim,
 validation-command, interpretation, and payload mutations. See
 `docs/engineering/zkai-larger-native-boundary-candidate-selector-2026-05-18.md`.
 
