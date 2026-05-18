@@ -663,7 +663,7 @@ def validate_payload_without_commitment(payload: dict[str, Any]) -> None:
         cases = mutation_result.get("cases")
         if not isinstance(cases, list) or len(cases) != len(MUTATION_NAMES):
             raise LargerNativeBoundaryCandidateSelectorError("mutation case inventory drift")
-        for expected_name, case in zip(MUTATION_NAMES, cases, strict=True):
+        for expected_name, case in zip(MUTATION_NAMES, cases):
             if not isinstance(case, dict):
                 raise LargerNativeBoundaryCandidateSelectorError("mutation case must be object")
             if case.get("name") != expected_name:
@@ -745,7 +745,7 @@ def mutate_source_artifact_digest(payload: dict[str, Any], artifact_id: str) -> 
     raise LargerNativeBoundaryCandidateSelectorError(f"missing source artifact {artifact_id}")
 
 
-def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, Callable[[dict[str, Any]], None]]]:
+def mutation_cases() -> list[tuple[str, Callable[[dict[str, Any]], None]]]:
     return [
         ("selected_candidate_drift", lambda p: p["summary"].__setitem__("selected_candidate", "d16_fused_attention")),
         ("selected_typed_bytes_drift", lambda p: p["summary"].__setitem__("selected_attention_typed_bytes", 22_915)),
@@ -793,7 +793,7 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, Callable[[dict[st
 
 def run_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
     results = []
-    for name, mutator in mutation_cases(payload):
+    for name, mutator in mutation_cases():
         mutated = copy.deepcopy(payload)
         try:
             mutator(mutated)
