@@ -100,6 +100,30 @@ class LargerNativeBoundaryCandidateSelectorGateTests(unittest.TestCase):
         self.assertEqual(by_id["d8_fused_attention_envelope"]["sha256"], "0" * 64)
         self.assertNotEqual(by_id["candidate_accounting"]["sha256"], "0" * 64)
 
+    def test_mutator_exception_is_recorded_as_rejection(self):
+        payload = gate.build_payload()
+        original = gate.mutation_cases
+
+        def broken_cases(_payload):
+            return [
+                (
+                    "forced_mutator_failure",
+                    lambda _mutated: gate.mutate_source_artifact_digest(
+                        _mutated,
+                        "missing_artifact",
+                    ),
+                )
+            ]
+
+        try:
+            gate.mutation_cases = broken_cases
+            results = gate.run_mutations(payload)
+        finally:
+            gate.mutation_cases = original
+        self.assertEqual(results[0]["name"], "forced_mutator_failure")
+        self.assertTrue(results[0]["rejected"])
+        self.assertIn("missing source artifact missing_artifact", results[0]["error"])
+
     def test_rejects_selected_candidate_drift(self):
         payload = self.payload()
         payload["summary"]["selected_candidate"] = "d16_fused_attention"

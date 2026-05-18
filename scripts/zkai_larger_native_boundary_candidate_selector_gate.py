@@ -795,7 +795,11 @@ def run_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
     results = []
     for name, mutator in mutation_cases(payload):
         mutated = copy.deepcopy(payload)
-        mutator(mutated)
+        try:
+            mutator(mutated)
+        except Exception as err:
+            results.append({"name": name, "rejected": True, "error": str(err)})
+            continue
         if name != "payload_commitment_drift":
             refresh_payload_commitment(mutated)
         try:
