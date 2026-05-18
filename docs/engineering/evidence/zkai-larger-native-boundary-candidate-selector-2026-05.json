@@ -86,7 +86,7 @@
   },
   "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/671",
   "mutation_inventory": {
-    "mutation_count": 16,
+    "mutation_count": 17,
     "mutation_names": [
       "selected_candidate_drift",
       "selected_typed_bytes_drift",
@@ -98,6 +98,7 @@
       "source_artifact_digest_drift",
       "source_artifact_id_drift",
       "source_artifact_path_traversal",
+      "source_artifact_envelope_digest_drift",
       "accounting_row_removed",
       "non_claim_removed",
       "non_claim_added",
@@ -160,6 +161,11 @@
         "rejected": true
       },
       {
+        "error": "source artifact digest drift",
+        "name": "source_artifact_envelope_digest_drift",
+        "rejected": true
+      },
+      {
         "error": "candidate row count drift",
         "name": "accounting_row_removed",
         "rejected": true
@@ -190,7 +196,7 @@
         "rejected": true
       }
     ],
-    "mutations_rejected": 16
+    "mutations_rejected": 17
   },
   "non_claims": [
     "not a new native attention-plus-MLP proof object",
@@ -201,7 +207,7 @@
     "not timing evidence",
     "not production-ready zkML"
   ],
-  "payload_commitment": "blake2b-256:4b3496145419a573d332167d81838be409c0945757f5525af63578351997183c",
+  "payload_commitment": "blake2b-256:477a1c295387200af9a90de910f675282df582a4a5a27f8e67850f3aedd45d51",
   "result": "TWO_HEAD_SEQ32_HAS_1184_LOOKUP_CLAIMS_22916_TYPED_BYTES_AND_19_354730_TYPED_BYTES_PER_LOOKUP",
   "schema": "zkai-larger-native-boundary-candidate-selector-v1",
   "source_artifacts": [
@@ -218,10 +224,22 @@
       "size_bytes": 7723
     },
     {
+      "id": "d8_fused_attention_envelope",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-fused-softmax-table-proof-2026-05.envelope.json",
+      "sha256": "2e0e9c17db31077e067d26aa5e18fc0dbcf2ab04a91431325d75988a796b2e07",
+      "size_bytes": 478713
+    },
+    {
       "id": "d16_fused_attention_gate",
       "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d16-fused-softmax-table-gate-2026-05.json",
       "sha256": "f9129883c7d6bf7c80cacfbc94ead4a4a86737212d707e5cf970ba79daf78110",
       "size_bytes": 7980
+    },
+    {
+      "id": "d16_fused_attention_envelope",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d16-fused-softmax-table-proof-2026-05.envelope.json",
+      "sha256": "4ec1f6f10653e413dce78c699f672f99e9fe5a640f135f8e40a6b5fbb389de0a",
+      "size_bytes": 666515
     },
     {
       "id": "d16_two_head_fused_attention_gate",
@@ -230,16 +248,40 @@
       "size_bytes": 8668
     },
     {
+      "id": "d16_two_head_fused_attention_envelope",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d16-two-head-fused-softmax-table-proof-2026-05.envelope.json",
+      "sha256": "70ed785e418c907ad92f15dcf0cf045ce914ef5282dab72819f49f2d45a2727d",
+      "size_bytes": 921008
+    },
+    {
       "id": "d16_two_head_longseq_fused_attention_gate",
       "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d16-two-head-longseq-fused-softmax-table-gate-2026-05.json",
       "sha256": "eebe81c4cad045a1de91fb9e9588fbbd9aaec43b3e3ada46ca0613e1987feb97",
       "size_bytes": 12345
     },
     {
+      "id": "d16_two_head_longseq_fused_attention_envelope",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d16-two-head-longseq-fused-softmax-table-proof-2026-05.envelope.json",
+      "sha256": "39aec31d9934deef6de61f939692200e7db6e7b914527a2c881dd660768d529c",
+      "size_bytes": 1569734
+    },
+    {
       "id": "two_head_seq32_fused_attention_gate",
       "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-fused-softmax-table-gate-2026-05.json",
       "sha256": "519ba7ffe309e01fe3e491191b6322fe62f59fec6d616e887ca67100144a860c",
       "size_bytes": 8649
+    },
+    {
+      "id": "two_head_seq32_fused_attention_envelope",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-fused-softmax-table-proof-2026-05.envelope.json",
+      "sha256": "550adc4681dca0f5075b65cb046ef4e027364d34d6f70925c5f82d5190afc933",
+      "size_bytes": 2448150
+    },
+    {
+      "id": "mlp_fused_envelope",
+      "path": "docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.envelope.json",
+      "sha256": "e7ea0946a675a6d7e5ba556bcc93d3dad2ed7fa2a8b4ef45ec1c756b55efd4ba",
+      "size_bytes": 717049
     }
   ],
   "summary": {

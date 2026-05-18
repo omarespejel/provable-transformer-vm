@@ -55,7 +55,7 @@ class LargerNativeBoundaryCandidateSelectorGateTests(unittest.TestCase):
 
     def test_source_artifacts_are_pinned_to_real_files(self):
         payload = self.payload()
-        self.assertEqual(len(payload["source_artifacts"]), 6)
+        self.assertEqual(len(payload["source_artifacts"]), 12)
         self.assertEqual(
             tuple((artifact["id"], artifact["path"]) for artifact in payload["source_artifacts"]),
             gate.expected_source_artifacts(),
@@ -171,11 +171,53 @@ class LargerNativeBoundaryCandidateSelectorGateTests(unittest.TestCase):
         accounting = copy.deepcopy(json.loads(gate.ACCOUNTING_PATH.read_text()))
         rows = gate.row_by_relative_path(accounting)
         rows[gate.MLP_FUSED_ENVELOPE]["local_binary_accounting"]["component_sum_bytes"] -= 1
+        mlp_raw = (gate.EVIDENCE_DIR / gate.MLP_FUSED_ENVELOPE).read_bytes()
         with self.assertRaisesRegex(
             gate.LargerNativeBoundaryCandidateSelectorError,
             "MLP fused typed bytes drift",
         ):
-            gate.verified_mlp_accounting(rows)
+            gate.verified_mlp_accounting(rows, mlp_raw)
+
+    def test_rejects_accounting_identity_drift(self):
+        accounting = copy.deepcopy(json.loads(gate.ACCOUNTING_PATH.read_text()))
+        accounting["schema"] = "zkai-stwo-local-binary-proof-accounting-cli-v2"
+        with self.assertRaisesRegex(
+            gate.LargerNativeBoundaryCandidateSelectorError,
+            "accounting schema drift",
+        ):
+            gate.validate_accounting_identity(accounting)
+
+    def test_rejects_gate_identity_drift_with_same_metrics(self):
+        candidate_id = "two_head_seq32_fused_attention"
+        gate_path = gate.EVIDENCE_DIR / gate.EXPECTED_CANDIDATES[candidate_id]["attention_gate_path"]
+        gate_payload = json.loads(gate_path.read_text())
+        gate_payload["route_id"] = "same_numbers_different_route"
+        with self.assertRaisesRegex(
+            gate.LargerNativeBoundaryCandidateSelectorError,
+            "two_head_seq32_fused_attention gate route_id drift",
+        ):
+            gate.validate_gate_identity(candidate_id, gate_payload)
+
+    def test_rejects_stale_accounting_envelope_digest(self):
+        accounting = copy.deepcopy(json.loads(gate.ACCOUNTING_PATH.read_text()))
+        rows = gate.row_by_relative_path(accounting)
+        envelope_path = (
+            gate.EVIDENCE_DIR
+            / gate.EXPECTED_CANDIDATES["two_head_seq32_fused_attention"]["attention_envelope_path"]
+        )
+        envelope_raw = envelope_path.read_bytes()
+        row = rows[gate.EXPECTED_CANDIDATES["two_head_seq32_fused_attention"]["attention_envelope_path"]]
+        row["envelope_sha256"] = "0" * 64
+        with self.assertRaisesRegex(
+            gate.LargerNativeBoundaryCandidateSelectorError,
+            "accounting envelope digest drift",
+        ):
+            gate.verify_envelope_accounting_source(
+                row,
+                envelope_path,
+                envelope_raw,
+                "two_head_seq32_fused_attention",
+            )
 
     def test_write_bytes_rejects_symlink(self):
         with tempfile.TemporaryDirectory() as tmp:
