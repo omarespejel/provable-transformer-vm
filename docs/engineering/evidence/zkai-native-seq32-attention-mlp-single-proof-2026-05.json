@@ -1,0 +1,188 @@
+{
+  "claim_boundary": "ONE_NATIVE_STWO_PROOF_OBJECT_OVER_TWO_HEAD_SEQ32_FUSED_ATTENTION_PLUS_SEQ32_DERIVED_D128_RMSNORM_MLP_BEATS_THE_MATCHED_LOCAL_TWO_PROOF_FRONTIER;NOT_A_NANOZK_WIN_NOT_A_FULL_TRANSFORMER_BLOCK_NOT_AN_EXTERNAL_BENCHMARK",
+  "decision": "GO_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_OBJECT_BEATS_MATCHED_FRONTIER",
+  "interpretation": {
+    "guardrail": "The object is still not a full transformer block and is not comparable to NANOZK's reported 6.9 KB d128 row. It remains 6.096812x that paper-reported row.",
+    "human_read": "One native Stwo object now verifies the selected two-head seq32 fused attention surface, the public attention-to-d128 adapter, and the seq32-derived d128 RMSNorm/MLP surface.",
+    "interesting_signal": "The proof is 42,068 typed bytes versus the 47,188 typed-byte matched two-proof frontier, a 5,120 byte saving. This is the first seq32+d128 native-boundary size win in this lane.",
+    "next_experiment": "Try opening-layout and adapter-placement variants only if they preserve this statement binding and target additional FRI/opening reductions without changing the workload."
+  },
+  "issue_hint": "native-seq32-attention-mlp-single-proof-object",
+  "mutation_result": {
+    "all_mutations_rejected": true,
+    "cases": [
+      {
+        "error": "summary drift",
+        "name": "typed_saving_erased",
+        "rejected": true
+      },
+      {
+        "error": "summary drift",
+        "name": "typed_metric_drift",
+        "rejected": true
+      },
+      {
+        "error": "summary drift",
+        "name": "json_metric_drift",
+        "rejected": true
+      },
+      {
+        "error": "summary drift",
+        "name": "frontier_metric_drift",
+        "rejected": true
+      },
+      {
+        "error": "claim_boundary drift",
+        "name": "nanozk_overclaim_boundary",
+        "rejected": true
+      },
+      {
+        "error": "non-claims drift",
+        "name": "native_object_overclaim_removed_nonclaim",
+        "rejected": true
+      },
+      {
+        "error": "source artifact digest drift",
+        "name": "source_artifact_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "source artifact inventory drift",
+        "name": "source_artifact_path_traversal",
+        "rejected": true
+      },
+      {
+        "error": "source artifact inventory drift",
+        "name": "source_artifact_valid_path_swap",
+        "rejected": true
+      },
+      {
+        "error": "summary drift",
+        "name": "proof_verification_drift",
+        "rejected": true
+      },
+      {
+        "error": "source artifact digest drift",
+        "name": "proof_sha_drift",
+        "rejected": true
+      },
+      {
+        "error": "source artifact digest drift",
+        "name": "envelope_sha_drift",
+        "rejected": true
+      },
+      {
+        "error": "validation command drift",
+        "name": "validation_command_drift",
+        "rejected": true
+      },
+      {
+        "error": "payload commitment drift",
+        "name": "payload_commitment_drift",
+        "rejected": true
+      }
+    ],
+    "mutation_names": [
+      "typed_saving_erased",
+      "typed_metric_drift",
+      "json_metric_drift",
+      "frontier_metric_drift",
+      "nanozk_overclaim_boundary",
+      "native_object_overclaim_removed_nonclaim",
+      "source_artifact_digest_drift",
+      "source_artifact_path_traversal",
+      "source_artifact_valid_path_swap",
+      "proof_verification_drift",
+      "proof_sha_drift",
+      "envelope_sha_drift",
+      "validation_command_drift",
+      "payload_commitment_drift"
+    ],
+    "mutations_rejected": 14
+  },
+  "non_claims": [
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not a full transformer block proof",
+    "not exact real-valued Softmax",
+    "not full autoregressive inference",
+    "not timing evidence",
+    "not production-ready zkML"
+  ],
+  "payload_commitment": "blake2b-256:64ea3cc4ce898e7e99fd1c302ccc249bf7fd2cc04267d0afcbded910a8a8cfaf",
+  "result": "NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_SAVES_5120_TYPED_BYTES_VS_47188_FRONTIER",
+  "schema": "zkai-native-seq32-attention-mlp-single-proof-gate-v1",
+  "source_artifacts": [
+    {
+      "id": "matched_frontier_gate",
+      "path": "docs/engineering/evidence/zkai-seq32-value-compatible-boundary-frontier-2026-05.json",
+      "sha256": "406a1b65574c694f208652d4a181e323dd5d66a53b4b58c685e61358dfb58c3d",
+      "size_bytes": 8807
+    },
+    {
+      "id": "native_single_input",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.input.json",
+      "sha256": "38ba6a449e539a7f6be66cc261dd1538811c58bfe750cbd4af9c7cf6c7a69ac5",
+      "size_bytes": 2085159
+    },
+    {
+      "id": "native_single_envelope",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json",
+      "sha256": "c5107022445b27d8061c2c96c1f5a5710e94695e8647efdf903682385be03414",
+      "size_bytes": 3312940
+    },
+    {
+      "id": "native_single_accounting",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-binary-accounting-2026-05.json",
+      "sha256": "06305ca5764a93f72de14bad4921cb9c3fe60b713ba14fccf4ec50d3f2695037",
+      "size_bytes": 5896
+    }
+  ],
+  "summary": {
+    "adapter_mode": "duplicate_base_preprocessed_v1",
+    "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER",
+    "adapter_trace_cells": 1536,
+    "fri_decommitment_hashes": 396,
+    "json_ratio_vs_matched_frontier": "0.866215",
+    "json_saving_vs_matched_frontier_bytes": 18842,
+    "json_saving_vs_matched_frontier_share": "0.133785",
+    "matched_two_proof_frontier_json_bytes": 140838,
+    "matched_two_proof_frontier_typed_bytes": 47188,
+    "nanozk_reported_d128_block_proof_bytes": 6900,
+    "native_single_envelope_json_bytes": 3312940,
+    "native_single_input_json_bytes": 2085159,
+    "native_single_proof_json_bytes": 121996,
+    "native_single_proof_typed_bytes": 42068,
+    "oods_samples": 767,
+    "pcs_lifting_log_size": 19,
+    "proof_commitments": 4,
+    "proof_size_comparable_external_rows": 0,
+    "queried_values": 2289,
+    "selected_attention_lookup_claims": 1184,
+    "selected_attention_surface": "two_head_seq32_fused_attention",
+    "selected_attention_trace_rows": 2048,
+    "selected_attention_typed_bytes": 22916,
+    "seq32_derived_d128_mlp_rows": 197504,
+    "seq32_derived_d128_mlp_typed_bytes": 24272,
+    "trace_decommitment_hashes": 200,
+    "typed_gap_to_nanozk_reported_row_bytes": 35168,
+    "typed_ratio_to_nanozk_reported_row": "6.096812",
+    "typed_ratio_vs_matched_frontier": "0.891498",
+    "typed_reduction_share_to_match_nanozk_reported_row": "0.835980",
+    "typed_saving_vs_matched_frontier_bytes": 5120,
+    "typed_saving_vs_matched_frontier_share": "0.108502"
+  },
+  "validation_commands": [
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json > docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-binary-accounting-2026-05.json",
+    "python3.10 scripts/zkai_native_seq32_attention_mlp_single_proof_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.tsv",
+    "python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_single_proof_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_single_proof_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_single_proof_gate",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}
