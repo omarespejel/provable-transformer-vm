@@ -721,7 +721,7 @@ fn residual_add_anchor_error(
             mismatches.join(", ")
         );
     }
-    "residual-add source anchor is not approved: no synthetic or attention_derived anchor matched"
+    "residual-add source anchor is not approved: no synthetic, attention_derived, or seq32_derived anchor matched"
         .to_string()
 }
 
@@ -1139,6 +1139,9 @@ mod tests {
     const DERIVED_INPUT_JSON: &str = include_str!(
         "../../docs/engineering/evidence/zkai-attention-derived-d128-native-residual-add-proof-2026-05.json"
     );
+    const SEQ32_DERIVED_INPUT_JSON: &str = include_str!(
+        "../../docs/engineering/evidence/zkai-seq32-derived-d128-native-residual-add-proof-2026-05.json"
+    );
 
     fn input() -> ZkAiD128ResidualAddProofInput {
         zkai_d128_residual_add_input_from_json_str(INPUT_JSON).expect("residual-add input")
@@ -1147,6 +1150,11 @@ mod tests {
     fn derived_input() -> ZkAiD128ResidualAddProofInput {
         zkai_d128_residual_add_input_from_json_str(DERIVED_INPUT_JSON)
             .expect("derived residual-add input")
+    }
+
+    fn seq32_derived_input() -> ZkAiD128ResidualAddProofInput {
+        zkai_d128_residual_add_input_from_json_str(SEQ32_DERIVED_INPUT_JSON)
+            .expect("seq32-derived residual-add input")
     }
 
     #[test]
@@ -1228,6 +1236,45 @@ mod tests {
     }
 
     #[test]
+    fn residual_add_accepts_seq32_derived_source_anchor() {
+        let input = seq32_derived_input();
+        assert_eq!(
+            input.source_rmsnorm_proof_version,
+            ZKAI_D128_SEQ32_DERIVED_INPUT_PROOF_VERSION
+        );
+        assert_eq!(
+            input.source_rmsnorm_statement_commitment,
+            ZKAI_D128_SEQ32_DERIVED_INPUT_STATEMENT_COMMITMENT
+        );
+        assert_eq!(
+            input.source_down_projection_statement_commitment,
+            ZKAI_D128_SEQ32_DERIVED_DOWN_PROJECTION_STATEMENT_COMMITMENT
+        );
+        assert_eq!(
+            input.input_activation_commitment,
+            ZKAI_D128_SEQ32_DERIVED_INPUT_ACTIVATION_COMMITMENT
+        );
+        assert_eq!(
+            input.residual_delta_commitment,
+            ZKAI_D128_SEQ32_DERIVED_RESIDUAL_DELTA_COMMITMENT
+        );
+        assert_eq!(
+            input.output_activation_commitment,
+            ZKAI_D128_SEQ32_DERIVED_OUTPUT_ACTIVATION_COMMITMENT
+        );
+        assert_eq!(
+            input.residual_add_row_commitment,
+            ZKAI_D128_SEQ32_DERIVED_RESIDUAL_ADD_ROW_COMMITMENT
+        );
+        expect_str_list_eq(
+            input.validation_commands.iter().map(String::as_str),
+            EXPECTED_SEQ32_DERIVED_VALIDATION_COMMANDS,
+            "seq32-derived validation commands",
+        )
+        .expect("seq32-derived validation command anchor");
+    }
+
+    #[test]
     fn residual_add_pcs_config_uses_shared_publication_v1_profile() {
         let actual = residual_add_pcs_config();
         let expected = crate::stwo_backend::publication_v1_pcs_config();
@@ -1277,6 +1324,20 @@ mod tests {
         .unwrap_err();
         assert!(error.to_string().contains(
             "attention_derived anchor: source_down_projection_statement_commitment mismatch"
+        ));
+    }
+
+    #[test]
+    fn residual_add_rejects_mixed_seq32_source_anchor() {
+        let mut value: Value = serde_json::from_str(SEQ32_DERIVED_INPUT_JSON).expect("json");
+        value["source_down_projection_statement_commitment"] =
+            Value::String(ZKAI_D128_DOWN_PROJECTION_STATEMENT_COMMITMENT.to_string());
+        let error = zkai_d128_residual_add_input_from_json_str(
+            &serde_json::to_string(&value).expect("json"),
+        )
+        .unwrap_err();
+        assert!(error.to_string().contains(
+            "seq32_derived anchor: source_down_projection_statement_commitment mismatch"
         ));
     }
 

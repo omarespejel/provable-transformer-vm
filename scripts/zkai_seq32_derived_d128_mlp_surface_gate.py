@@ -90,6 +90,7 @@ INPUT_RESULT = "GO_VALUE_CONNECTED_SEQ32_DERIVED_D128_INPUT_ARTIFACT"
 DECISION = "GO_SEQ32_DERIVED_D128_MLP_SURFACE_INPUTS_READY_FOR_NATIVE_PROOF"
 RESULT = "SEQ32_DERIVED_D128_MLP_SURFACE_REGENERATED_FROM_VALUE_COMPATIBLE_ATTENTION_OUTPUTS"
 PAYLOAD_DOMAIN = "ptvm:zkai:seq32-derived-d128-mlp-surface:v1"
+EXPECTED_MUTATION_CASE_COUNT = 7
 
 WIDTH = 128
 EXPECTED_SEQ32_ATTENTION = {
@@ -205,6 +206,12 @@ NON_CLAIMS = [
     "not a matched external zkML benchmark",
     "not timing evidence",
     "not production-ready zkML",
+]
+INPUT_NON_CLAIMS = [
+    "not a learned model projection",
+    "not a full transformer block proof",
+    "not a NANOZK benchmark",
+    "not proof-size evidence",
 ]
 
 TSV_COLUMNS = (
@@ -366,12 +373,7 @@ def build_seq32_input_payload() -> dict[str, Any]:
             "sum_q8": sum(values),
             "adapter_mismatches_against_self": 0,
         },
-        "non_claims": [
-            "not a learned model projection",
-            "not a full transformer block proof",
-            "not a NANOZK benchmark",
-            "not proof-size evidence",
-        ],
+        "non_claims": list(INPUT_NON_CLAIMS),
         "validation_commands": list(VALIDATION_COMMANDS),
     }
     payload["payload_commitment"] = payload_commitment(payload)
@@ -399,7 +401,7 @@ def validate_seq32_input_payload(payload: Any) -> None:
         "schema": INPUT_SCHEMA,
         "decision": INPUT_DECISION,
         "result": INPUT_RESULT,
-        "non_claims": payload["non_claims"],
+        "non_claims": INPUT_NON_CLAIMS,
         "validation_commands": VALIDATION_COMMANDS,
     }
     for field, expected in constants.items():
@@ -471,12 +473,26 @@ def build_rmsnorm_wrapper(values: list[int]) -> dict[str, Any]:
 def _add_bridge_anchor(module: Any, rmsnorm_payload: dict[str, Any]) -> None:
     module.APPROVED_SOURCE_ANCHORS.add((SEQ32_RMS_STMT, SEQ32_RMS_PUB, SEQ32_RMS_PNP, SEQ32_RMS_OUT))
     module.SOURCE_PAYLOAD_COMMANDS[(SEQ32_RMS_STMT, SEQ32_RMS_PUB, SEQ32_RMS_OUT)] = list(SEQ32_BRIDGE_COMMANDS)
-    module.ALLOWED_VALIDATION_COMMANDS = tuple(list(module.ALLOWED_VALIDATION_COMMANDS) + [SEQ32_BRIDGE_COMMANDS])
+    if not any(list(commands) == SEQ32_BRIDGE_COMMANDS for commands in module.ALLOWED_VALIDATION_COMMANDS):
+        module.ALLOWED_VALIDATION_COMMANDS = tuple(list(module.ALLOWED_VALIDATION_COMMANDS) + [SEQ32_BRIDGE_COMMANDS])
     if rmsnorm_payload["statement_commitment"] != SEQ32_RMS_STMT:
         raise Seq32DerivedD128MlpSurfaceError("cannot add bridge anchor for non-seq32 RMSNorm payload")
 
 
+def _has_anchor(anchors: Any, **expected: Any) -> bool:
+    return any(
+        isinstance(anchor, dict) and all(anchor.get(field) == value for field, value in expected.items())
+        for anchor in anchors
+    )
+
+
 def _add_gate_value_anchor(module: Any) -> None:
+    if _has_anchor(
+        module.SOURCE_BRIDGE_ANCHORS,
+        kind="seq32_derived",
+        statement_commitment=SEQ32_BRIDGE_STMT,
+    ):
+        return
     anchor = {
         "kind": "seq32_derived",
         "statement_commitment": SEQ32_BRIDGE_STMT,
@@ -488,6 +504,12 @@ def _add_gate_value_anchor(module: Any) -> None:
 
 
 def _add_activation_anchor(module: Any) -> None:
+    if _has_anchor(
+        module.SOURCE_GATE_VALUE_ANCHORS,
+        kind="seq32_derived",
+        statement_commitment=SEQ32_GATE_VALUE_STMT,
+    ):
+        return
     anchor = {
         "kind": "seq32_derived",
         "statement_commitment": SEQ32_GATE_VALUE_STMT,
@@ -501,6 +523,13 @@ def _add_activation_anchor(module: Any) -> None:
 
 
 def _add_down_anchor(module: Any, placeholder: bool = False) -> dict[str, str | list[str]]:
+    for anchor_value in module.SOURCE_ACTIVATION_ANCHORS:
+        if (
+            isinstance(anchor_value, dict)
+            and anchor_value.get("kind") == "seq32_derived"
+            and anchor_value.get("statement_commitment") == SEQ32_ACT_STMT
+        ):
+            return anchor_value
     anchor: dict[str, str | list[str]] = {
         "kind": "seq32_derived",
         "statement_commitment": SEQ32_ACT_STMT,
@@ -1005,6 +1034,8 @@ def main() -> int:
     if args.write_json or args.write_tsv:
         write_summary(args.write_json, args.write_tsv)
     mutation_result = run_mutations()
+    if mutation_result["case_count"] != EXPECTED_MUTATION_CASE_COUNT:
+        raise Seq32DerivedD128MlpSurfaceError("mutation inventory size drift")
     if not mutation_result["all_mutations_rejected"]:
         raise Seq32DerivedD128MlpSurfaceError("mutation inventory accepted an invalid payload")
     print(

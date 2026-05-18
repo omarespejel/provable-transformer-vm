@@ -2093,6 +2093,44 @@ Larger native boundary source-compatibility reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
+Latest seq32-derived d128 native MLP surface: issue `#674` is now a
+correctness GO for the next larger-boundary implementation attempt. The d128
+RMSNorm/MLP input has been regenerated from the selected two-head seq32
+attention output vector with `0 / 128` adapter mismatches. The regenerated
+fused RMSNorm/MLP proof verifies at `74,511` JSON proof bytes / `24,272` local
+typed bytes; the six separate regenerated component proofs total `181,194`
+JSON bytes / `54,336` typed bytes, so MLP-side fusion saves `106,683` JSON
+bytes / `30,064` typed bytes (`0.446702x` typed ratio). The honest
+value-compatible two-proof frontier for the next attack is now `47,188` typed
+bytes (`22,916` seq32 attention + `24,272` MLP), not the older `45,492` typed
+target. This is not one native attention-plus-MLP proof object, not a full
+block, not a NANOZK proof-size win, and not timing evidence. See
+`docs/engineering/zkai-seq32-derived-d128-native-mlp-surface-2026-05-18.md`.
+
+Seq32-derived d128 native MLP reproducibility metadata:
+
+- Backend binary: `zkai_d128_rmsnorm_mlp_fused_proof`.
+- Backend version: `stwo-d128-rmsnorm-mlp-fused-air-proof-v1`.
+- Rust toolchain: `nightly-2025-07-14`.
+- Timing mode: proof-size/accounting only; no timing claim and no median-of-5.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-seq32-derived-d128-native-mlp-surface-2026-05.json`,
+  `docs/engineering/evidence/zkai-seq32-derived-d128-native-mlp-surface-2026-05.tsv`,
+  `docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json`,
+  `docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.envelope.json`,
+  and
+  `docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-binary-accounting-2026-05.json`.
+- Local validation commands:
+  `python3.10 scripts/zkai_seq32_derived_d128_mlp_surface_gate.py --write-inputs --write-json docs/engineering/evidence/zkai-seq32-derived-d128-native-mlp-surface-2026-05.json --write-tsv docs/engineering/evidence/zkai-seq32-derived-d128-native-mlp-surface-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_seq32_derived_d128_mlp_surface_gate.py scripts/tests/test_zkai_seq32_derived_d128_mlp_surface_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_seq32_derived_d128_mlp_surface_gate`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend d128_native --lib`;
+  `python3 scripts/research_issue_lint.py --repo-root .`;
+  `python3 scripts/paper/paper_preflight.py --repo-root .`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
 1. Treat `rmsnorm_mlp_fused` as the current positive MLP-side fusion result:
    the native fused proof saves `32,144` local typed bytes (`56.4167%`) versus
    separate RMSNorm, bridge, gate/value, activation, down-projection, and

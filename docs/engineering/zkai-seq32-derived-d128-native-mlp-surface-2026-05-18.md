@@ -107,6 +107,31 @@ breaking value binding or worsening opening geometry.
 - Tests:
   `scripts/tests/test_zkai_seq32_derived_d128_mlp_surface_gate.py`
 
+## Reproducibility Metadata
+
+- Backend binary:
+  `zkai_d128_rmsnorm_mlp_fused_proof`.
+- Backend version:
+  `stwo-d128-rmsnorm-mlp-fused-air-proof-v1`.
+- Rust toolchain:
+  `nightly-2025-07-14`.
+- Timing mode:
+  proof-size/accounting only; no timing claim and no median-of-5 run.
+- Proof generation count:
+  one regenerated fused proof plus six regenerated component proofs.
+- Local gate:
+  `just gate` passed locally with `14 / 14` steps.
+- Mutation inventory:
+  exactly `7 / 7` cases rejected; mutation-count drift is itself gated.
+- Source binding:
+  the gate pins source artifact id, path, raw SHA-256, and canonical payload
+  SHA-256 for the seq32 attention source, seq32-derived d128 input, and
+  seq32-derived RMSNorm wrapper.
+- Rust compatibility:
+  trusted-core parser tests now include seq32-derived positive anchors and
+  mixed-anchor rejection for bridge, gate/value, activation/SwiGLU,
+  down-projection, residual-add, and fused RMSNorm/MLP inputs.
+
 ## Reproduce
 
 ```bash
