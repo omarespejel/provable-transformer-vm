@@ -135,8 +135,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 129. `docs/engineering/zkai-native-block-boundary-pivot-selector-2026-05-18.md`
 130. `docs/engineering/zkai-larger-native-block-boundary-amortization-budget-2026-05-18.md`
 131. `docs/engineering/zkai-larger-native-boundary-candidate-selector-2026-05-18.md`
-132. `docs/engineering/reproducibility.md`
-133. `git status --short --branch`
+132. `docs/engineering/zkai-larger-native-boundary-source-compatibility-2026-05-18.md`
+133. `docs/engineering/reproducibility.md`
+134. `git status --short --branch`
 
 ## What this repository is now
 

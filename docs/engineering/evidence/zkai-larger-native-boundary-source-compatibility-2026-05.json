@@ -1,0 +1,276 @@
+{
+  "adapter_policy": {
+    "bias": "((7 * row_index + 3) % 9) - 4",
+    "denominator": 8,
+    "mix_coeff": 5,
+    "primary_coeff": 9,
+    "row_count": 128,
+    "source_index_policy": "primary=row_index%flat_attention_cells; mix=(17*row_index+11)%flat_attention_cells"
+  },
+  "decision": "NO_GO_CURRENT_D128_MLP_INPUT_NOT_VALUE_COMPATIBLE_WITH_TWO_HEAD_SEQ32_ATTENTION",
+  "interpretation": {
+    "adapter_value_binding_preserved": false,
+    "native_larger_boundary_proof_object_exists": false,
+    "next_experiment": "regenerate a seq32-derived d128 RMSNorm/MLP input, then retry the larger native proof object",
+    "why_no_go": "The current d128 RMSNorm/MLP input is value-derived from the d8 attention control, not from the selected two-head seq32 attention candidate."
+  },
+  "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/673",
+  "mutation_inventory": {
+    "cases": [
+      "decision_promoted_to_go",
+      "seq32_mismatch_count_drift",
+      "d8_control_mismatch_drift",
+      "matched_frontier_drift",
+      "selected_route_drift",
+      "native_proof_object_overclaim",
+      "adapter_binding_ignored",
+      "missing_non_claim",
+      "source_commitment_drift",
+      "payload_commitment_drift"
+    ]
+  },
+  "mutation_result": {
+    "cases": [
+      {
+        "name": "decision_promoted_to_go",
+        "reason": "decision drift",
+        "rejected": true
+      },
+      {
+        "name": "seq32_mismatch_count_drift",
+        "reason": "summary.seq32_adapter_mismatches drift",
+        "rejected": true
+      },
+      {
+        "name": "d8_control_mismatch_drift",
+        "reason": "summary.d8_adapter_mismatches drift",
+        "rejected": true
+      },
+      {
+        "name": "matched_frontier_drift",
+        "reason": "selector_context.matched_two_proof_frontier_typed_bytes drift",
+        "rejected": true
+      },
+      {
+        "name": "selected_route_drift",
+        "reason": "selector_context.selected_route drift",
+        "rejected": true
+      },
+      {
+        "name": "native_proof_object_overclaim",
+        "reason": "interpretation.native_larger_boundary_proof_object_exists drift",
+        "rejected": true
+      },
+      {
+        "name": "adapter_binding_ignored",
+        "reason": "interpretation.adapter_value_binding_preserved drift",
+        "rejected": true
+      },
+      {
+        "name": "missing_non_claim",
+        "reason": "non-claims drift",
+        "rejected": true
+      },
+      {
+        "name": "source_commitment_drift",
+        "reason": "source commitment drift",
+        "rejected": true
+      },
+      {
+        "name": "payload_commitment_drift",
+        "reason": "payload commitment drift",
+        "rejected": true
+      }
+    ]
+  },
+  "non_claims": [
+    "not a native larger-boundary proof object",
+    "not proof-size savings",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not a full transformer block proof",
+    "not permission to ignore adapter value binding",
+    "not a reason to promote the seq32 selector to an implementation result"
+  ],
+  "payload_commitment": "sha256:dfa607c1520380a6478eb4f7ad2d39377e29bfc66e540410088beaa1dd5ba0a0",
+  "result": "REGENERATE_SEQ32_DERIVED_D128_MLP_SURFACE_BEFORE_NATIVE_PROOF_OBJECT",
+  "schema": "zkai-larger-native-boundary-source-compatibility-gate-v1",
+  "selector_context": {
+    "matched_two_proof_frontier_typed_bytes": 45492,
+    "selected_attention_typed_bytes": 22916,
+    "selected_lookup_claims": 1184,
+    "selected_mlp_typed_bytes": 22576,
+    "selected_route": "two_head_seq32_fused_attention"
+  },
+  "source_artifacts": [
+    {
+      "id": "d8_attention_control",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json",
+      "schema": "zkai-attention-kv-stwo-native-d8-bounded-softmax-table-air-proof-input-v1",
+      "sha256": "00bb82158c5f8cd55a3d2ada5a3fa8a66382c164695240b90230866e22bbbcb7"
+    },
+    {
+      "id": "two_head_seq32_attention_candidate",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json",
+      "schema": "zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-air-proof-input-v1",
+      "sha256": "e2907a3762a10247f9c2cb3232961c9ed31084f481e14f9b6f2c552bbccd0131"
+    },
+    {
+      "id": "attention_derived_d128_mlp_input",
+      "path": "docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json",
+      "schema": "zkai-d128-rmsnorm-mlp-fused-air-proof-input-v1",
+      "sha256": "ce4bdbb3ca7a3e3686ae68485fcd6b11f1e425ee5d62d2556edcbd8b4d91bc80"
+    },
+    {
+      "id": "larger_native_boundary_selector",
+      "path": "docs/engineering/evidence/zkai-larger-native-boundary-candidate-selector-2026-05.json",
+      "schema": "zkai-larger-native-boundary-candidate-selector-v1",
+      "sha256": "fddb13b2fc8edec7c07cb201a8f0f864910fb40be5646c27f6144396e3a2ea9d"
+    }
+  ],
+  "source_commitment": "blake2b-256:d38608bc34361a20661dcf10476294503ff039c2aa95af8d620ca8a209fe3ed8",
+  "summary": {
+    "d8_adapter_matches": 128,
+    "d8_adapter_mismatches": 0,
+    "d8_attention_flat_cells": 64,
+    "d8_attention_output_rows": 8,
+    "first_seq32_mismatches": [
+      {
+        "bias_q8": -3,
+        "expected_mlp_input_q8": 1,
+        "floor_remainder_q8": 6,
+        "mix_q8": 4,
+        "mix_source_index": 28,
+        "numerator_q8": -10,
+        "output_q8": -2,
+        "primary_q8": -3,
+        "primary_source_index": 1,
+        "row_index": 1
+      },
+      {
+        "bias_q8": 4,
+        "expected_mlp_input_q8": 2,
+        "floor_remainder_q8": 0,
+        "mix_q8": -1,
+        "mix_source_index": 45,
+        "numerator_q8": 8,
+        "output_q8": 1,
+        "primary_q8": 1,
+        "primary_source_index": 2,
+        "row_index": 2
+      },
+      {
+        "bias_q8": 2,
+        "expected_mlp_input_q8": -2,
+        "floor_remainder_q8": 3,
+        "mix_q8": 1,
+        "mix_source_index": 62,
+        "numerator_q8": -29,
+        "output_q8": -4,
+        "primary_q8": -4,
+        "primary_source_index": 3,
+        "row_index": 3
+      },
+      {
+        "bias_q8": -2,
+        "expected_mlp_input_q8": 0,
+        "floor_remainder_q8": 0,
+        "mix_q8": 0,
+        "mix_source_index": 96,
+        "numerator_q8": 16,
+        "output_q8": 2,
+        "primary_q8": 2,
+        "primary_source_index": 5,
+        "row_index": 5
+      },
+      {
+        "bias_q8": -4,
+        "expected_mlp_input_q8": 4,
+        "floor_remainder_q8": 6,
+        "mix_q8": 2,
+        "mix_source_index": 113,
+        "numerator_q8": 6,
+        "output_q8": 0,
+        "primary_q8": 0,
+        "primary_source_index": 6,
+        "row_index": 6
+      },
+      {
+        "bias_q8": 3,
+        "expected_mlp_input_q8": 1,
+        "floor_remainder_q8": 1,
+        "mix_q8": 1,
+        "mix_source_index": 130,
+        "numerator_q8": 17,
+        "output_q8": 2,
+        "primary_q8": 1,
+        "primary_source_index": 7,
+        "row_index": 7
+      },
+      {
+        "bias_q8": 1,
+        "expected_mlp_input_q8": 4,
+        "floor_remainder_q8": 3,
+        "mix_q8": -3,
+        "mix_source_index": 147,
+        "numerator_q8": -5,
+        "output_q8": -1,
+        "primary_q8": 1,
+        "primary_source_index": 8,
+        "row_index": 8
+      },
+      {
+        "bias_q8": -1,
+        "expected_mlp_input_q8": 1,
+        "floor_remainder_q8": 2,
+        "mix_q8": 1,
+        "mix_source_index": 164,
+        "numerator_q8": -14,
+        "output_q8": -2,
+        "primary_q8": -2,
+        "primary_source_index": 9,
+        "row_index": 9
+      },
+      {
+        "bias_q8": -3,
+        "expected_mlp_input_q8": 1,
+        "floor_remainder_q8": 1,
+        "mix_q8": 2,
+        "mix_source_index": 181,
+        "numerator_q8": 25,
+        "output_q8": 3,
+        "primary_q8": 2,
+        "primary_source_index": 10,
+        "row_index": 10
+      },
+      {
+        "bias_q8": 4,
+        "expected_mlp_input_q8": 1,
+        "floor_remainder_q8": 0,
+        "mix_q8": 1,
+        "mix_source_index": 198,
+        "numerator_q8": 0,
+        "output_q8": 0,
+        "primary_q8": -1,
+        "primary_source_index": 11,
+        "row_index": 11
+      }
+    ],
+    "mlp_rmsnorm_input_rows": 128,
+    "seq32_adapter_matches": 15,
+    "seq32_adapter_mismatches": 113,
+    "seq32_attention_flat_cells": 512,
+    "seq32_attention_output_rows": 64,
+    "seq32_mismatch_share": 0.882812
+  },
+  "validation_commands": [
+    "python3 scripts/zkai_larger_native_boundary_source_compatibility_gate.py --write-json docs/engineering/evidence/zkai-larger-native-boundary-source-compatibility-2026-05.json --write-tsv docs/engineering/evidence/zkai-larger-native-boundary-source-compatibility-2026-05.tsv",
+    "python3 -m py_compile scripts/zkai_larger_native_boundary_source_compatibility_gate.py scripts/tests/test_zkai_larger_native_boundary_source_compatibility_gate.py",
+    "python3 -m unittest scripts.tests.test_zkai_larger_native_boundary_source_compatibility_gate",
+    "python3 scripts/research_issue_lint.py --repo-root .",
+    "python3 scripts/paper/paper_preflight.py --repo-root .",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}

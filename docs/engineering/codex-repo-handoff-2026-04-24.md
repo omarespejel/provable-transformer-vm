@@ -2044,6 +2044,40 @@ Larger native boundary candidate selector reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
+Latest larger native boundary source-compatibility gate: issue `#673` is a
+correctness NO-GO for immediately implementing the selected two-head seq32
+attention plus current d128 MLP native object. The d8 attention control has
+`0 / 128` adapter mismatches against the current attention-derived d128
+RMSNorm/MLP input, but the selected two-head seq32 candidate has `113 / 128`
+adapter mismatches (`15 / 128` matches). The selected seq32 route remains
+interesting (`1,184` lookup claims, `22,916` local typed attention bytes, and a
+`45,492` typed-byte matched two-proof target), but the current MLP input is
+value-derived from d8, not seq32. Do not build or describe a larger native
+attention-plus-MLP proof object until the seq32-derived d128 MLP surface is
+regenerated. Follow-up issue `#674` tracks that regeneration. See
+`docs/engineering/zkai-larger-native-boundary-source-compatibility-2026-05-18.md`.
+
+Larger native boundary source-compatibility reproducibility metadata:
+
+- Timing mode: compatibility/validation only; no new proof object, no timing,
+  and no proof-size claim.
+- Gate schema: `zkai-larger-native-boundary-source-compatibility-gate-v1`.
+- Decision:
+  `NO_GO_CURRENT_D128_MLP_INPUT_NOT_VALUE_COMPATIBLE_WITH_TWO_HEAD_SEQ32_ATTENTION`.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-larger-native-boundary-source-compatibility-2026-05.json`
+  and
+  `docs/engineering/evidence/zkai-larger-native-boundary-source-compatibility-2026-05.tsv`.
+- Local validation commands:
+  `python3 scripts/zkai_larger_native_boundary_source_compatibility_gate.py --write-json docs/engineering/evidence/zkai-larger-native-boundary-source-compatibility-2026-05.json --write-tsv docs/engineering/evidence/zkai-larger-native-boundary-source-compatibility-2026-05.tsv`;
+  `python3 -m py_compile scripts/zkai_larger_native_boundary_source_compatibility_gate.py scripts/tests/test_zkai_larger_native_boundary_source_compatibility_gate.py`;
+  `python3 -m unittest scripts.tests.test_zkai_larger_native_boundary_source_compatibility_gate`;
+  `python3 scripts/research_issue_lint.py --repo-root .`;
+  `python3 scripts/paper/paper_preflight.py --repo-root .`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
 1. Treat `rmsnorm_mlp_fused` as the current positive MLP-side fusion result:
    the native fused proof saves `32,144` local typed bytes (`56.4167%`) versus
    separate RMSNorm, bridge, gate/value, activation, down-projection, and
