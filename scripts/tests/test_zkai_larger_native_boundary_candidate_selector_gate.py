@@ -92,6 +92,14 @@ class LargerNativeBoundaryCandidateSelectorGateTests(unittest.TestCase):
         self.assertEqual([item["name"] for item in results], list(gate.MUTATION_NAMES))
         self.assertTrue(all(item["rejected"] for item in results))
 
+    def test_envelope_digest_mutation_targets_envelope_id(self):
+        payload = gate.build_payload()
+        cases = dict(gate.mutation_cases(payload))
+        cases["source_artifact_envelope_digest_drift"](payload)
+        by_id = {artifact["id"]: artifact for artifact in payload["source_artifacts"]}
+        self.assertEqual(by_id["d8_fused_attention_envelope"]["sha256"], "0" * 64)
+        self.assertNotEqual(by_id["candidate_accounting"]["sha256"], "0" * 64)
+
     def test_rejects_selected_candidate_drift(self):
         payload = self.payload()
         payload["summary"]["selected_candidate"] = "d16_fused_attention"
