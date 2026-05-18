@@ -5,13 +5,16 @@ from __future__ import annotations
 
 import argparse
 from collections.abc import Callable
+import contextlib
 import copy
 import csv
 import hashlib
 import io
 import json
+import os
 import pathlib
 import sys
+import tempfile
 from typing import Any
 
 
@@ -501,18 +504,62 @@ def mutation_result(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def output_path(path: pathlib.Path, label: str) -> pathlib.Path:
-    resolved = path.resolve()
-    evidence = EVIDENCE_DIR.resolve()
-    if not resolved.is_relative_to(evidence):
+    raw_path = path if path.is_absolute() else ROOT / path
+    if raw_path.is_symlink():
+        raise LargerNativeBoundaryCompatibilityError(f"{label} must not be a symlink: {raw_path}")
+    if EVIDENCE_DIR.is_symlink():
+        raise LargerNativeBoundaryCompatibilityError(f"evidence directory must not be a symlink: {EVIDENCE_DIR}")
+    try:
+        root = ROOT.resolve(strict=True)
+        evidence = EVIDENCE_DIR.resolve(strict=True)
+        parent = raw_path.parent.resolve(strict=True)
+    except OSError as err:
+        raise LargerNativeBoundaryCompatibilityError(f"failed to resolve {label}: {err}") from err
+    if not evidence.is_relative_to(root):
+        raise LargerNativeBoundaryCompatibilityError(f"evidence directory escapes repo root: {EVIDENCE_DIR}")
+    if parent != evidence:
         raise LargerNativeBoundaryCompatibilityError(f"{label} escapes evidence directory")
-    if path.exists() and path.is_symlink():
-        raise LargerNativeBoundaryCompatibilityError(f"{label} must not be a symlink")
-    return path
+    if raw_path.exists() and raw_path.is_dir():
+        raise LargerNativeBoundaryCompatibilityError(f"{label} must be a file: {raw_path}")
+    return raw_path
+
+
+def write_text_atomic(path: pathlib.Path, text: str) -> None:
+    target = output_path(path, "output path")
+    tmp_path: pathlib.Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            "w",
+            encoding="utf-8",
+            dir=target.parent,
+            prefix=f".{target.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            tmp_path = pathlib.Path(handle.name)
+            handle.write(text)
+            handle.flush()
+            os.fsync(handle.fileno())
+        tmp_path.replace(target)
+        try:
+            dir_fd = os.open(target.parent, os.O_RDONLY)
+        except OSError:
+            dir_fd = None
+        if dir_fd is not None:
+            try:
+                os.fsync(dir_fd)
+            finally:
+                os.close(dir_fd)
+    except OSError as err:
+        if tmp_path is not None:
+            with contextlib.suppress(OSError):
+                tmp_path.unlink()
+        raise LargerNativeBoundaryCompatibilityError(f"failed to write {target}: {err}") from err
 
 
 def write_json(path: pathlib.Path, payload: dict[str, Any]) -> None:
-    target = output_path(path, "JSON output path")
-    target.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    validate_payload(payload)
+    write_text_atomic(path, json.dumps(payload, indent=2, sort_keys=True) + "\n")
 
 
 def to_tsv(payload: dict[str, Any]) -> str:
@@ -538,8 +585,8 @@ def to_tsv(payload: dict[str, Any]) -> str:
 
 
 def write_tsv(path: pathlib.Path, payload: dict[str, Any]) -> None:
-    target = output_path(path, "TSV output path")
-    target.write_text(to_tsv(payload), encoding="utf-8")
+    validate_payload(payload)
+    write_text_atomic(path, to_tsv(payload))
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
