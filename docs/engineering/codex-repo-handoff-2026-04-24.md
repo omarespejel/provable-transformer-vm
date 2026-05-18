@@ -1962,25 +1962,39 @@ and
 Validate with
 `python3 scripts/zkai_attention_derived_d128_native_mlp_proof_route_gate.py --write-json docs/engineering/evidence/zkai-attention-derived-d128-native-mlp-proof-route-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-derived-d128-native-mlp-proof-route-2026-05.tsv`.
 
-Current larger native block-boundary amortization budget: issue `#669` turns
-the native block-boundary pivot into a concrete implementation threshold. The
-strict native single proof object is `41,932` typed bytes versus the current
-`40,700` typed-byte local two-proof frontier, so a larger native boundary needs
-to recover `1,233` typed bytes to beat that frontier by one byte. That is only
-`3.8359%` of the checked six-component MLP-side fusion saving (`32,144` typed
-bytes), and a modeled `4%` transfer would land at `40,646` typed bytes, `54`
-bytes below the local frontier. This is a local GO for a bounded larger-boundary
-implementation attempt. It is not a NANOZK comparison: beating the
+Latest larger native block-boundary amortization budget: issue `#669` turns the
+pivot route into a strict implementation threshold. The strict native single
+object is `41,932` typed bytes versus the `40,700` typed-byte two-proof
+frontier, so the next larger native boundary must recover `1,233` typed bytes
+to beat the local frontier by one byte. That is only `3.8359%` of the checked
+six-component MLP-side fusion saving (`32,144` typed bytes), and a modeled `4%`
+transfer would land at `40,646` typed bytes, `54` bytes below the local
+frontier. This is a local GO for the next implementation attack, not an
+external comparison. The NANOZK guardrail remains hard: beating the
 paper-reported `6,900` byte context row from the strict native single object
-would require `35,033` typed bytes (`108.9877%` of the MLP-side fusion saving),
-and the workload/object class is still not matched. Evidence:
+would require removing `35,033` typed bytes (`108.9877%` of the MLP-side fusion
+saving), and the workload/object class is still not matched. The gate rejects
+`13 / 13` NANOZK, selected-route, metric, compact-preprocessed promotion, GKR
+unparking, interpretation, source-descriptor, non-claim, validation-command,
+and payload mutations. See
 `docs/engineering/zkai-larger-native-block-boundary-amortization-budget-2026-05-18.md`.
-Machine-readable evidence:
-`docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.json`
-and
-`docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.tsv`.
-Validate with
-`python3 scripts/zkai_larger_native_block_boundary_amortization_budget_gate.py --write-json docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.json --write-tsv docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.tsv`.
+
+Larger native block-boundary amortization reproducibility metadata:
+
+- Timing mode: budget/validation only; no new proof object, no timing, and no
+  median-of-5 claim.
+- Backend/source version: no new proving backend; budget gate schema
+  `zkai-larger-native-block-boundary-amortization-budget-v1`, decision
+  `GO_ATTACK_LARGER_NATIVE_BOUNDARY_LOCAL_FRONTIER_BUDGET`, and source artifact
+  SHA-256 descriptors embedded in the gate JSON.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.json`
+  and
+  `docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.tsv`.
+- Gate command:
+  `python3 scripts/zkai_larger_native_block_boundary_amortization_budget_gate.py --write-json docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.json --write-tsv docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.tsv`.
+- Local tests:
+  `python3 -m unittest scripts.tests.test_zkai_larger_native_block_boundary_amortization_budget_gate`.
 
 1. Treat `rmsnorm_mlp_fused` as the current positive MLP-side fusion result:
    the native fused proof saves `32,144` local typed bytes (`56.4167%`) versus

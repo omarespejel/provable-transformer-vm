@@ -51,6 +51,21 @@ class LargerNativeBlockBoundaryAmortizationBudgetGateTest(unittest.TestCase):
         with self.assertRaisesRegex(gate.AmortizationBudgetError, "single typed drift"):
             gate.validate_source_numbers(sources)
 
+    def test_compact_selector_source_number_is_pinned(self) -> None:
+        sources = gate.load_sources()
+        sources["pivot"] = dict(sources["pivot"])
+        sources["pivot"]["summary"] = dict(sources["pivot"]["summary"])
+        sources["pivot"]["summary"]["compact_selector_typed_bytes"] = 40_700
+        with self.assertRaisesRegex(gate.AmortizationBudgetError, "pivot compact selector typed drift"):
+            gate.validate_source_numbers(sources)
+
+    def test_post_tail_worst_label_source_number_is_pinned(self) -> None:
+        sources = gate.load_sources()
+        sources["post_tail"] = dict(sources["post_tail"])
+        sources["post_tail"]["post_tail_worst_label_typed_bytes"] = 40_700
+        with self.assertRaisesRegex(gate.AmortizationBudgetError, "post-tail worst-label typed drift"):
+            gate.validate_source_numbers(sources)
+
     def test_source_ratio_type_drift_rejected(self) -> None:
         sources = gate.load_sources()
         sources["mlp_fused"] = dict(sources["mlp_fused"])

@@ -2079,6 +2079,10 @@ Larger native block-boundary amortization reproducibility metadata:
 
 - Timing mode: budget/validation only; no new proof object, no timing, and no
   median-of-5 claim.
+- Backend/source version: no new proving backend; budget gate schema
+  `zkai-larger-native-block-boundary-amortization-budget-v1`, decision
+  `GO_ATTACK_LARGER_NATIVE_BOUNDARY_LOCAL_FRONTIER_BUDGET`, and source artifact
+  SHA-256 descriptors embedded in the gate JSON.
 - Evidence paths:
   `docs/engineering/evidence/zkai-larger-native-block-boundary-amortization-budget-2026-05.json`
   and
