@@ -184,18 +184,27 @@ This repository currently has three live lanes.
      `docs/engineering/zkai-seq32-derived-d128-native-mlp-surface-2026-05-18.md`
      and
      `docs/engineering/zkai-seq32-value-compatible-boundary-frontier-2026-05-18.md`.
-   - The next native attention-plus-MLP probe now has one real Stwo proof
-     object over the d8 fused attention + Softmax-table LogUp surface and the
-     attention-derived d128 RMSNorm-MLP fused surface. It verifies locally at
-     `40,668` typed proof bytes / `115,924` JSON proof bytes, saving only `32`
-     typed bytes and `334` JSON proof bytes versus the prior two-proof target.
-     The route needs explicit `pcs_lifting_log_size = 19` because the combined
-     proof has heterogeneous tree sizes. The attention-output-to-d128-input
-     adapter is still statement-bound, not AIR-proven, and matching NANOZK's
-     paper-reported `6,900` byte row would still require removing `33,768`
-     typed bytes (`83.0333%`). Treat this as a narrow one-proof-object
-     feasibility result, not a compression breakthrough or NANOZK win; see
-     `docs/engineering/zkai-native-attention-mlp-single-proof-object-2026-05-16.md`.
+   - The current seq32+d128 native attention-plus-MLP proof object now verifies
+     locally as one real Stwo proof over the selected two-head `seq32` fused
+     attention surface, a native attention-output-to-d128 adapter AIR, and the
+     seq32-derived d128 RMSNorm-MLP fused surface. It is `42,068` typed proof
+     bytes / `121,996` JSON proof bytes versus the matched value-compatible
+     two-proof frontier at `47,188` typed bytes / `140,838` JSON proof bytes,
+     saving `5,120` typed bytes (`10.8502%`) and `18,842` JSON bytes
+     (`13.3785%`). This is the current local seq32+d128 native-boundary
+     champion, not a full transformer block and not a NANOZK proof-size win;
+     see
+     `docs/engineering/zkai-native-seq32-attention-mlp-single-proof-2026-05-19.md`.
+   - The first seq32+d128 adapter-variant selector is a checked NO-GO for
+     improving that champion through base-cell removal alone. Five variants
+     verify locally: compact base (`42,548` typed bytes), output anchor
+     (`42,976`), RMSNorm-input fused (`42,780`), RMSNorm-input adjacent
+     (`42,156`), and RMSNorm-input post-tail (`42,780`). The best zero-base
+     adjacent layout removes the adapter base trace but still misses the
+     champion by `88` typed bytes because it pays `576` extra FRI/trace
+     decommitment bytes while saving `504` OODS/query bytes. The next attack is
+     query/opening stability, not more base-cell removal; see
+     `docs/engineering/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05-19.md`.
    - The current source-backed adapter frontier is a correctness GO and a
      proof-shape learning result, not a compression breakthrough. The compact
      selector verifies at `40,812` local typed bytes, only `112` typed bytes

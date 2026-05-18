@@ -165,17 +165,17 @@ const ADAPTER_COLUMN_IDS: [&str; ADAPTER_TRACE_COLUMNS] = [
 const DUPLICATE_ADAPTER_BACKEND_VERSION: &str =
     ZKAI_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_BACKEND_VERSION;
 const DUPLICATE_SELECTOR_ADAPTER_BACKEND_VERSION: &str =
-    "stwo-native-attention-mlp-single-proof-object-duplicate-adapter-selector-v1";
+    "stwo-native-seq32-attention-mlp-single-proof-object-duplicate-adapter-selector-v1";
 const COMPACT_ADAPTER_BACKEND_VERSION: &str =
-    "stwo-native-attention-mlp-single-proof-object-compact-adapter-selector-v1";
+    "stwo-native-seq32-attention-mlp-single-proof-object-compact-adapter-selector-v1";
 const PREPROCESSED_OUTPUT_ANCHOR_ADAPTER_BACKEND_VERSION: &str =
-    "stwo-native-attention-mlp-single-proof-object-preprocessed-output-anchor-adapter-v1";
+    "stwo-native-seq32-attention-mlp-single-proof-object-preprocessed-output-anchor-adapter-v1";
 const RMSNORM_INPUT_FUSED_ADAPTER_BACKEND_VERSION: &str =
-    "stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-adapter-v1";
+    "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adapter-v1";
 const RMSNORM_INPUT_FUSED_ADJACENT_ADAPTER_BACKEND_VERSION: &str =
-    "stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1";
+    "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1";
 const RMSNORM_INPUT_FUSED_POST_TAIL_ADAPTER_BACKEND_VERSION: &str =
-    "stwo-native-attention-mlp-single-proof-object-rmsnorm-input-fused-post-tail-fixed-v1";
+    "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-post-tail-fixed-v1";
 const EXPECTED_NON_CLAIMS: &[&str] = &[
     "not proof-size savings",
     "not a full transformer block",
@@ -218,112 +218,31 @@ const EXPECTED_VALIDATION_COMMANDS: &[&str] = &[
     "just gate-fast",
     "just gate",
 ];
-const EXPECTED_COMPACT_VALIDATION_COMMANDS: &[&str] = &[
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-compact docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.input.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json > docs/engineering/evidence/zkai-native-attention-mlp-source-backed-adapter-selector-binary-accounting-2026-05.json",
-    "python3 scripts/zkai_native_attention_mlp_source_backed_adapter_selector_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-adapter-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-source-backed-adapter-selector-2026-05.tsv",
-    "python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_source_backed_adapter_selector_gate",
+const EXPECTED_SEQ32_ADAPTER_VARIANT_SELECTOR_VALIDATION_COMMANDS: &[&str] = &[
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-compact docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-compact-adapter-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-seq32-attention-mlp-compact-adapter-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-compact-adapter-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-seq32-attention-mlp-compact-adapter-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-preprocessed-anchor docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-output-anchor-adapter-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-seq32-attention-mlp-output-anchor-adapter-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-output-anchor-adapter-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-seq32-attention-mlp-output-anchor-adapter-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-input-fused-adapter-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-input-fused-adapter-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-adjacent docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-post-tail docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-post-tail-layout-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-post-tail-layout-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-post-tail-layout-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-post-tail-layout-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-compact-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-output-anchor-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-post-tail-layout-2026-05.envelope.json > docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-accounting-2026-05.json",
+    "python3.10 scripts/zkai_native_seq32_attention_mlp_adapter_variant_selector_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05.tsv",
+    "python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_adapter_variant_selector_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_adapter_variant_selector_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adapter_variant_selector_gate",
     "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib",
     "git diff --check",
     "just gate-fast",
     "just gate",
 ];
-const EXPECTED_PREPROCESSED_OUTPUT_ANCHOR_VALIDATION_COMMANDS: &[&str] = &[
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-preprocessed-anchor docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-preprocessed-output-anchor-adapter-2026-05.input.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-source-backed-preprocessed-output-anchor-adapter-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-preprocessed-output-anchor-adapter-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-source-backed-preprocessed-output-anchor-adapter-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-preprocessed-output-anchor-adapter-2026-05.envelope.json > docs/engineering/evidence/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-binary-accounting-2026-05.json",
-    "python3 scripts/zkai_native_attention_mlp_preprocessed_output_anchor_adapter_frontier_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-preprocessed-output-anchor-adapter-frontier-2026-05.tsv",
-    "python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_preprocessed_output_anchor_adapter_frontier_gate",
-    "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib",
-    "git diff --check",
-    "just gate-fast",
-    "just gate",
-];
-const EXPECTED_RMSNORM_INPUT_FUSED_VALIDATION_COMMANDS: &[&str] = &[
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.input.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json > docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-binary-accounting-2026-05.json",
-    "python3 scripts/zkai_native_attention_mlp_rmsnorm_input_fused_adapter_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.tsv",
-    "python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_input_fused_adapter_gate",
-    "cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_fused_adapter --lib",
-    "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib",
-    "git diff --check",
-    "just gate-fast",
-    "just gate",
-];
-const EXPECTED_RMSNORM_INPUT_FUSED_LABEL_SENSITIVITY_VALIDATION_COMMANDS: &[&str] = &[
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-label-probe-a docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-a-2026-05.input.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-a-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-a-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-a-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-label-probe-b docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-b-2026-05.input.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-b-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-b-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-b-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-a-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-b-2026-05.envelope.json > docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-label-probe-accounting-2026-05.json",
-    "python3 scripts/zkai_native_attention_mlp_rmsnorm_label_sensitivity_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-label-sensitivity-2026-05.tsv",
-    "python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_label_sensitivity_gate",
-    "cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_fused_label_probe --lib",
-    "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib",
-    "git diff --check",
-    "just gate-fast",
-    "just gate",
-];
-const EXPECTED_RMSNORM_INPUT_FUSED_LABEL_PROBE_A_VALIDATION_COMMANDS: &[&str] =
-    EXPECTED_RMSNORM_INPUT_FUSED_LABEL_SENSITIVITY_VALIDATION_COMMANDS;
-const EXPECTED_RMSNORM_INPUT_FUSED_LABEL_PROBE_B_VALIDATION_COMMANDS: &[&str] =
-    EXPECTED_RMSNORM_INPUT_FUSED_LABEL_SENSITIVITY_VALIDATION_COMMANDS;
-const EXPECTED_RMSNORM_INPUT_FUSED_ADJACENT_LAYOUT_VALIDATION_COMMANDS: &[&str] = &[
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-adjacent docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.input.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-adjacent-label-probe-a docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.input.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-adjacent-label-probe-b docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.input.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-a-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.envelope.json > docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-accounting-2026-05.json",
-    "python3 scripts/zkai_native_attention_mlp_rmsnorm_adjacent_layout_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-adjacent-layout-2026-05.tsv",
-    "python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_adjacent_layout_gate",
-    "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib",
-    "git diff --check",
-    "just gate-fast",
-    "just gate",
-];
-const EXPECTED_RMSNORM_INPUT_FUSED_POST_TAIL_LAYOUT_VALIDATION_COMMANDS: &[&str] = &[
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-post-tail docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-layout-2026-05.input.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-layout-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-layout-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-layout-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-post-tail-label-probe-a docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-label-probe-a-2026-05.input.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-label-probe-a-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-label-probe-a-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-label-probe-a-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-post-tail-label-probe-b docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-label-probe-b-2026-05.input.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-label-probe-b-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-label-probe-b-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-label-probe-b-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-layout-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-adjacent-label-probe-b-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-layout-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-label-probe-a-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-input-fused-post-tail-label-probe-b-2026-05.envelope.json > docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-post-tail-layout-accounting-2026-05.json",
-    "python3 scripts/zkai_native_attention_mlp_rmsnorm_post_tail_layout_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05.tsv",
-    "python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_rmsnorm_post_tail_layout_gate",
-    "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib",
-    "git diff --check",
-    "just gate-fast",
-    "just gate",
-];
-const EXPECTED_DUPLICATE_SELECTOR_VALIDATION_COMMANDS: &[&str] = &[
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-duplicate-selector docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.input.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.input.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-attention-mlp-source-backed-duplicate-adapter-2026-05.envelope.json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-compact-adapter-2026-05.envelope.json > docs/engineering/evidence/zkai-native-attention-mlp-source-backed-adapter-selector-binary-accounting-2026-05.json",
-    "python3 scripts/zkai_native_attention_mlp_source_backed_adapter_selector_gate.py --write-json docs/engineering/evidence/zkai-native-attention-mlp-source-backed-adapter-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-attention-mlp-source-backed-adapter-selector-2026-05.tsv",
-    "python3 -m unittest scripts.tests.test_zkai_native_attention_mlp_source_backed_adapter_selector_gate",
-    "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib",
-    "git diff --check",
-    "just gate-fast",
-    "just gate",
-];
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ZkAiNativeSeq32AttentionMlpAdapterMode {
     #[serde(rename = "duplicate_base_preprocessed_v1")]
@@ -451,29 +370,22 @@ impl ZkAiNativeSeq32AttentionMlpAdapterMode {
     fn validation_commands(self) -> &'static [&'static str] {
         match self {
             Self::DuplicateBasePreprocessed => EXPECTED_VALIDATION_COMMANDS,
-            Self::DuplicateBasePreprocessedSelector => {
-                EXPECTED_DUPLICATE_SELECTOR_VALIDATION_COMMANDS
+            Self::DuplicateBasePreprocessedSelector
+            | Self::CompactBaseReferencedFixed
+            | Self::PreprocessedOutputAnchorFixed
+            | Self::RmsnormInputFusedFixed => {
+                EXPECTED_SEQ32_ADAPTER_VARIANT_SELECTOR_VALIDATION_COMMANDS
             }
-            Self::CompactBaseReferencedFixed => EXPECTED_COMPACT_VALIDATION_COMMANDS,
-            Self::PreprocessedOutputAnchorFixed => {
-                EXPECTED_PREPROCESSED_OUTPUT_ANCHOR_VALIDATION_COMMANDS
-            }
-            Self::RmsnormInputFusedFixed => EXPECTED_RMSNORM_INPUT_FUSED_VALIDATION_COMMANDS,
             Self::RmsnormInputFusedAdjacentFixed
             | Self::RmsnormInputFusedAdjacentLabelProbeA
-            | Self::RmsnormInputFusedAdjacentLabelProbeB => {
-                EXPECTED_RMSNORM_INPUT_FUSED_ADJACENT_LAYOUT_VALIDATION_COMMANDS
-            }
-            Self::RmsnormInputFusedPostTailFixed
+            | Self::RmsnormInputFusedAdjacentLabelProbeB
+            | Self::RmsnormInputFusedPostTailFixed
             | Self::RmsnormInputFusedPostTailLabelProbeA
             | Self::RmsnormInputFusedPostTailLabelProbeB => {
-                EXPECTED_RMSNORM_INPUT_FUSED_POST_TAIL_LAYOUT_VALIDATION_COMMANDS
+                EXPECTED_SEQ32_ADAPTER_VARIANT_SELECTOR_VALIDATION_COMMANDS
             }
-            Self::RmsnormInputFusedLabelProbeA => {
-                EXPECTED_RMSNORM_INPUT_FUSED_LABEL_PROBE_A_VALIDATION_COMMANDS
-            }
-            Self::RmsnormInputFusedLabelProbeB => {
-                EXPECTED_RMSNORM_INPUT_FUSED_LABEL_PROBE_B_VALIDATION_COMMANDS
+            Self::RmsnormInputFusedLabelProbeA | Self::RmsnormInputFusedLabelProbeB => {
+                EXPECTED_SEQ32_ADAPTER_VARIANT_SELECTOR_VALIDATION_COMMANDS
             }
         }
     }
