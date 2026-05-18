@@ -161,6 +161,7 @@ MUTATION_NAMES = (
     "typed_metric_drift",
     "json_metric_drift",
     "frontier_metric_drift",
+    "issue_hint_drift",
     "nanozk_overclaim_boundary",
     "native_object_overclaim_removed_nonclaim",
     "source_artifact_digest_drift",
@@ -463,6 +464,8 @@ def validate_payload(payload: dict[str, Any]) -> None:
         raise NativeSeq32AttentionMlpSingleProofGateError("decision drift")
     if payload["result"] != RESULT:
         raise NativeSeq32AttentionMlpSingleProofGateError("result drift")
+    if payload["issue_hint"] != ISSUE_HINT:
+        raise NativeSeq32AttentionMlpSingleProofGateError("issue_hint drift")
     if payload["claim_boundary"] != CLAIM_BOUNDARY:
         raise NativeSeq32AttentionMlpSingleProofGateError("claim_boundary drift")
     if payload["summary"] != EXPECTED_SUMMARY:
@@ -519,6 +522,7 @@ def mutation_result(payload: dict[str, Any]) -> dict[str, Any]:
             "frontier_metric_drift",
             lambda item: item["summary"].update({"matched_two_proof_frontier_typed_bytes": 45_492}),
         ),
+        ("issue_hint_drift", lambda item: item.update({"issue_hint": "different-issue"})),
         ("nanozk_overclaim_boundary", lambda item: item.update({"claim_boundary": item["claim_boundary"] + "_NANOZK_WIN"})),
         ("native_object_overclaim_removed_nonclaim", lambda item: item["non_claims"].remove("not a full transformer block proof")),
         ("source_artifact_digest_drift", lambda item: item["source_artifacts"][0].update({"sha256": "0" * 64})),

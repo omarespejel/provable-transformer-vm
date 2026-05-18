@@ -32,6 +32,11 @@
         "rejected": true
       },
       {
+        "error": "issue_hint drift",
+        "name": "issue_hint_drift",
+        "rejected": true
+      },
+      {
         "error": "claim_boundary drift",
         "name": "nanozk_overclaim_boundary",
         "rejected": true
@@ -87,6 +92,7 @@
       "typed_metric_drift",
       "json_metric_drift",
       "frontier_metric_drift",
+      "issue_hint_drift",
       "nanozk_overclaim_boundary",
       "native_object_overclaim_removed_nonclaim",
       "source_artifact_digest_drift",
@@ -98,7 +104,7 @@
       "validation_command_drift",
       "payload_commitment_drift"
     ],
-    "mutations_rejected": 14
+    "mutations_rejected": 15
   },
   "non_claims": [
     "not a NANOZK proof-size win",
@@ -109,7 +115,7 @@
     "not timing evidence",
     "not production-ready zkML"
   ],
-  "payload_commitment": "blake2b-256:64ea3cc4ce898e7e99fd1c302ccc249bf7fd2cc04267d0afcbded910a8a8cfaf",
+  "payload_commitment": "blake2b-256:0b6c2666ac61ce280f9667e784b0a1134b50635aed2591fd82779241876a81e6",
   "result": "NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_SAVES_5120_TYPED_BYTES_VS_47188_FRONTIER",
   "schema": "zkai-native-seq32-attention-mlp-single-proof-gate-v1",
   "source_artifacts": [
