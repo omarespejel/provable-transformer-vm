@@ -2070,7 +2070,7 @@ external comparison. The NANOZK guardrail remains hard: beating the
 paper-reported `6,900` byte context row from the strict native single object
 would require removing `35,033` typed bytes (`108.9877%` of the MLP-side fusion
 saving), and the workload/object class is still not matched. The gate rejects
-`13 / 13` NANOZK, selected-route, metric, compact-preprocessed promotion, GKR
+`14 / 14` NANOZK, selected-route, metric, compact-preprocessed promotion, GKR
 unparking, interpretation, source-descriptor, non-claim, validation-command,
 and payload mutations. See
 `docs/engineering/zkai-larger-native-block-boundary-amortization-budget-2026-05-18.md`.

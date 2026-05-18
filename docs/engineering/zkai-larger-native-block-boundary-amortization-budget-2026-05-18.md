@@ -85,11 +85,12 @@ The next implementation should preserve:
 - Tests:
   `scripts/tests/test_zkai_larger_native_block_boundary_amortization_budget_gate.py`
 
-The gate rejects `13 / 13` mutations covering NANOZK comparability, selected
+The gate rejects `14 / 14` mutations covering NANOZK comparability, selected
 route drift, local-frontier gap erasure, four-percent projection erasure, MLP
 saving drift, NANOZK gap erasure, compact-preprocessed promotion, GKR
 unparking, interpretation overclaim, source-descriptor drift, non-claim
-erasure, validation-command drift, and payload commitment drift.
+erasure, non-claim addition, validation-command drift, and payload commitment
+drift.
 
 ## Reproduce
 
