@@ -80,6 +80,20 @@ class NativeSeq32AdapterVariantSelectorGateTest(unittest.TestCase):
         with self.assertRaisesRegex(self.gate.NativeSeq32AdapterVariantSelectorGateError, "variant metadata drift"):
             self.gate.validate_payload(payload)
 
+    def test_rejects_variant_metadata_drift_with_cached_expected_rows(self) -> None:
+        expected_rows = self.gate.load_variant_rows()
+        payload = copy.deepcopy(self.__class__.payload)
+        payload["variants"][4]["proof_sha256"] = "0" * 64
+        payload["payload_commitment"] = self.gate.payload_commitment(payload)
+        with self.assertRaisesRegex(self.gate.NativeSeq32AdapterVariantSelectorGateError, "variant metadata drift"):
+            self.gate.validate_payload(payload, expected_rows=expected_rows)
+
+    def test_expected_rows_length_mismatch_is_gate_error(self) -> None:
+        payload = copy.deepcopy(self.__class__.payload)
+        expected_rows = self.gate.load_variant_rows()[:-1]
+        with self.assertRaisesRegex(self.gate.NativeSeq32AdapterVariantSelectorGateError, "variant inventory drift"):
+            self.gate.validate_payload(payload, expected_rows=expected_rows)
+
     def test_rejects_overclaim_boundary(self) -> None:
         payload = copy.deepcopy(self.__class__.payload)
         payload["claim_boundary"] = payload["claim_boundary"] + ";NANOZK_WIN"

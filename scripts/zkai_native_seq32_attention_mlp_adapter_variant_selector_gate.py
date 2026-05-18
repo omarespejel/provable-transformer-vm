@@ -367,7 +367,7 @@ def load_variant_rows() -> list[dict[str, Any]]:
     if len(rows) != len(EXPECTED_ROWS):
         raise NativeSeq32AdapterVariantSelectorGateError("variant inventory drift")
     parsed = []
-    for expected, row in zip(EXPECTED_ROWS, rows):
+    for expected, row in zip(EXPECTED_ROWS, rows, strict=True):
         path = _str(row.get("evidence_relative_path"), "evidence path")
         if path != expected["path"]:
             raise NativeSeq32AdapterVariantSelectorGateError("variant path drift")
@@ -422,7 +422,8 @@ def load_variant_rows() -> list[dict[str, Any]]:
 
 
 def build_payload() -> dict[str, Any]:
-    variants = load_variant_rows()
+    expected_rows = load_variant_rows()
+    variants = copy.deepcopy(expected_rows)
     champion = variants[0]
     if champion["path"] != CURRENT_CHAMPION_PATH or champion["typed_bytes"] != CURRENT_CHAMPION_TYPED_BYTES:
         raise NativeSeq32AdapterVariantSelectorGateError("current champion drift")
@@ -490,9 +491,9 @@ def build_payload() -> dict[str, Any]:
         "source_artifacts": source_artifacts(),
         "validation_commands": list(VALIDATION_COMMANDS),
     }
-    payload["mutation_result"] = mutation_result(payload, variants)
+    payload["mutation_result"] = mutation_result(payload, expected_rows)
     payload["payload_commitment"] = payload_commitment(payload)
-    validate_payload(payload, expected_rows=variants)
+    validate_payload(payload, expected_rows=expected_rows)
     return payload
 
 
@@ -603,6 +604,8 @@ def validate_variants(variants: list[Any], *, expected_rows: list[dict[str, Any]
         raise NativeSeq32AdapterVariantSelectorGateError("variant inventory drift")
     if expected_rows is None:
         expected_rows = load_variant_rows()
+    if len(expected_rows) != len(EXPECTED_ROWS) or len(expected_rows) != len(variants):
+        raise NativeSeq32AdapterVariantSelectorGateError("variant inventory drift")
     for actual, expected in zip(variants, expected_rows, strict=True):
         row = _dict(actual, "variant row")
         for key in (
