@@ -16,6 +16,14 @@ class LargerNativeBoundarySourceCompatibilityGateTests(unittest.TestCase):
     def fresh_payload(self) -> dict:
         return copy.deepcopy(self.payload)
 
+    def unique_evidence_path(self, prefix: str, suffix: str) -> Path:
+        fd, name = tempfile.mkstemp(dir=gate.EVIDENCE_DIR, prefix=prefix, suffix=suffix)
+        os.close(fd)
+        path = Path(name)
+        path.unlink()
+        self.addCleanup(path.unlink, missing_ok=True)
+        return path
+
     def test_payload_records_seq32_value_incompatibility(self) -> None:
         payload = self.fresh_payload()
         gate.validate_payload(payload)
@@ -113,19 +121,14 @@ class LargerNativeBoundarySourceCompatibilityGateTests(unittest.TestCase):
         payload = self.fresh_payload()
         payload["decision"] = "GO_BAD"
         gate.refresh_payload_commitments(payload)
-        path = gate.EVIDENCE_DIR / ".tmp-larger-boundary-compat-invalid.json"
-        path.unlink(missing_ok=True)
-        try:
-            with self.assertRaisesRegex(gate.LargerNativeBoundaryCompatibilityError, "decision drift"):
-                gate.write_json(path, payload)
-            self.assertFalse(path.exists())
-        finally:
-            path.unlink(missing_ok=True)
+        path = self.unique_evidence_path(".tmp-larger-boundary-compat-invalid-", ".json")
+        with self.assertRaisesRegex(gate.LargerNativeBoundaryCompatibilityError, "decision drift"):
+            gate.write_json(path, payload)
+        self.assertFalse(path.exists())
 
     def test_relative_output_path_is_repo_root_anchored(self) -> None:
-        relative = Path("docs/engineering/evidence/.tmp-larger-boundary-compat-root-anchored.json")
-        target = gate.ROOT / relative
-        target.unlink(missing_ok=True)
+        target = self.unique_evidence_path(".tmp-larger-boundary-compat-root-anchored-", ".json")
+        relative = target.relative_to(gate.ROOT)
         cwd = Path.cwd()
         try:
             with tempfile.TemporaryDirectory() as tmp:
@@ -170,11 +173,10 @@ class LargerNativeBoundarySourceCompatibilityGateTests(unittest.TestCase):
 
     @unittest.skipUnless(hasattr(os, "symlink"), "symlink support required")
     def test_json_output_rejects_dangling_symlink(self) -> None:
-        target = gate.EVIDENCE_DIR / ".tmp-larger-boundary-compat-missing-target.json"
-        link = gate.EVIDENCE_DIR / ".tmp-larger-boundary-compat-dangling-link.json"
-        target.unlink(missing_ok=True)
-        link.unlink(missing_ok=True)
-        try:
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-compat-json-dangling-symlink-") as tmp:
+            temp_dir = Path(tmp)
+            target = temp_dir / "missing-target.json"
+            link = temp_dir / "out.json"
             try:
                 link.symlink_to(target)
             except OSError as err:
@@ -183,17 +185,13 @@ class LargerNativeBoundarySourceCompatibilityGateTests(unittest.TestCase):
             self.assertTrue(link.is_symlink())
             with self.assertRaisesRegex(gate.LargerNativeBoundaryCompatibilityError, "symlink"):
                 gate.write_json(link, self.fresh_payload())
-        finally:
-            link.unlink(missing_ok=True)
-            target.unlink(missing_ok=True)
 
     @unittest.skipUnless(hasattr(os, "symlink"), "symlink support required")
     def test_tsv_output_rejects_dangling_symlink(self) -> None:
-        target = gate.EVIDENCE_DIR / ".tmp-larger-boundary-compat-missing-target.tsv"
-        link = gate.EVIDENCE_DIR / ".tmp-larger-boundary-compat-dangling-link.tsv"
-        target.unlink(missing_ok=True)
-        link.unlink(missing_ok=True)
-        try:
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-compat-tsv-dangling-symlink-") as tmp:
+            temp_dir = Path(tmp)
+            target = temp_dir / "missing-target.tsv"
+            link = temp_dir / "out.tsv"
             try:
                 link.symlink_to(target)
             except OSError as err:
@@ -202,9 +200,6 @@ class LargerNativeBoundarySourceCompatibilityGateTests(unittest.TestCase):
             self.assertTrue(link.is_symlink())
             with self.assertRaisesRegex(gate.LargerNativeBoundaryCompatibilityError, "symlink"):
                 gate.write_tsv(link, self.fresh_payload())
-        finally:
-            link.unlink(missing_ok=True)
-            target.unlink(missing_ok=True)
 
     def test_json_output_path_escape_rejects(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
