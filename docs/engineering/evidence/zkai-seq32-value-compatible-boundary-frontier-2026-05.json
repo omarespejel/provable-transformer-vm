@@ -1,0 +1,204 @@
+{
+  "claim_boundary": "VALUE_COMPATIBLE_TWO_PROOF_FRONTIER_FOR_NEXT_NATIVE_ATTENTION_PLUS_MLP_OBJECT;NOT_ONE_NATIVE_PROOF_OBJECT_NOT_A_NANOZK_COMPARISON_NOT_A_FULL_BLOCK",
+  "decision": "GO_PIN_SEQ32_VALUE_COMPATIBLE_TWO_PROOF_FRONTIER_FOR_NEXT_NATIVE_BOUNDARY",
+  "interpretation": {
+    "guardrail": "This is a value-compatible local frontier, not one native proof object, not a full transformer block, and not a NANOZK proof-size comparison.",
+    "human_read": "The seq32 correctness fix makes the next boundary honest but heavier: the value-compatible two-proof target is now 47,188 typed bytes, not the stale 45,492 byte selector target.",
+    "interesting_signal": "The selected attention side still carries 1,184 lookup claims for 22,916 typed bytes, while the regenerated MLP side still saves 30,064 typed bytes versus six separate native component proofs.",
+    "next_experiment": "Build one native Stwo proof object over the two-head seq32 fused attention surface plus the seq32-derived d128 RMSNorm/MLP surface, then compare against this 47,188 typed-byte two-proof frontier."
+  },
+  "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/674",
+  "mutation_inventory": {
+    "mutation_count": 12,
+    "mutation_names": [
+      "stale_frontier_overclaim",
+      "frontier_typed_metric_drift",
+      "attention_typed_metric_drift",
+      "mlp_typed_metric_drift",
+      "adapter_mismatch_drift",
+      "nanozk_overclaim",
+      "native_object_overclaim",
+      "source_artifact_digest_drift",
+      "source_artifact_path_traversal",
+      "non_claim_removed",
+      "validation_command_drift",
+      "payload_commitment_drift"
+    ]
+  },
+  "mutation_result": {
+    "all_mutations_rejected": true,
+    "cases": [
+      {
+        "error": "summary drift",
+        "name": "stale_frontier_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "summary drift",
+        "name": "frontier_typed_metric_drift",
+        "rejected": true
+      },
+      {
+        "error": "summary drift",
+        "name": "attention_typed_metric_drift",
+        "rejected": true
+      },
+      {
+        "error": "summary drift",
+        "name": "mlp_typed_metric_drift",
+        "rejected": true
+      },
+      {
+        "error": "summary drift",
+        "name": "adapter_mismatch_drift",
+        "rejected": true
+      },
+      {
+        "error": "claim_boundary drift",
+        "name": "nanozk_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "result drift",
+        "name": "native_object_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "source artifact digest drift",
+        "name": "source_artifact_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "source artifact path traversal",
+        "name": "source_artifact_path_traversal",
+        "rejected": true
+      },
+      {
+        "error": "non-claim inventory drift",
+        "name": "non_claim_removed",
+        "rejected": true
+      },
+      {
+        "error": "validation command inventory drift",
+        "name": "validation_command_drift",
+        "rejected": true
+      },
+      {
+        "error": "payload commitment drift",
+        "name": "payload_commitment_drift",
+        "rejected": true
+      }
+    ],
+    "mutation_count": 12,
+    "mutation_names": [
+      "stale_frontier_overclaim",
+      "frontier_typed_metric_drift",
+      "attention_typed_metric_drift",
+      "mlp_typed_metric_drift",
+      "adapter_mismatch_drift",
+      "nanozk_overclaim",
+      "native_object_overclaim",
+      "source_artifact_digest_drift",
+      "source_artifact_path_traversal",
+      "non_claim_removed",
+      "validation_command_drift",
+      "payload_commitment_drift"
+    ],
+    "mutations_rejected": 12
+  },
+  "next_issue_hint": "native-seq32-attention-mlp-single-proof-object",
+  "non_claims": [
+    "not one native attention-plus-MLP proof object",
+    "not a full transformer block proof",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not timing evidence",
+    "not production-ready zkML"
+  ],
+  "payload_commitment": "blake2b-256:3bf1a87e648273d4f552d106c30660169d765761302413595455a2fb002fdd3f",
+  "result": "SEQ32_ATTENTION_AND_SEQ32_DERIVED_D128_MLP_FORM_47188_TYPED_BYTE_FRONTIER",
+  "schema": "zkai-seq32-value-compatible-boundary-frontier-v1",
+  "source_artifacts": [
+    {
+      "id": "seq32_attention_gate",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-fused-softmax-table-gate-2026-05.json",
+      "sha256": "519ba7ffe309e01fe3e491191b6322fe62f59fec6d616e887ca67100144a860c",
+      "size_bytes": 8649
+    },
+    {
+      "id": "seq32_attention_envelope",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-fused-softmax-table-proof-2026-05.envelope.json",
+      "sha256": "550adc4681dca0f5075b65cb046ef4e027364d34d6f70925c5f82d5190afc933",
+      "size_bytes": 2448150
+    },
+    {
+      "id": "attention_accounting",
+      "path": "docs/engineering/evidence/zkai-larger-native-boundary-candidate-accounting-2026-05.json",
+      "sha256": "b3b94b703b5bfd4551efbb866efee5e3726a27d9a9e4a5bf6a19b2d2783b1635",
+      "size_bytes": 30662
+    },
+    {
+      "id": "seq32_mlp_surface_gate",
+      "path": "docs/engineering/evidence/zkai-seq32-derived-d128-native-mlp-surface-2026-05.json",
+      "sha256": "96fdc2435fa7c14f9596f7fbe2a1006861fd8bc7be3c219cf49ac43096cdf1c2",
+      "size_bytes": 3742
+    },
+    {
+      "id": "seq32_mlp_fused_envelope",
+      "path": "docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.envelope.json",
+      "sha256": "e0be0172d424d6fa65c70f170b695b54cf28650ddbf45d5f74dcec1f8105a70f",
+      "size_bytes": 763007
+    },
+    {
+      "id": "seq32_mlp_accounting",
+      "path": "docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-binary-accounting-2026-05.json",
+      "sha256": "1fefa54c27e1e9963d2cf0f780b760d9db41b76c81d87b5378a4d07803204e6f",
+      "size_bytes": 33773
+    }
+  ],
+  "summary": {
+    "attention_typed_growth_vs_d8": "1.264401",
+    "d8_two_proof_frontier_json_bytes": 116258,
+    "d8_two_proof_frontier_typed_bytes": 40700,
+    "frontier_json_increase_after_value_fix_bytes": 5951,
+    "frontier_typed_increase_after_value_fix_bytes": 1696,
+    "json_increase_vs_d8_frontier_bytes": 24580,
+    "lookup_growth_vs_d8": "22.769231",
+    "nanozk_reported_d128_block_proof_bytes": 6900,
+    "proof_size_comparable_external_rows": 0,
+    "selected_attention_fusion_ratio": "0.676723",
+    "selected_attention_json_proof_bytes": 66327,
+    "selected_attention_json_saving_bytes": 31685,
+    "selected_attention_lookup_claims": 1184,
+    "selected_attention_source_plus_sidecar_json_bytes": 98012,
+    "selected_attention_surface": "two_head_seq32_fused_attention",
+    "selected_attention_trace_rows": 2048,
+    "selected_attention_typed_bytes": 22916,
+    "seq32_derived_mlp_adapter_mismatches": 0,
+    "seq32_derived_mlp_json_proof_bytes": 74511,
+    "seq32_derived_mlp_json_saving_bytes": 106683,
+    "seq32_derived_mlp_separate_json_proof_bytes": 181194,
+    "seq32_derived_mlp_separate_typed_bytes": 54336,
+    "seq32_derived_mlp_typed_bytes": 24272,
+    "seq32_derived_mlp_typed_ratio": "0.446702",
+    "seq32_derived_mlp_typed_saving_bytes": 30064,
+    "stale_selector_frontier_json_bytes": 134887,
+    "stale_selector_frontier_typed_bytes": 45492,
+    "typed_bytes_to_remove_to_match_nanozk_reported_row": 40288,
+    "typed_increase_vs_d8_frontier_bytes": 6488,
+    "typed_reduction_share_to_match_nanozk_reported_row": "0.853776",
+    "value_compatible_two_proof_frontier_json_bytes": 140838,
+    "value_compatible_two_proof_frontier_typed_bytes": 47188
+  },
+  "validation_commands": [
+    "python3.10 scripts/zkai_seq32_value_compatible_boundary_frontier_gate.py --write-json docs/engineering/evidence/zkai-seq32-value-compatible-boundary-frontier-2026-05.json --write-tsv docs/engineering/evidence/zkai-seq32-value-compatible-boundary-frontier-2026-05.tsv",
+    "python3.10 -m py_compile scripts/zkai_seq32_value_compatible_boundary_frontier_gate.py scripts/tests/test_zkai_seq32_value_compatible_boundary_frontier_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_seq32_value_compatible_boundary_frontier_gate",
+    "python3.10 -m unittest scripts.tests.test_zkai_seq32_derived_d128_mlp_surface_gate",
+    "python3 scripts/research_issue_lint.py --repo-root .",
+    "python3 scripts/paper/paper_preflight.py --repo-root .",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}
