@@ -737,6 +737,14 @@ def validate_payload(payload: dict[str, Any]) -> None:
         raise LargerNativeBoundaryCandidateSelectorError("payload commitment drift")
 
 
+def mutate_source_artifact_digest(payload: dict[str, Any], artifact_id: str) -> None:
+    for artifact in payload["source_artifacts"]:
+        if artifact.get("id") == artifact_id:
+            artifact["sha256"] = "0" * 64
+            return
+    raise LargerNativeBoundaryCandidateSelectorError(f"missing source artifact {artifact_id}")
+
+
 def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, Callable[[dict[str, Any]], None]]]:
     return [
         ("selected_candidate_drift", lambda p: p["summary"].__setitem__("selected_candidate", "d16_fused_attention")),
@@ -757,7 +765,7 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, Callable[[dict[st
         ),
         (
             "source_artifact_digest_drift",
-            lambda p: p["source_artifacts"][0].__setitem__("sha256", "0" * 64),
+            lambda p: mutate_source_artifact_digest(p, "candidate_accounting"),
         ),
         (
             "source_artifact_id_drift",
@@ -769,7 +777,7 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, Callable[[dict[st
         ),
         (
             "source_artifact_envelope_digest_drift",
-            lambda p: p["source_artifacts"][2].__setitem__("sha256", "0" * 64),
+            lambda p: mutate_source_artifact_digest(p, "d8_fused_attention_envelope"),
         ),
         ("accounting_row_removed", lambda p: p["candidates"].pop()),
         ("non_claim_removed", lambda p: p["non_claims"].remove("not a NANOZK proof-size win")),
