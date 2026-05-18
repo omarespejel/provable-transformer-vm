@@ -228,6 +228,7 @@ MUTATION_NAMES = (
     "source_artifact_digest_drift",
     "source_artifact_id_drift",
     "source_artifact_path_traversal",
+    "source_artifact_envelope_digest_drift",
     "accounting_row_removed",
     "non_claim_removed",
     "non_claim_added",
@@ -235,6 +236,54 @@ MUTATION_NAMES = (
     "interpretation_overclaim",
     "payload_commitment_drift",
 )
+
+
+EXPECTED_ACCOUNTING_IDENTITY = {
+    "schema": "zkai-stwo-local-binary-proof-accounting-cli-v1",
+    "accounting_domain": "zkai:stwo:local-binary-proof-accounting",
+    "accounting_format_version": "v1",
+    "accounting_source": "repo_owned_canonical_local_accounting_from_stwo_2_2_0_typed_StarkProof_fields",
+    "proof_payload_kind": "utf8_json_object_with_single_stark_proof_field",
+    "upstream_stwo_serialization_status": "NOT_UPSTREAM_STWO_SERIALIZATION_LOCAL_ACCOUNTING_RECORD_STREAM_ONLY",
+}
+
+EXPECTED_GATE_IDENTITIES = {
+    "d8_fused_attention": {
+        "schema": "zkai-attention-kv-stwo-native-d8-fused-softmax-table-gate-v1",
+        "route_id": "local_stwo_attention_kv_d8_fused_bounded_softmax_table_logup_proof",
+        "decision": "GO_NATIVE_STWO_FUSED_ATTENTION_ARITHMETIC_AND_SOFTMAX_TABLE_LOGUP_MEMBERSHIP",
+        "fusion_status": "GO_ONE_NATIVE_STWO_PROOF_OBJECT_WITH_ATTENTION_ARITHMETIC_AND_LOGUP_MEMBERSHIP",
+        "issue": 478,
+    },
+    "d16_fused_attention": {
+        "schema": "zkai-attention-kv-stwo-native-d16-fused-softmax-table-gate-v1",
+        "route_id": "local_stwo_attention_kv_d16_fused_bounded_softmax_table_logup_proof",
+        "decision": "GO_NATIVE_STWO_FUSED_ATTENTION_ARITHMETIC_AND_SOFTMAX_TABLE_LOGUP_MEMBERSHIP",
+        "fusion_status": "GO_ONE_NATIVE_STWO_PROOF_OBJECT_WITH_ATTENTION_ARITHMETIC_AND_LOGUP_MEMBERSHIP",
+        "issue": 501,
+    },
+    "d16_two_head_fused_attention": {
+        "schema": "zkai-attention-kv-stwo-native-d16-two-head-fused-softmax-table-gate-v1",
+        "route_id": "local_stwo_attention_kv_d16_two_head_fused_bounded_softmax_table_logup_proof",
+        "decision": "GO_NATIVE_STWO_FUSED_ATTENTION_ARITHMETIC_AND_SOFTMAX_TABLE_LOGUP_MEMBERSHIP",
+        "fusion_status": "GO_ONE_NATIVE_STWO_PROOF_OBJECT_WITH_ATTENTION_ARITHMETIC_AND_LOGUP_MEMBERSHIP",
+        "issue": 521,
+    },
+    "d16_two_head_longseq_fused_attention": {
+        "schema": "zkai-attention-kv-stwo-native-d16-two-head-longseq-fused-softmax-table-gate-v1",
+        "route_id": "local_stwo_attention_kv_d16_two_head_longseq_fused_bounded_softmax_table_logup_proof",
+        "decision": "GO_NATIVE_STWO_FUSED_ATTENTION_ARITHMETIC_AND_SOFTMAX_TABLE_LOGUP_MEMBERSHIP",
+        "fusion_status": "GO_ONE_NATIVE_STWO_PROOF_OBJECT_WITH_ATTENTION_ARITHMETIC_AND_LOGUP_MEMBERSHIP",
+        "issue": 525,
+    },
+    "two_head_seq32_fused_attention": {
+        "schema": "zkai-attention-kv-stwo-native-two-head-seq32-fused-softmax-table-gate-v1",
+        "route_id": "local_stwo_attention_kv_two_head_seq32_fused_bounded_softmax_table_logup_proof",
+        "decision": "GO_NATIVE_STWO_TWO_HEAD_SEQ32_FUSED_ATTENTION_ARITHMETIC_AND_SOFTMAX_TABLE_LOGUP_MEMBERSHIP",
+        "fusion_status": "GO_ONE_NATIVE_STWO_PROOF_OBJECT_WITH_ATTENTION_ARITHMETIC_AND_LOGUP_MEMBERSHIP",
+        "issue": 537,
+    },
+}
 
 
 class LargerNativeBoundaryCandidateSelectorError(ValueError):
@@ -330,16 +379,61 @@ def source_descriptor(path: pathlib.Path, raw: bytes, artifact_id: str) -> dict[
 
 
 def expected_source_artifacts() -> tuple[tuple[str, str], ...]:
-    return (
-        ("candidate_accounting", str(ACCOUNTING_PATH.relative_to(ROOT))),
-        *(
+    artifacts = [("candidate_accounting", str(ACCOUNTING_PATH.relative_to(ROOT)))]
+    for candidate_id, expected in EXPECTED_CANDIDATES.items():
+        artifacts.append(
             (
                 f"{candidate_id}_gate",
                 str((EVIDENCE_DIR / expected["attention_gate_path"]).relative_to(ROOT)),
             )
-            for candidate_id, expected in EXPECTED_CANDIDATES.items()
-        ),
+        )
+        artifacts.append(
+            (
+                f"{candidate_id}_envelope",
+                str((EVIDENCE_DIR / expected["attention_envelope_path"]).relative_to(ROOT)),
+            )
+        )
+    artifacts.append(
+        (
+            "mlp_fused_envelope",
+            str((EVIDENCE_DIR / MLP_FUSED_ENVELOPE).relative_to(ROOT)),
+        )
     )
+    return tuple(artifacts)
+
+
+def validate_identity_fields(
+    artifact: dict[str, Any],
+    expected: dict[str, Any],
+    label: str,
+) -> None:
+    for key, expected_value in expected.items():
+        if artifact.get(key) != expected_value:
+            raise LargerNativeBoundaryCandidateSelectorError(f"{label} {key} drift")
+
+
+def validate_accounting_identity(accounting: dict[str, Any]) -> None:
+    validate_identity_fields(accounting, EXPECTED_ACCOUNTING_IDENTITY, "accounting")
+
+
+def validate_gate_identity(candidate_id: str, gate: dict[str, Any]) -> None:
+    expected = EXPECTED_GATE_IDENTITIES.get(candidate_id)
+    if expected is None:
+        raise LargerNativeBoundaryCandidateSelectorError(f"unknown gate identity {candidate_id}")
+    validate_identity_fields(gate, expected, f"{candidate_id} gate")
+
+
+def verify_envelope_accounting_source(
+    row: dict[str, Any],
+    envelope_path: pathlib.Path,
+    envelope_raw: bytes,
+    label: str,
+) -> None:
+    expected_path = str(envelope_path.relative_to(ROOT))
+    if row.get("path") != expected_path:
+        raise LargerNativeBoundaryCandidateSelectorError(f"{label} accounting path drift")
+    if row.get("envelope_sha256") != digest(envelope_raw):
+        raise LargerNativeBoundaryCandidateSelectorError(f"{label} accounting envelope digest drift")
 
 
 def repo_relative_path(path_text: str, label: str) -> pathlib.Path:
@@ -356,12 +450,21 @@ def repo_relative_path(path_text: str, label: str) -> pathlib.Path:
     return candidate
 
 
-def verified_mlp_accounting(accounting_rows: dict[str, dict[str, Any]]) -> dict[str, int]:
+def verified_mlp_accounting(
+    accounting_rows: dict[str, dict[str, Any]],
+    envelope_raw: bytes,
+) -> dict[str, int]:
     row = accounting_rows.get(MLP_FUSED_ENVELOPE)
     if row is None:
         raise LargerNativeBoundaryCandidateSelectorError(
             f"missing accounting row for {MLP_FUSED_ENVELOPE}"
         )
+    verify_envelope_accounting_source(
+        row,
+        EVIDENCE_DIR / MLP_FUSED_ENVELOPE,
+        envelope_raw,
+        "MLP fused envelope",
+    )
     typed_bytes = int_field(
         row.get("local_binary_accounting", {}).get("component_sum_bytes"),
         "MLP fused typed bytes",
@@ -386,13 +489,20 @@ def build_candidate_rows(
     for candidate_id, expected in EXPECTED_CANDIDATES.items():
         gate_path = EVIDENCE_DIR / expected["attention_gate_path"]
         gate, gate_raw = read_json_and_raw(gate_path, f"{candidate_id} gate")
+        validate_gate_identity(candidate_id, gate)
         source_artifacts.append(source_descriptor(gate_path, gate_raw, f"{candidate_id}_gate"))
         envelope_path = expected["attention_envelope_path"]
         if envelope_path not in accounting_rows:
             raise LargerNativeBoundaryCandidateSelectorError(
                 f"missing accounting row for {envelope_path}"
             )
+        full_envelope_path = EVIDENCE_DIR / envelope_path
+        _, envelope_raw = read_json_and_raw(full_envelope_path, f"{candidate_id} envelope")
+        source_artifacts.append(
+            source_descriptor(full_envelope_path, envelope_raw, f"{candidate_id}_envelope")
+        )
         row = accounting_rows[envelope_path]
+        verify_envelope_accounting_source(row, full_envelope_path, envelope_raw, candidate_id)
         accounting_typed = int_field(
             row.get("local_binary_accounting", {}).get("component_sum_bytes"),
             f"{candidate_id} typed bytes",
@@ -436,10 +546,14 @@ def build_candidate_rows(
 
 def build_payload() -> dict[str, Any]:
     accounting, accounting_raw = read_json_and_raw(ACCOUNTING_PATH, "candidate accounting")
+    validate_accounting_identity(accounting)
     accounting_rows = row_by_relative_path(accounting)
-    mlp_accounting = verified_mlp_accounting(accounting_rows)
     source_artifacts = [source_descriptor(ACCOUNTING_PATH, accounting_raw, "candidate_accounting")]
+    mlp_path = EVIDENCE_DIR / MLP_FUSED_ENVELOPE
+    _, mlp_raw = read_json_and_raw(mlp_path, "MLP fused envelope")
+    mlp_accounting = verified_mlp_accounting(accounting_rows, mlp_raw)
     candidates = build_candidate_rows(accounting_rows, source_artifacts, mlp_accounting)
+    source_artifacts.append(source_descriptor(mlp_path, mlp_raw, "mlp_fused_envelope"))
     by_id = {row["candidate_id"]: row for row in candidates}
     selected = by_id["two_head_seq32_fused_attention"]
     d8 = by_id["d8_fused_attention"]
@@ -588,7 +702,8 @@ def validate_payload_without_commitment(payload: dict[str, Any]) -> None:
         raise LargerNativeBoundaryCandidateSelectorError("candidate order drift")
 
     artifacts = payload.get("source_artifacts")
-    if not isinstance(artifacts, list) or len(artifacts) != len(EXPECTED_CANDIDATES) + 1:
+    expected_artifacts = expected_source_artifacts()
+    if not isinstance(artifacts, list) or len(artifacts) != len(expected_artifacts):
         raise LargerNativeBoundaryCandidateSelectorError("source artifact count drift")
     observed_artifacts = []
     seen_artifact_ids = set()
@@ -602,7 +717,7 @@ def validate_payload_without_commitment(payload: dict[str, Any]) -> None:
         path_text = str_field(artifact.get("path"), "source artifact path")
         repo_relative_path(path_text, "source artifact path")
         observed_artifacts.append((artifact_id, path_text))
-    if tuple(observed_artifacts) != expected_source_artifacts():
+    if tuple(observed_artifacts) != expected_artifacts:
         raise LargerNativeBoundaryCandidateSelectorError("source artifact inventory drift")
     for artifact in artifacts:
         path = repo_relative_path(
@@ -651,6 +766,10 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, Callable[[dict[st
         (
             "source_artifact_path_traversal",
             lambda p: p["source_artifacts"][0].__setitem__("path", "../../tmp/external.json"),
+        ),
+        (
+            "source_artifact_envelope_digest_drift",
+            lambda p: p["source_artifacts"][2].__setitem__("sha256", "0" * 64),
         ),
         ("accounting_row_removed", lambda p: p["candidates"].pop()),
         ("non_claim_removed", lambda p: p["non_claims"].remove("not a NANOZK proof-size win")),

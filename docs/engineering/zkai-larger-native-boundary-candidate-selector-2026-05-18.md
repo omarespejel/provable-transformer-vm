@@ -84,11 +84,11 @@ should compare against that matched frontier first, not against the older d8
 - Tests:
   `scripts/tests/test_zkai_larger_native_boundary_candidate_selector_gate.py`
 
-The gate rejects `16 / 16` mutations covering selected-candidate drift, selected
+The gate rejects `17 / 17` mutations covering selected-candidate drift, selected
 metric drift, d8 baseline drift, bytes-per-lookup overclaim, NANOZK overclaim,
-full-block overclaim, source digest/id/path drift, accounting row removal,
-non-claim removal/addition, validation-command drift, interpretation overclaim,
-and payload commitment drift.
+full-block overclaim, source digest/id/path/envelope digest drift, accounting row
+removal, non-claim removal/addition, validation-command drift, interpretation
+overclaim, and payload commitment drift.
 
 ## Reproduce
 
