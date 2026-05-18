@@ -120,12 +120,24 @@ class NativeSeq32AttentionMlpSingleProofGateTest(unittest.TestCase):
             with self.assertRaisesRegex(self.gate.NativeSeq32AttentionMlpSingleProofGateError, "symlink"):
                 self.gate.atomic_write_text(link, "{}\n")
 
+    def test_atomic_write_rejects_symlink_parent(self) -> None:
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmpdir:
+            tmp = pathlib.Path(tmpdir)
+            real_parent = tmp / "real"
+            real_parent.mkdir()
+            link_parent = tmp / "link-parent"
+            link_parent.symlink_to(real_parent, target_is_directory=True)
+            output = link_parent / "out.json"
+            with self.assertRaisesRegex(self.gate.NativeSeq32AttentionMlpSingleProofGateError, "symlink"):
+                self.gate.atomic_write_text(output, "{}\n")
+            self.assertFalse((real_parent / "out.json").exists())
+
     def test_atomic_write_rejects_path_outside_repo(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             outside = pathlib.Path(tmpdir) / "outside.json"
             with self.assertRaisesRegex(
                 self.gate.NativeSeq32AttentionMlpSingleProofGateError,
-                "output path escapes repo root",
+                "output path escapes evidence dir",
             ):
                 self.gate.atomic_write_text(outside, "{}\n")
             self.assertFalse(outside.exists())
