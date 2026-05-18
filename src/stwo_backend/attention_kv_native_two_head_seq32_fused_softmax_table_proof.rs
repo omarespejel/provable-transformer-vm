@@ -950,10 +950,18 @@ pub(super) fn zkai_attention_kv_native_two_head_seq32_fused_softmax_table_intera
     ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
     SecureField,
 )> {
+    if log_size < LOG_N_LANES {
+        return Err(fused_error(format!(
+            "interaction trace log_size underflow: got {log_size}, requires at least {LOG_N_LANES}"
+        )));
+    }
+    let vec_row_count = 1usize
+        .checked_shl(log_size - LOG_N_LANES)
+        .ok_or_else(|| fused_error(format!("interaction trace log_size too large: {log_size}")))?;
     let mut logup_gen = LogupTraceGenerator::new(log_size);
     let mut col_gen = logup_gen.new_col();
     let indices = fused_trace_column_indices()?;
-    for vec_row in 0..(1 << (log_size - LOG_N_LANES)) {
+    for vec_row in 0..vec_row_count {
         let enabled = PackedSecureField::from(base_trace[indices.enabled].data[vec_row]);
         let table_multiplicity =
             PackedSecureField::from(preprocessed_trace[indices.table_multiplicity].data[vec_row]);
@@ -1297,6 +1305,24 @@ mod tests {
         assert!(error
             .to_string()
             .contains("missing fused preprocessed column id"));
+    }
+
+    #[test]
+    fn attention_kv_two_head_seq32_fused_softmax_table_rejects_interaction_log_size_underflow() {
+        let base_trace: ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>> =
+            Vec::new();
+        let preprocessed_trace: ColumnVec<
+            CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>,
+        > = Vec::new();
+        let relation = AttentionKvTwoHeadSeq32FusedSoftmaxTableRelation::dummy();
+        let error = zkai_attention_kv_native_two_head_seq32_fused_softmax_table_interaction_trace(
+            LOG_N_LANES - 1,
+            &base_trace,
+            &preprocessed_trace,
+            &relation,
+        )
+        .expect_err("log_size underflow must reject");
+        assert!(error.to_string().contains("log_size underflow"));
     }
 
     #[test]

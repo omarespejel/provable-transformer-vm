@@ -53,6 +53,13 @@ class NativeSeq32AttentionMlpSingleProofGateTest(unittest.TestCase):
         with self.assertRaisesRegex(self.gate.NativeSeq32AttentionMlpSingleProofGateError, "claim_boundary drift"):
             self.gate.validate_payload(payload)
 
+    def test_rejects_issue_hint_drift(self) -> None:
+        payload = copy.deepcopy(self.__class__.payload)
+        payload["issue_hint"] = "different-issue"
+        payload["payload_commitment"] = self.gate.payload_commitment(payload)
+        with self.assertRaisesRegex(self.gate.NativeSeq32AttentionMlpSingleProofGateError, "issue_hint drift"):
+            self.gate.validate_payload(payload)
+
     def test_rejects_external_comparison_flag(self) -> None:
         payload = copy.deepcopy(self.__class__.payload)
         payload["summary"]["proof_size_comparable_external_rows"] = 1

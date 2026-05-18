@@ -40,6 +40,7 @@ route beats external systems.
 - Not a matched external zkML benchmark.
 - Not a full transformer block proof.
 - Not exact real-valued Softmax.
+- Not full autoregressive inference.
 - Not timing evidence.
 - Not production-ready zkML.
 
@@ -59,8 +60,8 @@ Against NANOZK's paper-reported `6,900` byte d128 row, this object is still
 - Binary accounting:
   `docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-binary-accounting-2026-05.json`
 
-The gate rejects `14 / 14` mutation cases: typed metric drift, JSON metric
-drift, frontier drift, NANOZK overclaim drift, source artifact relabeling,
+The gate rejects `15 / 15` mutation cases: typed metric drift, JSON metric
+drift, frontier drift, issue-hint drift, NANOZK overclaim drift, source artifact relabeling,
 proof/envelope digest drift, validation-command drift, and payload-commitment
 drift.
 
@@ -72,8 +73,12 @@ cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native
 cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json
 cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json > docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-binary-accounting-2026-05.json
 python3.10 scripts/zkai_native_seq32_attention_mlp_single_proof_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.tsv
+python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_single_proof_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_single_proof_gate.py
 python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_single_proof_gate
 cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib
+git diff --check
+just gate-fast
+just gate
 ```
 
 ## Next Attack
