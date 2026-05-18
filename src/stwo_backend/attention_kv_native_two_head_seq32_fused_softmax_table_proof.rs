@@ -1326,6 +1326,24 @@ mod tests {
     }
 
     #[test]
+    fn attention_kv_two_head_seq32_fused_softmax_table_rejects_interaction_log_size_overflow() {
+        let base_trace: ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>> =
+            Vec::new();
+        let preprocessed_trace: ColumnVec<
+            CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>,
+        > = Vec::new();
+        let relation = AttentionKvTwoHeadSeq32FusedSoftmaxTableRelation::dummy();
+        let error = zkai_attention_kv_native_two_head_seq32_fused_softmax_table_interaction_trace(
+            LOG_N_LANES + usize::BITS,
+            &base_trace,
+            &preprocessed_trace,
+            &relation,
+        )
+        .expect_err("log_size overflow must reject");
+        assert!(error.to_string().contains("log_size too large"));
+    }
+
+    #[test]
     fn attention_kv_two_head_seq32_fused_softmax_table_rejects_summary_drift() {
         let input = source_input();
         let mut envelope =

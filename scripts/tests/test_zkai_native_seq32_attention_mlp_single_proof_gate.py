@@ -117,6 +117,16 @@ class NativeSeq32AttentionMlpSingleProofGateTest(unittest.TestCase):
         ):
             self.gate.validate_payload(payload)
 
+    def test_rejects_mutation_case_verdict_drift(self) -> None:
+        payload = copy.deepcopy(self.__class__.payload)
+        payload["mutation_result"]["cases"][0]["rejected"] = False
+        payload["payload_commitment"] = self.gate.payload_commitment(payload)
+        with self.assertRaisesRegex(
+            self.gate.NativeSeq32AttentionMlpSingleProofGateError,
+            "mutation result drift",
+        ):
+            self.gate.validate_payload(payload)
+
     def test_atomic_write_rejects_symlink(self) -> None:
         with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmpdir:
             tmp = pathlib.Path(tmpdir)
@@ -138,6 +148,17 @@ class NativeSeq32AttentionMlpSingleProofGateTest(unittest.TestCase):
             with self.assertRaisesRegex(self.gate.NativeSeq32AttentionMlpSingleProofGateError, "symlink"):
                 self.gate.atomic_write_text(output, "{}\n")
             self.assertFalse((real_parent / "out.json").exists())
+
+    def test_atomic_write_skips_stale_temp_slot(self) -> None:
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmpdir:
+            tmp = pathlib.Path(tmpdir)
+            output = tmp / "out.json"
+            stale = tmp / ".out.json.tmp.0"
+            stale.write_text("stale\n", encoding="utf-8")
+            self.gate.atomic_write_text(output, "fresh\n")
+            self.assertEqual(output.read_text(encoding="utf-8"), "fresh\n")
+            self.assertEqual(stale.read_text(encoding="utf-8"), "stale\n")
+            self.assertFalse((tmp / ".out.json.tmp.1").exists())
 
     def test_atomic_write_rejects_path_outside_repo(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
