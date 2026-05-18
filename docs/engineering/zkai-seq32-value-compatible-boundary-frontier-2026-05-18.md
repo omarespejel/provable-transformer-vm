@@ -83,6 +83,11 @@ python3.10 scripts/zkai_seq32_value_compatible_boundary_frontier_gate.py --write
 python3.10 -m py_compile scripts/zkai_seq32_value_compatible_boundary_frontier_gate.py scripts/tests/test_zkai_seq32_value_compatible_boundary_frontier_gate.py
 python3.10 -m unittest scripts.tests.test_zkai_seq32_value_compatible_boundary_frontier_gate
 python3.10 -m unittest scripts.tests.test_zkai_seq32_derived_d128_mlp_surface_gate
+python3 scripts/research_issue_lint.py --repo-root .
+python3 scripts/paper/paper_preflight.py --repo-root .
+git diff --check
+just gate-fast
+just gate
 ```
 
 ## Checked Artifacts
