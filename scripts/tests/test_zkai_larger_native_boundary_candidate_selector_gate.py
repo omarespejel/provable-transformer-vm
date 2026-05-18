@@ -83,8 +83,18 @@ class LargerNativeBoundaryCandidateSelectorGateTests(unittest.TestCase):
         text = gate.tsv_bytes(payload).decode("utf-8")
         lines = text.strip().splitlines()
         self.assertEqual(len(lines), 6)
-        self.assertIn("candidate_id\tstatus\tattention_typed_bytes", lines[0])
-        self.assertIn("two_head_seq32_fused_attention\tATTACK_NEXT_LARGER_NATIVE_BOUNDARY", text)
+        self.assertEqual(
+            lines[0],
+            "candidate_id\tstatus\tattention_typed_bytes\tattention_json_proof_bytes\t"
+            "lookup_claims\ttyped_bytes_per_lookup_claim\t"
+            "matched_two_proof_frontier_typed_bytes\tmatched_two_proof_frontier_json_bytes\t"
+            "fused_to_source_plus_sidecar_ratio\tfused_saves_vs_source_plus_sidecar_json_bytes",
+        )
+        self.assertEqual(
+            lines[-1],
+            "two_head_seq32_fused_attention\tATTACK_NEXT_LARGER_NATIVE_BOUNDARY\t"
+            "22916\t66327\t1184\t19.354730\t45492\t134887\t0.676723\t31685",
+        )
 
     def test_all_mutations_reject(self):
         payload = gate.build_payload()
@@ -94,7 +104,7 @@ class LargerNativeBoundaryCandidateSelectorGateTests(unittest.TestCase):
 
     def test_envelope_digest_mutation_targets_envelope_id(self):
         payload = gate.build_payload()
-        cases = dict(gate.mutation_cases(payload))
+        cases = dict(gate.mutation_cases())
         cases["source_artifact_envelope_digest_drift"](payload)
         by_id = {artifact["id"]: artifact for artifact in payload["source_artifacts"]}
         self.assertEqual(by_id["d8_fused_attention_envelope"]["sha256"], "0" * 64)
@@ -104,7 +114,7 @@ class LargerNativeBoundaryCandidateSelectorGateTests(unittest.TestCase):
         payload = gate.build_payload()
         original = gate.mutation_cases
 
-        def broken_cases(_payload):
+        def broken_cases():
             return [
                 (
                     "forced_mutator_failure",
