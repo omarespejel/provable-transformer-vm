@@ -2168,6 +2168,28 @@ query/opening stability for the adjacent zero-base layout, not more adapter
 base-cell removal. See
 `docs/engineering/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05-19.md`.
 
+Seq32 adapter-variant selector reproducibility metadata:
+
+- Backend binary: `zkai_native_seq32_attention_mlp_single_proof`.
+- Timing mode: proof-size/accounting only; no timing claim and no median-of-5.
+- Gate schema:
+  `zkai-native-seq32-attention-mlp-adapter-variant-selector-gate-v1`.
+- Decision:
+  `NO_GO_ADAPTER_VARIANTS_DO_NOT_BEAT_CURRENT_SEQ32_NATIVE_SINGLE_PROOF`.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05.tsv`,
+  and
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-accounting-2026-05.json`.
+- Local validation commands:
+  `python3.10 scripts/zkai_native_seq32_attention_mlp_adapter_variant_selector_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_adapter_variant_selector_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_adapter_variant_selector_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adapter_variant_selector_gate`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
 1. Treat `rmsnorm_mlp_fused` as the current positive MLP-side fusion result:
    the native fused proof saves `32,144` local typed bytes (`56.4167%`) versus
    separate RMSNorm, bridge, gate/value, activation, down-projection, and
