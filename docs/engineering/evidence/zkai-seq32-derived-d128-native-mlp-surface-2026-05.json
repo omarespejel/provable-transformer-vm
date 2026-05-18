@@ -1,0 +1,67 @@
+{
+  "decision": "GO_SEQ32_DERIVED_D128_MLP_SURFACE_INPUTS_READY_FOR_NATIVE_PROOF",
+  "interpretation": {
+    "nanozk_comparison_claim": false,
+    "native_larger_attention_mlp_boundary_exists": false,
+    "native_mlp_surface_regenerated": true,
+    "value_compatible_with_two_head_seq32_attention": true
+  },
+  "non_claims": [
+    "not a full transformer block proof",
+    "not attention plus MLP in one native proof object",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not timing evidence",
+    "not production-ready zkML"
+  ],
+  "payload_commitment": "blake2b-256:d9d4d8e31000e74441fcbca28aff5a8d75463be73dad7e6450d8f4f96f484e06",
+  "result": "SEQ32_DERIVED_D128_MLP_SURFACE_REGENERATED_FROM_VALUE_COMPATIBLE_ATTENTION_OUTPUTS",
+  "schema": "zkai-seq32-derived-d128-native-mlp-surface-gate-v1",
+  "source_artifacts": [
+    {
+      "id": "seq32_attention_source",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json",
+      "payload_sha256": "3539b9fdbbf64ebee922acfa24e3e0f81cf081837084f122e9d188650daac7c1",
+      "sha256": "e2907a3762a10247f9c2cb3232961c9ed31084f481e14f9b6f2c552bbccd0131"
+    },
+    {
+      "id": "seq32_derived_input",
+      "path": "docs/engineering/evidence/zkai-seq32-derived-d128-input-2026-05.json",
+      "payload_sha256": "64c28c0f307c3e71aef0b174190708d728d7232ecedaa95df23975c7aca522a0",
+      "sha256": "f16ec06dba79297669487d704252dbb680613030288e41a96c9ad5dcdafe55a9"
+    },
+    {
+      "id": "seq32_derived_rmsnorm_wrapper",
+      "path": "docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-public-row-2026-05.json",
+      "payload_sha256": "8a636a5c0b227c69236f5cf305f5258534c37a46bbaaef7681977b63c362fa49",
+      "sha256": "b74f7319ab82c486a7e556fba6e5a38934835797da6f84c34a4af6c401c304b9"
+    }
+  ],
+  "summary": {
+    "activation_statement_commitment": "blake2b-256:dea8ba820803d368c260a267fbb5c93584bade42b5200b6deb28fffaa37cb441",
+    "bridge_statement_commitment": "blake2b-256:218a95a49c5038438f940f2bbbf72a502995c15120bace15b0baa823251b3288",
+    "down_statement_commitment": "blake2b-256:4b8ae8318c0a74ba251265527e3aa25ad62df16a57b5714b285a41b5708c76d3",
+    "fused_json_ratio": 0.411222,
+    "fused_proof_json_bytes": 74511,
+    "fused_typed_bytes": 24272,
+    "fused_typed_ratio": 0.446702,
+    "gate_value_statement_commitment": "blake2b-256:3b2122aa86c92194194b3a322321cb119f720c1657f629ebcb5835f153b95003",
+    "input_activation_commitment": "blake2b-256:f1145a876ece5ad4154ce254ae284d3c2f673d76db0ff74a7a48bf9e4cfa8223",
+    "json_saving_bytes": 106683,
+    "residual_statement_commitment": "blake2b-256:b775ed46ff4e4ff043a4c886667a9771bb71859a3ee9e7ed19d9925cc27dcf94",
+    "rmsnorm_statement_commitment": "blake2b-256:bfe0e37bd0830057018212ada60c1c3c6378d343fb97f0fb14a607b699b49d48",
+    "separate_component_json_bytes": 181194,
+    "separate_component_typed_bytes": 54336,
+    "seq32_adapter_mismatches": 0,
+    "typed_saving_bytes": 30064
+  },
+  "validation_commands": [
+    "python3.10 scripts/zkai_seq32_derived_d128_mlp_surface_gate.py --write-inputs --write-json docs/engineering/evidence/zkai-seq32-derived-d128-native-mlp-surface-2026-05.json --write-tsv docs/engineering/evidence/zkai-seq32-derived-d128-native-mlp-surface-2026-05.tsv",
+    "python3.10 -m py_compile scripts/zkai_seq32_derived_d128_mlp_surface_gate.py scripts/tests/test_zkai_seq32_derived_d128_mlp_surface_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_seq32_derived_d128_mlp_surface_gate",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend d128_native_rmsnorm_mlp_fused_proof --lib",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}

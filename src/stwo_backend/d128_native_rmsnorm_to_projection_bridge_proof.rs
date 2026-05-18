@@ -125,6 +125,13 @@ const EXPECTED_DERIVED_VALIDATION_COMMANDS: &[&str] = &[
     "just gate-fast",
     "just gate",
 ];
+const EXPECTED_SEQ32_DERIVED_VALIDATION_COMMANDS: &[&str] = &[
+    "python3.10 scripts/zkai_seq32_derived_d128_mlp_surface_gate.py --write-inputs",
+    "python3.10 -m unittest scripts.tests.test_zkai_seq32_derived_d128_mlp_surface_gate",
+    "cargo +nightly-2025-07-14 test d128_native_rmsnorm_to_projection_bridge_proof --lib --features stwo-backend",
+    "just gate-fast",
+    "just gate",
+];
 
 #[derive(Debug, Clone)]
 struct D128RmsnormToProjectionBridgeEval {
@@ -826,11 +833,15 @@ fn expect_validation_commands<'a>(actual: impl IntoIterator<Item = &'a str>) -> 
             actual_vec.iter().copied(),
             EXPECTED_DERIVED_VALIDATION_COMMANDS,
         )
+        || str_set_eq(
+            actual_vec.iter().copied(),
+            EXPECTED_SEQ32_DERIVED_VALIDATION_COMMANDS,
+        )
     {
         return Ok(());
     }
     Err(bridge_error(format!(
-        "validation commands mismatch: got {actual_vec:?}, expected base or attention-derived bridge commands"
+        "validation commands mismatch: got {actual_vec:?}, expected base, attention-derived, or seq32-derived bridge commands"
     )))
 }
 

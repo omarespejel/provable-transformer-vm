@@ -136,8 +136,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 130. `docs/engineering/zkai-larger-native-block-boundary-amortization-budget-2026-05-18.md`
 131. `docs/engineering/zkai-larger-native-boundary-candidate-selector-2026-05-18.md`
 132. `docs/engineering/zkai-larger-native-boundary-source-compatibility-2026-05-18.md`
-133. `docs/engineering/reproducibility.md`
-134. `git status --short --branch`
+133. `docs/engineering/zkai-seq32-derived-d128-native-mlp-surface-2026-05-18.md`
+134. `docs/engineering/reproducibility.md`
+135. `git status --short --branch`
 
 ## What this repository is now
 

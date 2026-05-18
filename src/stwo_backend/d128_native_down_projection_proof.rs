@@ -68,6 +68,20 @@ pub const ZKAI_D128_ATTENTION_DERIVED_DOWN_PROJECTION_PUBLIC_INSTANCE_COMMITMENT
     "blake2b-256:a4c0e39d34dce67783230532ee7031449b1d2aec9add232ef40f43073e372735";
 pub const ZKAI_D128_ATTENTION_DERIVED_DOWN_PROJECTION_STATEMENT_COMMITMENT: &str =
     "blake2b-256:3ca2a06054a8ae8a9526bce62a4bc3a91e6f302fc3cb4866d7e2dc2afbf5f23e";
+pub const ZKAI_D128_SEQ32_DERIVED_ACTIVATION_SWIGLU_STATEMENT_COMMITMENT: &str =
+    "blake2b-256:dea8ba820803d368c260a267fbb5c93584bade42b5200b6deb28fffaa37cb441";
+pub const ZKAI_D128_SEQ32_DERIVED_ACTIVATION_SWIGLU_PUBLIC_INSTANCE_COMMITMENT: &str =
+    "blake2b-256:ce264c51e6a568a1b632a60bc3c640ae395ceffb41b9c3f0a01aebae03687efc";
+pub const ZKAI_D128_SEQ32_DERIVED_HIDDEN_ACTIVATION_COMMITMENT: &str =
+    "blake2b-256:0fdb6968a15701bafe8362bce37359677ab521863556952984bf7c0b9d540344";
+pub const ZKAI_D128_SEQ32_DERIVED_RESIDUAL_DELTA_COMMITMENT: &str =
+    "blake2b-256:89af7b3b0f22f7f590d945ba659afa3fc0ef6d67cd982e31f87e1cf825f05efd";
+pub const ZKAI_D128_SEQ32_DERIVED_DOWN_PROJECTION_MUL_ROW_COMMITMENT: &str =
+    "blake2b-256:9961f7bffbcd959cf684b1656a597d07061bf107bd067955cd5f8bf8133e6ae3";
+pub const ZKAI_D128_SEQ32_DERIVED_DOWN_PROJECTION_PUBLIC_INSTANCE_COMMITMENT: &str =
+    "blake2b-256:74e827de64a586efe23692f7d4503e19187804525add71e23809a8482b8c3da3";
+pub const ZKAI_D128_SEQ32_DERIVED_DOWN_PROJECTION_STATEMENT_COMMITMENT: &str =
+    "blake2b-256:4b8ae8318c0a74ba251265527e3aa25ad62df16a57b5714b285a41b5708c76d3";
 
 const M31_MODULUS: i64 = (1i64 << 31) - 1;
 const ZKAI_D128_TARGET_ID: &str = "rmsnorm-swiglu-residual-d128-v1";
@@ -145,6 +159,13 @@ const EXPECTED_VALIDATION_COMMANDS: &[&str] = &[
 const EXPECTED_DERIVED_VALIDATION_COMMANDS: &[&str] = &[
     "python3 scripts/zkai_d128_down_projection_proof_input.py --source-json docs/engineering/evidence/zkai-attention-derived-d128-native-activation-swiglu-proof-2026-05.json --write-json docs/engineering/evidence/zkai-attention-derived-d128-native-down-projection-proof-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-derived-d128-native-down-projection-proof-2026-05.tsv",
     "python3 -m unittest scripts.tests.test_zkai_d128_down_projection_proof_input",
+    "cargo +nightly-2025-07-14 test d128_native_down_projection_proof --lib --features stwo-backend",
+    "just gate-fast",
+    "just gate",
+];
+const EXPECTED_SEQ32_DERIVED_VALIDATION_COMMANDS: &[&str] = &[
+    "python3.10 scripts/zkai_seq32_derived_d128_mlp_surface_gate.py --write-inputs",
+    "python3.10 -m unittest scripts.tests.test_zkai_seq32_derived_d128_mlp_surface_gate",
     "cargo +nightly-2025-07-14 test d128_native_down_projection_proof --lib --features stwo-backend",
     "just gate-fast",
     "just gate",
@@ -606,6 +627,20 @@ fn approved_source_activation_anchor(
             statement_commitment_out:
                 ZKAI_D128_ATTENTION_DERIVED_DOWN_PROJECTION_STATEMENT_COMMITMENT,
             validation_commands: EXPECTED_DERIVED_VALIDATION_COMMANDS,
+        },
+        SourceActivationAnchor {
+            name: "seq32_derived",
+            statement_commitment: ZKAI_D128_SEQ32_DERIVED_ACTIVATION_SWIGLU_STATEMENT_COMMITMENT,
+            public_instance_commitment:
+                ZKAI_D128_SEQ32_DERIVED_ACTIVATION_SWIGLU_PUBLIC_INSTANCE_COMMITMENT,
+            hidden_activation_commitment: ZKAI_D128_SEQ32_DERIVED_HIDDEN_ACTIVATION_COMMITMENT,
+            residual_delta_commitment: ZKAI_D128_SEQ32_DERIVED_RESIDUAL_DELTA_COMMITMENT,
+            down_projection_mul_row_commitment:
+                ZKAI_D128_SEQ32_DERIVED_DOWN_PROJECTION_MUL_ROW_COMMITMENT,
+            public_instance_commitment_out:
+                ZKAI_D128_SEQ32_DERIVED_DOWN_PROJECTION_PUBLIC_INSTANCE_COMMITMENT,
+            statement_commitment_out: ZKAI_D128_SEQ32_DERIVED_DOWN_PROJECTION_STATEMENT_COMMITMENT,
+            validation_commands: EXPECTED_SEQ32_DERIVED_VALIDATION_COMMANDS,
         },
     ];
     anchors
