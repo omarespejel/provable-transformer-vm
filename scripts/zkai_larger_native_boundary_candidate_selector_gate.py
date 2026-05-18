@@ -226,6 +226,8 @@ MUTATION_NAMES = (
     "nanozk_overclaim",
     "full_block_overclaim",
     "source_artifact_digest_drift",
+    "source_artifact_id_drift",
+    "source_artifact_path_traversal",
     "accounting_row_removed",
     "non_claim_removed",
     "non_claim_added",
@@ -327,11 +329,59 @@ def source_descriptor(path: pathlib.Path, raw: bytes, artifact_id: str) -> dict[
     }
 
 
+def expected_source_artifacts() -> tuple[tuple[str, str], ...]:
+    return (
+        ("candidate_accounting", str(ACCOUNTING_PATH.relative_to(ROOT))),
+        *(
+            (
+                f"{candidate_id}_gate",
+                str((EVIDENCE_DIR / expected["attention_gate_path"]).relative_to(ROOT)),
+            )
+            for candidate_id, expected in EXPECTED_CANDIDATES.items()
+        ),
+    )
+
+
+def repo_relative_path(path_text: str, label: str) -> pathlib.Path:
+    path = pathlib.Path(path_text)
+    if path.is_absolute():
+        raise LargerNativeBoundaryCandidateSelectorError(f"{label} must be relative")
+    if ".." in path.parts:
+        raise LargerNativeBoundaryCandidateSelectorError(f"{label} must not contain traversal")
+    candidate = ROOT / path
+    try:
+        candidate.resolve().relative_to(ROOT.resolve())
+    except ValueError as err:
+        raise LargerNativeBoundaryCandidateSelectorError(f"{label} escapes repo root") from err
+    return candidate
+
+
+def verified_mlp_accounting(accounting_rows: dict[str, dict[str, Any]]) -> dict[str, int]:
+    row = accounting_rows.get(MLP_FUSED_ENVELOPE)
+    if row is None:
+        raise LargerNativeBoundaryCandidateSelectorError(
+            f"missing accounting row for {MLP_FUSED_ENVELOPE}"
+        )
+    typed_bytes = int_field(
+        row.get("local_binary_accounting", {}).get("component_sum_bytes"),
+        "MLP fused typed bytes",
+    )
+    json_proof_bytes = int_field(row.get("proof_json_size_bytes"), "MLP fused JSON bytes")
+    if typed_bytes != MLP_TYPED_BYTES:
+        raise LargerNativeBoundaryCandidateSelectorError("MLP fused typed bytes drift")
+    if json_proof_bytes != MLP_JSON_PROOF_BYTES:
+        raise LargerNativeBoundaryCandidateSelectorError("MLP fused JSON bytes drift")
+    return {
+        "typed_bytes": typed_bytes,
+        "json_proof_bytes": json_proof_bytes,
+    }
+
+
 def build_candidate_rows(
-    accounting: dict[str, Any],
+    accounting_rows: dict[str, dict[str, Any]],
     source_artifacts: list[dict[str, Any]],
+    mlp_accounting: dict[str, int],
 ) -> list[dict[str, Any]]:
-    accounting_rows = row_by_relative_path(accounting)
     candidates: list[dict[str, Any]] = []
     for candidate_id, expected in EXPECTED_CANDIDATES.items():
         gate_path = EVIDENCE_DIR / expected["attention_gate_path"]
@@ -358,8 +408,8 @@ def build_candidate_rows(
             f"{candidate_id} fused saving",
         )
         gate_ratio = ratio(accounting_json, gate_source_plus)
-        matched_typed = accounting_typed + MLP_TYPED_BYTES
-        matched_json = accounting_json + MLP_JSON_PROOF_BYTES
+        matched_typed = accounting_typed + mlp_accounting["typed_bytes"]
+        matched_json = accounting_json + mlp_accounting["json_proof_bytes"]
         candidate = {
             "candidate_id": candidate_id,
             "status": expected["status"],
@@ -386,8 +436,10 @@ def build_candidate_rows(
 
 def build_payload() -> dict[str, Any]:
     accounting, accounting_raw = read_json_and_raw(ACCOUNTING_PATH, "candidate accounting")
+    accounting_rows = row_by_relative_path(accounting)
+    mlp_accounting = verified_mlp_accounting(accounting_rows)
     source_artifacts = [source_descriptor(ACCOUNTING_PATH, accounting_raw, "candidate_accounting")]
-    candidates = build_candidate_rows(accounting, source_artifacts)
+    candidates = build_candidate_rows(accounting_rows, source_artifacts, mlp_accounting)
     by_id = {row["candidate_id"]: row for row in candidates}
     selected = by_id["two_head_seq32_fused_attention"]
     d8 = by_id["d8_fused_attention"]
@@ -432,8 +484,8 @@ def build_payload() -> dict[str, Any]:
             selected["attention_typed_bytes"] - d8["attention_typed_bytes"],
             selected["lookup_claims"] - d8["lookup_claims"],
         ),
-        "mlp_fused_typed_bytes": MLP_TYPED_BYTES,
-        "mlp_fused_json_proof_bytes": MLP_JSON_PROOF_BYTES,
+        "mlp_fused_typed_bytes": mlp_accounting["typed_bytes"],
+        "mlp_fused_json_proof_bytes": mlp_accounting["json_proof_bytes"],
         "nanozk_reported_d128_block_proof_bytes": NANOZK_REPORTED_D128_BLOCK_PROOF_BYTES,
         "proof_size_comparable_external_rows": 0,
     }
@@ -538,10 +590,25 @@ def validate_payload_without_commitment(payload: dict[str, Any]) -> None:
     artifacts = payload.get("source_artifacts")
     if not isinstance(artifacts, list) or len(artifacts) != len(EXPECTED_CANDIDATES) + 1:
         raise LargerNativeBoundaryCandidateSelectorError("source artifact count drift")
+    observed_artifacts = []
+    seen_artifact_ids = set()
     for artifact in artifacts:
         if not isinstance(artifact, dict):
             raise LargerNativeBoundaryCandidateSelectorError("source artifact must be object")
-        path = ROOT / str_field(artifact.get("path"), "source artifact path")
+        artifact_id = str_field(artifact.get("id"), "source artifact id")
+        if artifact_id in seen_artifact_ids:
+            raise LargerNativeBoundaryCandidateSelectorError("duplicate source artifact id")
+        seen_artifact_ids.add(artifact_id)
+        path_text = str_field(artifact.get("path"), "source artifact path")
+        repo_relative_path(path_text, "source artifact path")
+        observed_artifacts.append((artifact_id, path_text))
+    if tuple(observed_artifacts) != expected_source_artifacts():
+        raise LargerNativeBoundaryCandidateSelectorError("source artifact inventory drift")
+    for artifact in artifacts:
+        path = repo_relative_path(
+            str_field(artifact.get("path"), "source artifact path"),
+            "source artifact path",
+        )
         _, raw = read_json_and_raw(path, f"source artifact {path}")
         if artifact.get("sha256") != digest(raw):
             raise LargerNativeBoundaryCandidateSelectorError("source artifact digest drift")
@@ -576,6 +643,14 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, Callable[[dict[st
         (
             "source_artifact_digest_drift",
             lambda p: p["source_artifacts"][0].__setitem__("sha256", "0" * 64),
+        ),
+        (
+            "source_artifact_id_drift",
+            lambda p: p["source_artifacts"][0].__setitem__("id", "external_accounting"),
+        ),
+        (
+            "source_artifact_path_traversal",
+            lambda p: p["source_artifacts"][0].__setitem__("path", "../../tmp/external.json"),
         ),
         ("accounting_row_removed", lambda p: p["candidates"].pop()),
         ("non_claim_removed", lambda p: p["non_claims"].remove("not a NANOZK proof-size win")),
