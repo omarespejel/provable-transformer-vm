@@ -1,0 +1,345 @@
+{
+  "builder_policy": {
+    "accepted_label_ids": [
+      "adjacent_label_probe_a",
+      "adjacent_label_probe_b"
+    ],
+    "generated_label_ids": [
+      "fixed_adjacent_layout",
+      "adjacent_label_probe_a",
+      "adjacent_label_probe_b"
+    ],
+    "input_artifact_ids": [
+      "generated_adjacent_label_inventory",
+      "adjacent_label_probe_accounting"
+    ],
+    "manual_override_allowed": false,
+    "name": "source_generated_seq32_attention_mlp_proof_object_builder_v1",
+    "promotion_rule": "a source-generated label is promotable only when it is accepted by the generated inventory policy and the builder reconstructs its proof-object row without drift",
+    "proof_envelope_binding": [
+      "accounting.envelope_sha256 == sha256(raw envelope JSON bytes)",
+      "accounting.proof_sha256 == sha256(envelope.proof byte array)",
+      "accounting.proof_json_size_bytes == len(envelope.proof byte array)",
+      "local_binary_accounting.typed_size_estimate_bytes == generated typed_bytes"
+    ],
+    "rejected_label_ids": [
+      "fixed_adjacent_layout"
+    ],
+    "row_join_key": "generated_label_inventory.path == accounting.evidence_relative_path",
+    "source_rule": "generated adjacent labels from Rust+CLI inventory must join to the pinned local binary accounting row and the referenced envelope bytes"
+  },
+  "claim_boundary": "SOURCE_GENERATED_BUILDER_OVER_EXISTING_STWO_SEQ32_D128_PROOF_ENVELOPES;JOINS_RUST_CLI_GENERATED_LABELS_TO_PINNED_ACCOUNTING_AND_ENVELOPES;NOT_A_NEW_PROOF_FRONTIER_NOT_A_NANOZK_WIN_NOT_FRESH_PROOF_GENERATION",
+  "decision": "GO_SOURCE_GENERATED_PROOF_OBJECT_ROWS_REPRODUCE_CURRENT_ADJACENT_FRONTIER",
+  "frontier_summary": {
+    "accepted_row_count": 2,
+    "best_accepted_label_id": "adjacent_label_probe_b",
+    "best_accepted_saving_share": "0.107825",
+    "best_accepted_saving_typed_bytes": 4536,
+    "best_accepted_typed_bytes": 37532,
+    "current_champion_path_opening_bytes": 20592,
+    "current_champion_typed_bytes": 42068,
+    "fixed_adjacent_label_id": "fixed_adjacent_layout",
+    "fixed_adjacent_miss_vs_champion_typed_bytes": 88,
+    "fixed_adjacent_typed_bytes": 42156,
+    "generated_proof_object_row_count": 3,
+    "new_frontier_claimed": false,
+    "proof_size_comparable_external_rows": 0,
+    "rejected_row_count": 1,
+    "source_generated_builder_frontier_label_id": "adjacent_label_probe_b",
+    "source_generated_builder_frontier_typed_bytes": 37532,
+    "worst_accepted_label_id": "adjacent_label_probe_a",
+    "worst_accepted_saving_typed_bytes": 1736,
+    "worst_accepted_typed_bytes": 40332
+  },
+  "interpretation": {
+    "human_read": "The source-generated label inventory is now connected to the actual proof-object files. Each adjacent label has to join to a pinned accounting row and a real envelope whose proof length, proof hash, envelope hash, and typed accounting all match.",
+    "mechanism_read": "This does not create a new proof. It removes a manual promotion gap: a generated Rust/CLI label cannot become evidence unless the builder can reconstruct the proof-object row from the accounting artifact and the envelope bytes.",
+    "next_experiment": "Move from builder verification over existing envelopes to source-generated proving for new query/opening-stability labels, then keep only labels that beat the 37,532 typed-byte best adjacent row without widening the statement."
+  },
+  "issue_hint": "source-generated-seq32-proof-object-builder",
+  "mutation_result": {
+    "all_mutations_rejected": true,
+    "cases": [
+      {
+        "error": "decision drift",
+        "name": "decision_drift",
+        "rejected": true
+      },
+      {
+        "error": "result drift",
+        "name": "result_drift",
+        "rejected": true
+      },
+      {
+        "error": "claim_boundary drift",
+        "name": "claim_boundary_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "source artifact drift",
+        "name": "generated_inventory_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "source artifact drift",
+        "name": "generated_inventory_commitment_drift",
+        "rejected": true
+      },
+      {
+        "error": "source artifact drift",
+        "name": "accounting_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "builder policy drift",
+        "name": "builder_manual_override_enabled",
+        "rejected": true
+      },
+      {
+        "error": "builder policy drift",
+        "name": "generated_label_removed",
+        "rejected": true
+      },
+      {
+        "error": "proof object row order drift",
+        "name": "missing_accounting_row",
+        "rejected": true
+      },
+      {
+        "error": "proof object row drift",
+        "name": "envelope_path_relabeling",
+        "rejected": true
+      },
+      {
+        "error": "proof object row drift",
+        "name": "envelope_sha_drift",
+        "rejected": true
+      },
+      {
+        "error": "proof object row drift",
+        "name": "proof_sha_drift",
+        "rejected": true
+      },
+      {
+        "error": "proof object row drift",
+        "name": "proof_length_drift",
+        "rejected": true
+      },
+      {
+        "error": "proof object row drift",
+        "name": "typed_accounting_drift",
+        "rejected": true
+      },
+      {
+        "error": "proof object row drift",
+        "name": "record_stream_drift",
+        "rejected": true
+      },
+      {
+        "error": "proof object row drift",
+        "name": "proof_backend_version_drift",
+        "rejected": true
+      },
+      {
+        "error": "proof object row drift",
+        "name": "fixed_label_promoted",
+        "rejected": true
+      },
+      {
+        "error": "frontier summary drift",
+        "name": "best_frontier_drift",
+        "rejected": true
+      },
+      {
+        "error": "validation command drift",
+        "name": "validation_command_drift",
+        "rejected": true
+      },
+      {
+        "error": "non_claims drift",
+        "name": "removed_non_claim",
+        "rejected": true
+      },
+      {
+        "error": "payload commitment drift",
+        "name": "payload_commitment_drift",
+        "rejected": true
+      }
+    ],
+    "mutation_names": [
+      "decision_drift",
+      "result_drift",
+      "claim_boundary_overclaim",
+      "generated_inventory_digest_drift",
+      "generated_inventory_commitment_drift",
+      "accounting_digest_drift",
+      "builder_manual_override_enabled",
+      "generated_label_removed",
+      "missing_accounting_row",
+      "envelope_path_relabeling",
+      "envelope_sha_drift",
+      "proof_sha_drift",
+      "proof_length_drift",
+      "typed_accounting_drift",
+      "record_stream_drift",
+      "proof_backend_version_drift",
+      "fixed_label_promoted",
+      "best_frontier_drift",
+      "validation_command_drift",
+      "removed_non_claim",
+      "payload_commitment_drift"
+    ],
+    "mutations_rejected": 21
+  },
+  "non_claims": [
+    "not fresh proof generation",
+    "not a new proof-size frontier beyond the existing 37,532 typed-byte adjacent label probe B row",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not a full transformer block proof",
+    "not exact real-valued Softmax",
+    "not timing evidence",
+    "not production-ready zkML"
+  ],
+  "payload_commitment": "blake2b-256:91f8d9666a5d9793ccb72208709af02b8a37644f04df7b351ed6da3c7531f7fa",
+  "proof_object_rows": [
+    {
+      "accounting_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-accounting-2026-05.json",
+      "accounting_proof_json_bytes": 122688,
+      "adapter_mode": "rmsnorm_input_fused_adjacent_fixed_v1",
+      "builder_status": "reconstructed_from_generated_label_accounting_and_envelope",
+      "cli_command": "build-input-rmsnorm-fused-adjacent",
+      "envelope_sha256": "91d6866982629e829ef4b53502c99c7215e0d6bb257336cdf2910b8c94ce52b3",
+      "fixed_overhead_bytes": 48,
+      "fri_decommitment_bytes": 13696,
+      "fri_sample_bytes": 832,
+      "input_sha256": "f6f27d63a9eeca86b2bb43f4f7b2b3a1f96708c8e14f2852661b10ccbccd7198",
+      "oods_sample_bytes": 11984,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.envelope.json",
+      "path_opening_bytes": 21184,
+      "policy_status": "rejected_inflating_label",
+      "proof_backend": "stwo",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_json_bytes": 122688,
+      "proof_len_bytes": 122688,
+      "proof_schema_version": "stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-payload-v1",
+      "proof_sha256": "f1a495236e06cb3bb76e7f7cb900b9b96eb203809f791d28238fc948514126ed",
+      "queried_value_bytes": 8940,
+      "record_count": 13,
+      "record_stream_bytes": 1084,
+      "record_stream_sha256": "24e3f16bf92320fd79059257ec70ca97bbf76b5859610c2013c58a7511f1feaf",
+      "rust_enum_variant": "RmsnormInputFusedAdjacentFixed",
+      "statement_version": "zkai-native-seq32-attention-mlp-single-proof-object-native-adapter-statement-v1",
+      "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
+      "trace_decommitment_bytes": 6656,
+      "typed_bytes": 42156,
+      "typed_delta_vs_champion": 88,
+      "typed_saving_vs_champion": -88,
+      "value_bytes": 20924,
+      "variant_id": "fixed_adjacent_layout",
+      "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1"
+    },
+    {
+      "accounting_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-accounting-2026-05.json",
+      "accounting_proof_json_bytes": 116321,
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_a_v1",
+      "builder_status": "reconstructed_from_generated_label_accounting_and_envelope",
+      "cli_command": "build-input-rmsnorm-fused-adjacent-label-probe-a",
+      "envelope_sha256": "2f15a7b6c6e15b889ffc61c6a74235efc43b416fe7384452ca07d5818447f0aa",
+      "fixed_overhead_bytes": 48,
+      "fri_decommitment_bytes": 12320,
+      "fri_sample_bytes": 768,
+      "input_sha256": "b970d9ef2f758db89930307c5594fbf57a1e9741b84a6954936f69fbdb960924",
+      "oods_sample_bytes": 11984,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05.envelope.json",
+      "path_opening_bytes": 19360,
+      "policy_status": "supported_label",
+      "proof_backend": "stwo",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_json_bytes": 116321,
+      "proof_len_bytes": 116321,
+      "proof_schema_version": "stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-payload-v1",
+      "proof_sha256": "3421ac16f96bda07540698ccdbf1ea705ca384583c3b3275fc99471b5a156d7d",
+      "queried_value_bytes": 8940,
+      "record_count": 13,
+      "record_stream_bytes": 1084,
+      "record_stream_sha256": "ab9c27d7b780f81ec8f8f562997392362c18c9ddc6315d1db303520e3fd7e682",
+      "rust_enum_variant": "RmsnormInputFusedAdjacentLabelProbeA",
+      "statement_version": "zkai-native-seq32-attention-mlp-single-proof-object-native-adapter-statement-v1",
+      "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
+      "trace_decommitment_bytes": 6272,
+      "typed_bytes": 40332,
+      "typed_delta_vs_champion": -1736,
+      "typed_saving_vs_champion": 1736,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_label_probe_a",
+      "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1"
+    },
+    {
+      "accounting_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-accounting-2026-05.json",
+      "accounting_proof_json_bytes": 106317,
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+      "builder_status": "reconstructed_from_generated_label_accounting_and_envelope",
+      "cli_command": "build-input-rmsnorm-fused-adjacent-label-probe-b",
+      "envelope_sha256": "8e3ba831ac7e858d069f1edfcb6ad46783b0d72f3f47666ae621bc159ac2c0df",
+      "fixed_overhead_bytes": 48,
+      "fri_decommitment_bytes": 10240,
+      "fri_sample_bytes": 688,
+      "input_sha256": "f7c899cab3790eda5c770e56d0b9ed02ab5b65c7a72d4e1ccaaab7ed80a4a4da",
+      "oods_sample_bytes": 11984,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.envelope.json",
+      "path_opening_bytes": 16560,
+      "policy_status": "supported_label",
+      "proof_backend": "stwo",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_json_bytes": 106317,
+      "proof_len_bytes": 106317,
+      "proof_schema_version": "stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-payload-v1",
+      "proof_sha256": "4a5dc66d63ee3ddd3acad65e88c42259fb925ee31768a3fdecdb528722630845",
+      "queried_value_bytes": 8940,
+      "record_count": 13,
+      "record_stream_bytes": 1084,
+      "record_stream_sha256": "d0540f5cd1a69991226bcfb81475cec78ba0d416a39317503ad204b660aae1e0",
+      "rust_enum_variant": "RmsnormInputFusedAdjacentLabelProbeB",
+      "statement_version": "zkai-native-seq32-attention-mlp-single-proof-object-native-adapter-statement-v1",
+      "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
+      "trace_decommitment_bytes": 5632,
+      "typed_bytes": 37532,
+      "typed_delta_vs_champion": -4536,
+      "typed_saving_vs_champion": 4536,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_label_probe_b",
+      "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1"
+    }
+  ],
+  "result": "BUILDER_REPRODUCES_THREE_ADJACENT_ROWS_BEST_37532_TYPED_BYTES_AND_FIXED_LABEL_REJECTED_AT_42156",
+  "schema": "zkai-native-seq32-attention-mlp-generated-proof-object-builder-gate-v1",
+  "source_artifacts": [
+    {
+      "id": "generated_adjacent_label_inventory",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-2026-05.json",
+      "payload_commitment": "blake2b-256:a1ad83f3dea22610a51dce6530ef699f7112fff70bda55dd7c4250f5a89d1c5f",
+      "sha256": "10ef45339f48c41e6cd264906e8ffbcfb49e8e7bb8738ea21174ba8fbb63a1bb",
+      "size_bytes": 13841
+    },
+    {
+      "id": "adjacent_label_probe_accounting",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-accounting-2026-05.json",
+      "payload_commitment": null,
+      "sha256": "0841dd4dbf6d3ff76ede4c3e088b301745e04f649024d50aa378fb239cd1ef5c",
+      "size_bytes": 20962
+    }
+  ],
+  "validation_commands": [
+    "python3.10 scripts/zkai_native_seq32_attention_mlp_generated_proof_object_builder_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-generated-proof-object-builder-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-generated-proof-object-builder-2026-05.tsv",
+    "python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_generated_proof_object_builder_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_generated_proof_object_builder_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_generated_proof_object_builder_gate",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_generated_adjacent_label_inventory_gate",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_deterministic_adjacent_label_policy_gate",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adjacent_label_policy_gate",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_adjacent_label --lib",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}
