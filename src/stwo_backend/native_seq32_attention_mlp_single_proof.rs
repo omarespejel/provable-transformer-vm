@@ -2865,6 +2865,17 @@ mod tests {
     }
 
     #[test]
+    fn opening_sampler_rejects_tampered_input() {
+        let mut input = fixture_input_with_mode(
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeB,
+        );
+        input.statement_commitment =
+            "blake2b-256:0000000000000000000000000000000000000000000000000000000000000000"
+                .to_string();
+        assert!(sample_zkai_native_seq32_attention_mlp_openings(&input).is_err());
+    }
+
+    #[test]
     fn rmsnorm_input_fused_label_probes_preserve_constraints_but_change_statement() {
         let canonical =
             fixture_input_with_mode(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedFixed);

@@ -141,6 +141,23 @@ class DryRunOpeningSamplerGateTest(unittest.TestCase):
                     self.payload,
                 )
 
+    def test_rejects_paired_outputs_in_different_parents(self):
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:
+            tmp_path = pathlib.Path(tmp)
+            json_parent = tmp_path / "json"
+            tsv_parent = tmp_path / "tsv"
+            json_parent.mkdir()
+            tsv_parent.mkdir()
+            with self.assertRaisesRegex(
+                self.gate.DryRunOpeningSamplerGateError,
+                "paired output paths must share one parent directory",
+            ):
+                self.gate.write_outputs(
+                    json_parent / "out.json",
+                    tsv_parent / "out.tsv",
+                    self.payload,
+                )
+
     @unittest.skipUnless(hasattr(os, "symlink"), "requires symlink support")
     def test_rejects_output_paths_through_symlinked_parent(self):
         with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:

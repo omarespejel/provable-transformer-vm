@@ -57,7 +57,7 @@ MAX_SAMPLER_JSON_BYTES = 64 * 1024
 MAX_PREPROVE_EVIDENCE_BYTES = 2 * 1024 * 1024
 DETERMINISTIC_TEMP_ATTEMPTS = 16
 
-EXPECTED_RUST_SOURCE_SHA256 = "5efd093bdf81ecf94cf6e959b12ebcae0265f41d7e084d7ae248646d8d3077ef"
+EXPECTED_RUST_SOURCE_SHA256 = "7818c25b034da111cddd090783ea6bc66fd0c4dc2c67f95e3281899d0235344b"
 EXPECTED_CLI_SOURCE_SHA256 = "ea68996b62dd763255e20479672bf7a392494a710c87eb2c0da84482873b4b52"
 EXPECTED_PREPROVE_EVIDENCE_SHA256 = "98bcd9b9a574aa934c4ad571ae78aa1d738f0fb720488cb992be88609a8b785b"
 
@@ -628,6 +628,50 @@ def require_output_path(path: pathlib.Path) -> pathlib.Path:
     return target
 
 
+def write_temp_output(parent_fd: int, target_name: str, data: bytes) -> str:
+    for attempt in range(DETERMINISTIC_TEMP_ATTEMPTS):
+        tmp_name = f".{target_name}.tmp.{attempt}"
+        tmp_created = False
+        fd: int | None = None
+        try:
+            fd = os.open(
+                tmp_name,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0),
+                0o600,
+                dir_fd=parent_fd,
+            )
+        except FileExistsError:
+            continue
+        except OSError as err:
+            raise DryRunOpeningSamplerGateError(f"failed to create temp output: {tmp_name}") from err
+        try:
+            tmp_created = True
+            try:
+                handle = os.fdopen(fd, "wb")
+            except Exception:
+                os.close(fd)
+                fd = None
+                raise
+            fd = None
+            with handle:
+                handle.write(data)
+                handle.flush()
+                os.fsync(handle.fileno())
+            tmp_created = False
+            return tmp_name
+        except OSError as err:
+            raise DryRunOpeningSamplerGateError(f"failed to write temp output: {tmp_name}") from err
+        finally:
+            if tmp_created:
+                try:
+                    os.unlink(tmp_name, dir_fd=parent_fd)
+                except OSError:
+                    pass
+            if fd is not None:
+                os.close(fd)
+    raise DryRunOpeningSamplerGateError("deterministic temp file collision")
+
+
 def atomic_write(path: pathlib.Path, data: bytes) -> None:
     target = require_output_path(path)
     try:
@@ -637,63 +681,74 @@ def atomic_write(path: pathlib.Path, data: bytes) -> None:
         )
     except OSError as err:
         raise DryRunOpeningSamplerGateError(f"failed to open output parent: {target.parent}") from err
+    tmp_name: str | None = None
     try:
-        for attempt in range(DETERMINISTIC_TEMP_ATTEMPTS):
-            tmp_name = f".{target.name}.tmp.{attempt}"
-            tmp_created = False
-            fd: int | None = None
-            try:
-                fd = os.open(
-                    tmp_name,
-                    os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0),
-                    0o600,
-                    dir_fd=parent_fd,
-                )
-            except FileExistsError:
-                continue
-            except OSError as err:
-                raise DryRunOpeningSamplerGateError(
-                    f"failed to create temp output: {tmp_name}"
-                ) from err
-            try:
-                tmp_created = True
-                try:
-                    handle = os.fdopen(fd, "wb")
-                except Exception:
-                    os.close(fd)
-                    fd = None
-                    raise
-                fd = None
-                with handle:
-                    handle.write(data)
-                    handle.flush()
-                    os.fsync(handle.fileno())
-                os.replace(tmp_name, target.name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
-                tmp_created = False
-                os.fsync(parent_fd)
-                return
-            except OSError as err:
-                raise DryRunOpeningSamplerGateError(f"failed to write output: {target}") from err
-            finally:
-                if tmp_created:
-                    try:
-                        os.unlink(tmp_name, dir_fd=parent_fd)
-                    except OSError:
-                        pass
-                if fd is not None:
-                    os.close(fd)
-        raise DryRunOpeningSamplerGateError("deterministic temp file collision")
+        tmp_name = write_temp_output(parent_fd, target.name, data)
+        os.replace(tmp_name, target.name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
+        tmp_name = None
+        os.fsync(parent_fd)
+    except OSError as err:
+        raise DryRunOpeningSamplerGateError(f"failed to write output: {target}") from err
     finally:
+        if tmp_name is not None:
+            try:
+                os.unlink(tmp_name, dir_fd=parent_fd)
+            except OSError:
+                pass
+        os.close(parent_fd)
+
+
+def atomic_write_pair(
+    json_path: pathlib.Path,
+    json_data: bytes,
+    tsv_path: pathlib.Path,
+    tsv_data: bytes,
+) -> None:
+    json_target = require_output_path(json_path)
+    tsv_target = require_output_path(tsv_path)
+    if json_target.parent != tsv_target.parent:
+        raise DryRunOpeningSamplerGateError("paired output paths must share one parent directory")
+    try:
+        parent_fd = os.open(
+            json_target.parent,
+            os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0),
+        )
+    except OSError as err:
+        raise DryRunOpeningSamplerGateError(
+            f"failed to open output parent: {json_target.parent}"
+        ) from err
+    json_tmp: str | None = None
+    tsv_tmp: str | None = None
+    try:
+        json_tmp = write_temp_output(parent_fd, json_target.name, json_data)
+        tsv_tmp = write_temp_output(parent_fd, tsv_target.name, tsv_data)
+        os.replace(json_tmp, json_target.name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
+        json_tmp = None
+        os.replace(tsv_tmp, tsv_target.name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
+        tsv_tmp = None
+        os.fsync(parent_fd)
+    except OSError as err:
+        raise DryRunOpeningSamplerGateError("failed to publish paired outputs") from err
+    finally:
+        for tmp_name in (json_tmp, tsv_tmp):
+            if tmp_name is not None:
+                try:
+                    os.unlink(tmp_name, dir_fd=parent_fd)
+                except OSError:
+                    pass
         os.close(parent_fd)
 
 
 def write_outputs(json_path: pathlib.Path, tsv_path: pathlib.Path, payload: dict[str, Any]) -> None:
     validate_payload(payload)
-    atomic_write(
+    json_data = json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=True).encode() + b"\n"
+    tsv_data = render_tsv(payload).encode()
+    atomic_write_pair(
         json_path,
-        json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=True).encode() + b"\n",
+        json_data,
+        tsv_path,
+        tsv_data,
     )
-    atomic_write(tsv_path, render_tsv(payload).encode())
 
 
 def parse_args() -> argparse.Namespace:
