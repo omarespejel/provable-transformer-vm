@@ -736,49 +736,77 @@ def render_tsv(payload: dict[str, Any]) -> str:
     return out.getvalue()
 
 
-def resolve_output_path(path: pathlib.Path, label: str) -> pathlib.Path:
-    root = EVIDENCE_DIR.resolve()
-    candidate = pathlib.Path(os.path.abspath(path if path.is_absolute() else ROOT / path))
-    parent = candidate.parent
-    if not parent.exists():
-        raise PreproveOpeningBucketPredictorGateError(f"{label} parent does not exist")
-    if not parent.is_dir():
-        raise PreproveOpeningBucketPredictorGateError(f"{label} parent is not a directory")
+def require_output_path(path: pathlib.Path) -> pathlib.Path:
+    target = pathlib.Path(os.path.abspath(path if path.is_absolute() else ROOT / path))
+    evidence_root = EVIDENCE_DIR.resolve()
     try:
-        parent.relative_to(root)
+        relative = target.relative_to(evidence_root)
     except ValueError as err:
-        raise PreproveOpeningBucketPredictorGateError(f"{label} must stay inside evidence dir") from err
-    if candidate.exists() and candidate.is_symlink():
-        raise PreproveOpeningBucketPredictorGateError(f"{label} must not be a symlink")
-    return candidate
+        raise PreproveOpeningBucketPredictorGateError("output path must stay inside evidence dir") from err
+    current = evidence_root
+    for part in relative.parent.parts:
+        current = current / part
+        try:
+            mode = current.lstat().st_mode
+        except OSError as err:
+            raise PreproveOpeningBucketPredictorGateError(f"output parent must exist: {current}") from err
+        if stat.S_ISLNK(mode):
+            raise PreproveOpeningBucketPredictorGateError("output path must not traverse symlinks")
+        if not stat.S_ISDIR(mode):
+            raise PreproveOpeningBucketPredictorGateError(f"output parent must be directory: {current}")
+    if target.is_symlink() or (target.exists() and target.is_dir()):
+        raise PreproveOpeningBucketPredictorGateError("output path must be a non-symlink file")
+    return target
 
 
 def atomic_write(path: pathlib.Path, text: str) -> None:
-    target = resolve_output_path(path, "output path")
-    data = text.encode("utf-8")
-    for attempt in range(DETERMINISTIC_TEMP_ATTEMPTS):
-        temp = target.with_name(f".{target.name}.tmp.{os.getpid()}.{attempt}")
-        try:
-            fd = os.open(temp, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
-        except FileExistsError:
-            continue
-        try:
-            with os.fdopen(fd, "wb") as handle:
-                fd = None
-                handle.write(data)
-                handle.flush()
-                os.fsync(handle.fileno())
-            os.replace(temp, target)
-            return
-        finally:
-            if fd is not None:
-                os.close(fd)
-            if temp.exists():
+    target = require_output_path(path)
+    parent_fd = os.open(
+        target.parent,
+        os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0),
+    )
+    try:
+        for attempt in range(DETERMINISTIC_TEMP_ATTEMPTS):
+            tmp_name = f".{target.name}.tmp.{attempt}"
+            tmp_created = False
+            fd: int | None = None
+            try:
+                fd = os.open(
+                    tmp_name,
+                    os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0),
+                    0o600,
+                    dir_fd=parent_fd,
+                )
+            except FileExistsError:
+                continue
+            try:
+                tmp_created = True
                 try:
-                    temp.unlink()
-                except FileNotFoundError:
-                    pass
-    raise PreproveOpeningBucketPredictorGateError(f"failed to create deterministic temp file for {target}")
+                    handle = os.fdopen(fd, "w", encoding="utf-8", newline="")
+                except Exception:
+                    os.close(fd)
+                    fd = None
+                    raise
+                fd = None
+                with handle:
+                    handle.write(text)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                os.replace(tmp_name, target.name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
+                os.fsync(parent_fd)
+                return
+            except Exception:
+                if fd is not None:
+                    os.close(fd)
+                if tmp_created:
+                    try:
+                        os.unlink(tmp_name, dir_fd=parent_fd)
+                    except FileNotFoundError:
+                        pass
+                raise
+        raise PreproveOpeningBucketPredictorGateError("could not create deterministic temp output")
+    finally:
+        os.close(parent_fd)
 
 
 def write_outputs(json_path: pathlib.Path, tsv_path: pathlib.Path, payload: dict[str, Any]) -> None:
