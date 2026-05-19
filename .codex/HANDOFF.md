@@ -2410,6 +2410,47 @@ Seq32 deterministic adjacent label-policy reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
+Latest generated adjacent label-inventory gate: the supported adjacent-label
+result is now source-generated instead of only hand-selected. The gate derives
+the current adjacent family from the pinned Rust adapter enum and matching CLI
+build-input commands, yielding three generated labels: fixed adjacent,
+adjacent probe A, and adjacent probe B. The full generated inventory remains a
+NO-GO because fixed adjacent is `42,156` typed bytes (`+88` versus the
+`42,068` champion), but the generated accepted subset keeps probe A at
+`40,332` typed bytes and probe B at `37,532` typed bytes. Worst accepted still
+saves `1,736` typed bytes (`4.1267%`) and best accepted saves `4,536` typed
+bytes (`10.7825%`). This is a source-policy correctness hardening result, not
+a new proof-size frontier, not a matched external benchmark, and not a NANOZK
+win. See
+`docs/engineering/zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-2026-05-19.md`.
+
+Seq32 generated adjacent label-inventory reproducibility metadata:
+
+- Rust source SHA-256:
+  `3d740bda9a3f301edea7a10dc1b9f58878d1a0f067397eecb5ed50465e4b7d95`.
+- CLI source SHA-256:
+  `ef857b997450d683526e0f2d85000da6b5ddfcd33c96640b2e68a323588ec71f`.
+- Deterministic source policy SHA-256:
+  `d5cbe419a545c022036b7347b6fb75a1fbb127dc7a861948d96103e646f338ab`.
+- Gate schema:
+  `zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-gate-v1`.
+- Decision:
+  `GO_GENERATED_SUPPORTED_ADJACENT_LABELS_BEAT_CURRENT_CHAMPION_WITH_FULL_INVENTORY_NO_GO`.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-2026-05.json`
+  and
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-2026-05.tsv`.
+- Local validation commands:
+  `python3.10 scripts/zkai_native_seq32_attention_mlp_generated_adjacent_label_inventory_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_generated_adjacent_label_inventory_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_generated_adjacent_label_inventory_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_generated_adjacent_label_inventory_gate`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_deterministic_adjacent_label_policy_gate`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adjacent_label_policy_gate`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_adjacent_label --lib`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
 ## Resume protocol
 
 1. Read `AGENTS.md`.
