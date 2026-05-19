@@ -77,13 +77,29 @@ Machine-readable evidence:
 Evidence hashes:
 
 - Gate JSON SHA-256:
-  `9753b22f5eb72ce1a741d80d972577615a0df82e2c2258b8eb169b2f46ab87dc`
+  `4a01f58f9330c3fc7e267d53627dbb66f0a97fb578d4cee3a56a236ea7b448a9`
 - Gate TSV SHA-256:
   `9d27db58076a846b5cdfa15b5f8e74cdcd703cf41292c03f33f867a75e531a81`
 - Payload commitment:
-  `blake2b-256:80178f088636181b2ba8ca7a98adc0dc568a0eda780b75f3d0e4d86202eb98d7`
+  `blake2b-256:bf164620b061616f5926f72b3a7c32fb936dc7545d477e91e1944dc7f92bdaa1`
 - Mutation guards:
-  `17 / 17` rejected.
+  `18 / 18` rejected.
+
+Reproducibility metadata:
+
+- `selected_backend_version`:
+  `stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1`
+- `selected_adapter_mode`:
+  `rmsnorm_input_fused_adjacent_label_probe_b_v1`
+- `rust_source_sha256`:
+  `7818c25b034da111cddd090783ea6bc66fd0c4dc2c67f95e3281899d0235344b`
+- `cli_source_sha256`:
+  `ea68996b62dd763255e20479672bf7a392494a710c87eb2c0da84482873b4b52`
+- `policy_row_count`: `9`
+- `fri_query_count_per_row`: `3`
+- `mutation_step_count`: `18`
+- `unittest_step_count`: `11`
+- `local_release_gate_step_count`: `14`
 
 The mutation suite rejects decision drift, result overclaiming, true
 pre-decommitment overclaims, Rust/CLI/evidence digest drift, source-marker
@@ -102,6 +118,10 @@ git diff --check
 just gate-fast
 just gate
 ```
+
+The gate run evaluates `9` policy rows, checks `3` FRI query locations per row,
+and executes `18` mutation cases. The unit-test command currently runs `11`
+tests. The full local release gate has `14` steps.
 
 ## Non-Claims
 

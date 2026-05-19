@@ -77,6 +77,22 @@ class PredecommitOpeningPolicyGateTest(unittest.TestCase):
         self.assertEqual(evaluation["saving_vs_current_champion_share"], "10.7825%")
         self.assertEqual(evaluation["saving_vs_best_pre_registered_seed_typed_bytes"], 2_736)
         self.assertEqual(self.evaluated_row("adjacent_label_probe_b")["final_value_bytes"], 20_924)
+        self.assertEqual(
+            self.evaluated_row("adjacent_label_probe_b")["final_path_opening_bytes"],
+            self.gate.BEST_PATH_OPENING_BYTES,
+        )
+
+    def test_reproducibility_metadata_records_backend_and_counts(self):
+        metadata = self.payload["reproducibility_metadata"]
+        self.assertEqual(
+            metadata["selected_backend_version"],
+            "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+        )
+        self.assertEqual(metadata["policy_row_count"], 9)
+        self.assertEqual(metadata["fri_query_count_per_row"], 3)
+        self.assertEqual(metadata["mutation_step_count"], self.gate.EXPECTED_MUTATION_COUNT)
+        self.assertEqual(metadata["unittest_step_count"], 11)
+        self.assertEqual(metadata["local_release_gate_step_count"], 14)
 
     def test_source_stage_markers_are_pinned(self):
         markers = self.payload["api_stage_audit"]["source_markers"]
@@ -98,6 +114,17 @@ class PredecommitOpeningPolicyGateTest(unittest.TestCase):
         with self.assertRaisesRegex(
             self.gate.PredecommitOpeningPolicyGateError,
             "base payload drift",
+        ):
+            self.gate.validate_base_payload(item)
+
+    def test_rejects_selected_path_opening_drift(self):
+        item = self.gate.build_payload_without_mutations()
+        self.evaluated_row_from(item, "adjacent_label_probe_b")[
+            "final_path_opening_bytes"
+        ] = 19_296
+        with self.assertRaisesRegex(
+            self.gate.PredecommitOpeningPolicyGateError,
+            "path-opening drift",
         ):
             self.gate.validate_base_payload(item)
 
@@ -134,6 +161,12 @@ class PredecommitOpeningPolicyGateTest(unittest.TestCase):
             lines = tsv_path.read_text().splitlines()
             self.assertEqual(lines[0], "\t".join(self.gate.TSV_COLUMNS))
             self.assertEqual(len(lines), 1 + len(self.payload["policy_rows"]))
+
+    def evaluated_row_from(self, payload, variant_id):
+        for row in payload["evaluation_rows"]:
+            if row["variant_id"] == variant_id:
+                return row
+        self.fail(f"missing evaluation row {variant_id}")
 
 
 if __name__ == "__main__":
