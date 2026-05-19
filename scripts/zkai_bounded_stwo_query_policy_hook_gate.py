@@ -121,7 +121,7 @@ CURRENT_CHAMPION_PATH_OPENING_BYTES = 16_560
 MATCHED_TWO_PROOF_FRONTIER_TYPED_BYTES = 47_188
 QUERY_SPAN = 16_618
 MIN_PAIRWISE_QUERY_GAP = 5_969
-EXPECTED_UNITTEST_STEP_COUNT = 15
+EXPECTED_UNITTEST_STEP_COUNT = 16
 
 TSV_COLUMNS = (
     "hook_id",
@@ -262,8 +262,11 @@ def validate_stwo_source_root(candidate: pathlib.Path, label: str) -> pathlib.Pa
 
 def find_stwo_source_root() -> pathlib.Path:
     if os.environ.get("STWO_SOURCE_ROOT"):
+        configured_root = pathlib.Path(
+            os.path.expandvars(os.environ["STWO_SOURCE_ROOT"])
+        ).expanduser()
         return validate_stwo_source_root(
-            pathlib.Path(os.environ["STWO_SOURCE_ROOT"]),
+            configured_root,
             "STWO_SOURCE_ROOT",
         )
     cargo_home = pathlib.Path(os.environ.get("CARGO_HOME", pathlib.Path.home() / ".cargo"))
