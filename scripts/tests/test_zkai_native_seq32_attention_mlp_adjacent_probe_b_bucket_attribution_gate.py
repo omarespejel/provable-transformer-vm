@@ -114,6 +114,22 @@ class AdjacentProbeBBucketAttributionGateTest(unittest.TestCase):
         finally:
             self.gate.MUTATION_NAMES = original_names
 
+    def test_best_seed_lookup_has_controlled_missing_row_error(self):
+        original_comparison_rows = self.gate.comparison_rows
+
+        def missing_seed_02(rows):
+            return [row for row in original_comparison_rows(rows) if row["variant_id"] != "adjacent_seed_02"]
+
+        self.gate.comparison_rows = missing_seed_02
+        try:
+            with self.assertRaisesRegex(
+                self.gate.AdjacentProbeBBucketAttributionGateError,
+                "adjacent_seed_02 comparison row missing",
+            ):
+                self.gate.build_payload_without_mutations()
+        finally:
+            self.gate.comparison_rows = original_comparison_rows
+
     def test_payload_commitment_is_stable(self):
         self.assertEqual(
             self.payload["payload_commitment"],

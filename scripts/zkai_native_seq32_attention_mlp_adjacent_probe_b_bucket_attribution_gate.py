@@ -437,7 +437,12 @@ def build_payload_without_mutations() -> dict[str, Any]:
     if frontier["json_proof_bytes"] != ADJACENT_PROBE_B_FRONTIER_JSON_BYTES:
         raise AdjacentProbeBBucketAttributionGateError("probe B JSON frontier drift")
     comparisons = comparison_rows(rows)
-    best_seed_delta = next(item for item in comparisons if item["variant_id"] == "adjacent_seed_02")
+    best_seed_delta = next(
+        (item for item in comparisons if item["variant_id"] == "adjacent_seed_02"),
+        None,
+    )
+    if best_seed_delta is None:
+        raise AdjacentProbeBBucketAttributionGateError("adjacent_seed_02 comparison row missing")
     path_opening_delta_total = sum(item["path_opening_delta_vs_probe_b"] for item in comparisons)
     value_delta_total = sum(item["value_delta_vs_probe_b"] for item in comparisons)
     payload = {
