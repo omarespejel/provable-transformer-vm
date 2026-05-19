@@ -1,0 +1,5 @@
+route_id	status	requires_prover_patch	requires_verifier_patch	external_query_choice	preview_before_fri_decommit	preview_before_trace_decommit	can_change_committed_trace_after_preview	can_claim_probe_b_control	requires_security_budget
+preview_only_split	FEASIBLE_API_PATCH	true	false	false	true	true	false	false	false
+policy_commitment_mix	FOLLOWUP_MATCHED_TRANSCRIPT_PATCH	true	true	false	true	true	false	false	false
+external_query_override	REJECTED_UNSOUND	true	true	true	true	true	false	false	true
+transcript_grinding_search	FOLLOWUP_SECURITY_BUDGET_REQUIRED	false	true	false	true	true	false	false	true

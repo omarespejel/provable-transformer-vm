@@ -94,8 +94,9 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 83. `docs/engineering/zkai-seq32-value-compatible-boundary-frontier-2026-05-18.md`
 84. `docs/engineering/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05-19.md`
 85. `docs/engineering/zkai-bounded-stwo-query-policy-hook-2026-05-19.md`
-86. `docs/engineering/reproducibility.md`
-87. `git status --short --branch`
+86. `docs/engineering/zkai-stwo-query-preview-split-prototype-2026-05-19.md`
+87. `docs/engineering/reproducibility.md`
+88. `git status --short --branch`
 
 ## Current lane split
 
@@ -2723,6 +2724,54 @@ Bounded Stwo query-policy hook reproducibility metadata:
   `python3.10 scripts/zkai_bounded_stwo_query_policy_hook_gate.py --write-json docs/engineering/evidence/zkai-bounded-stwo-query-policy-hook-2026-05.json --write-tsv docs/engineering/evidence/zkai-bounded-stwo-query-policy-hook-2026-05.tsv`;
   `python3.10 -m py_compile scripts/zkai_bounded_stwo_query_policy_hook_gate.py scripts/tests/test_zkai_bounded_stwo_query_policy_hook_gate.py`;
   `python3.10 -m unittest scripts.tests.test_zkai_bounded_stwo_query_policy_hook_gate`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
+Latest Stwo query-preview split prototype: issue `#704` is now checked as a
+source-pinned narrow result. The split is API-feasible but not a sound label
+policy. Stwo `2.2.0` already separates transcript-derived query drawing from
+`decommit_on_queries`, so a prover-side preview seam can expose canonical
+queries after proof-of-work mix and before FRI/tree decommitment. But the
+committed trace, layout, labels, FRI commitment, and transcript state are fixed
+before preview; choosing a better label after seeing queries is transcript
+grinding unless it has explicit soundness-loss accounting or a verifier-bound
+deterministic policy commitment. The numeric anchor remains `37,532` typed
+bytes, `16,560` path-opening bytes, `16,618` query span, `5,969` min pairwise
+query gap, and `9,656` typed bytes saved versus the `47,188` typed-byte matched
+two-proof frontier. See
+`docs/engineering/zkai-stwo-query-preview-split-prototype-2026-05-19.md`.
+
+Stwo query-preview split prototype reproducibility metadata:
+
+- Gate schema: `zkai-stwo-query-preview-split-prototype-gate-v1`.
+- Decision:
+  `NARROW_CLAIM_QUERY_PREVIEW_SPLIT_IS_API_FEASIBLE_NOT_SOUND_LABEL_POLICY`.
+- Result:
+  `NO_GO_SOUND_QUERY_GEOMETRY_CONTROL_WITHOUT_GRINDING_OR_POLICY_COMMITMENT`.
+- Timing mode: source-bound proof-system API audit only; no new proof-size
+  frontier, no regenerated proof under a new Stwo API, and no timing claim.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-stwo-query-preview-split-prototype-2026-05.json`
+  and
+  `docs/engineering/evidence/zkai-stwo-query-preview-split-prototype-2026-05.tsv`.
+- Gate JSON SHA-256:
+  `0a3348d51fa36219e8253e1c1a7fdea4d4f5a694f5edc24cc36d5bf7f8cbd442`.
+- Gate TSV SHA-256:
+  `7adcfb39ae6c7f461ee2d2d6549457ff99432067f36600249072ab9c6f3e3864`.
+- Payload commitment:
+  `blake2b-256:e956134a2e69b6d633effe9cf9a9c5f789b47f7d41ce972465ec619b1946800f`.
+- Route classification:
+  `preview_only_split` is `FEASIBLE_API_PATCH`; `policy_commitment_mix` is
+  `FOLLOWUP_MATCHED_TRANSCRIPT_PATCH`; `external_query_override` is
+  `REJECTED_UNSOUND`; `transcript_grinding_search` is
+  `FOLLOWUP_SECURITY_BUDGET_REQUIRED`.
+- Step counts: `18` mutation cases, `18` Python unit tests, and `14` local
+  release-gate steps.
+- Local validation commands:
+  `python3.10 scripts/zkai_stwo_query_preview_split_prototype_gate.py --write-json docs/engineering/evidence/zkai-stwo-query-preview-split-prototype-2026-05.json --write-tsv docs/engineering/evidence/zkai-stwo-query-preview-split-prototype-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_stwo_query_preview_split_prototype_gate.py scripts/tests/test_zkai_stwo_query_preview_split_prototype_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_stwo_query_preview_split_prototype_gate`;
   `git diff --check`;
   `just gate-fast`;
   `just gate`.

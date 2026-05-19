@@ -1,0 +1,381 @@
+{
+  "current_metric_anchor": {
+    "matched_two_proof_frontier_typed_bytes": 47188,
+    "min_pairwise_query_gap": 5969,
+    "path_opening_bytes": 16560,
+    "query_span": 16618,
+    "saving_vs_two_proof_frontier_share": "20.4628%",
+    "saving_vs_two_proof_frontier_typed_bytes": 9656,
+    "selected_row": "adjacent_label_probe_b",
+    "typed_bytes": 37532
+  },
+  "decision": "NARROW_CLAIM_QUERY_PREVIEW_SPLIT_IS_API_FEASIBLE_NOT_SOUND_LABEL_POLICY",
+  "forbidden_policy_inputs": {
+    "final_envelope_json": true,
+    "final_path_opening_bytes": true,
+    "final_proof_bytes": true,
+    "grouped_accounting": true,
+    "post_decommitment_aux_as_selector": true,
+    "record_streams": true,
+    "unbounded_abort_and_retry": true
+  },
+  "interpretation": {
+    "human_read": "The Stwo split is useful, but not in the naive way. We can expose canonical queries before expensive decommitment, which is a real API seam. We cannot then change labels or layouts after seeing those queries without turning the experiment into transcript grinding.",
+    "next_experiment": "Prototype the preview-only Stwo API first for early measurement, then test a bounded transcript-grinding or policy-commitment route before regenerating proof-size frontiers.",
+    "why_it_matters": "This keeps the breakthrough path honest. The current 37,532 typed-byte champion and 20.4628% saving over the two-proof frontier remain an opening geometry signal, but the next paper-grade claim needs either a deterministic precommitted policy or explicit security-budgeted grinding."
+  },
+  "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/704",
+  "mutation_result": {
+    "all_mutations_rejected": true,
+    "cases": [
+      {
+        "error": "base payload drift",
+        "name": "decision_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "result_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "preview_claims_label_control",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "external_query_override_allowed",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "stage_order_flip",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "committed_trace_mutable_after_preview",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "proof_size_frontier_claimed",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "metric_anchor_drift",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "core_query_source_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "core_query_marker_erasure",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "verifier_marker_erasure",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "policy_reads_final_bytes",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "transcript_grinding_without_budget",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "policy_commitment_verifier_patch_removed",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "validation_command_removed",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "non_claim_removed",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "source_artifact_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "payload commitment drift",
+        "name": "payload_commitment_drift",
+        "rejected": true
+      }
+    ],
+    "mutation_names": [
+      "decision_overclaim",
+      "result_overclaim",
+      "preview_claims_label_control",
+      "external_query_override_allowed",
+      "stage_order_flip",
+      "committed_trace_mutable_after_preview",
+      "proof_size_frontier_claimed",
+      "metric_anchor_drift",
+      "core_query_source_digest_drift",
+      "core_query_marker_erasure",
+      "verifier_marker_erasure",
+      "policy_reads_final_bytes",
+      "transcript_grinding_without_budget",
+      "policy_commitment_verifier_patch_removed",
+      "validation_command_removed",
+      "non_claim_removed",
+      "source_artifact_digest_drift",
+      "payload_commitment_drift"
+    ],
+    "mutations_rejected": 18
+  },
+  "non_claims": [
+    "not a new proof-size frontier",
+    "not a regenerated seq32+d128 proof under a new Stwo API",
+    "not a production label-selection policy",
+    "not a sound post-query label chooser",
+    "not an external query override",
+    "not a NANOZK proof-size comparison",
+    "not a full transformer block proof",
+    "not timing evidence",
+    "not production-ready zkML"
+  ],
+  "payload_commitment": "blake2b-256:e956134a2e69b6d633effe9cf9a9c5f789b47f7d41ce972465ec619b1946800f",
+  "preview_split_assessment": {
+    "api_preview_split_feasible": true,
+    "cannot_change_committed_trace_or_layout_after_preview": true,
+    "followup_needed": "security-budgeted transcript grinding or a verifier-bound deterministic policy commitment",
+    "proof_size_delta_typed_bytes": 0,
+    "regenerate_proof_size_frontier_now": false,
+    "sound_label_policy_feasible_now": false
+  },
+  "prototype_routes": [
+    {
+      "can_change_committed_trace_after_preview": false,
+      "can_claim_probe_b_control": false,
+      "external_query_choice": false,
+      "interpretation": "Expose transcript-drawn queries after PoW mix and before FRI/tree decommitments. This can support measurement or bounded early abort, but does not justify choosing labels after seeing the queries.",
+      "preview_before_fri_decommit": true,
+      "preview_before_trace_decommit": true,
+      "requires_prover_patch": true,
+      "requires_security_budget": false,
+      "requires_verifier_patch": false,
+      "route_id": "preview_only_split",
+      "status": "FEASIBLE_API_PATCH"
+    },
+    {
+      "can_change_committed_trace_after_preview": false,
+      "can_claim_probe_b_control": false,
+      "external_query_choice": false,
+      "interpretation": "Bind a deterministic policy commitment into prover and verifier transcript before canonical query draw. It can make policy semantics explicit, but still cannot read final proof bytes or post-decommitment accounting.",
+      "preview_before_fri_decommit": true,
+      "preview_before_trace_decommit": true,
+      "requires_prover_patch": true,
+      "requires_security_budget": false,
+      "requires_verifier_patch": true,
+      "route_id": "policy_commitment_mix",
+      "status": "FOLLOWUP_MATCHED_TRANSCRIPT_PATCH"
+    },
+    {
+      "can_change_committed_trace_after_preview": false,
+      "can_claim_probe_b_control": false,
+      "external_query_choice": true,
+      "interpretation": "Letting the prover choose FRI query locations directly breaks the Fiat-Shamir verifier story unless the verifier derives the same positions from a bound policy.",
+      "preview_before_fri_decommit": true,
+      "preview_before_trace_decommit": true,
+      "requires_prover_patch": true,
+      "requires_security_budget": true,
+      "requires_verifier_patch": true,
+      "route_id": "external_query_override",
+      "status": "REJECTED_UNSOUND"
+    },
+    {
+      "can_change_committed_trace_after_preview": false,
+      "can_claim_probe_b_control": false,
+      "external_query_choice": false,
+      "interpretation": "Abort-and-retry after seeing canonical queries is transcript grinding. It may be a research lever only with explicit soundness-loss accounting, bounded attempts, and verifier-visible constraints.",
+      "preview_before_fri_decommit": true,
+      "preview_before_trace_decommit": true,
+      "requires_prover_patch": false,
+      "requires_security_budget": true,
+      "requires_verifier_patch": true,
+      "route_id": "transcript_grinding_search",
+      "status": "FOLLOWUP_SECURITY_BUDGET_REQUIRED"
+    }
+  ],
+  "reproducibility_metadata": {
+    "cargo_dependency": "stwo = 2.2.0",
+    "local_release_gate_step_count": 14,
+    "mutation_step_count": 18,
+    "stwo_version": "2.2.0",
+    "unittest_step_count": 18
+  },
+  "result": "NO_GO_SOUND_QUERY_GEOMETRY_CONTROL_WITHOUT_GRINDING_OR_POLICY_COMMITMENT",
+  "schema": "zkai-stwo-query-preview-split-prototype-gate-v1",
+  "source_artifacts": [
+    {
+      "id": "rust_native_seq32_attention_mlp_source",
+      "path": "src/stwo_backend/native_seq32_attention_mlp_single_proof.rs",
+      "sha256": "7818c25b034da111cddd090783ea6bc66fd0c4dc2c67f95e3281899d0235344b",
+      "size_bytes": 145752
+    },
+    {
+      "id": "cli_native_seq32_attention_mlp_source",
+      "path": "src/bin/zkai_native_seq32_attention_mlp_single_proof.rs",
+      "sha256": "ea68996b62dd763255e20479672bf7a392494a710c87eb2c0da84482873b4b52",
+      "size_bytes": 32531
+    },
+    {
+      "id": "predecommit_opening_policy_evidence",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05.json",
+      "sha256": "07d711adf35a960f64c2cb644ba0e912b0d167698f2c4597d1294075eaa36084",
+      "size_bytes": 27731
+    },
+    {
+      "id": "predecommit_opening_policy_tsv",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05.tsv",
+      "sha256": "9d27db58076a846b5cdfa15b5f8e74cdcd703cf41292c03f33f867a75e531a81",
+      "size_bytes": 2010
+    },
+    {
+      "crate": "stwo",
+      "id": "stwo_2_2_prover_mod",
+      "path": "stwo-2.2.0/src/prover/mod.rs",
+      "sha256": "1a26ddc000bbda77ad8a36bf5f152a4f79947f784c9f31236164cc644d8f7bd5",
+      "size_bytes": 5423,
+      "version": "2.2.0"
+    },
+    {
+      "crate": "stwo",
+      "id": "stwo_2_2_prover_pcs_mod",
+      "path": "stwo-2.2.0/src/prover/pcs/mod.rs",
+      "sha256": "214158108b0381079e9cd96c7020eaf7e36fbb0ca3cdfefdcaa5b03ba5d9ce99",
+      "size_bytes": 16156,
+      "version": "2.2.0"
+    },
+    {
+      "crate": "stwo",
+      "id": "stwo_2_2_prover_fri",
+      "path": "stwo-2.2.0/src/prover/fri.rs",
+      "sha256": "475d667b19f5914cd11e65fc9f7230151029ae73d86e7241b7e9abc031023171",
+      "size_bytes": 23912,
+      "version": "2.2.0"
+    },
+    {
+      "crate": "stwo",
+      "id": "stwo_2_2_core_pcs_verifier",
+      "path": "stwo-2.2.0/src/core/pcs/verifier.rs",
+      "sha256": "797c32b03c3c4348c9b995bdccc30a9600cce085bafbce3bb9e7e49067dbabf6",
+      "size_bytes": 4885,
+      "version": "2.2.0"
+    },
+    {
+      "crate": "stwo",
+      "id": "stwo_2_2_core_fri",
+      "path": "stwo-2.2.0/src/core/fri.rs",
+      "sha256": "27af206dae322e9c60d6a44f6de3b01422d9c0a90089bf9009636c8e16dd95ce",
+      "size_bytes": 47762,
+      "version": "2.2.0"
+    },
+    {
+      "crate": "stwo",
+      "id": "stwo_2_2_core_queries",
+      "path": "stwo-2.2.0/src/core/queries.rs",
+      "sha256": "fd978cad026f3b684844503c543dfe3cb4fbf003108f92ecf945807c5d92e633",
+      "size_bytes": 4323,
+      "version": "2.2.0"
+    }
+  ],
+  "source_audit": {
+    "core_query_markers": {
+      "draw_queries_is_public": true,
+      "draw_queries_masks_domain": true,
+      "draw_queries_reads_transcript_words": true,
+      "queries_new_sorts_and_dedups": true
+    },
+    "current_stage_boundary": "repo wrapper observes query locations only after Stwo prove_ex returns ExtendedStarkProof aux",
+    "current_stwo_query_boundary": "Stwo prover draws FRI queries inside FriProver::decommit(channel), then uses those positions for FRI and trace Merkle decommitments; verifier redraws positions from the transcript channel",
+    "external_policy_markers_absent": {
+      "decommit_with_query_policy": true,
+      "external_query_policy": true,
+      "prove_ex_with_query_policy": true,
+      "query_policy_commitment": true
+    },
+    "preview_split_source_read": "FriProver::decommit already factors canonical query drawing from decommit_on_queries; a prover-side API can expose the drawn Queries before calling decommit_on_queries, while the verifier keeps sampling the same positions from the Fiat-Shamir transcript.",
+    "repo_markers": {
+      "prove_single_extended_delegates_to_stwo_prove_ex": true,
+      "sampler_boundary_names_extended_aux_only": true,
+      "sampler_calls_full_extended_proof": true,
+      "sampler_reads_extended_aux_query_locations": true
+    },
+    "stwo_markers": {
+      "fri_decommit_draws_queries_from_channel": true,
+      "fri_decommit_on_queries_is_public": true,
+      "fri_decommit_uses_decommit_on_queries": true,
+      "fri_verifier_draws_queries_from_channel": true,
+      "pcs_commits_fri_before_pow": true,
+      "pcs_decommit_calls_fri_prover_decommit_channel": true,
+      "pcs_trace_decommit_uses_query_positions": true,
+      "prove_ex_calls_commitment_scheme_prove_values": true,
+      "verifier_samples_query_positions_from_channel": true
+    },
+    "stwo_version": "2.2.0"
+  },
+  "stage_order": [
+    {
+      "can_change_after_preview": false,
+      "relative_to_query_preview": "before",
+      "source_fact": "commitment_scheme trees are already committed before FRI queries are drawn",
+      "stage_id": "trace_commitments",
+      "transcript_bound": true
+    },
+    {
+      "can_change_after_preview": false,
+      "relative_to_query_preview": "before",
+      "source_fact": "FRI commit and proof_of_work are mixed before FriProver::decommit draws queries",
+      "stage_id": "fri_commitment_and_pow_mix",
+      "transcript_bound": true
+    },
+    {
+      "can_change_after_preview": false,
+      "relative_to_query_preview": "preview_point",
+      "source_fact": "draw_queries(channel, first_layer_log_size, n_queries) is transcript-derived",
+      "stage_id": "canonical_query_draw",
+      "transcript_bound": true
+    },
+    {
+      "can_change_after_preview": false,
+      "relative_to_query_preview": "after",
+      "source_fact": "decommit_on_queries consumes the same canonical Queries",
+      "stage_id": "fri_decommit_on_queries",
+      "transcript_bound": true
+    },
+    {
+      "can_change_after_preview": false,
+      "relative_to_query_preview": "after",
+      "source_fact": "tree.decommit(query_positions) uses verifier-replayed query positions",
+      "stage_id": "trace_tree_decommit",
+      "transcript_bound": true
+    }
+  ],
+  "validation_commands": [
+    "python3.10 scripts/zkai_stwo_query_preview_split_prototype_gate.py --write-json docs/engineering/evidence/zkai-stwo-query-preview-split-prototype-2026-05.json --write-tsv docs/engineering/evidence/zkai-stwo-query-preview-split-prototype-2026-05.tsv",
+    "python3.10 -m py_compile scripts/zkai_stwo_query_preview_split_prototype_gate.py scripts/tests/test_zkai_stwo_query_preview_split_prototype_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_stwo_query_preview_split_prototype_gate",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}
