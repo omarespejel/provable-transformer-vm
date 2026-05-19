@@ -669,7 +669,10 @@ def write_temp_output(parent_fd: int, target_name: str, data: bytes) -> str:
                     pass
             if fd is not None:
                 os.close(fd)
-    raise DryRunOpeningSamplerGateError("deterministic temp file collision")
+    raise DryRunOpeningSamplerGateError(
+        f"deterministic temp file collision for {target_name} after "
+        f"{DETERMINISTIC_TEMP_ATTEMPTS} attempts"
+    )
 
 
 def atomic_write(path: pathlib.Path, data: bytes) -> None:
