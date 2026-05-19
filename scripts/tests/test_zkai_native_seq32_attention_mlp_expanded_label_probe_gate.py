@@ -72,6 +72,9 @@ class ExpandedLabelProbeGateTest(unittest.TestCase):
         self.assertEqual(mutation["mutations_rejected"], len(self.gate.MUTATION_NAMES))
         self.assertEqual(mutation["mutation_names"], list(self.gate.MUTATION_NAMES))
 
+    def test_mutation_function_order_matches_inventory(self):
+        self.assertEqual(self.gate.mutation_function_names(), self.gate.MUTATION_NAMES)
+
     def test_payload_commitment_is_stable(self):
         self.assertEqual(
             self.payload["payload_commitment"],
