@@ -675,36 +675,35 @@ def write_temp_output(parent_fd: int, target_name: str, data: bytes) -> str:
     )
 
 
-def unused_backup_name(parent_fd: int, target_name: str) -> str:
+def fsync_parent_dir(parent_fd: int, context: str) -> None:
+    try:
+        os.fsync(parent_fd)
+    except OSError as err:
+        raise DryRunOpeningSamplerGateError(f"failed to fsync {context}") from err
+
+
+def backup_existing_output(parent_fd: int, target_name: str) -> str | None:
     for attempt in range(DETERMINISTIC_TEMP_ATTEMPTS):
         backup_name = f".{target_name}.bak.{attempt}"
         try:
-            os.stat(backup_name, dir_fd=parent_fd, follow_symlinks=False)
-        except FileNotFoundError:
+            os.link(
+                target_name,
+                backup_name,
+                src_dir_fd=parent_fd,
+                dst_dir_fd=parent_fd,
+                follow_symlinks=False,
+            )
             return backup_name
+        except FileNotFoundError:
+            return None
+        except FileExistsError:
+            continue
         except OSError as err:
-            raise DryRunOpeningSamplerGateError(
-                f"failed to inspect backup output: {backup_name}"
-            ) from err
+            raise DryRunOpeningSamplerGateError(f"failed to back up output: {target_name}") from err
     raise DryRunOpeningSamplerGateError(
         f"deterministic backup file collision for {target_name} after "
         f"{DETERMINISTIC_TEMP_ATTEMPTS} attempts"
     )
-
-
-def backup_existing_output(parent_fd: int, target_name: str) -> str | None:
-    try:
-        os.stat(target_name, dir_fd=parent_fd, follow_symlinks=False)
-    except FileNotFoundError:
-        return None
-    except OSError as err:
-        raise DryRunOpeningSamplerGateError(f"failed to inspect output: {target_name}") from err
-    backup_name = unused_backup_name(parent_fd, target_name)
-    try:
-        os.replace(target_name, backup_name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
-    except OSError as err:
-        raise DryRunOpeningSamplerGateError(f"failed to back up output: {target_name}") from err
-    return backup_name
 
 
 def restore_output_backup(
@@ -743,7 +742,7 @@ def atomic_write(path: pathlib.Path, data: bytes) -> None:
         tmp_name = write_temp_output(parent_fd, target.name, data)
         os.replace(tmp_name, target.name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
         tmp_name = None
-        os.fsync(parent_fd)
+        fsync_parent_dir(parent_fd, "single output publish")
     except OSError as err:
         raise DryRunOpeningSamplerGateError(f"failed to write output: {target}") from err
     finally:
@@ -796,16 +795,16 @@ def atomic_write_pair(
                 os.unlink(backup_name, dir_fd=parent_fd)
         json_backup = None
         tsv_backup = None
-        os.fsync(parent_fd)
+        fsync_parent_dir(parent_fd, "paired output publish")
     except DryRunOpeningSamplerGateError:
         restore_output_backup(parent_fd, json_target.name, json_backup, json_published)
         restore_output_backup(parent_fd, tsv_target.name, tsv_backup, tsv_published)
-        os.fsync(parent_fd)
+        fsync_parent_dir(parent_fd, "paired output rollback")
         raise
     except OSError as err:
         restore_output_backup(parent_fd, json_target.name, json_backup, json_published)
         restore_output_backup(parent_fd, tsv_target.name, tsv_backup, tsv_published)
-        os.fsync(parent_fd)
+        fsync_parent_dir(parent_fd, "paired output rollback")
         raise DryRunOpeningSamplerGateError("failed to publish paired outputs") from err
     finally:
         for tmp_name in (json_tmp, tsv_tmp):
