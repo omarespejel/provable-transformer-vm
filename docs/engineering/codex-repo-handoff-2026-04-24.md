@@ -2347,6 +2347,15 @@ Seq32 generated adjacent label-inventory reproducibility metadata:
   `zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-gate-v1`.
 - Decision:
   `GO_GENERATED_SUPPORTED_ADJACENT_LABELS_BEAT_CURRENT_CHAMPION_WITH_FULL_INVENTORY_NO_GO`.
+- Backend binary: `zkai_native_seq32_attention_mlp_single_proof`.
+- Adjacent/probe backend version:
+  `stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1`.
+- Champion backend version:
+  `stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-v1`.
+- Step/log-size metadata: `pcs_lifting_log_size = 19`;
+  adjacent/probe `adapter_trace_cells = 0`; `3` generated labels; `2`
+  accepted labels; `1` rejected label; `24 / 24` mutation guards rejected.
+- Timing mode: proof-size/accounting only; no timing claim and no median-of-5.
 - Evidence paths:
   `docs/engineering/evidence/zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-2026-05.json`
   and
