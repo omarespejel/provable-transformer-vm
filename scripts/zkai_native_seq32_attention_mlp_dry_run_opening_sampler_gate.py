@@ -675,6 +675,60 @@ def write_temp_output(parent_fd: int, target_name: str, data: bytes) -> str:
     )
 
 
+def unused_backup_name(parent_fd: int, target_name: str) -> str:
+    for attempt in range(DETERMINISTIC_TEMP_ATTEMPTS):
+        backup_name = f".{target_name}.bak.{attempt}"
+        try:
+            os.stat(backup_name, dir_fd=parent_fd, follow_symlinks=False)
+        except FileNotFoundError:
+            return backup_name
+        except OSError as err:
+            raise DryRunOpeningSamplerGateError(
+                f"failed to inspect backup output: {backup_name}"
+            ) from err
+    raise DryRunOpeningSamplerGateError(
+        f"deterministic backup file collision for {target_name} after "
+        f"{DETERMINISTIC_TEMP_ATTEMPTS} attempts"
+    )
+
+
+def backup_existing_output(parent_fd: int, target_name: str) -> str | None:
+    try:
+        os.stat(target_name, dir_fd=parent_fd, follow_symlinks=False)
+    except FileNotFoundError:
+        return None
+    except OSError as err:
+        raise DryRunOpeningSamplerGateError(f"failed to inspect output: {target_name}") from err
+    backup_name = unused_backup_name(parent_fd, target_name)
+    try:
+        os.replace(target_name, backup_name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
+    except OSError as err:
+        raise DryRunOpeningSamplerGateError(f"failed to back up output: {target_name}") from err
+    return backup_name
+
+
+def restore_output_backup(
+    parent_fd: int,
+    target_name: str,
+    backup_name: str | None,
+    remove_partial: bool,
+) -> None:
+    if remove_partial or backup_name is not None:
+        try:
+            os.unlink(target_name, dir_fd=parent_fd)
+        except FileNotFoundError:
+            pass
+        except OSError as err:
+            raise DryRunOpeningSamplerGateError(
+                f"failed to remove partial output: {target_name}"
+            ) from err
+    if backup_name is not None:
+        try:
+            os.replace(backup_name, target_name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
+        except OSError as err:
+            raise DryRunOpeningSamplerGateError(f"failed to restore output: {target_name}") from err
+
+
 def atomic_write(path: pathlib.Path, data: bytes) -> None:
     target = require_output_path(path)
     try:
@@ -722,21 +776,48 @@ def atomic_write_pair(
         ) from err
     json_tmp: str | None = None
     tsv_tmp: str | None = None
+    json_backup: str | None = None
+    tsv_backup: str | None = None
+    json_published = False
+    tsv_published = False
     try:
         json_tmp = write_temp_output(parent_fd, json_target.name, json_data)
         tsv_tmp = write_temp_output(parent_fd, tsv_target.name, tsv_data)
+        json_backup = backup_existing_output(parent_fd, json_target.name)
+        tsv_backup = backup_existing_output(parent_fd, tsv_target.name)
         os.replace(json_tmp, json_target.name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
         json_tmp = None
+        json_published = True
         os.replace(tsv_tmp, tsv_target.name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
         tsv_tmp = None
+        tsv_published = True
+        for backup_name in (json_backup, tsv_backup):
+            if backup_name is not None:
+                os.unlink(backup_name, dir_fd=parent_fd)
+        json_backup = None
+        tsv_backup = None
         os.fsync(parent_fd)
+    except DryRunOpeningSamplerGateError:
+        restore_output_backup(parent_fd, json_target.name, json_backup, json_published)
+        restore_output_backup(parent_fd, tsv_target.name, tsv_backup, tsv_published)
+        os.fsync(parent_fd)
+        raise
     except OSError as err:
+        restore_output_backup(parent_fd, json_target.name, json_backup, json_published)
+        restore_output_backup(parent_fd, tsv_target.name, tsv_backup, tsv_published)
+        os.fsync(parent_fd)
         raise DryRunOpeningSamplerGateError("failed to publish paired outputs") from err
     finally:
         for tmp_name in (json_tmp, tsv_tmp):
             if tmp_name is not None:
                 try:
                     os.unlink(tmp_name, dir_fd=parent_fd)
+                except OSError:
+                    pass
+        for backup_name in (json_backup, tsv_backup):
+            if backup_name is not None:
+                try:
+                    os.unlink(backup_name, dir_fd=parent_fd)
                 except OSError:
                     pass
         os.close(parent_fd)

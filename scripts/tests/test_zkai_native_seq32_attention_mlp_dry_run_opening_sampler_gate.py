@@ -171,6 +171,44 @@ class DryRunOpeningSamplerGateTest(unittest.TestCase):
             ):
                 self.gate.write_outputs(json_path, tsv_path, self.payload)
 
+    def test_paired_publish_rolls_back_if_second_replace_fails(self):
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:
+            tmp_path = pathlib.Path(tmp)
+            json_path = tmp_path / "out.json"
+            tsv_path = tmp_path / "out.tsv"
+            json_path.write_bytes(b"old-json")
+            tsv_path.write_bytes(b"old-tsv")
+            real_replace = self.gate.os.replace
+
+            def fail_tsv_publish(src, dst, *args, **kwargs):
+                if src == ".out.tsv.tmp.0" and dst == "out.tsv":
+                    raise OSError("forced tsv publish failure")
+                return real_replace(src, dst, *args, **kwargs)
+
+            self.gate.os.replace = fail_tsv_publish
+            try:
+                with self.assertRaisesRegex(
+                    self.gate.DryRunOpeningSamplerGateError,
+                    "failed to publish paired outputs",
+                ):
+                    self.gate.atomic_write_pair(
+                        json_path,
+                        b"new-json",
+                        tsv_path,
+                        b"new-tsv",
+                    )
+            finally:
+                self.gate.os.replace = real_replace
+
+            self.assertEqual(json_path.read_bytes(), b"old-json")
+            self.assertEqual(tsv_path.read_bytes(), b"old-tsv")
+            leftovers = sorted(
+                path.name
+                for path in tmp_path.iterdir()
+                if path.name.startswith(".out.") and (".tmp." in path.name or ".bak." in path.name)
+            )
+            self.assertEqual(leftovers, [])
+
     @unittest.skipUnless(hasattr(os, "symlink"), "requires symlink support")
     def test_rejects_output_paths_through_symlinked_parent(self):
         with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:
