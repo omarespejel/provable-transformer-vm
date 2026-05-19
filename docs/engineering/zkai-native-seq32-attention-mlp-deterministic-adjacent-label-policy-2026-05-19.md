@@ -79,14 +79,15 @@ This gate has `0` proof-size-comparable external rows.
 - Result:
   `WORST_SUPPORTED_ADJACENT_LABEL_SAVES_1736_TYPED_BYTES_VS_42068_CHAMPION`
 - Mutation guards:
-  `18 / 18` rejected.
+  `22 / 22` rejected.
 
 The mutation suite rejects decision/result drift, full-inventory overclaims,
 fixed-label relabeling, supported-label rejection, typed-byte drift, saving
 erasure, support-criteria erasure, value-stability erasure, source digest and
 commitment drift, validation-command drift, removed non-claims, explicit
 NANOZK overclaims, final-policy overclaims, unknown deterministic-policy
-fields, inventory reordering, and payload-commitment drift.
+fields, inventory reordering, label metadata drift, proof JSON byte drift,
+status-reason drift, champion value-byte drift, and payload-commitment drift.
 
 ## Reproduction
 

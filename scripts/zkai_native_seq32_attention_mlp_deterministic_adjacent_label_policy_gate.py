@@ -122,6 +122,10 @@ MUTATION_NAMES = (
     "final_policy_overclaim",
     "unknown_policy_field",
     "label_inventory_order_drift",
+    "label_adapter_mode_drift",
+    "label_proof_json_drift",
+    "label_status_reason_drift",
+    "champion_value_drift",
     "payload_commitment_drift",
 )
 EXPECTED_MUTATION_ERRORS = {
@@ -142,6 +146,10 @@ EXPECTED_MUTATION_ERRORS = {
     "final_policy_overclaim": "non_claims drift",
     "unknown_policy_field": "deterministic policy field drift: unexpected unchecked",
     "label_inventory_order_drift": "label inventory order drift",
+    "label_adapter_mode_drift": "label inventory drift",
+    "label_proof_json_drift": "label inventory drift",
+    "label_status_reason_drift": "label inventory drift",
+    "champion_value_drift": "label inventory drift",
     "payload_commitment_drift": "payload commitment drift",
 }
 
@@ -506,6 +514,10 @@ def mutation_functions() -> tuple[tuple[str, Callable[[dict[str, Any]], None]], 
         ("final_policy_overclaim", lambda item: item["non_claims"].remove("not a final production label-selection policy")),
         ("unknown_policy_field", lambda item: item["deterministic_policy"].update({"unchecked": True})),
         ("label_inventory_order_drift", lambda item: item["label_inventory"].reverse()),
+        ("label_adapter_mode_drift", lambda item: item["label_inventory"][2].update({"adapter_mode": "relabelled"})),
+        ("label_proof_json_drift", lambda item: item["label_inventory"][3].update({"proof_json_bytes": 1})),
+        ("label_status_reason_drift", lambda item: item["label_inventory"][1].update({"status_reason": "supported"})),
+        ("champion_value_drift", lambda item: item["label_inventory"][0].update({"value_bytes": ADJACENT_VALUE_BYTES})),
         ("payload_commitment_drift", lambda item: item.update({"payload_commitment": "blake2b-256:" + "0" * 64})),
     )
 
@@ -632,15 +644,42 @@ def validate_label_inventory(rows: list[Any]) -> None:
         "adjacent_label_probe_a": 19_360,
         "adjacent_label_probe_b": 16_560,
     }
+    expected_metadata = {
+        CURRENT_CHAMPION_ID: {
+            "adapter_mode": "duplicate_base_preprocessed_v1",
+            "proof_json_bytes": CURRENT_CHAMPION_JSON_BYTES,
+            "status_reason": "baseline for typed/path-opening deltas",
+            "value_bytes": 21_428,
+        },
+        FIXED_ADJACENT_ID: {
+            "adapter_mode": "rmsnorm_input_fused_adjacent_fixed_v1",
+            "proof_json_bytes": 122_688,
+            "status_reason": "path-opening bytes are not below the current champion",
+            "value_bytes": ADJACENT_VALUE_BYTES,
+        },
+        "adjacent_label_probe_a": {
+            "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_a_v1",
+            "proof_json_bytes": 116_321,
+            "status_reason": "value bytes stable and path-opening/typed bytes beat the current champion",
+            "value_bytes": ADJACENT_VALUE_BYTES,
+        },
+        "adjacent_label_probe_b": {
+            "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+            "proof_json_bytes": 106_317,
+            "status_reason": "value bytes stable and path-opening/typed bytes beat the current champion",
+            "value_bytes": ADJACENT_VALUE_BYTES,
+        },
+    }
     for row in parsed:
         variant_id = row["variant_id"]
         if row["policy_status"] != expected_status[variant_id]:
             raise DeterministicAdjacentLabelPolicyGateError("label inventory drift")
+        for field, expected in expected_metadata[variant_id].items():
+            if row[field] != expected:
+                raise DeterministicAdjacentLabelPolicyGateError("label inventory drift")
         if row["typed_bytes"] != expected_typed[variant_id]:
             raise DeterministicAdjacentLabelPolicyGateError("label inventory drift")
         if row["path_opening_bytes"] != expected_path_opening[variant_id]:
-            raise DeterministicAdjacentLabelPolicyGateError("label inventory drift")
-        if variant_id != CURRENT_CHAMPION_ID and row["value_bytes"] != ADJACENT_VALUE_BYTES:
             raise DeterministicAdjacentLabelPolicyGateError("label inventory drift")
         if row["typed_delta_vs_champion"] != row["typed_bytes"] - CURRENT_CHAMPION_TYPED_BYTES:
             raise DeterministicAdjacentLabelPolicyGateError("label inventory drift")

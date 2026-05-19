@@ -181,6 +181,24 @@ class NativeSeq32DeterministicAdjacentLabelPolicyGateTest(unittest.TestCase):
         ):
             self.gate.validate_payload(payload)
 
+    def test_rejects_label_inventory_metadata_drift(self) -> None:
+        cases = [
+            (2, "adapter_mode", "relabelled"),
+            (3, "proof_json_bytes", 1),
+            (1, "status_reason", "supported"),
+            (0, "value_bytes", 20_924),
+        ]
+        for row_index, field, value in cases:
+            with self.subTest(field=field):
+                payload = copy.deepcopy(self.__class__.payload)
+                payload["label_inventory"][row_index][field] = value
+                payload["payload_commitment"] = self.gate.payload_commitment(payload)
+                with self.assertRaisesRegex(
+                    self.gate.DeterministicAdjacentLabelPolicyGateError,
+                    "label inventory drift",
+                ):
+                    self.gate.validate_payload(payload)
+
     def test_rejects_payload_commitment_drift(self) -> None:
         payload = copy.deepcopy(self.__class__.payload)
         payload["payload_commitment"] = "blake2b-256:" + "0" * 64

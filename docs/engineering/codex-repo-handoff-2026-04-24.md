@@ -2275,18 +2275,19 @@ Seq32 adjacent label-policy reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
-Latest deterministic adjacent label-policy gate: the supported-label follow-up
-keeps the adjacent-label result honest. The full adjacent inventory is still a
-NO-GO because the fixed adjacent label is `42,156` typed bytes (`+88` versus
-the `42,068` champion) and adds `592` path-opening typed bytes. The
-deterministic supported-label policy rejects that inflating label and keeps
-the two checked labels whose worst case is probe A at `40,332` typed bytes,
-saving `1,736` typed bytes (`4.1267%`) versus the champion; probe B is
-`37,532` typed bytes, saving `4,536` typed bytes (`10.7825%`). Direct value
-bytes stay fixed at `20,924`, so the mechanism remains transcript/opening
-material, not changed arithmetic. This is not a final generator-backed label
-policy, not robust to unseen labels, not a matched external benchmark, and not
-a NANOZK proof-size win. See
+Latest deterministic adjacent label-policy gate: the follow-up policy gate
+turns the adjacent-label result into a stricter supported-label rule without
+promoting the whole inventory. The full adjacent inventory remains a NO-GO
+because the fixed adjacent label is `42,156` typed bytes (`+88` versus the
+`42,068` champion) and adds `592` path-opening typed bytes. The deterministic
+supported-label policy rejects that inflating label and keeps the two checked
+labels whose worst case is probe A at `40,332` typed bytes, saving `1,736`
+typed bytes (`4.1267%`) versus the champion; probe B is `37,532` typed bytes,
+saving `4,536` typed bytes (`10.7825%`). Direct value bytes stay fixed at
+`20,924`, so the mechanism remains transcript/opening material, not changed
+arithmetic. This is not a final generator-backed label policy, not robust to
+unseen labels, not a matched external benchmark, and not a NANOZK proof-size
+win. See
 `docs/engineering/zkai-native-seq32-attention-mlp-deterministic-adjacent-label-policy-2026-05-19.md`.
 
 Seq32 deterministic adjacent label-policy reproducibility metadata:

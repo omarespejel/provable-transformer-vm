@@ -191,6 +191,26 @@
         "rejected": true
       },
       {
+        "error": "label inventory drift",
+        "name": "label_adapter_mode_drift",
+        "rejected": true
+      },
+      {
+        "error": "label inventory drift",
+        "name": "label_proof_json_drift",
+        "rejected": true
+      },
+      {
+        "error": "label inventory drift",
+        "name": "label_status_reason_drift",
+        "rejected": true
+      },
+      {
+        "error": "label inventory drift",
+        "name": "champion_value_drift",
+        "rejected": true
+      },
+      {
         "error": "payload commitment drift",
         "name": "payload_commitment_drift",
         "rejected": true
@@ -214,9 +234,13 @@
       "final_policy_overclaim",
       "unknown_policy_field",
       "label_inventory_order_drift",
+      "label_adapter_mode_drift",
+      "label_proof_json_drift",
+      "label_status_reason_drift",
+      "champion_value_drift",
       "payload_commitment_drift"
     ],
-    "mutations_rejected": 18
+    "mutations_rejected": 22
   },
   "non_claims": [
     "not a final production label-selection policy",
@@ -229,7 +253,7 @@
     "not timing evidence",
     "not production-ready zkML"
   ],
-  "payload_commitment": "blake2b-256:e7238aad6226916d0a0c56234cda57b9c5d277ecbf8d034b434a3efbf67f628b",
+  "payload_commitment": "blake2b-256:cb60558f8b274ffa44d51de3367a34759b408b5c1dd3427583d3031ef9017fdd",
   "policy_summary": {
     "adjacent_value_bytes": 20924,
     "best_supported_label_id": "adjacent_label_probe_b",
