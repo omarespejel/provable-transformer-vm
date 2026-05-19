@@ -241,11 +241,15 @@ class NativeSeq32DeterministicAdjacentLabelPolicyGateTest(unittest.TestCase):
         payload["payload_commitment"] = self.gate.payload_commitment(payload)
         with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmpdir:
             tmp = pathlib.Path(tmpdir)
+            bad_json = tmp / "bad.json"
+            bad_tsv = tmp / "bad.tsv"
             with self.assertRaisesRegex(
                 self.gate.DeterministicAdjacentLabelPolicyGateError,
                 "policy summary drift",
             ):
-                self.gate.write_outputs(payload, tmp / "bad.json", tmp / "bad.tsv")
+                self.gate.write_outputs(payload, bad_json, bad_tsv)
+            self.assertFalse(bad_json.exists())
+            self.assertFalse(bad_tsv.exists())
 
     def test_write_outputs_rejects_path_outside_evidence_dir(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
