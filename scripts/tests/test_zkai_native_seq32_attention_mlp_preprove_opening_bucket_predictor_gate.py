@@ -128,11 +128,11 @@ class PreproveOpeningBucketPredictorGateTest(unittest.TestCase):
         payload_a = self.gate.build_payload()
         payload_b = self.gate.build_payload()
         self.assertEqual(
-            self.payload["payload_commitment"],
+            payload_a["payload_commitment"],
             self.gate.payload_commitment(payload_a),
         )
         self.assertEqual(
-            payload_a["payload_commitment"],
+            payload_b["payload_commitment"],
             self.gate.payload_commitment(payload_b),
         )
         self.assertEqual(
