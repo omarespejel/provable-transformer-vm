@@ -1,0 +1,307 @@
+{
+  "bucket_attribution": {
+    "all_best_seed_gap_is_path_opening": true,
+    "all_compared_rows_have_same_value_bytes": true,
+    "attribution_status": "GO_EXISTING_GAP_ATTRIBUTED_TO_OPENING_DECOMMITMENT_BUCKET",
+    "best_seed_gap_path_opening_bytes": 2736,
+    "best_seed_gap_typed_bytes": 2736,
+    "best_seed_gap_value_bytes": 0,
+    "best_seed_group_gap_bytes": {
+      "fixed_overhead": 0,
+      "fri_decommitments": 2016,
+      "fri_samples": 80,
+      "oods_samples": 0,
+      "queries_values": 0,
+      "trace_decommitments": 640
+    },
+    "best_seed_id": "adjacent_seed_02",
+    "current_two_proof_frontier_typed_bytes": 47188,
+    "frontier_json_proof_bytes": 106317,
+    "frontier_path_opening_bytes": 16560,
+    "frontier_typed_bytes": 37532,
+    "frontier_value_bytes": 20924,
+    "frontier_variant_id": "adjacent_label_probe_b",
+    "nanozk_reported_d128_block_proof_bytes": 6900,
+    "path_opening_delta_total_across_comparisons": 10160,
+    "prediction_status": "NO_GO_SOURCE_EXPOSED_BUCKET_PREDICTOR_ABSENT",
+    "proof_size_comparable_external_rows": 0,
+    "source_exposed_bucket_predictor": false,
+    "value_delta_total_across_comparisons": 0
+  },
+  "claim_boundary": "ATTRIBUTES_EXISTING_PROBE_B_TYPED_BYTE_EDGE;PATH_OPENING_BUCKET_ONLY;NO_SOURCE_EXPOSED_BUCKET_PREDICTOR;NOT_A_NEW_FRONTIER_NOT_A_NANOZK_COMPARISON_NOT_A_PRODUCTION_LABEL_POLICY",
+  "comparisons_vs_probe_b": [
+    {
+      "attribution": "all typed-byte gap is in FRI/sample/trace opening groups",
+      "group_deltas_vs_probe_b": {
+        "fixed_overhead": 0,
+        "fri_decommitments": 2016,
+        "fri_samples": 80,
+        "oods_samples": 0,
+        "queries_values": 0,
+        "trace_decommitments": 640
+      },
+      "json_delta_vs_probe_b": 9678,
+      "path_opening_delta_vs_probe_b": 2736,
+      "typed_delta_vs_probe_b": 2736,
+      "value_delta_vs_probe_b": 0,
+      "variant_id": "adjacent_seed_02"
+    },
+    {
+      "attribution": "all typed-byte gap is in FRI/sample/trace opening groups",
+      "group_deltas_vs_probe_b": {
+        "fixed_overhead": 0,
+        "fri_decommitments": 2080,
+        "fri_samples": 80,
+        "oods_samples": 0,
+        "queries_values": 0,
+        "trace_decommitments": 640
+      },
+      "json_delta_vs_probe_b": 9986,
+      "path_opening_delta_vs_probe_b": 2800,
+      "typed_delta_vs_probe_b": 2800,
+      "value_delta_vs_probe_b": 0,
+      "variant_id": "adjacent_seed_05"
+    },
+    {
+      "attribution": "all typed-byte gap is in FRI/sample/trace opening groups",
+      "group_deltas_vs_probe_b": {
+        "fixed_overhead": 0,
+        "fri_decommitments": 3456,
+        "fri_samples": 144,
+        "oods_samples": 0,
+        "queries_values": 0,
+        "trace_decommitments": 1024
+      },
+      "json_delta_vs_probe_b": 16371,
+      "path_opening_delta_vs_probe_b": 4624,
+      "typed_delta_vs_probe_b": 4624,
+      "value_delta_vs_probe_b": 0,
+      "variant_id": "fixed_adjacent_layout"
+    }
+  ],
+  "decision": "NARROW_CLAIM_PATH_OPENING_BUCKET_ATTRIBUTED_NO_SOURCE_PREDICTOR",
+  "interpretation": {
+    "human_read": "Probe B is not smaller because it opens fewer direct values. The direct value payload is identical across the compared rows; the whole edge comes from fewer FRI, sample, and trace opening bytes.",
+    "mechanism_read": "The favorable row is an opening/decommitment transcript bucket. That supports the proof-plumbing thesis, but it does not yet give a deterministic source-level label policy.",
+    "next_experiment": "Expose or reconstruct query/opening inventory before proving, then test whether any source-visible rule predicts the smaller bucket without trying labels after the fact."
+  },
+  "issue_hint": "https://github.com/omarespejel/provable-transformer-vm/issues/693",
+  "mutation_result": {
+    "all_mutations_rejected": true,
+    "cases": [
+      {
+        "error": "decision drift",
+        "name": "decision_drift",
+        "rejected": true
+      },
+      {
+        "error": "claim_boundary drift",
+        "name": "claim_boundary_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "source_artifacts drift",
+        "name": "source_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "source_artifacts drift",
+        "name": "accounting_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "proof_object_rows drift",
+        "name": "frontier_typed_drift",
+        "rejected": true
+      },
+      {
+        "error": "proof_object_rows drift",
+        "name": "value_byte_drift",
+        "rejected": true
+      },
+      {
+        "error": "bucket_attribution drift",
+        "name": "seed_02_delta_drift",
+        "rejected": true
+      },
+      {
+        "error": "bucket_attribution drift",
+        "name": "source_predictor_promotion",
+        "rejected": true
+      },
+      {
+        "error": "comparisons_vs_probe_b drift",
+        "name": "comparison_row_erasure",
+        "rejected": true
+      },
+      {
+        "error": "proof_object_rows drift",
+        "name": "record_stream_erasure",
+        "rejected": true
+      },
+      {
+        "error": "non_claims drift",
+        "name": "removed_non_claim",
+        "rejected": true
+      },
+      {
+        "error": "validation_commands drift",
+        "name": "validation_command_drift",
+        "rejected": true
+      },
+      {
+        "error": "payload commitment drift",
+        "name": "payload_commitment_drift",
+        "rejected": true
+      }
+    ],
+    "mutation_names": [
+      "decision_drift",
+      "claim_boundary_overclaim",
+      "source_digest_drift",
+      "accounting_digest_drift",
+      "frontier_typed_drift",
+      "value_byte_drift",
+      "seed_02_delta_drift",
+      "source_predictor_promotion",
+      "comparison_row_erasure",
+      "record_stream_erasure",
+      "removed_non_claim",
+      "validation_command_drift",
+      "payload_commitment_drift"
+    ],
+    "mutations_rejected": 13
+  },
+  "non_claims": [
+    "not a new proof-size frontier beyond the 37,532 typed-byte adjacent probe B row",
+    "not a source-exposed deterministic label policy",
+    "not a production label-selection policy",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not a full transformer block proof",
+    "not exact real-valued Softmax",
+    "not timing evidence",
+    "not production-ready zkML"
+  ],
+  "payload_commitment": "blake2b-256:ff356aa053c297b3178d6b0d9429d339a3abf1f3543e34ba92801ee1af750526",
+  "proof_object_rows": [
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+      "envelope_sha256": "8e3ba831ac7e858d069f1edfcb6ad46783b0d72f3f47666ae621bc159ac2c0df",
+      "groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 10240,
+        "fri_samples": 688,
+        "oods_samples": 11984,
+        "queries_values": 8940,
+        "trace_decommitments": 5632
+      },
+      "json_proof_bytes": 106317,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.envelope.json",
+      "path_opening_bytes": 16560,
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_sha256": "4a5dc66d63ee3ddd3acad65e88c42259fb925ee31768a3fdecdb528722630845",
+      "record_stream_sha256": "d0540f5cd1a69991226bcfb81475cec78ba0d416a39317503ad204b660aae1e0",
+      "role": "frontier_bucket",
+      "typed_bytes": 37532,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_label_probe_b"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_02_v1",
+      "envelope_sha256": "4d343553886d03acb055c85b94d0f31c5b4f3efbf25192fb474f57749b8262b2",
+      "groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 12256,
+        "fri_samples": 768,
+        "oods_samples": 11984,
+        "queries_values": 8940,
+        "trace_decommitments": 6272
+      },
+      "json_proof_bytes": 115995,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-02-2026-05.envelope.json",
+      "path_opening_bytes": 19296,
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_sha256": "5de20c2647f31bd2d581c4b4090c924ef9dfbb67972e50969af554be6f849aba",
+      "record_stream_sha256": "1d1a58b9897120dd0beb15a7d159c2328304ed8e6103efa28551ee5b65b31539",
+      "role": "best_pre_registered_seed",
+      "typed_bytes": 40268,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_02"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_05_v1",
+      "envelope_sha256": "9cdded96b2cc6e2ceaab56c8f27717f1bfe3756d4f1ee2b0a2cf8f547885765f",
+      "groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 12320,
+        "fri_samples": 768,
+        "oods_samples": 11984,
+        "queries_values": 8940,
+        "trace_decommitments": 6272
+      },
+      "json_proof_bytes": 116303,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-05-2026-05.envelope.json",
+      "path_opening_bytes": 19360,
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_sha256": "9122f95a9eec12e75cabe7b99d9ba03ec55cefd880d0549eb185b911d818fbed",
+      "record_stream_sha256": "ab9c27d7b780f81ec8f8f562997392362c18c9ddc6315d1db303520e3fd7e682",
+      "role": "probe_a_shape_seed",
+      "typed_bytes": 40332,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_05"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_fixed_v1",
+      "envelope_sha256": "91d6866982629e829ef4b53502c99c7215e0d6bb257336cdf2910b8c94ce52b3",
+      "groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 13696,
+        "fri_samples": 832,
+        "oods_samples": 11984,
+        "queries_values": 8940,
+        "trace_decommitments": 6656
+      },
+      "json_proof_bytes": 122688,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.envelope.json",
+      "path_opening_bytes": 21184,
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_sha256": "f1a495236e06cb3bb76e7f7cb900b9b96eb203809f791d28238fc948514126ed",
+      "record_stream_sha256": "24e3f16bf92320fd79059257ec70ca97bbf76b5859610c2013c58a7511f1feaf",
+      "role": "fixed_adjacent_reference",
+      "typed_bytes": 42156,
+      "value_bytes": 20924,
+      "variant_id": "fixed_adjacent_layout"
+    }
+  ],
+  "result": "PROBE_B_EDGE_VS_SEED_02_IS_2736_TYPED_BYTES_ALL_FROM_FRI_AND_TRACE_OPENING_GROUPS",
+  "schema": "zkai-native-seq32-attention-mlp-adjacent-probe-b-bucket-attribution-gate-v1",
+  "source_artifacts": [
+    {
+      "id": "rust_native_seq32_attention_mlp_source",
+      "path": "src/stwo_backend/native_seq32_attention_mlp_single_proof.rs",
+      "sha256": "35014074e972386ef8e1b261bb407eb842fc1b98037f4cac1f4da1a7e52cf6fb",
+      "size_bytes": 135974
+    },
+    {
+      "id": "cli_native_seq32_attention_mlp_source",
+      "path": "src/bin/zkai_native_seq32_attention_mlp_single_proof.rs",
+      "sha256": "6515f8a3e05661dc267b4c106d2e06d576d4f74d39bcc0821c892ac7e3b4bdac",
+      "size_bytes": 29586
+    },
+    {
+      "id": "adjacent_label_seed_sweep_accounting",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-accounting-2026-05.json",
+      "sha256": "90f04ada7e02f3777615417dec475c27ccff3511f42be0a084e6405b52fcd6db",
+      "size_bytes": 46080
+    }
+  ],
+  "validation_commands": [
+    "python3.10 scripts/zkai_native_seq32_attention_mlp_adjacent_probe_b_bucket_attribution_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-probe-b-bucket-attribution-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-probe-b-bucket-attribution-2026-05.tsv",
+    "python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_adjacent_probe_b_bucket_attribution_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_adjacent_probe_b_bucket_attribution_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adjacent_probe_b_bucket_attribution_gate",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}
