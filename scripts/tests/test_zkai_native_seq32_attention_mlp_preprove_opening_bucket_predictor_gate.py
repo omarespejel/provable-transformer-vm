@@ -163,9 +163,17 @@ class PreproveOpeningBucketPredictorGateTest(unittest.TestCase):
             lines = tsv_path.read_text().splitlines()
             self.assertEqual(len(lines), 1 + len(self.payload["preprove_inventory_rows"]))
             self.assertEqual(lines[0], "\t".join(self.gate.TSV_COLUMNS))
-            first = lines[1].split("\t")
-            self.assertEqual(first[0], self.payload["preprove_inventory_rows"][0]["variant_id"])
-            self.assertEqual(first[7], str(self.payload["final_accounting_join_rows"][0]["typed_bytes"]))
+            final_by_variant = {
+                row["variant_id"]: row for row in self.payload["final_accounting_join_rows"]
+            }
+            for line in lines[1:]:
+                columns = dict(zip(self.gate.TSV_COLUMNS, line.split("\t"), strict=True))
+                variant_id = columns["variant_id"]
+                self.assertIn(variant_id, final_by_variant)
+                self.assertEqual(
+                    columns["final_typed_bytes"],
+                    str(final_by_variant[variant_id]["typed_bytes"]),
+                )
 
     def test_rejects_output_paths_outside_evidence_dir(self):
         with tempfile.TemporaryDirectory() as tmp:
