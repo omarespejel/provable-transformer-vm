@@ -84,9 +84,9 @@ Machine-readable outputs:
 Pinned input artifacts:
 
 - generated inventory SHA-256:
-  `10ef45339f48c41e6cd264906e8ffbcfb49e8e7bb8738ea21174ba8fbb63a1bb`
+  `6aee314a31847d1239ae790ddd8933018215c30a4e6a3d507fd86efc27281238`
 - generated inventory payload commitment:
-  `blake2b-256:a1ad83f3dea22610a51dce6530ef699f7112fff70bda55dd7c4250f5a89d1c5f`
+  `blake2b-256:e1653c5b5082171c34406ed29e84209ad29c9aaf7921d782e718a5541da32eea`
 - adjacent accounting SHA-256:
   `0841dd4dbf6d3ff76ede4c3e088b301745e04f649024d50aa378fb239cd1ef5c`
 

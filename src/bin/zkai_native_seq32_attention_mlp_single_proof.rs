@@ -146,6 +146,12 @@ fn build_input_adapter_mode(mode: &str) -> Option<ZkAiNativeSeq32AttentionMlpAda
         "build-input-rmsnorm-fused" => {
             Some(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedFixed)
         }
+        "build-input-rmsnorm-fused-label-probe-a" => {
+            Some(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedLabelProbeA)
+        }
+        "build-input-rmsnorm-fused-label-probe-b" => {
+            Some(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedLabelProbeB)
+        }
         "build-input-rmsnorm-fused-adjacent" => {
             Some(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed)
         }
@@ -157,6 +163,12 @@ fn build_input_adapter_mode(mode: &str) -> Option<ZkAiNativeSeq32AttentionMlpAda
         }
         "build-input-rmsnorm-fused-post-tail" => {
             Some(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedPostTailFixed)
+        }
+        "build-input-rmsnorm-fused-post-tail-label-probe-a" => {
+            Some(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedPostTailLabelProbeA)
+        }
+        "build-input-rmsnorm-fused-post-tail-label-probe-b" => {
+            Some(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedPostTailLabelProbeB)
         }
         _ => None,
     }
@@ -588,6 +600,14 @@ mod tests {
                 ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedFixed,
             ),
             (
+                "build-input-rmsnorm-fused-label-probe-a",
+                ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedLabelProbeA,
+            ),
+            (
+                "build-input-rmsnorm-fused-label-probe-b",
+                ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedLabelProbeB,
+            ),
+            (
                 "build-input-rmsnorm-fused-adjacent",
                 ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed,
             ),
@@ -602,6 +622,14 @@ mod tests {
             (
                 "build-input-rmsnorm-fused-post-tail",
                 ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedPostTailFixed,
+            ),
+            (
+                "build-input-rmsnorm-fused-post-tail-label-probe-a",
+                ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedPostTailLabelProbeA,
+            ),
+            (
+                "build-input-rmsnorm-fused-post-tail-label-probe-b",
+                ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedPostTailLabelProbeB,
             ),
         ];
         for (command, expected) in cases {

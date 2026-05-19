@@ -1,0 +1,297 @@
+{
+  "claim_boundary": "BOUNDED_SOURCE_EXPOSED_LABEL_PROBE_SWEEP_OVER_EXISTING_SEQ32_NATIVE_PROOF_OBJECT;COMPARES_ONLY_LOCAL_TYPED_AND_JSON_PROOF_BYTES;NOT_A_NEW_FRONTIER_NOT_A_NANOZK_WIN_NOT_A_PRODUCTION_LABEL_POLICY",
+  "decision": "NO_GO_EXPANDED_LABEL_PROBES_DO_NOT_BEAT_ADJACENT_PROBE_B_FRONTIER",
+  "frontier_summary": {
+    "adjacent_probe_b_frontier_json_bytes": 106317,
+    "adjacent_probe_b_frontier_typed_bytes": 37532,
+    "best_new_probe_gap_vs_adjacent_probe_b_typed_bytes": 2944,
+    "best_new_probe_id": "fixed_label_probe_b",
+    "best_new_probe_json_bytes": 116661,
+    "best_new_probe_saving_vs_champion_typed_bytes": 1592,
+    "best_new_probe_typed_bytes": 40476,
+    "current_champion_typed_bytes": 42068,
+    "current_two_proof_frontier_typed_bytes": 47188,
+    "nanozk_reported_d128_block_proof_bytes": 6900,
+    "new_probe_promotable": false,
+    "proof_size_comparable_external_rows": 0
+  },
+  "interpretation": {
+    "human_read": "The expanded probes verified, but none beat the existing adjacent probe B frontier.",
+    "mechanism_read": "Fixed-label B still beats the old duplicate-base champion, so transcript labels matter, but layout also matters: adjacent B keeps the best path-opening shape.",
+    "next_experiment": "If this path continues, use a pre-registered adjacent-only label-seed sweep and report every seed, not just the best one."
+  },
+  "issue_hint": "bounded-expanded-seq32-label-probe-sweep",
+  "mutation_result": {
+    "all_mutations_rejected": true,
+    "cases": [
+      {
+        "error": "decision drift",
+        "name": "decision_drift",
+        "rejected": true
+      },
+      {
+        "error": "claim_boundary drift",
+        "name": "claim_boundary_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "source_artifacts drift",
+        "name": "accounting_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "frontier_summary drift",
+        "name": "frontier_promotion",
+        "rejected": true
+      },
+      {
+        "error": "proof_object_rows drift",
+        "name": "new_probe_typed_drift",
+        "rejected": true
+      },
+      {
+        "error": "proof_object_rows drift",
+        "name": "adapter_mode_relabeling",
+        "rejected": true
+      },
+      {
+        "error": "proof_object_rows drift",
+        "name": "path_opening_mechanism_drift",
+        "rejected": true
+      },
+      {
+        "error": "validation_commands drift",
+        "name": "validation_command_drift",
+        "rejected": true
+      },
+      {
+        "error": "non_claims drift",
+        "name": "removed_non_claim",
+        "rejected": true
+      },
+      {
+        "error": "payload commitment drift",
+        "name": "payload_commitment_drift",
+        "rejected": true
+      }
+    ],
+    "mutation_names": [
+      "decision_drift",
+      "claim_boundary_overclaim",
+      "accounting_digest_drift",
+      "frontier_promotion",
+      "new_probe_typed_drift",
+      "adapter_mode_relabeling",
+      "path_opening_mechanism_drift",
+      "validation_command_drift",
+      "removed_non_claim",
+      "payload_commitment_drift"
+    ],
+    "mutations_rejected": 10
+  },
+  "non_claims": [
+    "not a new proof-size frontier beyond the 37,532 typed-byte adjacent probe B row",
+    "not a production label-selection policy",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not a full transformer block proof",
+    "not exact real-valued Softmax",
+    "not timing evidence",
+    "not production-ready zkML"
+  ],
+  "payload_commitment": "blake2b-256:2cbce6165b6c0da4dbdf09d16ba2782d6fdb1f89d59538051d968c035384df14",
+  "probe_policy": {
+    "manual_override_allowed": false,
+    "new_probe_count": 4,
+    "new_probe_ids": [
+      "fixed_label_probe_a",
+      "fixed_label_probe_b",
+      "post_tail_label_probe_a",
+      "post_tail_label_probe_b"
+    ],
+    "promotion_rule": "a new probe must verify and beat the 37,532 typed-byte adjacent probe B frontier before it can replace the frontier",
+    "scope": "bounded_existing_rust_modes_exposed_through_cli"
+  },
+  "proof_object_rows": [
+    {
+      "adapter_mode": "duplicate_base_preprocessed_v1",
+      "envelope_sha256": "c5107022445b27d8061c2c96c1f5a5710e94695e8647efdf903682385be03414",
+      "family": "champion",
+      "json_delta_vs_adjacent_probe_b": 15679,
+      "json_proof_bytes": 121996,
+      "path": "zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json",
+      "path_opening_bytes": 20592,
+      "policy_status": "baseline_champion",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-v1",
+      "proof_sha256": "9242c16a3aba3ebd1a39c77bffcbec3f78c93db4d097e6872c4e640316692ce1",
+      "record_stream_sha256": "d2b9ef1587963a0c1b2c10c396e0e1f23c1f108696c0a9b275c21d85b75736fa",
+      "typed_bytes": 42068,
+      "typed_delta_vs_adjacent_probe_b": 4536,
+      "typed_delta_vs_current_champion": 0,
+      "value_bytes": 21428,
+      "variant_id": "current_duplicate_base_champion"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_fixed_v1",
+      "envelope_sha256": "91d6866982629e829ef4b53502c99c7215e0d6bb257336cdf2910b8c94ce52b3",
+      "family": "adjacent",
+      "json_delta_vs_adjacent_probe_b": 16371,
+      "json_proof_bytes": 122688,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.envelope.json",
+      "path_opening_bytes": 21184,
+      "policy_status": "rejected_existing_inflating_label",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_sha256": "f1a495236e06cb3bb76e7f7cb900b9b96eb203809f791d28238fc948514126ed",
+      "record_stream_sha256": "24e3f16bf92320fd79059257ec70ca97bbf76b5859610c2013c58a7511f1feaf",
+      "typed_bytes": 42156,
+      "typed_delta_vs_adjacent_probe_b": 4624,
+      "typed_delta_vs_current_champion": 88,
+      "value_bytes": 20924,
+      "variant_id": "fixed_adjacent_layout"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_a_v1",
+      "envelope_sha256": "2f15a7b6c6e15b889ffc61c6a74235efc43b416fe7384452ca07d5818447f0aa",
+      "family": "adjacent",
+      "json_delta_vs_adjacent_probe_b": 10004,
+      "json_proof_bytes": 116321,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05.envelope.json",
+      "path_opening_bytes": 19360,
+      "policy_status": "accepted_existing_label",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_sha256": "3421ac16f96bda07540698ccdbf1ea705ca384583c3b3275fc99471b5a156d7d",
+      "record_stream_sha256": "ab9c27d7b780f81ec8f8f562997392362c18c9ddc6315d1db303520e3fd7e682",
+      "typed_bytes": 40332,
+      "typed_delta_vs_adjacent_probe_b": 2800,
+      "typed_delta_vs_current_champion": -1736,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_label_probe_a"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+      "envelope_sha256": "8e3ba831ac7e858d069f1edfcb6ad46783b0d72f3f47666ae621bc159ac2c0df",
+      "family": "adjacent",
+      "json_delta_vs_adjacent_probe_b": 0,
+      "json_proof_bytes": 106317,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.envelope.json",
+      "path_opening_bytes": 16560,
+      "policy_status": "current_frontier",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_sha256": "4a5dc66d63ee3ddd3acad65e88c42259fb925ee31768a3fdecdb528722630845",
+      "record_stream_sha256": "d0540f5cd1a69991226bcfb81475cec78ba0d416a39317503ad204b660aae1e0",
+      "typed_bytes": 37532,
+      "typed_delta_vs_adjacent_probe_b": 0,
+      "typed_delta_vs_current_champion": -4536,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_label_probe_b"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_fixed_label_probe_a_v1",
+      "envelope_sha256": "f9d3e0f24b516a8f41204629e6a2554099cefbe24beabbf755fa4a7c02eed13d",
+      "family": "fixed",
+      "json_delta_vs_adjacent_probe_b": 16338,
+      "json_proof_bytes": 122655,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-fused-label-probe-a-2026-05.envelope.json",
+      "path_opening_bytes": 21184,
+      "policy_status": "new_probe_rejected_not_better_than_frontier",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adapter-v1",
+      "proof_sha256": "4de2cca9bfcca643ea2c55207bddeadb5ab36bb1163dd3a966d2370a6a3e6f55",
+      "record_stream_sha256": "24e3f16bf92320fd79059257ec70ca97bbf76b5859610c2013c58a7511f1feaf",
+      "typed_bytes": 42156,
+      "typed_delta_vs_adjacent_probe_b": 4624,
+      "typed_delta_vs_current_champion": 88,
+      "value_bytes": 20924,
+      "variant_id": "fixed_label_probe_a"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_fixed_label_probe_b_v1",
+      "envelope_sha256": "461fa629c9e0921cbd242ae444edbb32d5b203edf035945106af497ec2bc0111",
+      "family": "fixed",
+      "json_delta_vs_adjacent_probe_b": 10344,
+      "json_proof_bytes": 116661,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-fused-label-probe-b-2026-05.envelope.json",
+      "path_opening_bytes": 19504,
+      "policy_status": "new_probe_beats_champion_but_not_frontier",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adapter-v1",
+      "proof_sha256": "ea3ea6a69b964d4c58013a047b672a8590f629d1b7eb897e3ff58d751bbb12e6",
+      "record_stream_sha256": "97c66db0a0cf546c74093b0d20cf1ef9e8d9a031eb58627412da3a58e9e81cfe",
+      "typed_bytes": 40476,
+      "typed_delta_vs_adjacent_probe_b": 2944,
+      "typed_delta_vs_current_champion": -1592,
+      "value_bytes": 20924,
+      "variant_id": "fixed_label_probe_b"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_post_tail_label_probe_a_v1",
+      "envelope_sha256": "48ab265e42767983e6bca402e14d9059c5c839fbc2794be8323bc218d29b1a94",
+      "family": "post_tail",
+      "json_delta_vs_adjacent_probe_b": 16101,
+      "json_proof_bytes": 122418,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-post-tail-label-probe-a-2026-05.envelope.json",
+      "path_opening_bytes": 21184,
+      "policy_status": "new_probe_rejected_not_better_than_frontier",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-post-tail-fixed-v1",
+      "proof_sha256": "7c2836ee77684065c46fb855e91d6132f88536d998ae5193ed44f27398b79730",
+      "record_stream_sha256": "24e3f16bf92320fd79059257ec70ca97bbf76b5859610c2013c58a7511f1feaf",
+      "typed_bytes": 42156,
+      "typed_delta_vs_adjacent_probe_b": 4624,
+      "typed_delta_vs_current_champion": 88,
+      "value_bytes": 20924,
+      "variant_id": "post_tail_label_probe_a"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_post_tail_label_probe_b_v1",
+      "envelope_sha256": "964f4f6f10d1d684776cf76396cad10c4134fe03561ae019ece38dc0684bf987",
+      "family": "post_tail",
+      "json_delta_vs_adjacent_probe_b": 14051,
+      "json_proof_bytes": 120368,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-post-tail-label-probe-b-2026-05.envelope.json",
+      "path_opening_bytes": 20592,
+      "policy_status": "new_probe_rejected_not_better_than_frontier",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-post-tail-fixed-v1",
+      "proof_sha256": "f3ab73eeaf7cc759992490c5ebd45d8fbe2a8082a5b613280bff612387edc2f4",
+      "record_stream_sha256": "e9d78a54d2a2a49bf99023fe9b8a70d1bb0ad6b64f13b4c24050438bc2f8f578",
+      "typed_bytes": 41564,
+      "typed_delta_vs_adjacent_probe_b": 4032,
+      "typed_delta_vs_current_champion": -504,
+      "value_bytes": 20924,
+      "variant_id": "post_tail_label_probe_b"
+    }
+  ],
+  "result": "FOUR_NEW_PROBES_VERIFY_BUT_BEST_NEW_ROW_IS_40476_TYPED_BYTES_VS_37532_FRONTIER",
+  "schema": "zkai-native-seq32-attention-mlp-expanded-label-probe-gate-v1",
+  "source_artifacts": [
+    {
+      "id": "rust_native_seq32_attention_mlp_source",
+      "path": "src/stwo_backend/native_seq32_attention_mlp_single_proof.rs",
+      "sha256": "3d740bda9a3f301edea7a10dc1b9f58878d1a0f067397eecb5ed50465e4b7d95",
+      "size_bytes": 130368
+    },
+    {
+      "id": "cli_native_seq32_attention_mlp_source",
+      "path": "src/bin/zkai_native_seq32_attention_mlp_single_proof.rs",
+      "sha256": "abd34cbc64a04e234ccf2c3e951629f57243eb7e1795b1c448d340bb7111095d",
+      "size_bytes": 27120
+    },
+    {
+      "id": "expanded_label_probe_accounting",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-expanded-label-probe-accounting-2026-05.json",
+      "sha256": "d17b7838ddcb4c77c8d346ceb89fcac1c7985b0bbf7b2679fe2a1daaca2c30f4",
+      "size_bytes": 41049
+    }
+  ],
+  "validation_commands": [
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-label-probe-a docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-fused-label-probe-a-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-label-probe-b docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-fused-label-probe-b-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-post-tail-label-probe-a docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-post-tail-label-probe-a-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-post-tail-label-probe-b docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-post-tail-label-probe-b-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-fused-label-probe-a-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-fused-label-probe-b-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-post-tail-label-probe-a-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-post-tail-label-probe-b-2026-05.envelope.json > docs/engineering/evidence/zkai-native-seq32-attention-mlp-expanded-label-probe-accounting-2026-05.json",
+    "python3.10 scripts/zkai_native_seq32_attention_mlp_expanded_label_probe_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-expanded-label-probe-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-expanded-label-probe-2026-05.tsv",
+    "python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_expanded_label_probe_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_expanded_label_probe_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_expanded_label_probe_gate",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_adjacent_label --lib",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}

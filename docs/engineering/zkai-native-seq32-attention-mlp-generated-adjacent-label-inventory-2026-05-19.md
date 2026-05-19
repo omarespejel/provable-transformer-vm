@@ -104,13 +104,13 @@ This gate has `0` proof-size-comparable external rows.
 - Gate TSV:
   `docs/engineering/evidence/zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-2026-05.tsv`
 - JSON SHA-256:
-  `10ef45339f48c41e6cd264906e8ffbcfb49e8e7bb8738ea21174ba8fbb63a1bb`
+  `6aee314a31847d1239ae790ddd8933018215c30a4e6a3d507fd86efc27281238`
 - TSV SHA-256:
-  `ea1a91b5f746b7d9ee6f472ce15d7838f7df11df1f5bd03e2ba0954ab3b38c57`
+  `18f09bacac327f78b14de75ef263b189d1de56033750a9ea1f8aece2b0bd9116`
 - Source Rust SHA-256:
   `3d740bda9a3f301edea7a10dc1b9f58878d1a0f067397eecb5ed50465e4b7d95`
 - CLI source SHA-256:
-  `ef857b997450d683526e0f2d85000da6b5ddfcd33c96640b2e68a323588ec71f`
+  `abd34cbc64a04e234ccf2c3e951629f57243eb7e1795b1c448d340bb7111095d`
 - Source deterministic policy SHA-256:
   `d5cbe419a545c022036b7347b6fb75a1fbb127dc7a861948d96103e646f338ab`
 - Gate schema:
