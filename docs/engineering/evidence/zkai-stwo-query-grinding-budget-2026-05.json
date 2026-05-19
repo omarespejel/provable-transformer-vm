@@ -1,10 +1,14 @@
 {
   "baseline": {
     "adapter_mode": "rmsnorm_input_fused_adjacent_fixed_v1",
+    "api_control_status": "NO_TRUE_PREDECOMMIT_CONTROL_HOOK_IN_CURRENT_WRAPPER",
     "final_path_opening_bytes": 21184,
     "final_typed_bytes": 42156,
     "min_pairwise_query_gap": 30179,
+    "policy_stage": "post_transcript_pre_accounting_not_true_predecommit",
+    "predicted_path_opening_bytes": 21184,
     "query_location_span": 291186,
+    "selected_without_final_accounting": false,
     "variant_id": "fixed_adjacent_layout"
   },
   "budget_rule": {
@@ -17,10 +21,14 @@
   },
   "champion": {
     "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+    "api_control_status": "NO_TRUE_PREDECOMMIT_CONTROL_HOOK_IN_CURRENT_WRAPPER",
     "final_path_opening_bytes": 16560,
     "final_typed_bytes": 37532,
     "min_pairwise_query_gap": 5969,
+    "policy_stage": "post_transcript_pre_accounting_not_true_predecommit",
+    "predicted_path_opening_bytes": 16560,
     "query_location_span": 16618,
+    "selected_without_final_accounting": true,
     "variant_id": "adjacent_label_probe_b"
   },
   "decision": "NARROW_CLAIM_SMALL_VERIFIER_BOUND_RETRY_BUDGET_CAN_RECOVER_PROBE_B_INVENTORY",
@@ -37,79 +45,115 @@
     "why_it_matters": "This turns query geometry from post-hoc label selection into a bounded proof-system policy question. The next implementation should bind the attempt domain in the verifier-facing statement before claiming size wins."
   },
   "inventory": {
-    "commitment": "blake2b-256:f39a42cb0945b73cc326e2993e409af1e5b69c9bfc1f79faa2ad0e4db874e1b5",
+    "commitment": "blake2b-256:6b58d3f30c5a0b0e5d1aa78890f72c5830d973f3b3795bc1917fc0253266c37e",
     "row_count": 9,
     "rows": [
       {
         "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_a_v1",
+        "api_control_status": "NO_TRUE_PREDECOMMIT_CONTROL_HOOK_IN_CURRENT_WRAPPER",
         "final_path_opening_bytes": 19360,
         "final_typed_bytes": 40332,
         "min_pairwise_query_gap": 14670,
+        "policy_stage": "post_transcript_pre_accounting_not_true_predecommit",
+        "predicted_path_opening_bytes": 19360,
         "query_location_span": 110651,
+        "selected_without_final_accounting": false,
         "variant_id": "adjacent_label_probe_a"
       },
       {
         "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+        "api_control_status": "NO_TRUE_PREDECOMMIT_CONTROL_HOOK_IN_CURRENT_WRAPPER",
         "final_path_opening_bytes": 16560,
         "final_typed_bytes": 37532,
         "min_pairwise_query_gap": 5969,
+        "policy_stage": "post_transcript_pre_accounting_not_true_predecommit",
+        "predicted_path_opening_bytes": 16560,
         "query_location_span": 16618,
+        "selected_without_final_accounting": true,
         "variant_id": "adjacent_label_probe_b"
       },
       {
         "adapter_mode": "rmsnorm_input_fused_adjacent_fixed_v1",
+        "api_control_status": "NO_TRUE_PREDECOMMIT_CONTROL_HOOK_IN_CURRENT_WRAPPER",
         "final_path_opening_bytes": 21184,
         "final_typed_bytes": 42156,
         "min_pairwise_query_gap": 30179,
+        "policy_stage": "post_transcript_pre_accounting_not_true_predecommit",
+        "predicted_path_opening_bytes": 21184,
         "query_location_span": 291186,
+        "selected_without_final_accounting": false,
         "variant_id": "fixed_adjacent_layout"
       },
       {
         "adapter_mode": "rmsnorm_input_fused_adjacent_seed_00_v1",
+        "api_control_status": "NO_TRUE_PREDECOMMIT_CONTROL_HOOK_IN_CURRENT_WRAPPER",
         "final_path_opening_bytes": 20512,
         "final_typed_bytes": 41484,
         "min_pairwise_query_gap": 34301,
+        "policy_stage": "post_transcript_pre_accounting_not_true_predecommit",
+        "predicted_path_opening_bytes": 20512,
         "query_location_span": 180956,
+        "selected_without_final_accounting": false,
         "variant_id": "adjacent_seed_00"
       },
       {
         "adapter_mode": "rmsnorm_input_fused_adjacent_seed_01_v1",
+        "api_control_status": "NO_TRUE_PREDECOMMIT_CONTROL_HOOK_IN_CURRENT_WRAPPER",
         "final_path_opening_bytes": 20512,
         "final_typed_bytes": 41484,
         "min_pairwise_query_gap": 49574,
+        "policy_stage": "post_transcript_pre_accounting_not_true_predecommit",
+        "predicted_path_opening_bytes": 20512,
         "query_location_span": 145631,
+        "selected_without_final_accounting": false,
         "variant_id": "adjacent_seed_01"
       },
       {
         "adapter_mode": "rmsnorm_input_fused_adjacent_seed_02_v1",
+        "api_control_status": "NO_TRUE_PREDECOMMIT_CONTROL_HOOK_IN_CURRENT_WRAPPER",
         "final_path_opening_bytes": 19296,
         "final_typed_bytes": 40268,
         "min_pairwise_query_gap": 32220,
+        "policy_stage": "post_transcript_pre_accounting_not_true_predecommit",
+        "predicted_path_opening_bytes": 19296,
         "query_location_span": 86468,
+        "selected_without_final_accounting": false,
         "variant_id": "adjacent_seed_02"
       },
       {
         "adapter_mode": "rmsnorm_input_fused_adjacent_seed_03_v1",
+        "api_control_status": "NO_TRUE_PREDECOMMIT_CONTROL_HOOK_IN_CURRENT_WRAPPER",
         "final_path_opening_bytes": 21184,
         "final_typed_bytes": 42156,
         "min_pairwise_query_gap": 80748,
+        "policy_stage": "post_transcript_pre_accounting_not_true_predecommit",
+        "predicted_path_opening_bytes": 21184,
         "query_location_span": 391501,
+        "selected_without_final_accounting": false,
         "variant_id": "adjacent_seed_03"
       },
       {
         "adapter_mode": "rmsnorm_input_fused_adjacent_seed_04_v1",
+        "api_control_status": "NO_TRUE_PREDECOMMIT_CONTROL_HOOK_IN_CURRENT_WRAPPER",
         "final_path_opening_bytes": 21184,
         "final_typed_bytes": 42156,
         "min_pairwise_query_gap": 57938,
+        "policy_stage": "post_transcript_pre_accounting_not_true_predecommit",
+        "predicted_path_opening_bytes": 21184,
         "query_location_span": 422330,
+        "selected_without_final_accounting": false,
         "variant_id": "adjacent_seed_04"
       },
       {
         "adapter_mode": "rmsnorm_input_fused_adjacent_seed_05_v1",
+        "api_control_status": "NO_TRUE_PREDECOMMIT_CONTROL_HOOK_IN_CURRENT_WRAPPER",
         "final_path_opening_bytes": 19360,
         "final_typed_bytes": 40332,
         "min_pairwise_query_gap": 15995,
+        "policy_stage": "post_transcript_pre_accounting_not_true_predecommit",
+        "predicted_path_opening_bytes": 19360,
         "query_location_span": 125812,
+        "selected_without_final_accounting": false,
         "variant_id": "adjacent_seed_05"
       }
     ],
@@ -137,6 +181,11 @@
       {
         "error": "base payload drift",
         "name": "inventory_commitment_drift",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "inventory_trust_field_drift",
         "rejected": true
       },
       {
@@ -230,6 +279,7 @@
       "result_overclaim",
       "inventory_count_drift",
       "inventory_commitment_drift",
+      "inventory_trust_field_drift",
       "baseline_metric_drift",
       "champion_metric_drift",
       "two_probe_claims_new_frontier",
@@ -248,7 +298,7 @@
       "non_claim_removed",
       "payload_commitment_drift"
     ],
-    "mutations_rejected": 21
+    "mutations_rejected": 22
   },
   "non_claims": [
     "not a new proof-size frontier",
@@ -261,7 +311,7 @@
     "not timing evidence"
   ],
   "parent_issue": "https://github.com/omarespejel/provable-transformer-vm/issues/704",
-  "payload_commitment": "blake2b-256:9dd16fba4ad07e7a61748742041ebe41df64e8e3785de94aa98ca1550ac926c8",
+  "payload_commitment": "blake2b-256:139ebaf55f70c771cf1d1f9f6fb8a132bc2215118e46a6ca4dbd2d6da4e0aea6",
   "policy_rows": [
     {
       "allowed_variant_ids": [
@@ -358,7 +408,7 @@
   ],
   "reproducibility_metadata": {
     "local_release_gate_step_count": 14,
-    "mutation_step_count": 21,
+    "mutation_step_count": 22,
     "unittest_step_count": 18
   },
   "result": "GO_MECHANISM_LEAD_NOT_PROOF_SIZE_FRONTIER",

@@ -49,6 +49,14 @@ class StwoQueryGrindingBudgetGateTest(unittest.TestCase):
         self.assertEqual(len(inventory["rows"]), 9)
         header = self.gate.INVENTORY_TSV.read_text(encoding="utf-8").splitlines()[0].split("\t")
         self.assertEqual(tuple(header), self.gate.REQUIRED_INVENTORY_COLUMNS)
+        selected_ids = [row["variant_id"] for row in inventory["rows"] if row["selected_without_final_accounting"]]
+        self.assertEqual(selected_ids, ["adjacent_label_probe_b"])
+        self.assertTrue(
+            all(row["policy_stage"] == self.gate.EXPECTED_POLICY_STAGE for row in inventory["rows"])
+        )
+        self.assertTrue(
+            all(row["api_control_status"] == self.gate.EXPECTED_API_CONTROL_STATUS for row in inventory["rows"])
+        )
 
     def test_baseline_and_champion_metrics_are_pinned(self):
         self.assertEqual(self.payload["baseline"]["variant_id"], "fixed_adjacent_layout")
