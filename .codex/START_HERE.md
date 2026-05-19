@@ -143,8 +143,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 137. `docs/engineering/zkai-stwo-query-preview-split-prototype-2026-05-19.md`
 138. `docs/engineering/zkai-stwo-query-grinding-budget-2026-05-19.md`
 139. `docs/engineering/zkai-stwo-attempt-domain-binding-2026-05-19.md`
-140. `docs/engineering/reproducibility.md`
-141. `git status --short --branch`
+140. `docs/engineering/zkai-stwo-inner-attempt-domain-statement-2026-05-19.md`
+141. `docs/engineering/reproducibility.md`
+142. `git status --short --branch`
 
 ## What this repository is now
 
@@ -261,6 +262,15 @@ This repository currently has three live lanes.
      regenerate the proof and does not bind the attempt domain inside the inner
      Stwo transcript; see
      `docs/engineering/zkai-stwo-attempt-domain-binding-2026-05-19.md`.
+   - The current inner attempt-domain statement gate regenerates probe A/B with
+     explicit attempt-policy metadata inside the native Stwo statement and
+     transcript. The best regenerated row is `adjacent_label_probe_b` at
+     `40,892` typed bytes / `118,042` JSON proof bytes. This pays `3,360`
+     typed bytes versus the legacy wrapper-only B row, but still saves `1,176`
+     typed bytes versus the `42,068` single-proof champion and `6,296` typed
+     bytes versus the `47,188` matched two-proof frontier. It is a correctness
+     upgrade, not a new proof-size frontier and not a NANOZK comparison; see
+     `docs/engineering/zkai-stwo-inner-attempt-domain-statement-2026-05-19.md`.
    - The current source-backed adapter frontier is a correctness GO and a
      proof-shape learning result, not a compression breakthrough. The compact
      selector verifies at `40,812` local typed bytes, only `112` typed bytes

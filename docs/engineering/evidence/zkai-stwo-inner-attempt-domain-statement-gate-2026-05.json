@@ -1,0 +1,274 @@
+{
+  "attempt_rows": [
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_a_v1",
+      "attempt_policy": {
+        "attempt_budget": 2,
+        "attempt_domain": [
+          "adjacent_label_probe_a",
+          "adjacent_label_probe_b"
+        ],
+        "non_claims": [
+          "not unbounded retry",
+          "not post-decommitment selection",
+          "not final proof-byte selection",
+          "not absolute soundness",
+          "not a NANOZK proof-size comparison"
+        ],
+        "policy_stage": "inner_statement_transcript_metadata",
+        "policy_version": "seq32-d128-adjacent-attempt-domain-v1",
+        "security_loss_bits": "1.000000",
+        "security_loss_formula": "log2(2)",
+        "selected_attempt_id": "adjacent_label_probe_a",
+        "selected_attempt_index": 0
+      },
+      "envelope_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-inner-attempt-2026-05.envelope.json",
+      "envelope_sha256": "cfc101dc582bfd4379fca7e4bbf514c1d822983a8b3fce9f2f2f78427dcd50eb",
+      "input_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-inner-attempt-2026-05.input.json",
+      "input_sha256": "279912f1f5be3925e14f76b124bde21ce5ecd5aeb9e989ed58c52b31b4e8139d",
+      "json_cost_vs_legacy_wrapper_b": 11817,
+      "json_saving_vs_matched_two_proof_frontier": 22704,
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_json_bytes": 118134,
+      "proof_sha256": "931b85e6a79b000a4de42aa56d31ed712d39c11a2eb8130d3bb49c8a8af79ad7",
+      "public_instance_commitment": "blake2b-256:94d8d70393e5167ae7259141e27fce1e4b05c0fdc124bf57cc2d78e46d365dda",
+      "record_stream_sha256": "bd21b1c18d3c29d70693858830405a744a24714174e04949c4381fee3d541adc",
+      "statement_commitment": "blake2b-256:410689e735c4c4b47a16986ec441b32d50638c3ffbde77b89e7dfbe094175713",
+      "typed_bytes": 40892,
+      "typed_cost_vs_legacy_wrapper_b": 3360,
+      "typed_saving_vs_matched_two_proof_frontier": 6296,
+      "typed_saving_vs_single_proof_champion": 1176,
+      "variant_id": "adjacent_label_probe_a"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+      "attempt_policy": {
+        "attempt_budget": 2,
+        "attempt_domain": [
+          "adjacent_label_probe_a",
+          "adjacent_label_probe_b"
+        ],
+        "non_claims": [
+          "not unbounded retry",
+          "not post-decommitment selection",
+          "not final proof-byte selection",
+          "not absolute soundness",
+          "not a NANOZK proof-size comparison"
+        ],
+        "policy_stage": "inner_statement_transcript_metadata",
+        "policy_version": "seq32-d128-adjacent-attempt-domain-v1",
+        "security_loss_bits": "1.000000",
+        "security_loss_formula": "log2(2)",
+        "selected_attempt_id": "adjacent_label_probe_b",
+        "selected_attempt_index": 1
+      },
+      "envelope_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-inner-attempt-2026-05.envelope.json",
+      "envelope_sha256": "1a1f8ef18038b2018761d20738655152119a8214fee3286f587eab3496e2cc9b",
+      "input_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-inner-attempt-2026-05.input.json",
+      "input_sha256": "483ff43a4d1775c207e9d2a3836f80e6103c2a3a362d17d026b690518398029b",
+      "json_cost_vs_legacy_wrapper_b": 11725,
+      "json_saving_vs_matched_two_proof_frontier": 22796,
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_json_bytes": 118042,
+      "proof_sha256": "083fc8ae6155ac0d58da91c05d959458d51cb67d1c0dbddbfc2d0d4c6f9b2318",
+      "public_instance_commitment": "blake2b-256:58a171f5a5e2e74a8e6df52e940dbb58b17c8ab4337b807b2077629a96d137cd",
+      "record_stream_sha256": "bd21b1c18d3c29d70693858830405a744a24714174e04949c4381fee3d541adc",
+      "statement_commitment": "blake2b-256:0bac8a9497355b7cfd4b10d1a5e6204b5403f7bdf890688677f681dad172f5df",
+      "typed_bytes": 40892,
+      "typed_cost_vs_legacy_wrapper_b": 3360,
+      "typed_saving_vs_matched_two_proof_frontier": 6296,
+      "typed_saving_vs_single_proof_champion": 1176,
+      "variant_id": "adjacent_label_probe_b"
+    }
+  ],
+  "binding_summary": {
+    "best_inner_attempt_id": "adjacent_label_probe_b",
+    "best_inner_attempt_json_bytes": 118042,
+    "best_inner_attempt_typed_bytes": 40892,
+    "inner_stwo_statement_binds_attempt_domain": true,
+    "inner_stwo_transcript_binds_attempt_domain": true,
+    "json_cost_vs_legacy_wrapper_b": 11725,
+    "json_saving_vs_matched_two_proof_frontier": 22796,
+    "legacy_wrapper_row_still_verifies": true,
+    "nanozk_comparable_external_rows": 0,
+    "nanozk_gap_typed_bytes": 33992,
+    "new_frontier_claimed": false,
+    "proof_object_regenerated": true,
+    "result_status": "GO_CORRECTNESS_UPGRADE_WITH_3360_TYPED_BYTE_COST_VS_LEGACY_WRAPPER_ROW",
+    "typed_cost_vs_legacy_wrapper_b": 3360,
+    "typed_saving_vs_matched_two_proof_frontier": 6296,
+    "typed_saving_vs_single_proof_champion": 1176
+  },
+  "claim_boundary": "REGENERATED_NATIVE_STWO_SEQ32_D128_ADJACENT_PROBE_A_B_PROOFS;ATTEMPT_DOMAIN_SELECTED_ATTEMPT_AND_ONE_BIT_LOSS_ARE_STATEMENT_AND_TRANSCRIPT_INPUTS;NOT_A_NEW_PROOF_SIZE_FRONTIER_NOT_A_NANOZK_WIN_NOT_A_FULL_TRANSFORMER_BLOCK",
+  "decision": "GO_REGENERATED_SEQ32_D128_STWO_PROOFS_BIND_ATTEMPT_DOMAIN_INSIDE_NATIVE_STATEMENT",
+  "interpretation": {
+    "claim_boundary": "This is a stronger statement-validity result, not a new proof-size frontier and not a NANOZK-comparable block proof.",
+    "human_read": "The earlier B row was smaller, but its attempt-domain policy lived outside the native proof statement. These regenerated A/B proofs make the two-probe domain and selected attempt part of the native statement and transcript.",
+    "research_read": "The correctness upgrade costs 3,360 typed bytes versus the legacy wrapper-only B row, yet the best inner-bound row still saves 1,176 typed bytes versus the 42,068 typed-byte single-proof champion and 6,296 typed bytes versus the matched two-proof frontier."
+  },
+  "issue_hint": "https://github.com/omarespejel/provable-transformer-vm/issues/710",
+  "mutation_result": {
+    "all_mutations_rejected": true,
+    "cases": [
+      {
+        "error": "decision drift",
+        "name": "decision_drift",
+        "rejected": true
+      },
+      {
+        "error": "claim_boundary drift",
+        "name": "claim_boundary_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "source artifact drift",
+        "name": "rust_source_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "source artifact drift",
+        "name": "accounting_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "attempt row drift",
+        "name": "attempt_domain_reordered",
+        "rejected": true
+      },
+      {
+        "error": "attempt row drift",
+        "name": "selected_attempt_changed",
+        "rejected": true
+      },
+      {
+        "error": "attempt row drift",
+        "name": "selected_attempt_index_drift",
+        "rejected": true
+      },
+      {
+        "error": "attempt row drift",
+        "name": "attempt_budget_drift",
+        "rejected": true
+      },
+      {
+        "error": "attempt row drift",
+        "name": "security_loss_understated",
+        "rejected": true
+      },
+      {
+        "error": "attempt row field drift: missing attempt_policy",
+        "name": "attempt_policy_removed",
+        "rejected": true
+      },
+      {
+        "error": "attempt row drift",
+        "name": "typed_bytes_drift",
+        "rejected": true
+      },
+      {
+        "error": "binding summary drift",
+        "name": "legacy_cost_erased",
+        "rejected": true
+      },
+      {
+        "error": "binding summary drift",
+        "name": "single_champion_saving_drift",
+        "rejected": true
+      },
+      {
+        "error": "binding summary drift",
+        "name": "new_frontier_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "claim_boundary drift",
+        "name": "nanozk_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "validation command drift",
+        "name": "validation_command_drift",
+        "rejected": true
+      },
+      {
+        "error": "non_claims drift",
+        "name": "removed_non_claim",
+        "rejected": true
+      },
+      {
+        "error": "payload commitment drift",
+        "name": "payload_commitment_drift",
+        "rejected": true
+      }
+    ],
+    "mutation_names": [
+      "decision_drift",
+      "claim_boundary_overclaim",
+      "rust_source_digest_drift",
+      "accounting_digest_drift",
+      "attempt_domain_reordered",
+      "selected_attempt_changed",
+      "selected_attempt_index_drift",
+      "attempt_budget_drift",
+      "security_loss_understated",
+      "attempt_policy_removed",
+      "typed_bytes_drift",
+      "legacy_cost_erased",
+      "single_champion_saving_drift",
+      "new_frontier_overclaim",
+      "nanozk_overclaim",
+      "validation_command_drift",
+      "removed_non_claim",
+      "payload_commitment_drift"
+    ],
+    "mutations_rejected": 18
+  },
+  "non_claims": [
+    "not a new proof-size frontier beyond the existing 37,532 typed-byte legacy wrapper row",
+    "not a NANOZK proof-size comparison",
+    "not a matched external zkML benchmark",
+    "not a full transformer block proof",
+    "not exact real-valued Softmax",
+    "not timing evidence",
+    "not production-ready zkML"
+  ],
+  "payload_commitment": "blake2b-256:24b7220e4387adfa9c4cba6e06a99d0d1e25e8642470c827d15e837bbbe20323",
+  "result": "POLICY_BOUND_PROBE_B_VERIFIES_AT_40892_TYPED_BYTES_WITH_EXPLICIT_COST_VS_LEGACY_WRAPPER_ROW",
+  "schema": "zkai-stwo-inner-attempt-domain-statement-gate-v1",
+  "source_artifacts": [
+    {
+      "id": "rust_native_seq32_attention_mlp_source",
+      "path": "src/stwo_backend/native_seq32_attention_mlp_single_proof.rs",
+      "sha256": "05f1d76f3cb39cb9db676f9083060f61c61d43f1ab0e7d539c3b16f9d7767839",
+      "size_bytes": 159556
+    },
+    {
+      "id": "cli_native_seq32_attention_mlp_source",
+      "path": "src/bin/zkai_native_seq32_attention_mlp_single_proof.rs",
+      "sha256": "ea68996b62dd763255e20479672bf7a392494a710c87eb2c0da84482873b4b52",
+      "size_bytes": 32531
+    },
+    {
+      "id": "inner_attempt_domain_accounting",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-inner-attempt-domain-accounting-2026-05.json",
+      "sha256": "72cad6f598af282215f6579a716816a52e259248a420e27c5759d45482055978",
+      "size_bytes": 11035
+    }
+  ],
+  "validation_commands": [
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-adjacent-label-probe-a docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-inner-attempt-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-inner-attempt-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-inner-attempt-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-inner-attempt-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-adjacent-label-probe-b docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-inner-attempt-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-inner-attempt-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-inner-attempt-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-inner-attempt-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-inner-attempt-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-inner-attempt-2026-05.envelope.json > docs/engineering/evidence/zkai-native-seq32-attention-mlp-inner-attempt-domain-accounting-2026-05.json",
+    "python3.10 scripts/zkai_stwo_inner_attempt_domain_statement_gate.py --write-json docs/engineering/evidence/zkai-stwo-inner-attempt-domain-statement-gate-2026-05.json --write-tsv docs/engineering/evidence/zkai-stwo-inner-attempt-domain-statement-gate-2026-05.tsv",
+    "python3.10 -m py_compile scripts/zkai_stwo_inner_attempt_domain_statement_gate.py scripts/tests/test_zkai_stwo_inner_attempt_domain_statement_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_stwo_inner_attempt_domain_statement_gate",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_adjacent_label_probe --lib",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}
