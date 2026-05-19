@@ -426,7 +426,15 @@ def mutation_function_names() -> tuple[str, ...]:
     return tuple(name for name, _ in mutation_functions())
 
 
-assert mutation_function_names() == MUTATION_NAMES, "mutation function inventory must match MUTATION_NAMES"
+def ensure_mutation_inventory() -> None:
+    actual = mutation_function_names()
+    if actual != MUTATION_NAMES:
+        raise ExpandedLabelProbeGateError(
+            f"mutation function inventory drift: expected {MUTATION_NAMES!r}, got {actual!r}"
+        )
+
+
+ensure_mutation_inventory()
 
 
 def _row(payload: dict[str, Any], variant_id: str) -> dict[str, Any]:
@@ -437,6 +445,7 @@ def _row(payload: dict[str, Any], variant_id: str) -> dict[str, Any]:
 
 
 def mutation_result(payload: dict[str, Any]) -> dict[str, Any]:
+    ensure_mutation_inventory()
     cases = []
     for name, mutate in mutation_functions():
         item = copy.deepcopy(payload)
@@ -462,6 +471,7 @@ def mutation_result(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def validate_payload(payload: dict[str, Any]) -> None:
+    ensure_mutation_inventory()
     validate_payload_core(payload)
     mutation = payload.get("mutation_result")
     if not isinstance(mutation, dict):
