@@ -75,6 +75,18 @@ class ExpandedLabelProbeGateTest(unittest.TestCase):
     def test_mutation_function_order_matches_inventory(self):
         self.assertEqual(self.gate.mutation_function_names(), self.gate.MUTATION_NAMES)
 
+    def test_mutation_inventory_guard_is_not_assert_only(self):
+        original_names = self.gate.MUTATION_NAMES
+        self.gate.MUTATION_NAMES = ("unexpected_mutation_inventory",)
+        try:
+            with self.assertRaisesRegex(
+                self.gate.ExpandedLabelProbeGateError,
+                "mutation function inventory drift",
+            ):
+                self.gate.ensure_mutation_inventory()
+        finally:
+            self.gate.MUTATION_NAMES = original_names
+
     def test_payload_commitment_is_stable(self):
         self.assertEqual(
             self.payload["payload_commitment"],
