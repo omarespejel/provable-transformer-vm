@@ -2496,6 +2496,46 @@ Seq32 adjacent label seed-sweep reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
+Latest adjacent probe-B bucket attribution gate: issue `#693` is now checked
+as a narrow attribution result, not a new proof-size frontier. The gate compares
+adjacent probe B against `adjacent_seed_02`, `adjacent_seed_05`, and the fixed
+adjacent layout using the local binary accounting groups. Probe B remains the
+`37,532` typed-byte row. The best pre-registered seed is still `2,736` typed
+bytes heavier, and the whole gap is path-opening plumbing: direct value bytes
+are equal at `20,924`, fixed overhead is equal at `48`, and the gap decomposes
+to `2,016` FRI decommitment bytes, `80` FRI sample bytes, and `640` trace
+decommitment bytes. This supports the mechanism claim that opening/decommitment
+structure matters, but it does not establish a source-exposed predictor for
+choosing the small bucket before proving. Treat the label path as attribution
+evidence unless a pre-prove query/opening inventory can predict the bucket.
+Follow-up issue `#695` tracks that predictor gate. See
+`docs/engineering/zkai-native-seq32-attention-mlp-adjacent-probe-b-bucket-attribution-2026-05-19.md`.
+
+Seq32 adjacent probe-B bucket attribution reproducibility metadata:
+
+- Gate schema:
+  `zkai-native-seq32-attention-mlp-adjacent-probe-b-bucket-attribution-gate-v1`.
+- Decision:
+  `NARROW_CLAIM_PATH_OPENING_BUCKET_ATTRIBUTED_NO_SOURCE_PREDICTOR`.
+- Timing mode: proof-size/accounting attribution only; no timing claim and no
+  median-of-5.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-probe-b-bucket-attribution-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-probe-b-bucket-attribution-2026-05.tsv`,
+  and
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-accounting-2026-05.json`.
+- Gate JSON SHA-256:
+  `d2bc8e08a4cb139b8e82f5d5fae339f957a06eebb1fe0f604989604147792b81`.
+- Payload commitment:
+  `blake2b-256:ff356aa053c297b3178d6b0d9429d339a3abf1f3543e34ba92801ee1af750526`.
+- Local validation commands:
+  `python3.10 scripts/zkai_native_seq32_attention_mlp_adjacent_probe_b_bucket_attribution_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-probe-b-bucket-attribution-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-probe-b-bucket-attribution-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_adjacent_probe_b_bucket_attribution_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_adjacent_probe_b_bucket_attribution_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adjacent_probe_b_bucket_attribution_gate`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
 1. Treat `rmsnorm_mlp_fused` as the current positive MLP-side fusion result:
    the native fused proof saves `32,144` local typed bytes (`56.4167%`) versus
    separate RMSNorm, bridge, gate/value, activation, down-projection, and
