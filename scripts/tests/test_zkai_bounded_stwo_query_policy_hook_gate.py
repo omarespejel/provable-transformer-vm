@@ -1,6 +1,7 @@
 import copy
 import importlib.util
 import json
+import os
 import pathlib
 import tempfile
 import unittest
@@ -22,7 +23,12 @@ class BoundedStwoQueryPolicyHookGateTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.gate = load_gate()
-        cls.payload = cls.gate.build_payload()
+        try:
+            cls.payload = cls.gate.build_payload()
+        except cls.gate.BoundedStwoQueryPolicyHookGateError as err:
+            if "Stwo 2.2.0 source is not available" in str(err):
+                raise unittest.SkipTest(str(err)) from err
+            raise
 
     def design(self, hook_id):
         for design in self.payload["hook_designs"]:
@@ -112,6 +118,20 @@ class BoundedStwoQueryPolicyHookGateTest(unittest.TestCase):
         self.assertTrue(forbidden["record_streams"])
         self.assertTrue(forbidden["final_path_opening_bytes"])
         self.assertTrue(forbidden["post_decommitment_aux_as_selector"])
+
+    @unittest.skipUnless(hasattr(os, "symlink"), "symlink support required")
+    def test_read_external_file_rejects_symlink(self):
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:
+            tmp_path = pathlib.Path(tmp)
+            target = tmp_path / "target.rs"
+            target.write_text("fn main() {}\n")
+            link = tmp_path / "link.rs"
+            os.symlink(target, link)
+            with self.assertRaisesRegex(
+                self.gate.BoundedStwoQueryPolicyHookGateError,
+                "must not traverse symlink",
+            ):
+                self.gate.read_external_file(link, "symlink source", 1024)
 
     def test_all_mutations_rejected(self):
         mutation = self.payload["mutation_result"]
