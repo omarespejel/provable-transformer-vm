@@ -158,6 +158,19 @@ class DryRunOpeningSamplerGateTest(unittest.TestCase):
                     self.payload,
                 )
 
+    def test_temp_collision_error_names_target(self):
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:
+            tmp_path = pathlib.Path(tmp)
+            json_path = tmp_path / "out.json"
+            tsv_path = tmp_path / "out.tsv"
+            for attempt in range(self.gate.DETERMINISTIC_TEMP_ATTEMPTS):
+                (tmp_path / f".out.json.tmp.{attempt}").write_text("")
+            with self.assertRaisesRegex(
+                self.gate.DryRunOpeningSamplerGateError,
+                r"deterministic temp file collision for out\.json",
+            ):
+                self.gate.write_outputs(json_path, tsv_path, self.payload)
+
     @unittest.skipUnless(hasattr(os, "symlink"), "requires symlink support")
     def test_rejects_output_paths_through_symlinked_parent(self):
         with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:
