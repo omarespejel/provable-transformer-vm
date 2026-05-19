@@ -64,6 +64,10 @@ class NativeSeq32AdjacentLabelPolicyGateTest(unittest.TestCase):
         self.assertEqual(result["mutations_rejected"], len(self.gate.MUTATION_NAMES))
         self.assertEqual(tuple(result["mutation_names"]), self.gate.MUTATION_NAMES)
         self.assertEqual(tuple(case["name"] for case in result["cases"]), self.gate.MUTATION_NAMES)
+        self.assertEqual(
+            tuple(case["error"] for case in result["cases"]),
+            tuple(self.gate.EXPECTED_MUTATION_ERRORS[name] for name in self.gate.MUTATION_NAMES),
+        )
 
     def test_rejects_summary_drift(self) -> None:
         payload = copy.deepcopy(self.__class__.payload)
@@ -119,7 +123,14 @@ class NativeSeq32AdjacentLabelPolicyGateTest(unittest.TestCase):
         payload = copy.deepcopy(self.__class__.payload)
         del payload["mutation_result"]
         payload["payload_commitment"] = self.gate.payload_commitment(payload)
-        with self.assertRaisesRegex(self.gate.AdjacentLabelPolicyGateError, "mutation result must be object"):
+        with self.assertRaisesRegex(self.gate.AdjacentLabelPolicyGateError, "payload field drift: missing mutation_result"):
+            self.gate.validate_payload(payload)
+
+    def test_rejects_unknown_payload_field(self) -> None:
+        payload = copy.deepcopy(self.__class__.payload)
+        payload["extra_claim"] = "this should not be accepted"
+        payload["payload_commitment"] = self.gate.payload_commitment(payload)
+        with self.assertRaisesRegex(self.gate.AdjacentLabelPolicyGateError, "payload field drift: unexpected extra_claim"):
             self.gate.validate_payload(payload)
 
     def test_rejects_variant_reordering(self) -> None:
@@ -127,6 +138,27 @@ class NativeSeq32AdjacentLabelPolicyGateTest(unittest.TestCase):
         payload["variants"][0], payload["variants"][1] = payload["variants"][1], payload["variants"][0]
         payload["payload_commitment"] = self.gate.payload_commitment(payload)
         with self.assertRaisesRegex(self.gate.AdjacentLabelPolicyGateError, "variant order drift"):
+            self.gate.validate_payload(payload)
+
+    def test_rejects_unknown_variant_field(self) -> None:
+        payload = copy.deepcopy(self.__class__.payload)
+        payload["variants"][2]["extra_claim"] = "probe is now production"
+        payload["payload_commitment"] = self.gate.payload_commitment(payload)
+        with self.assertRaisesRegex(self.gate.AdjacentLabelPolicyGateError, "variant field drift: unexpected extra_claim"):
+            self.gate.validate_payload(payload)
+
+    def test_rejects_unknown_source_artifact_field(self) -> None:
+        payload = copy.deepcopy(self.__class__.payload)
+        payload["source_artifacts"][0]["mutable_note"] = "same file, different claim"
+        payload["payload_commitment"] = self.gate.payload_commitment(payload)
+        with self.assertRaisesRegex(self.gate.AdjacentLabelPolicyGateError, "source artifact field drift: unexpected mutable_note"):
+            self.gate.validate_payload(payload)
+
+    def test_rejects_mutation_error_drift(self) -> None:
+        payload = copy.deepcopy(self.__class__.payload)
+        payload["mutation_result"]["cases"][0]["error"] = "still rejected, but for a different reason"
+        payload["payload_commitment"] = self.gate.payload_commitment(payload)
+        with self.assertRaisesRegex(self.gate.AdjacentLabelPolicyGateError, "mutation result drift"):
             self.gate.validate_payload(payload)
 
     def test_rejects_payload_commitment_drift(self) -> None:

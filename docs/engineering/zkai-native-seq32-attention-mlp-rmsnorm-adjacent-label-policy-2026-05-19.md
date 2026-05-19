@@ -70,7 +70,10 @@ This gate has `0` proof-size-comparable external rows.
 - Workload target:
   `attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1`
 - Step/log-size metadata:
-  `pcs_lifting_log_size = 19`; adjacent/probe `adapter_trace_cells = 0`.
+  `pcs_lifting_log_size = 19`; adjacent/probe `adapter_trace_cells = 0`;
+  `15` reproduction commands; `22` Python gate unit tests; `3`
+  `rmsnorm_input_adjacent_label` Rust library tests; `5` binary tests; `14`
+  mutation guards; `14 / 14` full local release-gate steps.
 - Timing mode:
   proof-size/accounting only; no timing claim and no median-of-5.
 
@@ -85,7 +88,9 @@ This gate has `0` proof-size-comparable external rows.
 - Probe B envelope:
   `docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.envelope.json`
 
-The gate rejects `14 / 14` mutation cases: decision drift, result drift,
+The current gate rejects `14 / 14` mutation cases after the interpretation-drift
+guard was added; the earlier `13`-guard objective is obsolete. The cases are:
+decision drift, result drift,
 saving erasure, best-probe typed drift, adapter-mode relabeling, value-group
 drift, path-opening saving erasure, label-span erasure, source-artifact digest
 drift, validation-command drift, removed non-claims, interpretation drift,

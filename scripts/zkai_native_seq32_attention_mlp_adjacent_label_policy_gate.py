@@ -196,6 +196,22 @@ MUTATION_NAMES = (
     "nanozk_overclaim",
     "payload_commitment_drift",
 )
+EXPECTED_MUTATION_ERRORS = {
+    "decision_drift": "decision drift",
+    "result_drift": "result drift",
+    "worst_probe_saving_erased": "summary drift",
+    "best_probe_typed_drift": "variant metadata drift",
+    "probe_adapter_mode_relabel": "variant metadata drift",
+    "probe_value_group_drift": "variant metadata drift",
+    "path_opening_saving_erased": "summary drift",
+    "label_span_erased": "summary drift",
+    "source_artifact_digest_drift": "source artifact digest drift",
+    "validation_command_drift": "validation command drift",
+    "removed_non_claim": "non_claims drift",
+    "interpretation_drift": "interpretation drift",
+    "nanozk_overclaim": "claim_boundary drift",
+    "payload_commitment_drift": "payload commitment drift",
+}
 
 TSV_COLUMNS = (
     "variant_id",
@@ -210,6 +226,42 @@ TSV_COLUMNS = (
 )
 
 DETERMINISTIC_TEMP_ATTEMPTS = 16
+PAYLOAD_KEYS = {
+    "schema",
+    "decision",
+    "result",
+    "claim_boundary",
+    "issue_hint",
+    "summary",
+    "variants",
+    "interpretation",
+    "non_claims",
+    "source_artifacts",
+    "validation_commands",
+    "mutation_result",
+    "payload_commitment",
+}
+VARIANT_KEYS = {
+    "variant_id",
+    "path",
+    "adapter_mode",
+    "proof_backend_version",
+    "typed_bytes",
+    "proof_json_bytes",
+    "proof_sha256",
+    "envelope_sha256",
+    "record_stream_sha256",
+    "grouped",
+    "path_opening_bytes",
+    "value_bytes",
+    "typed_delta_vs_champion",
+    "proof_json_delta_vs_champion",
+    "path_opening_delta_vs_champion",
+    "value_delta_vs_champion",
+}
+SOURCE_ARTIFACT_KEYS = {"id", "path", "sha256", "size_bytes"}
+MUTATION_RESULT_KEYS = {"all_mutations_rejected", "mutations_rejected", "mutation_names", "cases"}
+MUTATION_CASE_KEYS = {"name", "rejected", "error"}
 
 
 class AdjacentLabelPolicyGateError(ValueError):
@@ -289,6 +341,17 @@ def _group_int(groups: dict[str, Any], group: str) -> int:
     if isinstance(value, bool) or not isinstance(value, int):
         raise AdjacentLabelPolicyGateError(f"accounting group must be int: {group}")
     return value
+
+
+def _require_exact_keys(value: dict[str, Any], expected: set[str], label: str) -> None:
+    actual = set(value)
+    if actual == expected:
+        return
+    unexpected = sorted(actual - expected)
+    missing = sorted(expected - actual)
+    if unexpected:
+        raise AdjacentLabelPolicyGateError(f"{label} field drift: unexpected {unexpected[0]}")
+    raise AdjacentLabelPolicyGateError(f"{label} field drift: missing {missing[0]}")
 
 
 def grouped(row: dict[str, Any]) -> dict[str, int]:
@@ -450,7 +513,7 @@ def mutation_result(payload: dict[str, Any]) -> dict[str, Any]:
             "all_mutations_rejected": True,
             "mutations_rejected": len(MUTATION_NAMES),
             "mutation_names": list(MUTATION_NAMES),
-            "cases": [{"name": n, "rejected": True, "error": "placeholder"} for n in MUTATION_NAMES],
+            "cases": expected_mutation_cases(),
         }
         if name != "payload_commitment_drift":
             item["payload_commitment"] = payload_commitment(item)
@@ -487,7 +550,24 @@ def mutation_functions() -> tuple[tuple[str, Callable[[dict[str, Any]], None]], 
     )
 
 
+def expected_mutation_cases() -> list[dict[str, Any]]:
+    return [
+        {"name": name, "rejected": True, "error": EXPECTED_MUTATION_ERRORS[name]}
+        for name in MUTATION_NAMES
+    ]
+
+
+def expected_mutation_result() -> dict[str, Any]:
+    return {
+        "all_mutations_rejected": True,
+        "mutations_rejected": len(MUTATION_NAMES),
+        "mutation_names": list(MUTATION_NAMES),
+        "cases": expected_mutation_cases(),
+    }
+
+
 def validate_payload(payload: dict[str, Any]) -> None:
+    _require_exact_keys(payload, PAYLOAD_KEYS, "payload")
     expected_top = {
         "schema": SCHEMA,
         "decision": DECISION,
@@ -549,16 +629,18 @@ def validate_summary(summary: dict[str, Any]) -> None:
 def validate_variants(variants: list[Any]) -> None:
     if len(variants) != len(EXPECTED_ROWS):
         raise AdjacentLabelPolicyGateError("variant inventory drift")
-    if [_dict(item, "variant").get("variant_id") for item in variants] != [row["variant_id"] for row in EXPECTED_ROWS]:
+    variant_rows = [_dict(item, "variant") for item in variants]
+    for row in variant_rows:
+        _require_exact_keys(row, VARIANT_KEYS, "variant")
+    if [row.get("variant_id") for row in variant_rows] != [row["variant_id"] for row in EXPECTED_ROWS]:
         raise AdjacentLabelPolicyGateError("variant order drift")
     expected = expected_by_path()
     champion = next(
-        _dict(item, "variant")
-        for item in variants
-        if _dict(item, "variant").get("variant_id") == CURRENT_CHAMPION_ID
+        row
+        for row in variant_rows
+        if row.get("variant_id") == CURRENT_CHAMPION_ID
     )
-    for actual in variants:
-        row = _dict(actual, "variant")
+    for row in variant_rows:
         path = row.get("path")
         if path not in expected:
             raise AdjacentLabelPolicyGateError("variant path drift")
@@ -596,17 +678,13 @@ def validate_source_artifacts(artifacts: list[Any]) -> None:
         ("accounting", str(ACCOUNTING_PATH.relative_to(ROOT))),
         *((row["variant_id"], f"docs/engineering/evidence/{row['path']}") for row in EXPECTED_ROWS),
     )
-    actual_inventory = tuple(
-        (
-            _dict(item, "source artifact").get("id"),
-            _dict(item, "source artifact").get("path"),
-        )
-        for item in artifacts
-    )
+    artifact_rows = [_dict(item, "source artifact") for item in artifacts]
+    for artifact in artifact_rows:
+        _require_exact_keys(artifact, SOURCE_ARTIFACT_KEYS, "source artifact")
+    actual_inventory = tuple((artifact.get("id"), artifact.get("path")) for artifact in artifact_rows)
     if actual_inventory != expected_inventory:
         raise AdjacentLabelPolicyGateError("source artifact inventory drift")
-    for item in artifacts:
-        artifact = _dict(item, "source artifact")
+    for artifact in artifact_rows:
         path = ROOT / str(artifact.get("path"))
         raw = read_repo_file(path, "source artifact")
         if artifact.get("sha256") != sha256(raw) or artifact.get("size_bytes") != len(raw):
@@ -614,16 +692,22 @@ def validate_source_artifacts(artifacts: list[Any]) -> None:
 
 
 def validate_mutation_result(result: dict[str, Any]) -> None:
+    _require_exact_keys(result, MUTATION_RESULT_KEYS, "mutation result")
     if result.get("mutation_names") != list(MUTATION_NAMES):
         raise AdjacentLabelPolicyGateError("mutation result drift")
     cases = _list(result.get("cases"), "mutation cases")
-    if [case.get("name") for case in cases if isinstance(case, dict)] != list(MUTATION_NAMES):
+    case_rows = [_dict(case, "mutation case") for case in cases]
+    for case in case_rows:
+        _require_exact_keys(case, MUTATION_CASE_KEYS, "mutation case")
+    if [case.get("name") for case in case_rows] != list(MUTATION_NAMES):
         raise AdjacentLabelPolicyGateError("mutation result drift")
     if result.get("mutations_rejected") != len(MUTATION_NAMES) or result.get("all_mutations_rejected") is not True:
         raise AdjacentLabelPolicyGateError("mutation result drift")
-    for case in cases:
-        if _dict(case, "mutation case").get("rejected") is not True:
+    for case in case_rows:
+        if case.get("rejected") is not True:
             raise AdjacentLabelPolicyGateError("mutation result drift")
+    if case_rows != expected_mutation_cases():
+        raise AdjacentLabelPolicyGateError("mutation result drift")
 
 
 def render_tsv(payload: dict[str, Any]) -> str:

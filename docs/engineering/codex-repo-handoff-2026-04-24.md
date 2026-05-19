@@ -2249,7 +2249,10 @@ Seq32 adjacent label-policy reproducibility metadata:
 - Workload target:
   `attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1`.
 - Step/log-size metadata:
-  `pcs_lifting_log_size = 19`; adjacent/probe `adapter_trace_cells = 0`.
+  `pcs_lifting_log_size = 19`; adjacent/probe `adapter_trace_cells = 0`;
+  `15` reproduction commands; `22` Python gate unit tests; `3`
+  `rmsnorm_input_adjacent_label` Rust library tests; `5` binary tests; `14`
+  mutation guards; `14 / 14` full local release-gate steps.
 - Timing mode: proof-size/accounting only; no timing claim and no median-of-5.
 - Gate schema:
   `zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-policy-gate-v1`.
