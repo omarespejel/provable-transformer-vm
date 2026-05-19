@@ -135,6 +135,16 @@ class ExpandedLabelProbeGateTest(unittest.TestCase):
             ):
                 self.gate.read_bounded_repo_file(too_large, "oversized test", 1)
 
+    def test_rejects_non_regular_repo_file_before_reading(self):
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:
+            directory_path = pathlib.Path(tmp) / "not-a-file"
+            directory_path.mkdir()
+            with self.assertRaisesRegex(
+                self.gate.ExpandedLabelProbeGateError,
+                "regular file",
+            ):
+                self.gate.read_bounded_repo_file(directory_path, "directory test", 1024)
+
     @staticmethod
     def row_from(payload, variant_id):
         for row in payload["proof_object_rows"]:

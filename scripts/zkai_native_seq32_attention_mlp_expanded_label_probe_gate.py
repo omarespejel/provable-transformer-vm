@@ -205,6 +205,13 @@ def read_bounded_repo_file(path: pathlib.Path, label: str, max_bytes: int) -> by
                 raise ExpandedLabelProbeGateError(f"{label} must not traverse symlinks")
         fd = os.open(candidate, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
         try:
+            opened_stat = os.fstat(fd)
+            if not stat.S_ISREG(opened_stat.st_mode):
+                raise ExpandedLabelProbeGateError(f"{label} is not a regular file")
+            if opened_stat.st_size > max_bytes:
+                raise ExpandedLabelProbeGateError(
+                    f"{label} exceeds max size: got {opened_stat.st_size} bytes, limit {max_bytes} bytes"
+                )
             with os.fdopen(fd, "rb") as handle:
                 fd = None
                 raw = handle.read(max_bytes + 1)
