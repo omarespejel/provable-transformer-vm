@@ -95,8 +95,9 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 84. `docs/engineering/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05-19.md`
 85. `docs/engineering/zkai-bounded-stwo-query-policy-hook-2026-05-19.md`
 86. `docs/engineering/zkai-stwo-query-preview-split-prototype-2026-05-19.md`
-87. `docs/engineering/reproducibility.md`
-88. `git status --short --branch`
+87. `docs/engineering/zkai-stwo-query-grinding-budget-2026-05-19.md`
+88. `docs/engineering/reproducibility.md`
+89. `git status --short --branch`
 
 ## Current lane split
 
@@ -2774,6 +2775,48 @@ Stwo query-preview split prototype reproducibility metadata:
   `python3.10 scripts/zkai_stwo_query_preview_split_prototype_gate.py --write-json docs/engineering/evidence/zkai-stwo-query-preview-split-prototype-2026-05.json --write-tsv docs/engineering/evidence/zkai-stwo-query-preview-split-prototype-2026-05.tsv`;
   `python3.10 -m py_compile scripts/zkai_stwo_query_preview_split_prototype_gate.py scripts/tests/test_zkai_stwo_query_preview_split_prototype_gate.py`;
   `python3.10 -m unittest scripts.tests.test_zkai_stwo_query_preview_split_prototype_gate`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
+Latest Stwo query-grinding budget gate: issue `#706` is now checked as a
+narrow mechanism GO, not a proof-size frontier. A fixed two-probe attempt
+domain (`adjacent_label_probe_a`, `adjacent_label_probe_b`) recovers the
+current probe-B champion from the checked nine-row inventory with `1.000000`
+bit of relative Fiat-Shamir grinding loss. It saves `4,624` typed bytes versus
+the fixed adjacent layout (`42,156` to `37,532` typed bytes), but it does not
+beat the current champion and it is not promotable until regenerated proofs
+bind the attempt domain and selected attempt id in verifier-facing metadata.
+Seed-only budget `6` is a no-go (`40,268` typed bytes, `2.584963` loss bits),
+and all-inventory budget `9` is unnecessary extra grinding (`3.169925` loss
+bits for the same champion). See
+`docs/engineering/zkai-stwo-query-grinding-budget-2026-05-19.md`.
+
+Stwo query-grinding budget reproducibility metadata:
+
+- Gate schema: `zkai-stwo-query-grinding-budget-gate-v1`.
+- Decision:
+  `NARROW_CLAIM_SMALL_VERIFIER_BOUND_RETRY_BUDGET_CAN_RECOVER_PROBE_B_INVENTORY`.
+- Result: `GO_MECHANISM_LEAD_NOT_PROOF_SIZE_FRONTIER`.
+- Timing mode: inventory/budget accounting only; no regenerated proof object,
+  no new proof-size frontier, and no absolute soundness claim.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-stwo-query-grinding-budget-2026-05.json`
+  and `docs/engineering/evidence/zkai-stwo-query-grinding-budget-2026-05.tsv`.
+- Gate JSON SHA-256:
+  `85c9dd80c68063006d9822c5022aff276f8c025269255cdfce47800451d0e3ec`.
+- Gate TSV SHA-256:
+  `6961f51c3863814883bcb6cd554b919572d532bdfe34bebffe1099f6ec2bb587`.
+- Inventory commitment:
+  `blake2b-256:f39a42cb0945b73cc326e2993e409af1e5b69c9bfc1f79faa2ad0e4db874e1b5`.
+- Payload commitment:
+  `blake2b-256:9dd16fba4ad07e7a61748742041ebe41df64e8e3785de94aa98ca1550ac926c8`.
+- Step counts: `21` mutation cases, `18` Python unit tests, and `14` local
+  release-gate steps.
+- Local validation commands:
+  `python3.10 scripts/zkai_stwo_query_grinding_budget_gate.py --write-json docs/engineering/evidence/zkai-stwo-query-grinding-budget-2026-05.json --write-tsv docs/engineering/evidence/zkai-stwo-query-grinding-budget-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_stwo_query_grinding_budget_gate.py scripts/tests/test_zkai_stwo_query_grinding_budget_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_stwo_query_grinding_budget_gate`;
   `git diff --check`;
   `just gate-fast`;
   `just gate`.
