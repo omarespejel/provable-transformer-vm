@@ -921,6 +921,29 @@ pub fn sample_zkai_native_seq32_attention_mlp_openings(
     validate_single_input(input)?;
     let extended = prove_single_extended(input)?;
     let config = validate_pcs_config(extended.proof.config, input.adapter_mode)?;
+    let preprocessed_ids = combined_preprocessed_column_ids(input.adapter_mode)?;
+    let trace_log_sizes = combined_column_log_sizes(&preprocessed_ids, input.adapter_mode);
+    if trace_log_sizes.len() != EXPECTED_TRACE_COMMITMENT_TREES {
+        return Err(single_error(format!(
+            "opening sampler trace commitment tree count drift: got {}, expected {}",
+            trace_log_sizes.len(),
+            EXPECTED_TRACE_COMMITMENT_TREES
+        )));
+    }
+    let proof_commitment_count = extended.proof.commitments.len();
+    if proof_commitment_count != EXPECTED_PROOF_COMMITMENTS {
+        return Err(single_error(format!(
+            "opening sampler proof commitment count drift: got {}, expected {}",
+            proof_commitment_count, EXPECTED_PROOF_COMMITMENTS
+        )));
+    }
+    let trace_commitment_trees_from_proof = proof_commitment_count - 1;
+    if trace_commitment_trees_from_proof != EXPECTED_TRACE_COMMITMENT_TREES {
+        return Err(single_error(format!(
+            "opening sampler trace commitment count drift: got {}, expected {}",
+            trace_commitment_trees_from_proof, EXPECTED_TRACE_COMMITMENT_TREES
+        )));
+    }
     let mut sorted_unique_query_locations = extended.aux.unsorted_query_locations.clone();
     sorted_unique_query_locations.sort_unstable();
     sorted_unique_query_locations.dedup();
@@ -969,8 +992,8 @@ pub fn sample_zkai_native_seq32_attention_mlp_openings(
         proof_native_parameter_commitment: input.proof_native_parameter_commitment.clone(),
         pcs_lifting_log_size: input.pcs_lifting_log_size,
         expected_fri_queries: config.fri_config.n_queries,
-        trace_commitment_trees: EXPECTED_TRACE_COMMITMENT_TREES,
-        proof_commitment_count: extended.proof.commitments.len(),
+        trace_commitment_trees: trace_commitment_trees_from_proof,
+        proof_commitment_count,
         commitment_roots_digest: blake2b_commitment_bytes(
             &commitment_bytes,
             OPENING_SAMPLER_COMMITMENT_DOMAIN,
