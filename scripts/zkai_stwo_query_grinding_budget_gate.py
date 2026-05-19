@@ -43,6 +43,8 @@ CHAMPION_VARIANT_ID = "adjacent_label_probe_b"
 EXPECTED_INVENTORY_COUNT = 9
 EXPECTED_UNITTEST_STEP_COUNT = 18
 MAX_PAPER_PROTOTYPE_LOSS_BITS = "2.000000"
+EXPECTED_POLICY_STAGE = "post_transcript_pre_accounting_not_true_predecommit"
+EXPECTED_API_CONTROL_STATUS = "NO_TRUE_PREDECOMMIT_CONTROL_HOOK_IN_CURRENT_WRAPPER"
 
 TSV_COLUMNS = (
     "policy_id",
@@ -91,6 +93,7 @@ MUTATION_NAMES = (
     "result_overclaim",
     "inventory_count_drift",
     "inventory_commitment_drift",
+    "inventory_trust_field_drift",
     "baseline_metric_drift",
     "champion_metric_drift",
     "two_probe_claims_new_frontier",
@@ -145,8 +148,24 @@ def payload_commitment(payload: dict[str, Any]) -> str:
 def parse_int(row: dict[str, str], field: str) -> int:
     try:
         return int(row[field])
-    except (KeyError, ValueError) as err:
+    except (KeyError, TypeError, ValueError) as err:
         raise StwoQueryGrindingBudgetGateError(f"inventory field {field} is invalid") from err
+
+
+def parse_text(row: dict[str, str], field: str) -> str:
+    value = row.get(field)
+    if not isinstance(value, str) or value == "":
+        raise StwoQueryGrindingBudgetGateError(f"inventory field {field} is invalid")
+    return value
+
+
+def parse_bool_token(row: dict[str, str], field: str) -> bool:
+    value = parse_text(row, field)
+    if value == "true":
+        return True
+    if value == "false":
+        return False
+    raise StwoQueryGrindingBudgetGateError(f"inventory field {field} is invalid")
 
 
 def load_inventory() -> list[dict[str, Any]]:
@@ -163,19 +182,33 @@ def load_inventory() -> list[dict[str, Any]]:
         raise StwoQueryGrindingBudgetGateError("inventory row count drift")
     inventory = []
     for row in rows:
-        try:
-            inventory.append(
-                {
-                    "variant_id": row["variant_id"],
-                    "adapter_mode": row["adapter_mode"],
-                    "query_location_span": parse_int(row, "query_location_span"),
-                    "min_pairwise_query_gap": parse_int(row, "min_pairwise_query_gap"),
-                    "final_path_opening_bytes": parse_int(row, "final_path_opening_bytes"),
-                    "final_typed_bytes": parse_int(row, "final_typed_bytes"),
-                }
-            )
-        except KeyError as err:
-            raise StwoQueryGrindingBudgetGateError(f"inventory field missing: {err.args[0]}") from err
+        policy_stage = parse_text(row, "policy_stage")
+        if policy_stage != EXPECTED_POLICY_STAGE:
+            raise StwoQueryGrindingBudgetGateError("inventory policy stage drift")
+        api_control_status = parse_text(row, "api_control_status")
+        if api_control_status != EXPECTED_API_CONTROL_STATUS:
+            raise StwoQueryGrindingBudgetGateError("inventory API control status drift")
+        predicted_path_opening_bytes = parse_int(row, "predicted_path_opening_bytes")
+        final_path_opening_bytes = parse_int(row, "final_path_opening_bytes")
+        if predicted_path_opening_bytes != final_path_opening_bytes:
+            raise StwoQueryGrindingBudgetGateError("inventory predicted path-opening drift")
+        inventory.append(
+            {
+                "variant_id": parse_text(row, "variant_id"),
+                "adapter_mode": parse_text(row, "adapter_mode"),
+                "policy_stage": policy_stage,
+                "query_location_span": parse_int(row, "query_location_span"),
+                "min_pairwise_query_gap": parse_int(row, "min_pairwise_query_gap"),
+                "selected_without_final_accounting": parse_bool_token(row, "selected_without_final_accounting"),
+                "predicted_path_opening_bytes": predicted_path_opening_bytes,
+                "final_path_opening_bytes": final_path_opening_bytes,
+                "final_typed_bytes": parse_int(row, "final_typed_bytes"),
+                "api_control_status": api_control_status,
+            }
+        )
+    selected_ids = [row["variant_id"] for row in inventory if row["selected_without_final_accounting"]]
+    if selected_ids != [CHAMPION_VARIANT_ID]:
+        raise StwoQueryGrindingBudgetGateError("inventory selected-without-final-accounting drift")
     return inventory
 
 
@@ -453,6 +486,8 @@ def mutate_payload(name: str, item: dict[str, Any]) -> None:
         item["inventory"]["row_count"] = 8
     elif name == "inventory_commitment_drift":
         item["inventory"]["commitment"] = "blake2b-256:" + ("0" * 64)
+    elif name == "inventory_trust_field_drift":
+        item["inventory"]["rows"][0]["api_control_status"] = "POST_DECOMMITMENT_CONTROL_ALLOWED"
     elif name == "baseline_metric_drift":
         item["baseline"]["final_typed_bytes"] = 41_000
     elif name == "champion_metric_drift":

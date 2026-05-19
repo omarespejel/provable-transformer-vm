@@ -78,15 +78,15 @@ Machine-readable evidence:
 Evidence hashes:
 
 - Gate JSON SHA-256:
-  `85c9dd80c68063006d9822c5022aff276f8c025269255cdfce47800451d0e3ec`
+  `a5ef30dc1cdd2aa0bc72163a40f2c66358265a1ef0f29d0e41ff4cf972951303`
 - Gate TSV SHA-256:
   `6961f51c3863814883bcb6cd554b919572d532bdfe34bebffe1099f6ec2bb587`
 - Inventory commitment:
-  `blake2b-256:f39a42cb0945b73cc326e2993e409af1e5b69c9bfc1f79faa2ad0e4db874e1b5`
+  `blake2b-256:6b58d3f30c5a0b0e5d1aa78890f72c5830d973f3b3795bc1917fc0253266c37e`
 - Payload commitment:
-  `blake2b-256:9dd16fba4ad07e7a61748742041ebe41df64e8e3785de94aa98ca1550ac926c8`
+  `blake2b-256:139ebaf55f70c771cf1d1f9f6fb8a132bc2215118e46a6ca4dbd2d6da4e0aea6`
 - Mutation guards:
-  `21 / 21` rejected.
+  `22 / 22` rejected.
 - Unit tests:
   `18`.
 
@@ -98,7 +98,7 @@ Evidence hashes:
 - Result: `GO_MECHANISM_LEAD_NOT_PROOF_SIZE_FRONTIER`
 - Timing mode: inventory/budget accounting only; no regenerated proof object,
   no new proof-size frontier, and no absolute soundness claim
-- Step counts: `21` mutation cases, `18` Python unit tests, and `14` local
+- Step counts: `22` mutation cases, `18` Python unit tests, and `14` local
   release-gate steps
 - Evidence paths:
   `docs/engineering/evidence/zkai-stwo-query-grinding-budget-2026-05.json`
