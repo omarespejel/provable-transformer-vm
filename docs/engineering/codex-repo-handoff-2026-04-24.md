@@ -2604,12 +2604,20 @@ Seq32 dry-run opening sampler reproducibility metadata:
 - Evidence paths:
   `docs/engineering/evidence/zkai-native-seq32-attention-mlp-dry-run-opening-sampler-2026-05.json`,
   `docs/engineering/evidence/zkai-native-seq32-attention-mlp-dry-run-opening-sampler-2026-05.tsv`,
-  and the nine `*-opening-sampler-2026-05.json` raw sampler artifacts under
-  `docs/engineering/evidence/`.
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05-opening-sampler-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05-opening-sampler-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05-opening-sampler-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-00-2026-05-opening-sampler-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-01-2026-05-opening-sampler-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-02-2026-05-opening-sampler-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-03-2026-05-opening-sampler-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-04-2026-05-opening-sampler-2026-05.json`,
+  and
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-05-2026-05-opening-sampler-2026-05.json`.
 - Gate JSON SHA-256:
-  `9081f60ef3182ee79573fa1bb6311aa42c11cfc3c2010196baf88445e8361e56`.
+  `ea6e3e7f97b689d02c6c67e96436a6d10d1251be24d424b8eeaa3b15bb71f018`.
 - Payload commitment:
-  `blake2b-256:543e1482ec74ea3392742ddea01c8562ee523c4e454712104f9514a21aae5f7f`.
+  `blake2b-256:f9dcc543d7cf86f37abf4e989a8918de318b960977877c5d640038f7b3ba4a65`.
 - Local validation commands:
   `cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib`;
   `cargo +nightly-2025-07-14 build --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof`;
