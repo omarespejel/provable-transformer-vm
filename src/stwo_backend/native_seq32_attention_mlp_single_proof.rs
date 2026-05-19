@@ -270,6 +270,18 @@ pub enum ZkAiNativeSeq32AttentionMlpAdapterMode {
     RmsnormInputFusedAdjacentLabelProbeA,
     #[serde(rename = "rmsnorm_input_fused_adjacent_label_probe_b_v1")]
     RmsnormInputFusedAdjacentLabelProbeB,
+    #[serde(rename = "rmsnorm_input_fused_adjacent_seed_00_v1")]
+    RmsnormInputFusedAdjacentSeed00,
+    #[serde(rename = "rmsnorm_input_fused_adjacent_seed_01_v1")]
+    RmsnormInputFusedAdjacentSeed01,
+    #[serde(rename = "rmsnorm_input_fused_adjacent_seed_02_v1")]
+    RmsnormInputFusedAdjacentSeed02,
+    #[serde(rename = "rmsnorm_input_fused_adjacent_seed_03_v1")]
+    RmsnormInputFusedAdjacentSeed03,
+    #[serde(rename = "rmsnorm_input_fused_adjacent_seed_04_v1")]
+    RmsnormInputFusedAdjacentSeed04,
+    #[serde(rename = "rmsnorm_input_fused_adjacent_seed_05_v1")]
+    RmsnormInputFusedAdjacentSeed05,
     #[serde(rename = "rmsnorm_input_fused_post_tail_fixed_v1")]
     RmsnormInputFusedPostTailFixed,
     #[serde(rename = "rmsnorm_input_fused_post_tail_label_probe_a_v1")]
@@ -302,6 +314,12 @@ impl ZkAiNativeSeq32AttentionMlpAdapterMode {
             | Self::RmsnormInputFusedAdjacentFixed
             | Self::RmsnormInputFusedAdjacentLabelProbeA
             | Self::RmsnormInputFusedAdjacentLabelProbeB
+            | Self::RmsnormInputFusedAdjacentSeed00
+            | Self::RmsnormInputFusedAdjacentSeed01
+            | Self::RmsnormInputFusedAdjacentSeed02
+            | Self::RmsnormInputFusedAdjacentSeed03
+            | Self::RmsnormInputFusedAdjacentSeed04
+            | Self::RmsnormInputFusedAdjacentSeed05
             | Self::RmsnormInputFusedPostTailFixed
             | Self::RmsnormInputFusedPostTailLabelProbeA
             | Self::RmsnormInputFusedPostTailLabelProbeB
@@ -323,7 +341,13 @@ impl ZkAiNativeSeq32AttentionMlpAdapterMode {
             | Self::RmsnormInputFusedLabelProbeB => RMSNORM_INPUT_FUSED_ADAPTER_BACKEND_VERSION,
             Self::RmsnormInputFusedAdjacentFixed
             | Self::RmsnormInputFusedAdjacentLabelProbeA
-            | Self::RmsnormInputFusedAdjacentLabelProbeB => {
+            | Self::RmsnormInputFusedAdjacentLabelProbeB
+            | Self::RmsnormInputFusedAdjacentSeed00
+            | Self::RmsnormInputFusedAdjacentSeed01
+            | Self::RmsnormInputFusedAdjacentSeed02
+            | Self::RmsnormInputFusedAdjacentSeed03
+            | Self::RmsnormInputFusedAdjacentSeed04
+            | Self::RmsnormInputFusedAdjacentSeed05 => {
                 RMSNORM_INPUT_FUSED_ADJACENT_ADAPTER_BACKEND_VERSION
             }
             Self::RmsnormInputFusedPostTailFixed
@@ -347,6 +371,12 @@ impl ZkAiNativeSeq32AttentionMlpAdapterMode {
             | Self::RmsnormInputFusedAdjacentFixed
             | Self::RmsnormInputFusedAdjacentLabelProbeA
             | Self::RmsnormInputFusedAdjacentLabelProbeB
+            | Self::RmsnormInputFusedAdjacentSeed00
+            | Self::RmsnormInputFusedAdjacentSeed01
+            | Self::RmsnormInputFusedAdjacentSeed02
+            | Self::RmsnormInputFusedAdjacentSeed03
+            | Self::RmsnormInputFusedAdjacentSeed04
+            | Self::RmsnormInputFusedAdjacentSeed05
             | Self::RmsnormInputFusedPostTailFixed
             | Self::RmsnormInputFusedPostTailLabelProbeA
             | Self::RmsnormInputFusedPostTailLabelProbeB
@@ -368,6 +398,12 @@ impl ZkAiNativeSeq32AttentionMlpAdapterMode {
             | Self::RmsnormInputFusedAdjacentFixed
             | Self::RmsnormInputFusedAdjacentLabelProbeA
             | Self::RmsnormInputFusedAdjacentLabelProbeB
+            | Self::RmsnormInputFusedAdjacentSeed00
+            | Self::RmsnormInputFusedAdjacentSeed01
+            | Self::RmsnormInputFusedAdjacentSeed02
+            | Self::RmsnormInputFusedAdjacentSeed03
+            | Self::RmsnormInputFusedAdjacentSeed04
+            | Self::RmsnormInputFusedAdjacentSeed05
             | Self::RmsnormInputFusedPostTailFixed
             | Self::RmsnormInputFusedPostTailLabelProbeA
             | Self::RmsnormInputFusedPostTailLabelProbeB
@@ -391,6 +427,12 @@ impl ZkAiNativeSeq32AttentionMlpAdapterMode {
             | Self::RmsnormInputFusedLabelProbeB
             | Self::RmsnormInputFusedAdjacentLabelProbeA
             | Self::RmsnormInputFusedAdjacentLabelProbeB
+            | Self::RmsnormInputFusedAdjacentSeed00
+            | Self::RmsnormInputFusedAdjacentSeed01
+            | Self::RmsnormInputFusedAdjacentSeed02
+            | Self::RmsnormInputFusedAdjacentSeed03
+            | Self::RmsnormInputFusedAdjacentSeed04
+            | Self::RmsnormInputFusedAdjacentSeed05
             | Self::RmsnormInputFusedPostTailLabelProbeA
             | Self::RmsnormInputFusedPostTailLabelProbeB => {
                 EXPECTED_EXPERIMENTAL_ADAPTER_MODE_VALIDATION_COMMANDS
@@ -413,6 +455,12 @@ impl ZkAiNativeSeq32AttentionMlpAdapterMode {
                 | Self::RmsnormInputFusedAdjacentFixed
                 | Self::RmsnormInputFusedAdjacentLabelProbeA
                 | Self::RmsnormInputFusedAdjacentLabelProbeB
+                | Self::RmsnormInputFusedAdjacentSeed00
+                | Self::RmsnormInputFusedAdjacentSeed01
+                | Self::RmsnormInputFusedAdjacentSeed02
+                | Self::RmsnormInputFusedAdjacentSeed03
+                | Self::RmsnormInputFusedAdjacentSeed04
+                | Self::RmsnormInputFusedAdjacentSeed05
                 | Self::RmsnormInputFusedPostTailFixed
                 | Self::RmsnormInputFusedPostTailLabelProbeA
                 | Self::RmsnormInputFusedPostTailLabelProbeB
@@ -427,6 +475,12 @@ impl ZkAiNativeSeq32AttentionMlpAdapterMode {
             Self::RmsnormInputFusedAdjacentFixed
                 | Self::RmsnormInputFusedAdjacentLabelProbeA
                 | Self::RmsnormInputFusedAdjacentLabelProbeB
+                | Self::RmsnormInputFusedAdjacentSeed00
+                | Self::RmsnormInputFusedAdjacentSeed01
+                | Self::RmsnormInputFusedAdjacentSeed02
+                | Self::RmsnormInputFusedAdjacentSeed03
+                | Self::RmsnormInputFusedAdjacentSeed04
+                | Self::RmsnormInputFusedAdjacentSeed05
         )
     }
 
@@ -1506,6 +1560,12 @@ fn combined_base_trace(
         | ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed
         | ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeA
         | ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeB
+        | ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed00
+        | ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed01
+        | ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed02
+        | ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed03
+        | ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed04
+        | ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed05
         | ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedPostTailFixed
         | ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedPostTailLabelProbeA
         | ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedPostTailLabelProbeB
@@ -2183,6 +2243,17 @@ mod tests {
         .expect("single input")
     }
 
+    fn adjacent_seed_modes() -> [ZkAiNativeSeq32AttentionMlpAdapterMode; 6] {
+        [
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed00,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed01,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed02,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed03,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed04,
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed05,
+        ]
+    }
+
     #[test]
     fn single_proof_input_validates_statement_bound_route() {
         let input = fixture_input();
@@ -2523,6 +2594,23 @@ mod tests {
     }
 
     #[test]
+    fn rmsnorm_input_adjacent_seed_sweep_preserves_constraints_but_changes_statement() {
+        let canonical = fixture_input_with_mode(
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed,
+        );
+        let mut statements = std::collections::BTreeSet::new();
+        for mode in adjacent_seed_modes() {
+            let input = fixture_input_with_mode(mode);
+            assert_eq!(input.adapter_status, canonical.adapter_status);
+            assert_eq!(input.adapter_value_columns, canonical.adapter_value_columns);
+            assert_eq!(input.adapter_trace_cells, canonical.adapter_trace_cells);
+            assert_ne!(input.statement_commitment, canonical.statement_commitment);
+            assert!(statements.insert(input.statement_commitment.clone()));
+            validate_single_input(&input).expect("adjacent seeded input validates");
+        }
+    }
+
+    #[test]
     fn rmsnorm_input_adjacent_label_probe_rejects_relabeling() {
         let mut relabeled = fixture_input_with_mode(
             ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeA,
@@ -2536,6 +2624,23 @@ mod tests {
         );
         cross_labeled.adapter_mode =
             ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeA;
+        assert!(validate_single_input(&cross_labeled).is_err());
+    }
+
+    #[test]
+    fn rmsnorm_input_adjacent_seed_rejects_relabeling() {
+        let mut relabeled = fixture_input_with_mode(
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed00,
+        );
+        relabeled.adapter_mode =
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed;
+        assert!(validate_single_input(&relabeled).is_err());
+
+        let mut cross_labeled = fixture_input_with_mode(
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed05,
+        );
+        cross_labeled.adapter_mode =
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed00;
         assert!(validate_single_input(&cross_labeled).is_err());
     }
 

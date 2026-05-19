@@ -161,6 +161,24 @@ fn build_input_adapter_mode(mode: &str) -> Option<ZkAiNativeSeq32AttentionMlpAda
         "build-input-rmsnorm-fused-adjacent-label-probe-b" => {
             Some(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeB)
         }
+        "build-input-rmsnorm-fused-adjacent-seed-00" => {
+            Some(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed00)
+        }
+        "build-input-rmsnorm-fused-adjacent-seed-01" => {
+            Some(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed01)
+        }
+        "build-input-rmsnorm-fused-adjacent-seed-02" => {
+            Some(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed02)
+        }
+        "build-input-rmsnorm-fused-adjacent-seed-03" => {
+            Some(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed03)
+        }
+        "build-input-rmsnorm-fused-adjacent-seed-04" => {
+            Some(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed04)
+        }
+        "build-input-rmsnorm-fused-adjacent-seed-05" => {
+            Some(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed05)
+        }
         "build-input-rmsnorm-fused-post-tail" => {
             Some(ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedPostTailFixed)
         }
@@ -239,7 +257,7 @@ fn build_input_with_adapter_mode(
 #[cfg(feature = "stwo-backend")]
 fn usage() -> String {
     "usage: zkai_native_seq32_attention_mlp_single_proof \
-build-input|build-input-compact|build-input-preprocessed-anchor|build-input-rmsnorm-fused|build-input-rmsnorm-fused-label-probe-a|build-input-rmsnorm-fused-label-probe-b|build-input-rmsnorm-fused-adjacent|build-input-rmsnorm-fused-adjacent-label-probe-a|build-input-rmsnorm-fused-adjacent-label-probe-b|build-input-rmsnorm-fused-post-tail|build-input-rmsnorm-fused-post-tail-label-probe-a|build-input-rmsnorm-fused-post-tail-label-probe-b \
+build-input|build-input-compact|build-input-preprocessed-anchor|build-input-rmsnorm-fused|build-input-rmsnorm-fused-label-probe-a|build-input-rmsnorm-fused-label-probe-b|build-input-rmsnorm-fused-adjacent|build-input-rmsnorm-fused-adjacent-label-probe-a|build-input-rmsnorm-fused-adjacent-label-probe-b|build-input-rmsnorm-fused-adjacent-seed-00|build-input-rmsnorm-fused-adjacent-seed-01|build-input-rmsnorm-fused-adjacent-seed-02|build-input-rmsnorm-fused-adjacent-seed-03|build-input-rmsnorm-fused-adjacent-seed-04|build-input-rmsnorm-fused-adjacent-seed-05|build-input-rmsnorm-fused-post-tail|build-input-rmsnorm-fused-post-tail-label-probe-a|build-input-rmsnorm-fused-post-tail-label-probe-b \
 <attention-source.json> <mlp-input.json> <single-input.json> | prove <single-input.json> <envelope.json> | verify <envelope.json>"
         .to_string()
 }
@@ -618,6 +636,30 @@ mod tests {
             (
                 "build-input-rmsnorm-fused-adjacent-label-probe-b",
                 ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeB,
+            ),
+            (
+                "build-input-rmsnorm-fused-adjacent-seed-00",
+                ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed00,
+            ),
+            (
+                "build-input-rmsnorm-fused-adjacent-seed-01",
+                ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed01,
+            ),
+            (
+                "build-input-rmsnorm-fused-adjacent-seed-02",
+                ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed02,
+            ),
+            (
+                "build-input-rmsnorm-fused-adjacent-seed-03",
+                ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed03,
+            ),
+            (
+                "build-input-rmsnorm-fused-adjacent-seed-04",
+                ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed04,
+            ),
+            (
+                "build-input-rmsnorm-fused-adjacent-seed-05",
+                ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed05,
             ),
             (
                 "build-input-rmsnorm-fused-post-tail",
