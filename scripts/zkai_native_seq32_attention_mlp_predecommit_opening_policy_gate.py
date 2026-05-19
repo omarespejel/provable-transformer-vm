@@ -67,7 +67,10 @@ EXPECTED_SUPPORTED_LABEL_WORST_TYPED_BYTES = 40_332
 EXPECTED_CANDIDATE_SAVING_VS_CHAMPION = 4_536
 EXPECTED_CANDIDATE_SAVING_SHARE_VS_CHAMPION = "10.7825%"
 EXPECTED_CANDIDATE_SAVING_VS_BEST_SEED = 2_736
-EXPECTED_MUTATION_COUNT = 17
+EXPECTED_POLICY_ROW_COUNT = len(sampler_gate.VARIANTS)
+EXPECTED_UNITTEST_STEP_COUNT = 11
+EXPECTED_LOCAL_RELEASE_GATE_STEP_COUNT = 14
+EXPECTED_MUTATION_COUNT = 18
 
 SOURCE_MARKERS = {
     "sampler_calls_full_extended_proof": "let extended = prove_single_extended(input)?;",
@@ -152,6 +155,7 @@ MUTATION_NAMES = (
     "row_identity_promoted_to_policy",
     "selected_variant_drift",
     "candidate_saving_drift",
+    "candidate_path_opening_drift",
     "required_hook_erasure",
     "evaluation_row_removed",
     "validation_command_removed",
@@ -252,6 +256,7 @@ def build_policy_rows_without_final_accounting() -> list[dict[str, Any]]:
             {
                 "variant_id": spec["variant_id"],
                 "adapter_mode": sampler["adapter_mode"],
+                "proof_backend_version": sampler["proof_backend_version"],
                 "sampler_path": spec["sampler_path"],
                 "sampler_sha256": spec["sampler_sha256"],
                 "query_location_digest": sampler["query_location_digest"],
@@ -333,6 +338,10 @@ def build_payload_without_mutations() -> dict[str, Any]:
     selected = next(row for row in evaluated_rows if row["selected_without_final_accounting"])
     if selected["variant_id"] != BEST_VARIANT_ID:
         raise PredecommitOpeningPolicyGateError("selected variant drift")
+    if selected["final_path_opening_bytes"] != BEST_PATH_OPENING_BYTES:
+        raise PredecommitOpeningPolicyGateError("path-opening drift")
+    if selected["final_typed_bytes"] != BEST_TYPED_BYTES:
+        raise PredecommitOpeningPolicyGateError("typed-byte drift")
     saving_vs_champion = CURRENT_CHAMPION_TYPED_BYTES - selected["final_typed_bytes"]
     saving_vs_seed = BEST_PRE_REGISTERED_SEED_TYPED_BYTES - selected["final_typed_bytes"]
     if saving_vs_champion != EXPECTED_CANDIDATE_SAVING_VS_CHAMPION:
@@ -373,6 +382,19 @@ def build_payload_without_mutations() -> dict[str, Any]:
                 "after prove_ex in the current wrapper"
             ),
         },
+        "reproducibility_metadata": {
+            "selected_backend_version": selected["proof_backend_version"],
+            "selected_adapter_mode": selected["adapter_mode"],
+            "rust_source_sha256": EXPECTED_RUST_SOURCE_SHA256,
+            "cli_source_sha256": EXPECTED_CLI_SOURCE_SHA256,
+            "preprove_evidence_sha256": EXPECTED_PREPROVE_EVIDENCE_SHA256,
+            "dry_run_evidence_sha256": EXPECTED_DRY_RUN_EVIDENCE_SHA256,
+            "policy_row_count": len(policy_rows),
+            "fri_query_count_per_row": sampler_gate.EXPECTED_FRI_QUERIES,
+            "mutation_step_count": len(MUTATION_NAMES),
+            "unittest_step_count": EXPECTED_UNITTEST_STEP_COUNT,
+            "local_release_gate_step_count": EXPECTED_LOCAL_RELEASE_GATE_STEP_COUNT,
+        },
         "interpretation": INTERPRETATION,
         "source_artifacts": source_artifacts(),
         "validation_commands": list(VALIDATION_COMMANDS),
@@ -381,6 +403,7 @@ def build_payload_without_mutations() -> dict[str, Any]:
 
 
 def validate_base_payload(payload: dict[str, Any]) -> None:
+    enforce_selected_candidate(payload)
     expected = build_payload_without_mutations()
     if payload != expected:
         raise PredecommitOpeningPolicyGateError("base payload drift")
@@ -401,6 +424,25 @@ def validate_base_payload(payload: dict[str, Any]) -> None:
         raise PredecommitOpeningPolicyGateError("selected variant drift")
     if payload["evaluation"]["true_predecommit_go_gate_satisfied"]:
         raise PredecommitOpeningPolicyGateError("true predecommit GO overclaim")
+    metadata = payload["reproducibility_metadata"]
+    if metadata["policy_row_count"] != EXPECTED_POLICY_ROW_COUNT:
+        raise PredecommitOpeningPolicyGateError("policy row count drift")
+    if metadata["mutation_step_count"] != len(MUTATION_NAMES):
+        raise PredecommitOpeningPolicyGateError("mutation step count drift")
+
+
+def enforce_selected_candidate(payload: dict[str, Any]) -> None:
+    evaluation = payload.get("evaluation", {})
+    selected_variant_id = evaluation.get("selected_variant_id")
+    rows = payload.get("evaluation_rows", [])
+    selected_rows = [row for row in rows if row.get("variant_id") == selected_variant_id]
+    if len(selected_rows) != 1:
+        raise PredecommitOpeningPolicyGateError("selected evaluation row drift")
+    selected = selected_rows[0]
+    if selected.get("final_path_opening_bytes") != BEST_PATH_OPENING_BYTES:
+        raise PredecommitOpeningPolicyGateError("path-opening drift")
+    if selected.get("final_typed_bytes") != BEST_TYPED_BYTES:
+        raise PredecommitOpeningPolicyGateError("typed-byte drift")
 
 
 def validate_payload(payload: dict[str, Any]) -> None:
@@ -440,6 +482,11 @@ def mutate_payload(name: str, item: dict[str, Any]) -> None:
         item["evaluation"]["selected_variant_id"] = "adjacent_seed_02"
     elif name == "candidate_saving_drift":
         item["evaluation"]["saving_vs_current_champion_typed_bytes"] = 6_900
+    elif name == "candidate_path_opening_drift":
+        for row in item["evaluation_rows"]:
+            if row["variant_id"] == BEST_VARIANT_ID:
+                row["final_path_opening_bytes"] = 19_296
+                break
     elif name == "required_hook_erasure":
         item["api_stage_audit"]["required_hook"] = ""
     elif name == "evaluation_row_removed":
