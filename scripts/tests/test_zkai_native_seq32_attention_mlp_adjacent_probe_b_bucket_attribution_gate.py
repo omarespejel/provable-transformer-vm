@@ -150,7 +150,46 @@ class AdjacentProbeBBucketAttributionGateTest(unittest.TestCase):
             self.assertEqual(loaded["payload_commitment"], self.payload["payload_commitment"])
             lines = tsv_path.read_text().splitlines()
             self.assertEqual(len(lines), 1 + len(self.payload["comparisons_vs_probe_b"]))
-            self.assertIn("fri_decommitments_delta", lines[0])
+            self.assertEqual(
+                lines[0],
+                "\t".join(
+                    [
+                        "variant_id",
+                        "typed_delta_vs_probe_b",
+                        "json_delta_vs_probe_b",
+                        "path_opening_delta_vs_probe_b",
+                        "value_delta_vs_probe_b",
+                        "fri_decommitments_delta",
+                        "fri_samples_delta",
+                        "trace_decommitments_delta",
+                        "payload_commitment",
+                        "decision",
+                        "result",
+                    ]
+                ),
+            )
+            expected_rows = []
+            for row in self.payload["comparisons_vs_probe_b"]:
+                group_deltas = row["group_deltas_vs_probe_b"]
+                expected_rows.append(
+                    "\t".join(
+                        str(value)
+                        for value in [
+                            row["variant_id"],
+                            row["typed_delta_vs_probe_b"],
+                            row["json_delta_vs_probe_b"],
+                            row["path_opening_delta_vs_probe_b"],
+                            row["value_delta_vs_probe_b"],
+                            group_deltas["fri_decommitments"],
+                            group_deltas["fri_samples"],
+                            group_deltas["trace_decommitments"],
+                            self.payload["payload_commitment"],
+                            self.payload["decision"],
+                            self.payload["result"],
+                        ]
+                    )
+                )
+            self.assertEqual(lines[1:], expected_rows)
 
     def test_rejects_output_paths_outside_evidence_dir(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -170,6 +209,95 @@ class AdjacentProbeBBucketAttributionGateTest(unittest.TestCase):
                 "regular file",
             ):
                 self.gate.read_bounded_repo_file(directory_path, "directory test", 1024)
+
+    def test_rejects_symlink_repo_file_before_reading(self):
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp, tempfile.TemporaryDirectory() as outside_tmp:
+            tmp_path = pathlib.Path(tmp)
+            outside = pathlib.Path(outside_tmp) / "outside.txt"
+            outside.write_text("outside")
+            symlink_path = tmp_path / "link"
+            symlink_path.symlink_to(outside)
+            with self.assertRaisesRegex(
+                self.gate.AdjacentProbeBBucketAttributionGateError,
+                "symlink",
+            ):
+                self.gate.read_bounded_repo_file(symlink_path, "symlink test", 1024)
+
+    def test_rejects_malformed_accounting_rows_shape(self):
+        original_read_json_object = self.gate.read_json_object
+
+        def fake_read_json_object(path, label, max_bytes):
+            data, raw = original_read_json_object(path, label, max_bytes)
+            if path == self.gate.ACCOUNTING_PATH:
+                data = dict(data)
+                data["rows"] = {}
+            return data, raw
+
+        self.gate.read_json_object = fake_read_json_object
+        try:
+            with self.assertRaisesRegex(
+                self.gate.AdjacentProbeBBucketAttributionGateError,
+                "accounting rows must be a JSON array",
+            ):
+                self.gate.accounting_rows_by_path()
+        finally:
+            self.gate.read_json_object = original_read_json_object
+
+    def test_rejects_malformed_accounting_row_object(self):
+        original_read_json_object = self.gate.read_json_object
+
+        def fake_read_json_object(path, label, max_bytes):
+            data, raw = original_read_json_object(path, label, max_bytes)
+            if path == self.gate.ACCOUNTING_PATH:
+                data = dict(data)
+                data["rows"] = ["bad-row"]
+            return data, raw
+
+        self.gate.read_json_object = fake_read_json_object
+        try:
+            with self.assertRaisesRegex(
+                self.gate.AdjacentProbeBBucketAttributionGateError,
+                "accounting row must be a JSON object",
+            ):
+                self.gate.accounting_rows_by_path()
+        finally:
+            self.gate.read_json_object = original_read_json_object
+
+    def test_rejects_invalid_proof_byte_with_gate_error(self):
+        original_read_json_object = self.gate.read_json_object
+
+        def fake_read_json_object(path, label, max_bytes):
+            data, raw = original_read_json_object(path, label, max_bytes)
+            if label == "adjacent_label_probe_b envelope":
+                data = json.loads(json.dumps(data))
+                data["proof"][0] = 300
+            return data, raw
+
+        self.gate.read_json_object = fake_read_json_object
+        try:
+            with self.assertRaisesRegex(
+                self.gate.AdjacentProbeBBucketAttributionGateError,
+                "proof byte 0 invalid",
+            ):
+                self.gate.build_rows()
+        finally:
+            self.gate.read_json_object = original_read_json_object
+
+    def test_rejects_missing_envelope_metadata_with_gate_error(self):
+        accounting = self.gate.accounting_rows_by_path()
+        row = json.loads(
+            json.dumps(
+                accounting[
+                    "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.envelope.json"
+                ]
+            )
+        )
+        row.pop("envelope_metadata")
+        with self.assertRaisesRegex(
+            self.gate.AdjacentProbeBBucketAttributionGateError,
+            "envelope metadata missing",
+        ):
+            self.gate.proof_row(self.gate.EXPECTED_ROWS[0], row)
 
     @staticmethod
     def row_from(payload, variant_id):

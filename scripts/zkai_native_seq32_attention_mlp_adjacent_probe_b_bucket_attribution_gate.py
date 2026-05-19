@@ -271,8 +271,13 @@ def accounting_rows_by_path() -> dict[str, dict[str, Any]]:
         raise AdjacentProbeBBucketAttributionGateError("accounting digest drift")
     if data.get("schema") != "zkai-stwo-local-binary-proof-accounting-cli-v1":
         raise AdjacentProbeBBucketAttributionGateError("accounting schema drift")
+    raw_rows = data.get("rows")
+    if not isinstance(raw_rows, list):
+        raise AdjacentProbeBBucketAttributionGateError("accounting rows must be a JSON array")
     rows: dict[str, dict[str, Any]] = {}
-    for row in data.get("rows", []):
+    for row in raw_rows:
+        if not isinstance(row, dict):
+            raise AdjacentProbeBBucketAttributionGateError("accounting row must be a JSON object")
         path = row.get("evidence_relative_path")
         if not isinstance(path, str):
             raise AdjacentProbeBBucketAttributionGateError("accounting row path missing")
@@ -314,35 +319,52 @@ def proof_row(expected: dict[str, Any], accounting_row: dict[str, Any]) -> dict[
         raise AdjacentProbeBBucketAttributionGateError(f"{expected['variant_id']} typed bytes drift")
     if proof_len != expected["json_proof_bytes"]:
         raise AdjacentProbeBBucketAttributionGateError(f"{expected['variant_id']} JSON proof bytes drift")
+    group_values = {name: _int_group(groups, name, expected["variant_id"]) for name in GROUPS}
     for name in GROUPS:
-        if _int_group(groups, name, expected["variant_id"]) != expected_groups[name]:
+        if group_values[name] != expected_groups[name]:
             raise AdjacentProbeBBucketAttributionGateError(f"{expected['variant_id']} {name} drift")
     if accounting_row.get("proof_json_size_bytes") != proof_len:
         raise AdjacentProbeBBucketAttributionGateError(f"{expected['variant_id']} accounting proof length drift")
     if accounting_row.get("envelope_sha256") != sha256_bytes(raw):
         raise AdjacentProbeBBucketAttributionGateError(f"{expected['variant_id']} envelope digest drift")
-    proof_bytes = bytes(int(value) for value in proof)
+    proof_byte_values = []
+    for index, value in enumerate(proof):
+        if type(value) is not int or not 0 <= value <= 255:
+            raise AdjacentProbeBBucketAttributionGateError(
+                f"{expected['variant_id']} proof byte {index} invalid"
+            )
+        proof_byte_values.append(value)
+    proof_bytes = bytes(proof_byte_values)
     if accounting_row.get("proof_sha256") != sha256_bytes(proof_bytes):
         raise AdjacentProbeBBucketAttributionGateError(f"{expected['variant_id']} proof digest drift")
+    envelope_metadata = accounting_row.get("envelope_metadata")
+    if not isinstance(envelope_metadata, dict):
+        raise AdjacentProbeBBucketAttributionGateError(f"{expected['variant_id']} envelope metadata missing")
+    proof_backend_version = envelope_metadata.get("proof_backend_version")
+    if not isinstance(proof_backend_version, str):
+        raise AdjacentProbeBBucketAttributionGateError(f"{expected['variant_id']} proof backend version missing")
+    record_stream_sha256 = accounting.get("record_stream_sha256")
+    if not isinstance(record_stream_sha256, str):
+        raise AdjacentProbeBBucketAttributionGateError(f"{expected['variant_id']} record stream digest missing")
 
-    path_opening_bytes = sum(int(groups[name]) for name in PATH_OPENING_GROUPS)
-    value_bytes = sum(int(groups[name]) for name in VALUE_GROUPS)
-    if typed_bytes != int(groups["fixed_overhead"]) + path_opening_bytes + value_bytes:
+    path_opening_bytes = sum(group_values[name] for name in PATH_OPENING_GROUPS)
+    value_bytes = sum(group_values[name] for name in VALUE_GROUPS)
+    if typed_bytes != group_values["fixed_overhead"] + path_opening_bytes + value_bytes:
         raise AdjacentProbeBBucketAttributionGateError(f"{expected['variant_id']} grouped sum drift")
     return {
         "variant_id": expected["variant_id"],
         "role": expected["role"],
         "adapter_mode": expected["adapter_mode"],
         "path": expected["path"],
-        "proof_backend_version": accounting_row["envelope_metadata"]["proof_backend_version"],
+        "proof_backend_version": proof_backend_version,
         "typed_bytes": typed_bytes,
         "json_proof_bytes": proof_len,
-        "groups": {name: int(groups[name]) for name in GROUPS},
+        "groups": group_values,
         "path_opening_bytes": path_opening_bytes,
         "value_bytes": value_bytes,
         "envelope_sha256": accounting_row["envelope_sha256"],
         "proof_sha256": accounting_row["proof_sha256"],
-        "record_stream_sha256": accounting["record_stream_sha256"],
+        "record_stream_sha256": record_stream_sha256,
     }
 
 
@@ -478,10 +500,11 @@ def build_payload_without_mutations() -> dict[str, Any]:
 
 
 def build_payload() -> dict[str, Any]:
-    payload = build_payload_without_mutations()
-    payload["mutation_result"] = mutation_result(payload)
+    expected = build_payload_without_mutations()
+    payload = copy.deepcopy(expected)
+    payload["mutation_result"] = mutation_result(payload, expected)
     payload["payload_commitment"] = payload_commitment(payload)
-    validate_payload(payload)
+    validate_payload(payload, expected)
     return payload
 
 
@@ -525,8 +548,9 @@ def _row(payload: dict[str, Any], variant_id: str) -> dict[str, Any]:
     raise AdjacentProbeBBucketAttributionGateError(f"missing row: {variant_id}")
 
 
-def mutation_result(payload: dict[str, Any]) -> dict[str, Any]:
+def mutation_result(payload: dict[str, Any], expected: dict[str, Any] | None = None) -> dict[str, Any]:
     ensure_mutation_inventory()
+    expected_core = expected if expected is not None else build_payload_without_mutations()
     cases = []
     for name, mutate in mutation_functions():
         item = copy.deepcopy(payload)
@@ -536,7 +560,7 @@ def mutation_result(payload: dict[str, Any]) -> dict[str, Any]:
         if name != "payload_commitment_drift":
             item["payload_commitment"] = payload_commitment(item)
         try:
-            validate_payload_core(item)
+            validate_payload_core(item, expected_core)
             if item.get("payload_commitment") != payload_commitment(item):
                 raise AdjacentProbeBBucketAttributionGateError("payload commitment drift")
         except AdjacentProbeBBucketAttributionGateError as error:
@@ -551,9 +575,10 @@ def mutation_result(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def validate_payload(payload: dict[str, Any]) -> None:
+def validate_payload(payload: dict[str, Any], expected: dict[str, Any] | None = None) -> None:
     ensure_mutation_inventory()
-    validate_payload_core(payload)
+    expected_core = expected if expected is not None else build_payload_without_mutations()
+    validate_payload_core(payload, expected_core)
     mutation = payload.get("mutation_result")
     if not isinstance(mutation, dict):
         raise AdjacentProbeBBucketAttributionGateError("mutation_result missing")
@@ -565,8 +590,8 @@ def validate_payload(payload: dict[str, Any]) -> None:
         raise AdjacentProbeBBucketAttributionGateError("payload commitment drift")
 
 
-def validate_payload_core(payload: dict[str, Any]) -> None:
-    expected = build_payload_without_mutations()
+def validate_payload_core(payload: dict[str, Any], expected: dict[str, Any] | None = None) -> None:
+    expected_core = expected if expected is not None else build_payload_without_mutations()
     for key, value in {
         "schema": SCHEMA,
         "decision": DECISION,
@@ -587,7 +612,7 @@ def validate_payload_core(payload: dict[str, Any]) -> None:
         "non_claims",
         "validation_commands",
     ):
-        if payload.get(key) != expected[key]:
+        if payload.get(key) != expected_core[key]:
             raise AdjacentProbeBBucketAttributionGateError(f"{key} drift")
 
 
