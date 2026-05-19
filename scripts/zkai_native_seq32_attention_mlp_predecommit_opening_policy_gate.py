@@ -68,7 +68,7 @@ EXPECTED_CANDIDATE_SAVING_VS_CHAMPION = 4_536
 EXPECTED_CANDIDATE_SAVING_SHARE_VS_CHAMPION = "10.7825%"
 EXPECTED_CANDIDATE_SAVING_VS_BEST_SEED = 2_736
 EXPECTED_POLICY_ROW_COUNT = len(sampler_gate.VARIANTS)
-EXPECTED_UNITTEST_STEP_COUNT = 13
+EXPECTED_UNITTEST_STEP_COUNT = 14
 EXPECTED_LOCAL_RELEASE_GATE_STEP_COUNT = 14
 
 SOURCE_MARKERS = {
@@ -454,6 +454,24 @@ def validate_payload(payload: dict[str, Any]) -> None:
     expected_mutation = run_mutations(item)
     if mutation_result != expected_mutation:
         raise PredecommitOpeningPolicyGateError("mutation result drift")
+    validate_mutation_result(mutation_result)
+
+
+def validate_mutation_result(mutation_result: Any) -> None:
+    if not isinstance(mutation_result, dict):
+        raise PredecommitOpeningPolicyGateError("mutation result missing")
+    if mutation_result.get("mutation_names") != list(MUTATION_NAMES):
+        raise PredecommitOpeningPolicyGateError("mutation names drift")
+    cases = mutation_result.get("cases")
+    if not isinstance(cases, list) or len(cases) != len(MUTATION_NAMES):
+        raise PredecommitOpeningPolicyGateError("mutation case count drift")
+    rejected_names = [case.get("name") for case in cases if case.get("rejected") is True]
+    if rejected_names != list(MUTATION_NAMES):
+        raise PredecommitOpeningPolicyGateError("mutation rejection drift")
+    if mutation_result.get("mutations_rejected") != len(MUTATION_NAMES):
+        raise PredecommitOpeningPolicyGateError("mutation rejected count drift")
+    if mutation_result.get("all_mutations_rejected") is not True:
+        raise PredecommitOpeningPolicyGateError("mutation all-rejected drift")
 
 
 def mutate_payload(name: str, item: dict[str, Any]) -> None:
