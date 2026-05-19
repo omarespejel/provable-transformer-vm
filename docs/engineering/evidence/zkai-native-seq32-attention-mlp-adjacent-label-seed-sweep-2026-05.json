@@ -1,0 +1,365 @@
+{
+  "claim_boundary": "PRE_REGISTERED_ADJACENT_ONLY_LABEL_SEED_SWEEP;REPORTS_ALL_SEEDS_NOT_ONLY_WINNERS;NOT_A_FRONTIER_WIN_NOT_A_NANOZK_COMPARISON_NOT_A_PRODUCTION_LABEL_POLICY",
+  "decision": "NO_GO_PRE_REGISTERED_ADJACENT_SEEDS_DO_NOT_BEAT_FRONTIER",
+  "frontier_summary": {
+    "adjacent_probe_b_frontier_json_bytes": 106317,
+    "adjacent_probe_b_frontier_typed_bytes": 37532,
+    "best_seed_gap_vs_adjacent_probe_b_typed_bytes": 2736,
+    "best_seed_id": "adjacent_seed_02",
+    "best_seed_json_bytes": 115995,
+    "best_seed_typed_bytes": 40268,
+    "current_two_proof_frontier_typed_bytes": 47188,
+    "nanozk_reported_d128_block_proof_bytes": 6900,
+    "proof_size_comparable_external_rows": 0,
+    "seed_median_typed_bytes": 41484,
+    "seed_min_typed_bytes": 40268,
+    "seed_promotable": false,
+    "seed_span_typed_bytes": 1888,
+    "seed_worst_typed_bytes": 42156
+  },
+  "interpretation": {
+    "human_read": "The pre-registered adjacent seeds verified, but none reproduced the 37,532 typed-byte adjacent probe B frontier.",
+    "mechanism_read": "Seed labels fall into repeated record-stream shape classes, so blind label seeding is not a robust compression mechanism yet.",
+    "next_experiment": "Stop broad seed guessing; inspect the query/opening transcript bucket that makes adjacent probe B special."
+  },
+  "issue_hint": "pre-registered-adjacent-label-seed-sweep",
+  "mutation_result": {
+    "all_mutations_rejected": true,
+    "cases": [
+      {
+        "error": "decision drift",
+        "name": "decision_drift",
+        "rejected": true
+      },
+      {
+        "error": "claim_boundary drift",
+        "name": "claim_boundary_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "source_artifacts drift",
+        "name": "source_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "source_artifacts drift",
+        "name": "accounting_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "seed_policy drift",
+        "name": "seed_inventory_erasure",
+        "rejected": true
+      },
+      {
+        "error": "frontier_summary drift",
+        "name": "frontier_promotion",
+        "rejected": true
+      },
+      {
+        "error": "proof_object_rows drift",
+        "name": "best_seed_typed_drift",
+        "rejected": true
+      },
+      {
+        "error": "proof_object_rows drift",
+        "name": "adapter_mode_relabeling",
+        "rejected": true
+      },
+      {
+        "error": "proof_object_rows drift",
+        "name": "path_opening_mechanism_drift",
+        "rejected": true
+      },
+      {
+        "error": "shape_classes drift",
+        "name": "shape_class_erasure",
+        "rejected": true
+      },
+      {
+        "error": "non_claims drift",
+        "name": "removed_non_claim",
+        "rejected": true
+      },
+      {
+        "error": "validation_commands drift",
+        "name": "validation_command_drift",
+        "rejected": true
+      },
+      {
+        "error": "payload commitment drift",
+        "name": "payload_commitment_drift",
+        "rejected": true
+      }
+    ],
+    "mutation_names": [
+      "decision_drift",
+      "claim_boundary_overclaim",
+      "source_digest_drift",
+      "accounting_digest_drift",
+      "seed_inventory_erasure",
+      "frontier_promotion",
+      "best_seed_typed_drift",
+      "adapter_mode_relabeling",
+      "path_opening_mechanism_drift",
+      "shape_class_erasure",
+      "removed_non_claim",
+      "validation_command_drift",
+      "payload_commitment_drift"
+    ],
+    "mutations_rejected": 13
+  },
+  "non_claims": [
+    "not a new proof-size frontier beyond the 37,532 typed-byte adjacent probe B row",
+    "not a production label-selection policy",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not a full transformer block proof",
+    "not exact real-valued Softmax",
+    "not timing evidence",
+    "not production-ready zkML"
+  ],
+  "payload_commitment": "blake2b-256:a775e08bbb5efc31221a9998b52a56fda5a414f389de3fd8fe9a2c64a26fb986",
+  "proof_object_rows": [
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_fixed_v1",
+      "envelope_sha256": "91d6866982629e829ef4b53502c99c7215e0d6bb257336cdf2910b8c94ce52b3",
+      "family": "adjacent_reference",
+      "json_delta_vs_adjacent_probe_b": 16371,
+      "json_proof_bytes": 122688,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.envelope.json",
+      "path_opening_bytes": 21184,
+      "policy_status": "reference_layout",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_sha256": "f1a495236e06cb3bb76e7f7cb900b9b96eb203809f791d28238fc948514126ed",
+      "record_stream_sha256": "24e3f16bf92320fd79059257ec70ca97bbf76b5859610c2013c58a7511f1feaf",
+      "typed_bytes": 42156,
+      "typed_delta_vs_adjacent_probe_b": 4624,
+      "value_bytes": 20924,
+      "variant_id": "fixed_adjacent_layout"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_a_v1",
+      "envelope_sha256": "2f15a7b6c6e15b889ffc61c6a74235efc43b416fe7384452ca07d5818447f0aa",
+      "family": "adjacent_existing_probe",
+      "json_delta_vs_adjacent_probe_b": 10004,
+      "json_proof_bytes": 116321,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05.envelope.json",
+      "path_opening_bytes": 19360,
+      "policy_status": "existing_non_frontier_probe",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_sha256": "3421ac16f96bda07540698ccdbf1ea705ca384583c3b3275fc99471b5a156d7d",
+      "record_stream_sha256": "ab9c27d7b780f81ec8f8f562997392362c18c9ddc6315d1db303520e3fd7e682",
+      "typed_bytes": 40332,
+      "typed_delta_vs_adjacent_probe_b": 2800,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_label_probe_a"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+      "envelope_sha256": "8e3ba831ac7e858d069f1edfcb6ad46783b0d72f3f47666ae621bc159ac2c0df",
+      "family": "adjacent_existing_probe",
+      "json_delta_vs_adjacent_probe_b": 0,
+      "json_proof_bytes": 106317,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.envelope.json",
+      "path_opening_bytes": 16560,
+      "policy_status": "current_frontier",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_sha256": "4a5dc66d63ee3ddd3acad65e88c42259fb925ee31768a3fdecdb528722630845",
+      "record_stream_sha256": "d0540f5cd1a69991226bcfb81475cec78ba0d416a39317503ad204b660aae1e0",
+      "typed_bytes": 37532,
+      "typed_delta_vs_adjacent_probe_b": 0,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_label_probe_b"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_00_v1",
+      "envelope_sha256": "9e8ca35c303afbe3b1238b55821a37703bfe491b5b362b7b65d223a2f2a84a77",
+      "family": "pre_registered_seed",
+      "json_delta_vs_adjacent_probe_b": 13841,
+      "json_proof_bytes": 120158,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-00-2026-05.envelope.json",
+      "path_opening_bytes": 20512,
+      "policy_status": "seed_no_go",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_sha256": "2c222781635c51ab5298acd6b7758dbb3c2b546fe15d3dfc92f378f78c1c3c66",
+      "record_stream_sha256": "01ba426d79e56c9c017a8d6696a54c4408424a3b0cc125c12c95fdfcacaa6e04",
+      "typed_bytes": 41484,
+      "typed_delta_vs_adjacent_probe_b": 3952,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_00"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_01_v1",
+      "envelope_sha256": "d70f8f968d8eb2171e0cc09fa7a0b2bb001f8a83474aff819aead28bb5a295b9",
+      "family": "pre_registered_seed",
+      "json_delta_vs_adjacent_probe_b": 13747,
+      "json_proof_bytes": 120064,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-01-2026-05.envelope.json",
+      "path_opening_bytes": 20512,
+      "policy_status": "seed_no_go",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_sha256": "5fd4c1d54ad4e616292cf22f5c957ce53a02c227190e098db1db8aa4fe419171",
+      "record_stream_sha256": "01ba426d79e56c9c017a8d6696a54c4408424a3b0cc125c12c95fdfcacaa6e04",
+      "typed_bytes": 41484,
+      "typed_delta_vs_adjacent_probe_b": 3952,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_01"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_02_v1",
+      "envelope_sha256": "4d343553886d03acb055c85b94d0f31c5b4f3efbf25192fb474f57749b8262b2",
+      "family": "pre_registered_seed",
+      "json_delta_vs_adjacent_probe_b": 9678,
+      "json_proof_bytes": 115995,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-02-2026-05.envelope.json",
+      "path_opening_bytes": 19296,
+      "policy_status": "best_seed_but_no_go",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_sha256": "5de20c2647f31bd2d581c4b4090c924ef9dfbb67972e50969af554be6f849aba",
+      "record_stream_sha256": "1d1a58b9897120dd0beb15a7d159c2328304ed8e6103efa28551ee5b65b31539",
+      "typed_bytes": 40268,
+      "typed_delta_vs_adjacent_probe_b": 2736,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_02"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_03_v1",
+      "envelope_sha256": "1b15bf9fdee3449ea371e98bf16d1f231f4c8d68a3393e01cb95992ac8bb4ca3",
+      "family": "pre_registered_seed",
+      "json_delta_vs_adjacent_probe_b": 16271,
+      "json_proof_bytes": 122588,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-03-2026-05.envelope.json",
+      "path_opening_bytes": 21184,
+      "policy_status": "seed_no_go",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_sha256": "406905d8c6a1bb0a81f600aba4adb2d49ee1b9aa5f70b56065e5bf14f03d631b",
+      "record_stream_sha256": "24e3f16bf92320fd79059257ec70ca97bbf76b5859610c2013c58a7511f1feaf",
+      "typed_bytes": 42156,
+      "typed_delta_vs_adjacent_probe_b": 4624,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_03"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_04_v1",
+      "envelope_sha256": "e47070bc8ed81b31de8c72a479367232fb96ec3ed4f5549bfba1f9fab63ed876",
+      "family": "pre_registered_seed",
+      "json_delta_vs_adjacent_probe_b": 16331,
+      "json_proof_bytes": 122648,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-04-2026-05.envelope.json",
+      "path_opening_bytes": 21184,
+      "policy_status": "seed_no_go",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_sha256": "a8b0fe6c95ce8fb9cdc4cc60d4f0cbb96fdc0c615a23a715dc9ab44db5e50463",
+      "record_stream_sha256": "24e3f16bf92320fd79059257ec70ca97bbf76b5859610c2013c58a7511f1feaf",
+      "typed_bytes": 42156,
+      "typed_delta_vs_adjacent_probe_b": 4624,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_04"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_05_v1",
+      "envelope_sha256": "9cdded96b2cc6e2ceaab56c8f27717f1bfe3756d4f1ee2b0a2cf8f547885765f",
+      "family": "pre_registered_seed",
+      "json_delta_vs_adjacent_probe_b": 9986,
+      "json_proof_bytes": 116303,
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-05-2026-05.envelope.json",
+      "path_opening_bytes": 19360,
+      "policy_status": "seed_no_go",
+      "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+      "proof_sha256": "9122f95a9eec12e75cabe7b99d9ba03ec55cefd880d0549eb185b911d818fbed",
+      "record_stream_sha256": "ab9c27d7b780f81ec8f8f562997392362c18c9ddc6315d1db303520e3fd7e682",
+      "typed_bytes": 40332,
+      "typed_delta_vs_adjacent_probe_b": 2800,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_05"
+    }
+  ],
+  "result": "BEST_SEED_02_IS_40268_TYPED_BYTES_VS_37532_FRONTIER_WITH_2736_BYTE_GAP",
+  "schema": "zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-gate-v1",
+  "seed_policy": {
+    "pre_registered": true,
+    "promotion_rule": "a seed must verify and beat the 37,532 typed-byte adjacent probe B frontier before promotion",
+    "reporting_rule": "report every generated seed row whether it wins or loses",
+    "seed_count": 6,
+    "seed_ids": [
+      "adjacent_seed_00",
+      "adjacent_seed_01",
+      "adjacent_seed_02",
+      "adjacent_seed_03",
+      "adjacent_seed_04",
+      "adjacent_seed_05"
+    ]
+  },
+  "shape_classes": [
+    {
+      "path_opening_bytes": 19296,
+      "record_stream_sha256": "1d1a58b9897120dd0beb15a7d159c2328304ed8e6103efa28551ee5b65b31539",
+      "typed_bytes": 40268,
+      "variant_ids": [
+        "adjacent_seed_02"
+      ]
+    },
+    {
+      "path_opening_bytes": 19360,
+      "record_stream_sha256": "ab9c27d7b780f81ec8f8f562997392362c18c9ddc6315d1db303520e3fd7e682",
+      "typed_bytes": 40332,
+      "variant_ids": [
+        "adjacent_seed_05"
+      ]
+    },
+    {
+      "path_opening_bytes": 20512,
+      "record_stream_sha256": "01ba426d79e56c9c017a8d6696a54c4408424a3b0cc125c12c95fdfcacaa6e04",
+      "typed_bytes": 41484,
+      "variant_ids": [
+        "adjacent_seed_00",
+        "adjacent_seed_01"
+      ]
+    },
+    {
+      "path_opening_bytes": 21184,
+      "record_stream_sha256": "24e3f16bf92320fd79059257ec70ca97bbf76b5859610c2013c58a7511f1feaf",
+      "typed_bytes": 42156,
+      "variant_ids": [
+        "adjacent_seed_03",
+        "adjacent_seed_04"
+      ]
+    }
+  ],
+  "source_artifacts": [
+    {
+      "id": "rust_native_seq32_attention_mlp_source",
+      "path": "src/stwo_backend/native_seq32_attention_mlp_single_proof.rs",
+      "sha256": "35014074e972386ef8e1b261bb407eb842fc1b98037f4cac1f4da1a7e52cf6fb",
+      "size_bytes": 135974
+    },
+    {
+      "id": "cli_native_seq32_attention_mlp_source",
+      "path": "src/bin/zkai_native_seq32_attention_mlp_single_proof.rs",
+      "sha256": "6515f8a3e05661dc267b4c106d2e06d576d4f74d39bcc0821c892ac7e3b4bdac",
+      "size_bytes": 29586
+    },
+    {
+      "id": "adjacent_label_seed_sweep_accounting",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-accounting-2026-05.json",
+      "sha256": "90f04ada7e02f3777615417dec475c27ccff3511f42be0a084e6405b52fcd6db",
+      "size_bytes": 46080
+    }
+  ],
+  "validation_commands": [
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- build-input-rmsnorm-fused-adjacent-seed-00 docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-00-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-00-2026-05.input.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-00-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-00-2026-05.envelope.json",
+    "repeat the same build/prove/verify pattern for adjacent seeds 01 through 05",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-00-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-01-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-02-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-03-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-04-2026-05.envelope.json docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-05-2026-05.envelope.json > docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-accounting-2026-05.json",
+    "python3.10 scripts/zkai_native_seq32_attention_mlp_adjacent_label_seed_sweep_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-2026-05.tsv",
+    "python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_adjacent_label_seed_sweep_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_adjacent_label_seed_sweep_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adjacent_label_seed_sweep_gate",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_adjacent_seed --lib",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}

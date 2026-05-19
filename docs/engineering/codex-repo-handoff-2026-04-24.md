@@ -2454,6 +2454,48 @@ Seq32 expanded label-probe reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
+Latest adjacent label seed-sweep gate: the pre-registered adjacent-only seed
+sweep exposed six new Rust/CLI adapter modes (`seed-00` through `seed-05`) and
+generated real Stwo proof envelopes for every seed. All six verify, but none
+beat the `37,532` typed-byte adjacent probe B frontier. The best seed is
+`adjacent_seed_02` at `40,268` typed bytes / `115,995` JSON proof bytes,
+still `2,736` typed bytes above the frontier. The seed median is `41,484`
+typed bytes, the worst seed is `42,156`, and the seed span is `1,888` typed
+bytes. This is a useful NO-GO: blind adjacent label seeding does not reproduce
+probe B, but it reveals repeated proof-shape buckets. `seed-03/04` match the
+fixed adjacent layout shape, `seed-00/01` match each other, `seed-05` matches
+the old probe-A typed shape, and `seed-02` is the best new bucket. Follow-up
+issue `#693` tracks why the adjacent probe-B transcript lands in the much
+smaller `16,560` path-opening bucket instead of doing broader seed guessing.
+See
+`docs/engineering/zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-2026-05-19.md`.
+
+Seq32 adjacent label seed-sweep reproducibility metadata:
+
+- Gate schema:
+  `zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-gate-v1`.
+- Decision:
+  `NO_GO_PRE_REGISTERED_ADJACENT_SEEDS_DO_NOT_BEAT_FRONTIER`.
+- Timing mode: proof-size/accounting only; no timing claim and no median-of-5.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-2026-05.tsv`,
+  and
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-accounting-2026-05.json`.
+- Gate JSON SHA-256:
+  `7c42d8b2d80cf4150059f894b706f06b0b125205bf8ea1be562f0938aea9d736`.
+- Payload commitment:
+  `blake2b-256:a775e08bbb5efc31221a9998b52a56fda5a414f389de3fd8fe9a2c64a26fb986`.
+- Local validation commands:
+  `python3.10 scripts/zkai_native_seq32_attention_mlp_adjacent_label_seed_sweep_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_adjacent_label_seed_sweep_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_adjacent_label_seed_sweep_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adjacent_label_seed_sweep_gate`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_adjacent_seed --lib`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
 1. Treat `rmsnorm_mlp_fused` as the current positive MLP-side fusion result:
    the native fused proof saves `32,144` local typed bytes (`56.4167%`) versus
    separate RMSNorm, bridge, gate/value, activation, down-projection, and
