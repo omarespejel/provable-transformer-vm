@@ -45,6 +45,12 @@ EXPECTED_UNITTEST_STEP_COUNT = 18
 MAX_PAPER_PROTOTYPE_LOSS_BITS = "2.000000"
 EXPECTED_POLICY_STAGE = "post_transcript_pre_accounting_not_true_predecommit"
 EXPECTED_API_CONTROL_STATUS = "NO_TRUE_PREDECOMMIT_CONTROL_HOOK_IN_CURRENT_WRAPPER"
+EXPECTED_INVENTORY_COMMITMENT = (
+    "blake2b-256:6b58d3f30c5a0b0e5d1aa78890f72c5830d973f3b3795bc1917fc0253266c37e"
+)
+EXPECTED_PAYLOAD_COMMITMENT = (
+    "blake2b-256:139ebaf55f70c771cf1d1f9f6fb8a132bc2215118e46a6ca4dbd2d6da4e0aea6"
+)
 
 TSV_COLUMNS = (
     "policy_id",
@@ -394,6 +400,8 @@ def validate_base_payload(payload: dict[str, Any]) -> None:
         raise StwoQueryGrindingBudgetGateError("claim boundary drift")
     if payload["inventory"]["row_count"] != EXPECTED_INVENTORY_COUNT:
         raise StwoQueryGrindingBudgetGateError("inventory count drift")
+    if payload["inventory"]["commitment"] != EXPECTED_INVENTORY_COMMITMENT:
+        raise StwoQueryGrindingBudgetGateError("published inventory commitment drift")
     baseline = payload["baseline"]
     champion = payload["champion"]
     if baseline["variant_id"] != BASELINE_VARIANT_ID or baseline["final_typed_bytes"] != 42_156:
@@ -446,6 +454,8 @@ def validate_payload(payload: dict[str, Any]) -> None:
     validate_base_payload(item)
     if supplied_commitment != payload_commitment(payload):
         raise StwoQueryGrindingBudgetGateError("payload commitment drift")
+    if supplied_commitment != EXPECTED_PAYLOAD_COMMITMENT:
+        raise StwoQueryGrindingBudgetGateError("published payload commitment drift")
     expected_mutation = run_mutations(item)
     if mutation_result != expected_mutation:
         raise StwoQueryGrindingBudgetGateError("mutation result drift")
