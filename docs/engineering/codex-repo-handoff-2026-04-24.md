@@ -2340,7 +2340,7 @@ Seq32 generated adjacent label-inventory reproducibility metadata:
 - Rust source SHA-256:
   `3d740bda9a3f301edea7a10dc1b9f58878d1a0f067397eecb5ed50465e4b7d95`.
 - CLI source SHA-256:
-  `abd34cbc64a04e234ccf2c3e951629f57243eb7e1795b1c448d340bb7111095d`.
+  `8408ccfe9a4882b19484326f9bad1670a87c582313f4d93d75305177cdfd8e17`.
 - Deterministic source policy SHA-256:
   `d5cbe419a545c022036b7347b6fb75a1fbb127dc7a861948d96103e646f338ab`.
 - Gate schema:
@@ -2388,9 +2388,9 @@ and envelope metadata before it can be treated as evidence. The gate rejects
 Seq32 generated proof-object builder reproducibility metadata:
 
 - Generated inventory SHA-256:
-  `6aee314a31847d1239ae790ddd8933018215c30a4e6a3d507fd86efc27281238`.
+  `737eccaeb16051a4733d122ab2fc332d59c3b28feb36707088731ea93ae156f3`.
 - Generated inventory payload commitment:
-  `blake2b-256:e1653c5b5082171c34406ed29e84209ad29c9aaf7921d782e718a5541da32eea`.
+  `blake2b-256:8b195e5ce4ec9dd594605d34528a9227b2fc59cb7d4a6b31f5293667fe35cab4`.
 - Adjacent accounting SHA-256:
   `0841dd4dbf6d3ff76ede4c3e088b301745e04f649024d50aa378fb239cd1ef5c`.
 - Gate schema:
@@ -2442,9 +2442,9 @@ Seq32 expanded label-probe reproducibility metadata:
   and
   `docs/engineering/evidence/zkai-native-seq32-attention-mlp-expanded-label-probe-accounting-2026-05.json`.
 - Gate JSON SHA-256:
-  `81fa5c1d06669a4b4665be2c4e1155982c9ff62545d7b8ebdab78e12d9f90d01`.
+  `f8bd65efa9cb8e3f63beb268c2bff3298c4471200ed8923105a4462181297467`.
 - Payload commitment:
-  `blake2b-256:2cbce6165b6c0da4dbdf09d16ba2782d6fdb1f89d59538051d968c035384df14`.
+  `blake2b-256:c2639b774e7e78156ce59c24e11a633996a43d90ad71d4be0adeed9ae492ecf6`.
 - Local validation commands:
   `python3.10 scripts/zkai_native_seq32_attention_mlp_expanded_label_probe_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-expanded-label-probe-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-expanded-label-probe-2026-05.tsv`;
   `python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_expanded_label_probe_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_expanded_label_probe_gate.py`;

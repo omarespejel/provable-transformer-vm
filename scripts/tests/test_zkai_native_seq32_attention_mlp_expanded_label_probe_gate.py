@@ -122,6 +122,16 @@ class ExpandedLabelProbeGateTest(unittest.TestCase):
             ):
                 self.gate.write_outputs(tmp_path / "out.json", tmp_path / "out.tsv", self.payload)
 
+    def test_rejects_oversized_repo_file_before_json_load(self):
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:
+            too_large = pathlib.Path(tmp) / "too-large.json"
+            too_large.write_bytes(b"{}")
+            with self.assertRaisesRegex(
+                self.gate.ExpandedLabelProbeGateError,
+                "oversized test exceeds max size",
+            ):
+                self.gate.read_bounded_repo_file(too_large, "oversized test", 1)
+
     @staticmethod
     def row_from(payload, variant_id):
         for row in payload["proof_object_rows"]:

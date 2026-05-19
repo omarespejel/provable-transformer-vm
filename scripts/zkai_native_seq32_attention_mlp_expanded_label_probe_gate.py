@@ -40,10 +40,13 @@ CLAIM_BOUNDARY = (
 )
 PAYLOAD_DOMAIN = "ptvm:zkai:native-seq32-attention-mlp-expanded-label-probe:v1"
 ISSUE_HINT = "bounded-expanded-seq32-label-probe-sweep"
-DETERMINISTIC_TEMP_ATTEMPTS = 8
+DETERMINISTIC_TEMP_ATTEMPTS = 16
+MAX_SOURCE_ARTIFACT_BYTES = 512 * 1024
+MAX_ACCOUNTING_JSON_BYTES = 1 * 1024 * 1024
+MAX_ENVELOPE_JSON_BYTES = 8 * 1024 * 1024
 
 EXPECTED_RUST_SOURCE_SHA256 = "3d740bda9a3f301edea7a10dc1b9f58878d1a0f067397eecb5ed50465e4b7d95"
-EXPECTED_CLI_SOURCE_SHA256 = "abd34cbc64a04e234ccf2c3e951629f57243eb7e1795b1c448d340bb7111095d"
+EXPECTED_CLI_SOURCE_SHA256 = "8408ccfe9a4882b19484326f9bad1670a87c582313f4d93d75305177cdfd8e17"
 EXPECTED_ACCOUNTING_SHA256 = "d17b7838ddcb4c77c8d346ceb89fcac1c7985b0bbf7b2679fe2a1daaca2c30f4"
 
 CURRENT_CHAMPION_TYPED_BYTES = 42_068
@@ -186,12 +189,50 @@ def payload_commitment(payload: dict[str, Any]) -> str:
     return f"blake2b-256:{digest}"
 
 
-def read_json(path: pathlib.Path) -> Any:
-    return json.loads(path.read_text())
+def read_bounded_repo_file(path: pathlib.Path, label: str, max_bytes: int) -> bytes:
+    root = ROOT.resolve()
+    candidate = pathlib.Path(os.path.abspath(path if path.is_absolute() else ROOT / path))
+    try:
+        relative = candidate.relative_to(root)
+    except ValueError as err:
+        raise ExpandedLabelProbeGateError(f"{label} escapes repo root") from err
+    current = root
+    try:
+        for part in relative.parts:
+            current = current / part
+            mode = current.lstat().st_mode
+            if stat.S_ISLNK(mode):
+                raise ExpandedLabelProbeGateError(f"{label} must not traverse symlinks")
+        fd = os.open(candidate, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+        try:
+            with os.fdopen(fd, "rb") as handle:
+                fd = None
+                raw = handle.read(max_bytes + 1)
+        finally:
+            if fd is not None:
+                os.close(fd)
+    except OSError as err:
+        raise ExpandedLabelProbeGateError(f"failed to read {label}: {err}") from err
+    if len(raw) > max_bytes:
+        raise ExpandedLabelProbeGateError(
+            f"{label} exceeds max size: got at least {len(raw)} bytes, limit {max_bytes} bytes"
+        )
+    return raw
+
+
+def read_json_object(path: pathlib.Path, label: str, max_bytes: int) -> tuple[dict[str, Any], bytes]:
+    raw = read_bounded_repo_file(path, label, max_bytes)
+    try:
+        value = json.loads(raw)
+    except json.JSONDecodeError as err:
+        raise ExpandedLabelProbeGateError(f"{label} is not valid JSON: {err}") from err
+    if not isinstance(value, dict):
+        raise ExpandedLabelProbeGateError(f"{label} must be a JSON object")
+    return value, raw
 
 
 def source_artifact(path: pathlib.Path, artifact_id: str, expected_sha: str) -> dict[str, Any]:
-    raw = path.read_bytes()
+    raw = read_bounded_repo_file(path, artifact_id, MAX_SOURCE_ARTIFACT_BYTES)
     digest = sha256_bytes(raw)
     if digest != expected_sha:
         raise ExpandedLabelProbeGateError(f"{artifact_id} source digest drift")
@@ -204,11 +245,14 @@ def source_artifact(path: pathlib.Path, artifact_id: str, expected_sha: str) -> 
 
 
 def accounting_rows_by_path() -> dict[str, dict[str, Any]]:
-    raw = ACCOUNTING_PATH.read_bytes()
+    data, raw = read_json_object(
+        ACCOUNTING_PATH,
+        "expanded label-probe accounting",
+        MAX_ACCOUNTING_JSON_BYTES,
+    )
     digest = sha256_bytes(raw)
     if digest != EXPECTED_ACCOUNTING_SHA256:
         raise ExpandedLabelProbeGateError("accounting digest drift")
-    data = json.loads(raw)
     if data.get("schema") != "zkai-stwo-local-binary-proof-accounting-cli-v1":
         raise ExpandedLabelProbeGateError("accounting schema drift")
     rows: dict[str, dict[str, Any]] = {}
@@ -224,8 +268,11 @@ def accounting_rows_by_path() -> dict[str, dict[str, Any]]:
 
 def proof_row(expected: dict[str, Any], accounting_row: dict[str, Any]) -> dict[str, Any]:
     envelope_path = EVIDENCE_DIR / expected["path"]
-    raw = envelope_path.read_bytes()
-    envelope = json.loads(raw)
+    envelope, raw = read_json_object(
+        envelope_path,
+        f"{expected['variant_id']} envelope",
+        MAX_ENVELOPE_JSON_BYTES,
+    )
     proof = envelope.get("proof")
     if not isinstance(proof, list):
         raise ExpandedLabelProbeGateError(f"{expected['variant_id']} proof field missing")

@@ -70,9 +70,9 @@ label-seed sweep that reports every seed, not just the best one.
 - Expanded accounting:
   `docs/engineering/evidence/zkai-native-seq32-attention-mlp-expanded-label-probe-accounting-2026-05.json`
 - Gate JSON SHA-256:
-  `81fa5c1d06669a4b4665be2c4e1155982c9ff62545d7b8ebdab78e12d9f90d01`
+  `f8bd65efa9cb8e3f63beb268c2bff3298c4471200ed8923105a4462181297467`
 - Payload commitment:
-  `blake2b-256:2cbce6165b6c0da4dbdf09d16ba2782d6fdb1f89d59538051d968c035384df14`
+  `blake2b-256:c2639b774e7e78156ce59c24e11a633996a43d90ad71d4be0adeed9ae492ecf6`
 - Mutation guards:
   `10 / 10` rejected.
 
