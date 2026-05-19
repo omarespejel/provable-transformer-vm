@@ -90,8 +90,8 @@ class PredecommitOpeningPolicyGateTest(unittest.TestCase):
         )
         self.assertEqual(metadata["policy_row_count"], 9)
         self.assertEqual(metadata["fri_query_count_per_row"], 3)
-        self.assertEqual(metadata["mutation_step_count"], self.gate.EXPECTED_MUTATION_COUNT)
-        self.assertEqual(metadata["unittest_step_count"], 11)
+        self.assertEqual(metadata["mutation_step_count"], len(self.gate.MUTATION_NAMES))
+        self.assertEqual(metadata["unittest_step_count"], 12)
         self.assertEqual(metadata["local_release_gate_step_count"], 14)
 
     def test_source_stage_markers_are_pinned(self):
@@ -105,8 +105,14 @@ class PredecommitOpeningPolicyGateTest(unittest.TestCase):
     def test_all_mutations_rejected(self):
         mutation = self.payload["mutation_result"]
         self.assertTrue(mutation["all_mutations_rejected"])
-        self.assertEqual(mutation["mutations_rejected"], self.gate.EXPECTED_MUTATION_COUNT)
+        self.assertEqual(mutation["mutations_rejected"], len(self.gate.MUTATION_NAMES))
         self.assertEqual(mutation["mutation_names"], list(self.gate.MUTATION_NAMES))
+
+    def test_committed_evidence_contains_integrity_fields(self):
+        evidence = json.loads(self.gate.JSON_OUT.read_text())
+        self.assertEqual(evidence["payload_commitment"], self.payload["payload_commitment"])
+        self.assertEqual(evidence["mutation_result"], self.payload["mutation_result"])
+        self.gate.validate_payload(evidence)
 
     def test_rejects_predecommit_overclaim(self):
         item = self.gate.build_payload_without_mutations()
