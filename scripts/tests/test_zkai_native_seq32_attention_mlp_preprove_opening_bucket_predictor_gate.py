@@ -163,17 +163,38 @@ class PreproveOpeningBucketPredictorGateTest(unittest.TestCase):
             lines = tsv_path.read_text().splitlines()
             self.assertEqual(len(lines), 1 + len(self.payload["preprove_inventory_rows"]))
             self.assertEqual(lines[0], "\t".join(self.gate.TSV_COLUMNS))
+            preprove_by_variant = {
+                row["variant_id"]: row for row in self.payload["preprove_inventory_rows"]
+            }
             final_by_variant = {
                 row["variant_id"]: row for row in self.payload["final_accounting_join_rows"]
             }
+            seen_variant_ids = set()
             for line in lines[1:]:
                 columns = dict(zip(self.gate.TSV_COLUMNS, line.split("\t"), strict=True))
                 variant_id = columns["variant_id"]
+                seen_variant_ids.add(variant_id)
+                self.assertIn(variant_id, preprove_by_variant)
                 self.assertIn(variant_id, final_by_variant)
+                preprove = preprove_by_variant[variant_id]
+                final = final_by_variant[variant_id]
                 self.assertEqual(
-                    columns["final_typed_bytes"],
-                    str(final_by_variant[variant_id]["typed_bytes"]),
+                    columns,
+                    {
+                        "variant_id": preprove["variant_id"],
+                        "adapter_mode": preprove["adapter_mode"],
+                        "family": preprove["family"],
+                        "policy_status": preprove["policy_status"],
+                        "input_sha256": preprove["input_sha256"],
+                        "structural_signature": preprove["structural_signature"],
+                        "row_identity_signature": preprove["row_identity_signature"],
+                        "final_typed_bytes": str(final["typed_bytes"]),
+                        "final_path_opening_bytes": str(final["path_opening_bytes"]),
+                        "final_value_bytes": str(final["value_bytes"]),
+                        "final_record_stream_sha256": final["record_stream_sha256"],
+                    },
                 )
+            self.assertEqual(seen_variant_ids, set(final_by_variant))
 
     def test_rejects_output_paths_outside_evidence_dir(self):
         with tempfile.TemporaryDirectory() as tmp:
