@@ -68,7 +68,7 @@ ADAPTER_MODE_TO_LABEL_ID = {
     "rmsnorm_input_fused_adjacent_label_probe_a_v1": "adjacent_label_probe_a",
     "rmsnorm_input_fused_adjacent_label_probe_b_v1": "adjacent_label_probe_b",
 }
-ADAPTER_MODE_TO_CLI_COMMAND = dict(zip(EXPECTED_ADJACENT_MODES, EXPECTED_CLI_COMMANDS))
+ADAPTER_MODE_TO_CLI_COMMAND = dict(zip(EXPECTED_ADJACENT_MODES, EXPECTED_CLI_COMMANDS, strict=True))
 
 CURRENT_CHAMPION_ID = deterministic_gate.CURRENT_CHAMPION_ID
 CURRENT_CHAMPION_TYPED_BYTES = deterministic_gate.CURRENT_CHAMPION_TYPED_BYTES
@@ -485,9 +485,7 @@ def build_generated_label_inventory(
         policy_row = deterministic_rows[variant_id]
         if source_row["adapter_mode"] != adapter_mode or policy_row["adapter_mode"] != adapter_mode:
             raise GeneratedAdjacentLabelInventoryGateError("generated label adapter drift")
-        if policy_row["policy_status"] == "supported_label":
-            proof_accounting_pinned = True
-        elif policy_row["policy_status"] == "rejected_inflating_label":
+        if policy_row["policy_status"] in ("supported_label", "rejected_inflating_label"):
             proof_accounting_pinned = True
         else:
             raise GeneratedAdjacentLabelInventoryGateError("generated label status drift")
