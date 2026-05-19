@@ -278,6 +278,14 @@ TSV_COLUMNS = (
     "path_opening_delta_vs_champion",
     "value_bytes",
     "proof_accounting_pinned",
+    "payload_commitment",
+    "source_artifact_digest_pins",
+    "source_artifact_payload_commitments",
+    "generated_label_ids",
+    "accepted_label_ids",
+    "rejected_label_ids",
+    "rejected_unseen_adapter_modes",
+    "mutation_outcomes",
 )
 
 
@@ -339,6 +347,13 @@ def read_source(path: pathlib.Path, label: str, expected_sha256: str) -> bytes:
     return raw
 
 
+def decode_utf8(raw: bytes, label: str) -> str:
+    try:
+        return raw.decode("utf-8")
+    except UnicodeDecodeError as err:
+        raise GeneratedAdjacentLabelInventoryGateError(f"{label} must be UTF-8") from err
+
+
 def load_json_file(path: pathlib.Path, label: str) -> tuple[dict[str, Any], bytes]:
     try:
         payload, raw = source_gate.load_json_file(path, label)
@@ -369,7 +384,7 @@ def load_deterministic_policy() -> tuple[dict[str, Any], bytes]:
 
 
 def rust_adjacent_adapter_modes(raw: bytes) -> list[dict[str, str]]:
-    text = raw.decode("utf-8")
+    text = decode_utf8(raw, "rust native seq32 attention mlp source")
     rows = []
     pattern = re.compile(
         r'#\[serde\(rename = "(rmsnorm_input_fused_adjacent_[^"]+)"\)\]\s*'
@@ -384,7 +399,7 @@ def rust_adjacent_adapter_modes(raw: bytes) -> list[dict[str, str]]:
 
 
 def cli_adjacent_commands(raw: bytes, mode_to_variant: dict[str, str]) -> list[dict[str, str]]:
-    text = raw.decode("utf-8")
+    text = decode_utf8(raw, "cli native seq32 attention mlp source")
     pattern = re.compile(
         r'"(build-input-rmsnorm-fused-adjacent(?:-label-probe-[ab])?)"\s*=>\s*\{\s*'
         r"Some\(ZkAiNativeSeq32AttentionMlpAdapterMode::([A-Za-z0-9]+)\)",
@@ -767,22 +782,86 @@ def validate_mutation_result(result: dict[str, Any]) -> None:
         raise GeneratedAdjacentLabelInventoryGateError("mutation result drift")
 
 
+def _tsv_cell(value: Any) -> str:
+    text = str(value)
+    if "\t" in text or "\n" in text or "\r" in text:
+        raise GeneratedAdjacentLabelInventoryGateError("tsv audit field contains unsafe whitespace")
+    return text
+
+
+def _join_tsv_items(items: list[str]) -> str:
+    return ",".join(_tsv_cell(item) for item in items)
+
+
+def tsv_audit_columns(payload: dict[str, Any]) -> dict[str, str]:
+    mutation_cases = _list(payload["mutation_result"]["cases"], "mutation cases")
+    return {
+        "payload_commitment": _tsv_cell(payload["payload_commitment"]),
+        "source_artifact_digest_pins": _join_tsv_items(
+            [
+                f"{row['id']}={row['sha256']}"
+                for row in _list(payload["source_artifacts"], "source artifacts")
+            ]
+        ),
+        "source_artifact_payload_commitments": _join_tsv_items(
+            [
+                f"{row['id']}={row['payload_commitment'] or 'none'}"
+                for row in _list(payload["source_artifacts"], "source artifacts")
+            ]
+        ),
+        "generated_label_ids": _join_tsv_items(
+            _list(payload["generator_policy"]["generated_label_ids"], "generated label ids")
+        ),
+        "accepted_label_ids": _join_tsv_items(
+            _list(payload["generator_policy"]["accepted_label_ids"], "accepted label ids")
+        ),
+        "rejected_label_ids": _join_tsv_items(
+            _list(payload["generator_policy"]["rejected_label_ids"], "rejected label ids")
+        ),
+        "rejected_unseen_adapter_modes": _join_tsv_items(
+            [
+                row["adapter_mode"]
+                for row in _list(payload["rejected_unseen_labels"], "rejected unseen labels")
+            ]
+        ),
+        "mutation_outcomes": _join_tsv_items(
+            [
+                f"{case['name']}={'rejected' if case['rejected'] else 'accepted'}:{case['error']}"
+                for case in mutation_cases
+            ]
+        ),
+    }
+
+
 def render_tsv(payload: dict[str, Any]) -> str:
     validate_payload(payload)
+    audit_columns = tsv_audit_columns(payload)
     output = io.StringIO()
     writer = csv.DictWriter(output, fieldnames=TSV_COLUMNS, delimiter="\t", lineterminator="\n")
     writer.writeheader()
     for row in payload["generated_label_inventory"]:
-        writer.writerow({column: row[column] for column in TSV_COLUMNS})
+        row_columns = {
+            column: row[column]
+            for column in TSV_COLUMNS
+            if column in LABEL_ROW_KEYS
+        }
+        writer.writerow({**row_columns, **audit_columns})
     return output.getvalue()
+
+
+def atomic_write_text(path: pathlib.Path, text: str) -> None:
+    try:
+        source_gate.atomic_write_text(path, text)
+    except source_gate.AdjacentLabelPolicyGateError as err:
+        raise GeneratedAdjacentLabelInventoryGateError(str(err)) from err
 
 
 def write_outputs(payload: dict[str, Any], json_path: pathlib.Path | None, tsv_path: pathlib.Path | None) -> None:
     validate_payload(payload)
     if json_path is not None:
-        source_gate.atomic_write_text(json_path, json.dumps(payload, indent=2, sort_keys=True) + "\n")
+        atomic_write_text(json_path, json.dumps(payload, indent=2, sort_keys=True) + "\n")
     if tsv_path is not None:
-        source_gate.atomic_write_text(tsv_path, render_tsv(payload))
+        atomic_write_text(tsv_path, render_tsv(payload))
 
 
 def payload_with_mutations() -> dict[str, Any]:

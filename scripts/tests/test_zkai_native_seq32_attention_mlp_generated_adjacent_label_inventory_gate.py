@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import copy
+import csv
 import importlib.util
+import io
 import os
 import pathlib
 import tempfile
@@ -196,14 +198,43 @@ class NativeSeq32GeneratedAdjacentLabelInventoryGateTest(unittest.TestCase):
     def test_render_tsv_records_generated_policy(self) -> None:
         text = self.gate.render_tsv(self.__class__.payload)
         self.assertTrue(text.startswith("variant_id\tadapter_mode\tcli_command\t"))
+        rows = list(csv.DictReader(io.StringIO(text), delimiter="\t"))
+        self.assertEqual(len(rows), 3)
+        fixed = rows[0]
+        probe_b = rows[2]
+        self.assertEqual(fixed["variant_id"], "fixed_adjacent_layout")
+        self.assertEqual(fixed["policy_status"], "rejected_inflating_label")
+        self.assertEqual(fixed["typed_bytes"], "42156")
+        self.assertEqual(fixed["typed_delta_vs_champion"], "88")
+        self.assertEqual(fixed["proof_accounting_pinned"], "True")
+        self.assertEqual(probe_b["variant_id"], "adjacent_label_probe_b")
+        self.assertEqual(probe_b["policy_status"], "supported_label")
+        self.assertEqual(probe_b["typed_bytes"], "37532")
+        self.assertEqual(probe_b["typed_delta_vs_champion"], "-4536")
+
+    def test_render_tsv_records_audit_pins(self) -> None:
+        rows = list(csv.DictReader(io.StringIO(self.gate.render_tsv(self.__class__.payload)), delimiter="\t"))
+        row = rows[1]
+        self.assertEqual(row["payload_commitment"], self.__class__.payload["payload_commitment"])
         self.assertIn(
-            "fixed_adjacent_layout\trmsnorm_input_fused_adjacent_fixed_v1\tbuild-input-rmsnorm-fused-adjacent\trejected_inflating_label\t42156\t88\t21184\t592\t20924\tTrue\n",
-            text,
+            "rust_native_seq32_attention_mlp_source=3d740bda9a3f301edea7a10dc1b9f58878d1a0f067397eecb5ed50465e4b7d95",
+            row["source_artifact_digest_pins"],
         )
         self.assertIn(
-            "adjacent_label_probe_b\trmsnorm_input_fused_adjacent_label_probe_b_v1\tbuild-input-rmsnorm-fused-adjacent-label-probe-b\tsupported_label\t37532\t-4536\t16560\t-4032\t20924\tTrue\n",
-            text,
+            "deterministic_adjacent_label_policy=blake2b-256:cb60558f8b274ffa44d51de3367a34759b408b5c1dd3427583d3031ef9017fdd",
+            row["source_artifact_payload_commitments"],
         )
+        self.assertEqual(
+            row["accepted_label_ids"],
+            "adjacent_label_probe_a,adjacent_label_probe_b",
+        )
+        self.assertEqual(row["rejected_label_ids"], "fixed_adjacent_layout")
+        self.assertIn(
+            "rmsnorm_input_fused_adjacent_label_probe_c_v1",
+            row["rejected_unseen_adapter_modes"],
+        )
+        self.assertIn("decision_drift=rejected:decision drift", row["mutation_outcomes"])
+        self.assertIn("payload_commitment_drift=rejected:payload commitment drift", row["mutation_outcomes"])
 
     def test_write_outputs_records_json_and_tsv_inside_evidence_tree(self) -> None:
         with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmpdir:
@@ -240,7 +271,7 @@ class NativeSeq32GeneratedAdjacentLabelInventoryGateTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             outside = pathlib.Path(tmpdir) / "outside.json"
             with self.assertRaisesRegex(
-                self.gate.source_gate.AdjacentLabelPolicyGateError,
+                self.gate.GeneratedAdjacentLabelInventoryGateError,
                 "output path escapes evidence dir",
             ):
                 self.gate.write_outputs(self.__class__.payload, outside, None)
@@ -255,7 +286,7 @@ class NativeSeq32GeneratedAdjacentLabelInventoryGateTest(unittest.TestCase):
             real_parent.mkdir()
             os.symlink(real_parent, link_parent)
             with self.assertRaisesRegex(
-                self.gate.source_gate.AdjacentLabelPolicyGateError,
+                self.gate.GeneratedAdjacentLabelInventoryGateError,
                 "output path must not traverse symlinks",
             ):
                 self.gate.write_outputs(
@@ -263,6 +294,18 @@ class NativeSeq32GeneratedAdjacentLabelInventoryGateTest(unittest.TestCase):
                     link_parent / "out.json",
                     None,
                 )
+
+    def test_source_decoders_raise_gate_error_for_invalid_utf8(self) -> None:
+        with self.assertRaisesRegex(
+            self.gate.GeneratedAdjacentLabelInventoryGateError,
+            "rust native seq32 attention mlp source must be UTF-8",
+        ):
+            self.gate.rust_adjacent_adapter_modes(b"\xff")
+        with self.assertRaisesRegex(
+            self.gate.GeneratedAdjacentLabelInventoryGateError,
+            "cli native seq32 attention mlp source must be UTF-8",
+        ):
+            self.gate.cli_adjacent_commands(b"\xff", {})
 
 
 if __name__ == "__main__":
