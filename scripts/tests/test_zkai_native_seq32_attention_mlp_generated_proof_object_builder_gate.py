@@ -252,7 +252,7 @@ class NativeSeq32GeneratedProofObjectBuilderGateTest(unittest.TestCase):
         self.assertEqual(probe_b["typed_bytes"], "37532")
         self.assertEqual(probe_b["proof_len_bytes"], "106317")
         self.assertIn(
-            "generated_adjacent_label_inventory=10ef45339f48c41e6cd264906e8ffbcfb49e8e7bb8738ea21174ba8fbb63a1bb",
+            f"generated_adjacent_label_inventory={self.gate.EXPECTED_GENERATED_INVENTORY_SHA256}",
             probe_b["source_artifact_digest_pins"],
         )
         self.assertIn(

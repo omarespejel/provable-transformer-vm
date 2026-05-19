@@ -2434,7 +2434,7 @@ Seq32 generated adjacent label-inventory reproducibility metadata:
 - Rust source SHA-256:
   `3d740bda9a3f301edea7a10dc1b9f58878d1a0f067397eecb5ed50465e4b7d95`.
 - CLI source SHA-256:
-  `ef857b997450d683526e0f2d85000da6b5ddfcd33c96640b2e68a323588ec71f`.
+  `abd34cbc64a04e234ccf2c3e951629f57243eb7e1795b1c448d340bb7111095d`.
 - Deterministic source policy SHA-256:
   `d5cbe419a545c022036b7347b6fb75a1fbb127dc7a861948d96103e646f338ab`.
 - Gate schema:
@@ -2482,9 +2482,9 @@ and envelope metadata before it can be treated as evidence. The gate rejects
 Seq32 generated proof-object builder reproducibility metadata:
 
 - Generated inventory SHA-256:
-  `10ef45339f48c41e6cd264906e8ffbcfb49e8e7bb8738ea21174ba8fbb63a1bb`.
+  `6aee314a31847d1239ae790ddd8933018215c30a4e6a3d507fd86efc27281238`.
 - Generated inventory payload commitment:
-  `blake2b-256:a1ad83f3dea22610a51dce6530ef699f7112fff70bda55dd7c4250f5a89d1c5f`.
+  `blake2b-256:e1653c5b5082171c34406ed29e84209ad29c9aaf7921d782e718a5541da32eea`.
 - Adjacent accounting SHA-256:
   `0841dd4dbf6d3ff76ede4c3e088b301745e04f649024d50aa378fb239cd1ef5c`.
 - Gate schema:
@@ -2503,6 +2503,46 @@ Seq32 generated proof-object builder reproducibility metadata:
   `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_generated_adjacent_label_inventory_gate`;
   `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_deterministic_adjacent_label_policy_gate`;
   `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adjacent_label_policy_gate`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_adjacent_label --lib`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
+Latest expanded label-probe gate: the next bounded probe exposed four
+already-existing Rust label-probe modes through the CLI and generated real
+proof objects for fixed-label A/B and post-tail-label A/B. All four verify,
+but none beat the `37,532` typed-byte adjacent probe B frontier. The best new
+row is fixed-label probe B at `40,476` typed bytes / `116,661` JSON proof
+bytes: it still beats the old `42,068` duplicate-base champion by `1,592`
+typed bytes, but remains `2,944` typed bytes heavier than adjacent probe B.
+Post-tail probe B is `41,564` typed bytes, and both A probes are `42,156`.
+Direct value bytes stay fixed at `20,924`; the miss is path-opening/FRI
+material. Treat this as a useful narrowing result: label changes matter, but
+the current best depends on the adjacent layout plus the probe-B transcript.
+The gate rejects `10 / 10` mutation classes. See
+`docs/engineering/zkai-native-seq32-attention-mlp-expanded-label-probe-2026-05-19.md`.
+Follow-up issue `#691` tracks the pre-registered adjacent-only seed sweep.
+
+Seq32 expanded label-probe reproducibility metadata:
+
+- Gate schema:
+  `zkai-native-seq32-attention-mlp-expanded-label-probe-gate-v1`.
+- Decision:
+  `NO_GO_EXPANDED_LABEL_PROBES_DO_NOT_BEAT_ADJACENT_PROBE_B_FRONTIER`.
+- Timing mode: proof-size/accounting only; no timing claim and no median-of-5.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-expanded-label-probe-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-expanded-label-probe-2026-05.tsv`,
+  and
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-expanded-label-probe-accounting-2026-05.json`.
+- Gate JSON SHA-256:
+  `81fa5c1d06669a4b4665be2c4e1155982c9ff62545d7b8ebdab78e12d9f90d01`.
+- Payload commitment:
+  `blake2b-256:2cbce6165b6c0da4dbdf09d16ba2782d6fdb1f89d59538051d968c035384df14`.
+- Local validation commands:
+  `python3.10 scripts/zkai_native_seq32_attention_mlp_expanded_label_probe_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-expanded-label-probe-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-expanded-label-probe-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_expanded_label_probe_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_expanded_label_probe_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_expanded_label_probe_gate`;
   `cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_adjacent_label --lib`;
   `git diff --check`;
   `just gate-fast`;
