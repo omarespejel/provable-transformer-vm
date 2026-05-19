@@ -2914,6 +2914,55 @@ Stwo attempt-domain binding reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
+Latest Stwo inner attempt-domain statement gate: issue `#710` is now checked as
+a regenerated native-statement correctness GO, not a new proof-size frontier.
+The native seq32+d128 proof input now supports optional
+`ZkAiNativeSeq32AttentionMlpAttemptPolicy` metadata. When present, the policy
+is validated, included in the statement commitment payload, mixed into the
+Stwo transcript before lookup challenges, and surfaced in the opening sampler.
+Regenerated `adjacent_label_probe_a` and `adjacent_label_probe_b` proofs both
+verify at `40,892` typed bytes. Probe B is the selected best JSON row at
+`118,042` JSON proof bytes. This pays `3,360` typed bytes versus the old
+`37,532` typed-byte wrapper-only B row, but it still saves `1,176` typed bytes
+versus the `42,068` typed-byte single-proof champion and `6,296` typed bytes
+versus the `47,188` typed-byte matched two-proof frontier. The old no-policy
+A/B proofs remain legacy-verifiable for reproducibility; the new claim applies
+only to the `inner-attempt` artifacts. See
+`docs/engineering/zkai-stwo-inner-attempt-domain-statement-2026-05-19.md`.
+
+Stwo inner attempt-domain statement reproducibility metadata:
+
+- Gate schema: `zkai-stwo-inner-attempt-domain-statement-gate-v1`.
+- Decision:
+  `GO_REGENERATED_SEQ32_D128_STWO_PROOFS_BIND_ATTEMPT_DOMAIN_INSIDE_NATIVE_STATEMENT`.
+- Result:
+  `POLICY_BOUND_PROBE_B_VERIFIES_AT_40892_TYPED_BYTES_WITH_EXPLICIT_COST_VS_LEGACY_WRAPPER_ROW`.
+- Timing mode: proof-size/accounting correctness only; no timing claim, no
+  new proof-size frontier, no NANOZK comparison, and no full transformer block
+  proof.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-stwo-inner-attempt-domain-statement-gate-2026-05.json`
+  and
+  `docs/engineering/evidence/zkai-stwo-inner-attempt-domain-statement-gate-2026-05.tsv`.
+- Gate JSON SHA-256:
+  `55f3afdd1a39c6a22f9c1e7f1383e8c2b38632ba043dc0b01de4a5aad0d1e86d`.
+- Gate TSV SHA-256:
+  `5e02d2c08f4dd01494c12c6e907ce32b019a421c5696935d4ee8f80bd930689d`.
+- Accounting SHA-256:
+  `72cad6f598af282215f6579a716816a52e259248a420e27c5759d45482055978`.
+- Payload commitment:
+  `blake2b-256:24b7220e4387adfa9c4cba6e06a99d0d1e25e8642470c827d15e837bbbe20323`.
+- Step counts: `18` Python mutation cases, `7` Python unit tests, and `5`
+  focused Rust adjacent-label tests.
+- Local validation commands:
+  `python3.10 scripts/zkai_stwo_inner_attempt_domain_statement_gate.py --write-json docs/engineering/evidence/zkai-stwo-inner-attempt-domain-statement-gate-2026-05.json --write-tsv docs/engineering/evidence/zkai-stwo-inner-attempt-domain-statement-gate-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_stwo_inner_attempt_domain_statement_gate.py scripts/tests/test_zkai_stwo_inner_attempt_domain_statement_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_stwo_inner_attempt_domain_statement_gate`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_adjacent_label_probe --lib`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
 ## Resume protocol
 
 1. Read `AGENTS.md`.
