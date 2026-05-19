@@ -2421,7 +2421,10 @@ NO-GO because fixed adjacent is `42,156` typed bytes (`+88` versus the
 saves `1,736` typed bytes (`4.1267%`) and best accepted saves `4,536` typed
 bytes (`10.7825%`). This is a source-policy correctness hardening result, not
 a new proof-size frontier, not a matched external benchmark, and not a NANOZK
-win. See
+win. Post-review hardening now makes the TSV evidence repeat payload/source
+commitment pins, generated/supported/rejected label sets, rejected unseen
+adapter modes, and mutation outcomes; UTF-8 decode and output-write failures
+raise the generated gate's own error type. See
 `docs/engineering/zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-2026-05-19.md`.
 
 Seq32 generated adjacent label-inventory reproducibility metadata:

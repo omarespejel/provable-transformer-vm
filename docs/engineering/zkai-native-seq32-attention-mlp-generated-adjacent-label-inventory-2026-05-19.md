@@ -88,7 +88,7 @@ This gate has `0` proof-size-comparable external rows.
 - JSON SHA-256:
   `10ef45339f48c41e6cd264906e8ffbcfb49e8e7bb8738ea21174ba8fbb63a1bb`
 - TSV SHA-256:
-  `c841904da55f409d8746dfa42b76c6ac017010294cb4848a33e1cce1ca10da33`
+  `ea1a91b5f746b7d9ee6f472ce15d7838f7df11df1f5bd03e2ba0954ab3b38c57`
 - Source Rust SHA-256:
   `3d740bda9a3f301edea7a10dc1b9f58878d1a0f067397eecb5ed50465e4b7d95`
 - CLI source SHA-256:
@@ -108,6 +108,11 @@ unseen-label acceptance, post-tail cross-family acceptance, generator-rule
 drift, manual overrides, summary drift, full-inventory promotion,
 validation-command drift, removed non-claims, generated-label reordering, and
 payload-commitment drift.
+
+The TSV evidence now repeats the payload commitment, source artifact digest
+pins, source payload commitments, generated/supported/rejected label sets,
+rejected unseen adapter modes, and mutation outcomes on every inventory row so
+TSV-only audit readers keep the same reproduction pins as the JSON envelope.
 
 ## Reproduction
 
