@@ -1,3 +1,4 @@
+import copy
 import importlib.util
 import json
 import pathlib
@@ -112,6 +113,26 @@ class PredecommitOpeningPolicyGateTest(unittest.TestCase):
         self.assertTrue(mutation["all_mutations_rejected"])
         self.assertEqual(mutation["mutations_rejected"], len(self.gate.MUTATION_NAMES))
         self.assertEqual(mutation["mutation_names"], list(self.gate.MUTATION_NAMES))
+
+    def test_validate_payload_rejects_fresh_mutation_acceptance_regression(self):
+        bad_result = copy.deepcopy(self.payload["mutation_result"])
+        bad_result["cases"][0]["rejected"] = False
+        bad_result["mutations_rejected"] -= 1
+        bad_result["all_mutations_rejected"] = False
+        item = self.gate.build_payload_without_mutations()
+        item["mutation_result"] = bad_result
+        item["payload_commitment"] = self.gate.payload_commitment(item)
+
+        original_run_mutations = self.gate.run_mutations
+        self.gate.run_mutations = lambda _payload: bad_result
+        try:
+            with self.assertRaisesRegex(
+                self.gate.PredecommitOpeningPolicyGateError,
+                "mutation rejection drift",
+            ):
+                self.gate.validate_payload(item)
+        finally:
+            self.gate.run_mutations = original_run_mutations
 
     def test_committed_evidence_contains_integrity_fields(self):
         evidence = json.loads(self.gate.JSON_OUT.read_text())
