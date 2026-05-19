@@ -76,6 +76,10 @@ Machine-readable evidence:
 
 Evidence hashes:
 
+The canonical values below come from regenerating the checked JSON/TSV evidence
+with the command in the reproduction block. PR descriptions and handoff notes
+must be updated to these values after evidence metadata changes.
+
 - Gate JSON SHA-256:
   `aa623005579aa408ba652fad63dedf7020b6cbe1237b66fc8f33febe828d4923`
 - Gate TSV SHA-256:
