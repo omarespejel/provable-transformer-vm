@@ -209,6 +209,44 @@ class DryRunOpeningSamplerGateTest(unittest.TestCase):
             )
             self.assertEqual(leftovers, [])
 
+    def test_backup_publish_does_not_clobber_existing_backup_name(self):
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:
+            tmp_path = pathlib.Path(tmp)
+            json_path = tmp_path / "out.json"
+            tsv_path = tmp_path / "out.tsv"
+            json_path.write_bytes(b"old-json")
+            tsv_path.write_bytes(b"old-tsv")
+            json_sentinel = tmp_path / ".out.json.bak.0"
+            tsv_sentinel = tmp_path / ".out.tsv.bak.0"
+            json_sentinel.write_bytes(b"sentinel-json")
+            tsv_sentinel.write_bytes(b"sentinel-tsv")
+
+            self.gate.atomic_write_pair(json_path, b"new-json", tsv_path, b"new-tsv")
+
+            self.assertEqual(json_path.read_bytes(), b"new-json")
+            self.assertEqual(tsv_path.read_bytes(), b"new-tsv")
+            self.assertEqual(json_sentinel.read_bytes(), b"sentinel-json")
+            self.assertEqual(tsv_sentinel.read_bytes(), b"sentinel-tsv")
+
+    def test_fsync_parent_dir_wraps_os_errors(self):
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:
+            fd = os.open(tmp, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+            real_fsync = self.gate.os.fsync
+
+            def fail_fsync(_fd):
+                raise OSError("forced fsync failure")
+
+            self.gate.os.fsync = fail_fsync
+            try:
+                with self.assertRaisesRegex(
+                    self.gate.DryRunOpeningSamplerGateError,
+                    "failed to fsync paired output rollback",
+                ):
+                    self.gate.fsync_parent_dir(fd, "paired output rollback")
+            finally:
+                self.gate.os.fsync = real_fsync
+                os.close(fd)
+
     @unittest.skipUnless(hasattr(os, "symlink"), "requires symlink support")
     def test_rejects_output_paths_through_symlinked_parent(self):
         with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:
