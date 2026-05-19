@@ -239,7 +239,7 @@ fn build_input_with_adapter_mode(
 #[cfg(feature = "stwo-backend")]
 fn usage() -> String {
     "usage: zkai_native_seq32_attention_mlp_single_proof \
-build-input|build-input-compact|build-input-preprocessed-anchor|build-input-rmsnorm-fused|build-input-rmsnorm-fused-adjacent|build-input-rmsnorm-fused-adjacent-label-probe-a|build-input-rmsnorm-fused-adjacent-label-probe-b|build-input-rmsnorm-fused-post-tail \
+build-input|build-input-compact|build-input-preprocessed-anchor|build-input-rmsnorm-fused|build-input-rmsnorm-fused-label-probe-a|build-input-rmsnorm-fused-label-probe-b|build-input-rmsnorm-fused-adjacent|build-input-rmsnorm-fused-adjacent-label-probe-a|build-input-rmsnorm-fused-adjacent-label-probe-b|build-input-rmsnorm-fused-post-tail|build-input-rmsnorm-fused-post-tail-label-probe-a|build-input-rmsnorm-fused-post-tail-label-probe-b \
 <attention-source.json> <mlp-input.json> <single-input.json> | prove <single-input.json> <envelope.json> | verify <envelope.json>"
         .to_string()
 }

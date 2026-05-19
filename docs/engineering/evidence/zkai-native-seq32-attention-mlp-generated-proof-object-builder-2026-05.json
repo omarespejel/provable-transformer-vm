@@ -201,7 +201,7 @@
     "not timing evidence",
     "not production-ready zkML"
   ],
-  "payload_commitment": "blake2b-256:d83195adda421ee7ed36d7131c984633f19356b310cbdecbcd4dfa3a6893c014",
+  "payload_commitment": "blake2b-256:3a6fcb044d144b75e6d5d4ab6ced0ee78b9c6d05d19bb00cf7efe805ecb8f3f1",
   "proof_object_rows": [
     {
       "accounting_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-accounting-2026-05.json",
@@ -318,8 +318,8 @@
     {
       "id": "generated_adjacent_label_inventory",
       "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-2026-05.json",
-      "payload_commitment": "blake2b-256:e1653c5b5082171c34406ed29e84209ad29c9aaf7921d782e718a5541da32eea",
-      "sha256": "6aee314a31847d1239ae790ddd8933018215c30a4e6a3d507fd86efc27281238",
+      "payload_commitment": "blake2b-256:8b195e5ce4ec9dd594605d34528a9227b2fc59cb7d4a6b31f5293667fe35cab4",
+      "sha256": "737eccaeb16051a4733d122ab2fc332d59c3b28feb36707088731ea93ae156f3",
       "size_bytes": 13841
     },
     {
