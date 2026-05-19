@@ -2760,15 +2760,15 @@ Bounded Stwo query-policy hook reproducibility metadata:
   `docs/engineering/evidence/zkai-bounded-stwo-query-policy-hook-2026-05.json`
   and `docs/engineering/evidence/zkai-bounded-stwo-query-policy-hook-2026-05.tsv`.
 - Gate JSON SHA-256:
-  `932dee97fce00e403137518ba8724a384790f5580e6a97e0fce64dac28bc6b59`.
+  `d74b4431650066466473f4bd16e176e2da8d52fcf3916957c6de97296f7dcff0`.
 - Gate TSV SHA-256:
   `a0182d6e2317425d42cda836a5c430994aab6eb48892fb20a1e9e4f48dfa90fe`.
 - Payload commitment:
-  `blake2b-256:d369d3d463c557831bb965a910da0e84ae3c2786a2f71c7d3700a2830f3c1acc`.
+  `blake2b-256:26208805aad3241b7a29d20d058b5265ca6d5e5cb80c581cea26f5f2bdc8da8d`.
 - Hook candidates:
   `query_preview_split`, `policy_commitment_mix`, and rejected
   `external_query_override`.
-- Step counts: `17` mutation cases, `14` Python unit tests, and `14` local
+- Step counts: `18` mutation cases, `15` Python unit tests, and `14` local
   release-gate steps.
 - Local validation commands:
   `python3.10 scripts/zkai_bounded_stwo_query_policy_hook_gate.py --write-json docs/engineering/evidence/zkai-bounded-stwo-query-policy-hook-2026-05.json --write-tsv docs/engineering/evidence/zkai-bounded-stwo-query-policy-hook-2026-05.tsv`;

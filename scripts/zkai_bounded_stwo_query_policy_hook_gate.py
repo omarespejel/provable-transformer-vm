@@ -11,6 +11,7 @@ import io
 import json
 import os
 import pathlib
+import stat
 import sys
 from typing import Any
 
@@ -118,11 +119,9 @@ ABSENT_EXTERNAL_POLICY_MARKERS = (
 CURRENT_CHAMPION_TYPED_BYTES = 37_532
 CURRENT_CHAMPION_PATH_OPENING_BYTES = 16_560
 MATCHED_TWO_PROOF_FRONTIER_TYPED_BYTES = 47_188
-SAVING_VS_TWO_PROOF_FRONTIER = 9_656
-SAVING_SHARE_VS_TWO_PROOF_FRONTIER = "20.4637%"
 QUERY_SPAN = 16_618
 MIN_PAIRWISE_QUERY_GAP = 5_969
-EXPECTED_UNITTEST_STEP_COUNT = 14
+EXPECTED_UNITTEST_STEP_COUNT = 15
 
 TSV_COLUMNS = (
     "hook_id",
@@ -168,6 +167,7 @@ MUTATION_NAMES = (
     "query_policy_reads_final_bytes",
     "query_policy_commitment_unbound",
     "champion_metric_drift",
+    "saving_relation_drift",
     "proof_size_delta_claim_drift",
     "validation_command_removed",
     "non_claim_removed",
@@ -217,6 +217,31 @@ def read_repo_file(path: pathlib.Path, label: str, max_bytes: int) -> bytes:
         raise BoundedStwoQueryPolicyHookGateError(str(err)) from err
 
 
+def saving_vs_two_proof_frontier() -> int:
+    return MATCHED_TWO_PROOF_FRONTIER_TYPED_BYTES - CURRENT_CHAMPION_TYPED_BYTES
+
+
+def saving_share_vs_two_proof_frontier() -> str:
+    saving = saving_vs_two_proof_frontier()
+    return f"{100 * saving / MATCHED_TWO_PROOF_FRONTIER_TYPED_BYTES:.4f}%"
+
+
+def reject_symlink_components(path: pathlib.Path, label: str) -> pathlib.Path:
+    candidate = pathlib.Path(os.path.abspath(path))
+    current = pathlib.Path(candidate.anchor)
+    for part in candidate.parts[1:]:
+        current = current / part
+        try:
+            mode = current.lstat().st_mode
+        except FileNotFoundError as err:
+            raise BoundedStwoQueryPolicyHookGateError(f"{label} missing: {candidate}") from err
+        if stat.S_ISLNK(mode):
+            raise BoundedStwoQueryPolicyHookGateError(
+                f"{label} must not traverse symlink: {current}"
+            )
+    return candidate
+
+
 def read_text_bytes(raw: bytes, label: str) -> str:
     try:
         return raw.decode("utf-8")
@@ -224,22 +249,39 @@ def read_text_bytes(raw: bytes, label: str) -> str:
         raise BoundedStwoQueryPolicyHookGateError(f"{label} is not UTF-8") from err
 
 
+def validate_stwo_source_root(candidate: pathlib.Path, label: str) -> pathlib.Path:
+    root = reject_symlink_components(candidate, label)
+    if not root.is_dir():
+        raise BoundedStwoQueryPolicyHookGateError(f"{label} is not a directory: {root}")
+    if not all((root / rel).is_file() for rel in STWO_FILES.values()):
+        raise BoundedStwoQueryPolicyHookGateError(
+            f"{label} does not contain the required Stwo {STWO_VERSION} files: {root}"
+        )
+    return root
+
+
 def find_stwo_source_root() -> pathlib.Path:
+    if os.environ.get("STWO_SOURCE_ROOT"):
+        return validate_stwo_source_root(
+            pathlib.Path(os.environ["STWO_SOURCE_ROOT"]),
+            "STWO_SOURCE_ROOT",
+        )
     cargo_home = pathlib.Path(os.environ.get("CARGO_HOME", pathlib.Path.home() / ".cargo"))
     registry_src = cargo_home / "registry" / "src"
     candidates = sorted(registry_src.glob(f"*/stwo-{STWO_VERSION}"))
     for candidate in candidates:
-        if all((candidate / rel).is_file() for rel in STWO_FILES.values()):
-            return candidate
+        try:
+            return validate_stwo_source_root(candidate, f"Stwo {STWO_VERSION} source root")
+        except BoundedStwoQueryPolicyHookGateError:
+            continue
     raise BoundedStwoQueryPolicyHookGateError(
-        f"Stwo {STWO_VERSION} source is not available under {registry_src}; run cargo fetch"
+        f"Stwo {STWO_VERSION} source is not available under {registry_src}; run cargo fetch "
+        "or set STWO_SOURCE_ROOT"
     )
 
 
 def read_external_file(path: pathlib.Path, label: str, max_bytes: int) -> bytes:
-    resolved = path.resolve()
-    if resolved.is_symlink():
-        raise BoundedStwoQueryPolicyHookGateError(f"{label} must not be a symlink")
+    resolved = reject_symlink_components(path, label)
     if not resolved.is_file():
         raise BoundedStwoQueryPolicyHookGateError(f"{label} missing: {resolved}")
     size = resolved.stat().st_size
@@ -479,8 +521,8 @@ def build_payload_without_mutations() -> dict[str, Any]:
             "query_span": QUERY_SPAN,
             "min_pairwise_query_gap": MIN_PAIRWISE_QUERY_GAP,
             "matched_two_proof_frontier_typed_bytes": MATCHED_TWO_PROOF_FRONTIER_TYPED_BYTES,
-            "saving_vs_two_proof_frontier_typed_bytes": SAVING_VS_TWO_PROOF_FRONTIER,
-            "saving_vs_two_proof_frontier_share": SAVING_SHARE_VS_TWO_PROOF_FRONTIER,
+            "saving_vs_two_proof_frontier_typed_bytes": saving_vs_two_proof_frontier(),
+            "saving_vs_two_proof_frontier_share": saving_share_vs_two_proof_frontier(),
         },
         "source_audit": audit,
         "bounded_hook_assessment": {
@@ -555,6 +597,10 @@ def validate_base_payload(payload: dict[str, Any]) -> None:
         raise BoundedStwoQueryPolicyHookGateError("champion typed-byte drift")
     if metric["path_opening_bytes"] != CURRENT_CHAMPION_PATH_OPENING_BYTES:
         raise BoundedStwoQueryPolicyHookGateError("champion path-opening drift")
+    if metric["saving_vs_two_proof_frontier_typed_bytes"] != saving_vs_two_proof_frontier():
+        raise BoundedStwoQueryPolicyHookGateError("two-proof saving relation drift")
+    if metric["saving_vs_two_proof_frontier_share"] != saving_share_vs_two_proof_frontier():
+        raise BoundedStwoQueryPolicyHookGateError("two-proof saving share drift")
     if payload["reproducibility_metadata"]["mutation_step_count"] != len(MUTATION_NAMES):
         raise BoundedStwoQueryPolicyHookGateError("mutation count drift")
 
@@ -630,6 +676,8 @@ def mutate_payload(name: str, item: dict[str, Any]) -> None:
         item["bounded_hook_assessment"]["needs_matched_prover_verifier_patch"] = False
     elif name == "champion_metric_drift":
         item["current_metric_anchor"]["typed_bytes"] = 36_000
+    elif name == "saving_relation_drift":
+        item["current_metric_anchor"]["saving_vs_two_proof_frontier_typed_bytes"] = 9_000
     elif name == "proof_size_delta_claim_drift":
         item["bounded_hook_assessment"]["proof_size_delta_typed_bytes"] = -512
     elif name == "validation_command_removed":
