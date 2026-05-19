@@ -2607,9 +2607,9 @@ Seq32 dry-run opening sampler reproducibility metadata:
   and the nine `*-opening-sampler-2026-05.json` raw sampler artifacts under
   `docs/engineering/evidence/`.
 - Gate JSON SHA-256:
-  `82cd702dc52bd6ec0d2a96d9a8142f028e83d9a04f1c85acacfa1626ce9f36d4`.
+  `9081f60ef3182ee79573fa1bb6311aa42c11cfc3c2010196baf88445e8361e56`.
 - Payload commitment:
-  `blake2b-256:ceb6a94da9c1a2c9b016376ebed2560ca0f927560f34094d21b11e7aa66231af`.
+  `blake2b-256:543e1482ec74ea3392742ddea01c8562ee523c4e454712104f9514a21aae5f7f`.
 - Local validation commands:
   `cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib`;
   `cargo +nightly-2025-07-14 build --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof`;

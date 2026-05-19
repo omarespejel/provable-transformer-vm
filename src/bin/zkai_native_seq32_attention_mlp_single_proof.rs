@@ -1,6 +1,8 @@
 use std::process::ExitCode;
 
 #[cfg(feature = "stwo-backend")]
+use std::ffi::OsString;
+#[cfg(feature = "stwo-backend")]
 use std::fs;
 #[cfg(feature = "stwo-backend")]
 use std::io::ErrorKind;
@@ -55,7 +57,15 @@ fn main() -> ExitCode {
 
 #[cfg(feature = "stwo-backend")]
 fn run() -> Result<String, String> {
-    let mut args = std::env::args_os().skip(1).collect::<Vec<_>>();
+    run_with_args(std::env::args_os().skip(1))
+}
+
+#[cfg(feature = "stwo-backend")]
+fn run_with_args<I>(args: I) -> Result<String, String>
+where
+    I: IntoIterator<Item = OsString>,
+{
+    let mut args = args.into_iter().collect::<Vec<_>>();
     if args.is_empty() {
         return Err(usage());
     }
@@ -724,6 +734,19 @@ mod tests {
         assert_eq!(
             build_input_adapter_mode("build-input-rmsnorm-fused-typo"),
             None
+        );
+    }
+
+    #[test]
+    fn sample_openings_command_rejects_wrong_arg_count() {
+        let error = run_with_args([
+            OsString::from("sample-openings"),
+            OsString::from("only-input.json"),
+        ])
+        .expect_err("sample-openings requires input and output paths");
+        assert_eq!(
+            error,
+            "usage: sample-openings <single-input.json> <sampler.json>"
         );
     }
 
