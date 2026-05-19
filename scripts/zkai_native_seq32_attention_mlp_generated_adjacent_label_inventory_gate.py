@@ -854,6 +854,8 @@ def atomic_write_text(path: pathlib.Path, text: str) -> None:
         source_gate.atomic_write_text(path, text)
     except source_gate.AdjacentLabelPolicyGateError as err:
         raise GeneratedAdjacentLabelInventoryGateError(str(err)) from err
+    except Exception as err:
+        raise GeneratedAdjacentLabelInventoryGateError(f"failed to write output: {err}") from err
 
 
 def write_outputs(payload: dict[str, Any], json_path: pathlib.Path | None, tsv_path: pathlib.Path | None) -> None:

@@ -277,6 +277,22 @@ class NativeSeq32GeneratedAdjacentLabelInventoryGateTest(unittest.TestCase):
                 self.gate.write_outputs(self.__class__.payload, outside, None)
             self.assertFalse(outside.exists())
 
+    def test_write_outputs_wraps_raw_writer_exceptions(self) -> None:
+        original = self.gate.source_gate.atomic_write_text
+
+        def fail_writer(_path: pathlib.Path, _text: str) -> None:
+            raise OSError("disk full")
+
+        self.gate.source_gate.atomic_write_text = fail_writer
+        try:
+            with self.assertRaisesRegex(
+                self.gate.GeneratedAdjacentLabelInventoryGateError,
+                "failed to write output: disk full",
+            ):
+                self.gate.write_outputs(self.__class__.payload, self.gate.JSON_OUT, None)
+        finally:
+            self.gate.source_gate.atomic_write_text = original
+
     @unittest.skipUnless(hasattr(os, "symlink"), "symlink support required")
     def test_write_outputs_rejects_symlink_parent(self) -> None:
         with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmpdir:
