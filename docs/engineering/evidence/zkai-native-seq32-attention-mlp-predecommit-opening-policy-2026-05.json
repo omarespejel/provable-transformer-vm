@@ -345,7 +345,7 @@
     "not timing evidence",
     "not production-ready zkML"
   ],
-  "payload_commitment": "blake2b-256:bf164620b061616f5926f72b3a7c32fb936dc7545d477e91e1944dc7f92bdaa1",
+  "payload_commitment": "blake2b-256:6c6e53311284e70e1901017512da649ebe2e12919672e4e1f4bbeb6166f0c272",
   "policy_input": {
     "forbidden_policy_input_keys": [
       "adapter_mode",
@@ -532,7 +532,7 @@
     "rust_source_sha256": "7818c25b034da111cddd090783ea6bc66fd0c4dc2c67f95e3281899d0235344b",
     "selected_adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_b_v1",
     "selected_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
-    "unittest_step_count": 11
+    "unittest_step_count": 12
   },
   "result": "POST_TRANSCRIPT_QUERY_GEOMETRY_SELECTS_PROBE_B_BUT_TRUE_PREDECOMMIT_CONTROL_REQUIRES_API_HOOK",
   "schema": "zkai-native-seq32-attention-mlp-predecommit-opening-policy-gate-v1",

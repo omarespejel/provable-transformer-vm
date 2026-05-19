@@ -77,11 +77,11 @@ Machine-readable evidence:
 Evidence hashes:
 
 - Gate JSON SHA-256:
-  `4a01f58f9330c3fc7e267d53627dbb66f0a97fb578d4cee3a56a236ea7b448a9`
+  `21196f9a20501dfe20cecad0d07a08739d698fbfa813eb6d7d2f6f6d7792350b`
 - Gate TSV SHA-256:
   `9d27db58076a846b5cdfa15b5f8e74cdcd703cf41292c03f33f867a75e531a81`
 - Payload commitment:
-  `blake2b-256:bf164620b061616f5926f72b3a7c32fb936dc7545d477e91e1944dc7f92bdaa1`
+  `blake2b-256:6c6e53311284e70e1901017512da649ebe2e12919672e4e1f4bbeb6166f0c272`
 - Mutation guards:
   `18 / 18` rejected.
 
@@ -98,7 +98,7 @@ Reproducibility metadata:
 - `policy_row_count`: `9`
 - `fri_query_count_per_row`: `3`
 - `mutation_step_count`: `18`
-- `unittest_step_count`: `11`
+- `unittest_step_count`: `12`
 - `local_release_gate_step_count`: `14`
 
 The mutation suite rejects decision drift, result overclaiming, true
@@ -120,7 +120,7 @@ just gate
 ```
 
 The gate run evaluates `9` policy rows, checks `3` FRI query locations per row,
-and executes `18` mutation cases. The unit-test command currently runs `11`
+and executes `18` mutation cases. The unit-test command currently runs `12`
 tests. The full local release gate has `14` steps.
 
 ## Non-Claims
