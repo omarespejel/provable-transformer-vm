@@ -141,8 +141,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 135. `docs/engineering/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05-19.md`
 136. `docs/engineering/zkai-bounded-stwo-query-policy-hook-2026-05-19.md`
 137. `docs/engineering/zkai-stwo-query-preview-split-prototype-2026-05-19.md`
-138. `docs/engineering/reproducibility.md`
-139. `git status --short --branch`
+138. `docs/engineering/zkai-stwo-query-grinding-budget-2026-05-19.md`
+139. `docs/engineering/reproducibility.md`
+140. `git status --short --branch`
 
 ## What this repository is now
 
@@ -236,6 +237,18 @@ This repository currently has three live lanes.
      `docs/engineering/zkai-bounded-stwo-query-policy-hook-2026-05-19.md`,
      and
      `docs/engineering/zkai-stwo-query-preview-split-prototype-2026-05-19.md`.
+   - The bounded query-grinding budget gate turns that follow-up into a narrow
+     mechanism GO, not a new frontier. A two-probe verifier-bound attempt
+     domain (`adjacent_label_probe_a`, `adjacent_label_probe_b`) recovers the
+     current `adjacent_label_probe_b` champion at `37,532` typed bytes with
+     `1.000000` bit of relative Fiat-Shamir grinding loss. It saves `4,624`
+     typed bytes versus the fixed adjacent layout, but it does not beat the
+     champion and is not promotable until regenerated proofs bind the attempt
+     domain and selected attempt id in verifier-facing metadata. Seed-only
+     budget `6` is a no-go (`40,268` typed bytes, `2.584963` loss bits), and
+     all-inventory budget `9` is unnecessary extra grinding (`3.169925` loss
+     bits for the same champion). See
+     `docs/engineering/zkai-stwo-query-grinding-budget-2026-05-19.md`.
    - The current source-backed adapter frontier is a correctness GO and a
      proof-shape learning result, not a compression breakthrough. The compact
      selector verifies at `40,812` local typed bytes, only `112` typed bytes

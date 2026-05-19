@@ -1,0 +1,6 @@
+policy_id	status	attempt_budget	security_loss_bits	best_variant_id	best_typed_bytes	improvement_vs_fixed_typed_bytes	improvement_vs_champion_typed_bytes	requires_verifier_bound_attempt_domain	claims_new_frontier
+fixed_layout_budget_1	BASELINE_NO_GRINDING	1	0.000000	fixed_adjacent_layout	42156	0	-4624	False	False
+two_probe_budget_2	MECHANISM_GO_REQUIRES_VERIFIER_BOUND_ATTEMPT_DOMAIN	2	1.000000	adjacent_label_probe_b	37532	4624	0	True	False
+seed_only_budget_6	NO_GO_SEED_ONLY_DOES_NOT_RECOVER_CHAMPION	6	2.584963	adjacent_seed_02	40268	1888	-2736	True	False
+all_inventory_budget_9	NO_GO_UNNEEDED_EXTRA_GRINDING	9	3.169925	adjacent_label_probe_b	37532	4624	0	True	False
+unbounded_abort_and_retry	REJECTED_UNBOUNDED_SECURITY_LOSS							True	False
