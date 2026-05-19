@@ -20,6 +20,18 @@ before opening or executing frontier issues. The north star is STARK-native
 proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
 
+Latest dry-run opening sampler: issue `#697` is now checked as a GO for the
+nine-row adjacent label/seed inventory. The source-visible pre-prove inventory
+could not distinguish the final path-opening buckets, but Stwo
+prover-internal query-location geometry can. `adjacent_label_probe_b` has the
+tightest three-query cluster (`16,618` query span / `5,969` minimum pairwise
+gap) and predicts the smallest `16,560` typed-byte path-opening bucket. The
+checked inventory predicts all nine final buckets and rejects `15 / 15`
+mutation guards. This is not a production label-selection policy, not a new
+proof-size frontier, and not a NANOZK comparison; the next lever is transcript
+query/opening geometry. See
+`docs/engineering/zkai-native-seq32-attention-mlp-dry-run-opening-sampler-2026-05-19.md`.
+
 Latest seq32-derived d128 native MLP surface: issue `#674` fixes the
 source-value mismatch discovered by issue `#673`. The selected two-head seq32
 attention surface now feeds a regenerated d128 RMSNorm/MLP input with `0 / 128`

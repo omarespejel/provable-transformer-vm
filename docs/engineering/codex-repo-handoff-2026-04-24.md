@@ -2576,6 +2576,51 @@ Seq32 pre-prove opening-bucket predictor reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
+Latest dry-run opening sampler gate: issue `#697` is now checked as a GO for
+the nine-row adjacent label/seed inventory. The prior source-visible
+pre-prove inventory could not predict the adjacent probe-B opening bucket, but
+the Stwo prover-internal query-location sampler can explain the checked
+opening buckets without reading envelope JSON, proof bytes, grouped proof
+accounting, record streams, or final proof JSON. The predictor uses only
+query-location geometry: unique query count, query span, and minimum pairwise
+query gap. It predicts all nine final path-opening buckets. Probe B remains the
+smallest final bucket at `16,560` typed bytes because its three sampled query
+locations form the tightest cluster (`16,618` query span / `5,969` minimum
+pairwise query gap). This is not a production label-selection policy, not a new
+proof-size frontier, not a NANOZK comparison, and not timing evidence. Treat it
+as a mechanism lead: the next attack should move from a checked post-sampler
+inventory rule to a true pre-decommitment sampler or transcript/query-layout
+policy. See
+`docs/engineering/zkai-native-seq32-attention-mlp-dry-run-opening-sampler-2026-05-19.md`.
+
+Seq32 dry-run opening sampler reproducibility metadata:
+
+- Gate schema:
+  `zkai-native-seq32-attention-mlp-dry-run-opening-sampler-gate-v1`.
+- Decision:
+  `GO_QUERY_LOCATION_SAMPLER_PREDICTS_CHECKED_ADJACENT_OPENING_BUCKETS`.
+- Timing mode: proof-size/accounting predictor audit only; no timing claim and
+  no median-of-5.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-dry-run-opening-sampler-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-dry-run-opening-sampler-2026-05.tsv`,
+  and the nine `*-opening-sampler-2026-05.json` raw sampler artifacts under
+  `docs/engineering/evidence/`.
+- Gate JSON SHA-256:
+  `82cd702dc52bd6ec0d2a96d9a8142f028e83d9a04f1c85acacfa1626ce9f36d4`.
+- Payload commitment:
+  `blake2b-256:ceb6a94da9c1a2c9b016376ebed2560ca0f927560f34094d21b11e7aa66231af`.
+- Local validation commands:
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib`;
+  `cargo +nightly-2025-07-14 build --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof`;
+  `for input in docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent*2026-05.input.json; do output="${input%.input.json}-opening-sampler-2026-05.json"; target/debug/zkai_native_seq32_attention_mlp_single_proof sample-openings "$input" "$output"; done`;
+  `python3.10 scripts/zkai_native_seq32_attention_mlp_dry_run_opening_sampler_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-dry-run-opening-sampler-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-dry-run-opening-sampler-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_dry_run_opening_sampler_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_dry_run_opening_sampler_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_dry_run_opening_sampler_gate`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
 1. Treat `rmsnorm_mlp_fused` as the current positive MLP-side fusion result:
    the native fused proof saves `32,144` local typed bytes (`56.4167%`) versus
    separate RMSNorm, bridge, gate/value, activation, down-projection, and

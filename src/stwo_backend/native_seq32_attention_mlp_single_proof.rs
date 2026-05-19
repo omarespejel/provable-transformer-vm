@@ -9,7 +9,7 @@ use stwo::core::fields::m31::BaseField;
 use stwo::core::fields::qm31::SecureField;
 use stwo::core::pcs::{CommitmentSchemeVerifier, PcsConfig};
 use stwo::core::poly::circle::CanonicCoset;
-use stwo::core::proof::StarkProof;
+use stwo::core::proof::{ExtendedStarkProof, StarkProof};
 use stwo::core::vcs_lifted::blake2_merkle::{Blake2sM31MerkleChannel, Blake2sM31MerkleHasher};
 use stwo::core::verifier::verify;
 use stwo::core::ColumnVec;
@@ -17,7 +17,7 @@ use stwo::prover::backend::simd::column::BaseColumn;
 use stwo::prover::backend::simd::SimdBackend;
 use stwo::prover::poly::circle::{CircleEvaluation, PolyOps};
 use stwo::prover::poly::{BitReversedOrder, NaturalOrder};
-use stwo::prover::{prove, CommitmentSchemeProver, ComponentProver};
+use stwo::prover::{prove_ex, CommitmentSchemeProver, ComponentProver};
 use stwo_constraint_framework::preprocessed_columns::PreProcessedColumnId;
 use stwo_constraint_framework::{
     EvalAtRow, FrameworkComponent, FrameworkEval, TraceLocationAllocator,
@@ -95,6 +95,13 @@ pub const ZKAI_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_VERIFIER_DOMAIN: &str =
 pub const ZKAI_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_MAX_INPUT_JSON_BYTES: usize = 8_388_608;
 pub const ZKAI_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_MAX_PROOF_BYTES: usize = 2_097_152;
 pub const ZKAI_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_MAX_ENVELOPE_JSON_BYTES: usize = 10_485_760;
+pub const ZKAI_NATIVE_SEQ32_ATTENTION_MLP_OPENING_SAMPLER_SCHEMA: &str =
+    "zkai-native-seq32-attention-mlp-dry-run-opening-sampler-v1";
+pub const ZKAI_NATIVE_SEQ32_ATTENTION_MLP_OPENING_SAMPLER_DECISION: &str =
+    "GO_PROVER_INTERNAL_QUERY_OPENING_SAMPLER_BEFORE_FINAL_PROOF_SERIALIZATION";
+pub const ZKAI_NATIVE_SEQ32_ATTENTION_MLP_OPENING_SAMPLER_BOUNDARY: &str =
+    "PROVER_INTERNAL_EXTENDED_AUX_QUERY_LOCATIONS_ONLY;NO_ENVELOPE_JSON_NO_PROOF_BYTES_NO_GROUPED_ACCOUNTING_NO_RECORD_STREAMS";
+pub const ZKAI_NATIVE_SEQ32_ATTENTION_MLP_OPENING_SAMPLER_MAX_JSON_BYTES: usize = 2_097_152;
 
 const ATTENTION_LOG_SIZE: u32 = 11;
 const ADAPTER_LOG_SIZE: u32 = 7;
@@ -140,6 +147,10 @@ const PUBLIC_INSTANCE_DOMAIN: &str =
     "ptvm:zkai:native-seq32-attention-mlp-single-proof-public-instance:v1";
 const PROOF_NATIVE_PARAMETER_DOMAIN: &str =
     "ptvm:zkai:native-seq32-attention-mlp-single-proof-native-parameter:v1";
+const OPENING_SAMPLER_QUERY_DOMAIN: &str =
+    "ptvm:zkai:native-seq32-attention-mlp-opening-sampler-query-locations:v1";
+const OPENING_SAMPLER_COMMITMENT_DOMAIN: &str =
+    "ptvm:zkai:native-seq32-attention-mlp-opening-sampler-commitments:v1";
 
 const EXPECTED_ADAPTER_STATUS: &str = "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER";
 const EXPECTED_COMPACT_ADAPTER_STATUS: &str =
@@ -710,6 +721,39 @@ struct NativeSeq32AttentionMlpSingleProofPayload {
     stark_proof: StarkProof<Blake2sM31MerkleHasher>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ZkAiNativeSeq32AttentionMlpOpeningSampler {
+    pub schema: String,
+    pub decision: String,
+    pub sampler_boundary: String,
+    pub proof_backend: StarkProofBackend,
+    pub proof_backend_version: String,
+    pub statement_version: String,
+    pub semantic_scope: String,
+    pub target_id: String,
+    pub verifier_domain: String,
+    pub adapter_mode: ZkAiNativeSeq32AttentionMlpAdapterMode,
+    pub adapter_status: String,
+    pub statement_commitment: String,
+    pub public_instance_commitment: String,
+    pub proof_native_parameter_commitment: String,
+    pub pcs_lifting_log_size: u32,
+    pub expected_fri_queries: usize,
+    pub trace_commitment_trees: usize,
+    pub proof_commitment_count: usize,
+    pub commitment_roots_digest: String,
+    pub unsorted_query_locations: Vec<usize>,
+    pub sorted_unique_query_locations: Vec<usize>,
+    pub unsorted_query_count: usize,
+    pub unique_query_count: usize,
+    pub duplicate_query_count: usize,
+    pub min_query_location: usize,
+    pub max_query_location: usize,
+    pub query_location_digest: String,
+    pub non_claims: Vec<String>,
+}
+
 pub fn build_zkai_native_seq32_attention_mlp_single_proof_input(
     attention_source_input: ZkAiAttentionKvNativeTwoHeadSeq32BoundedSoftmaxTableProofInput,
     mlp_input: ZkAiD128RmsnormMlpFusedInput,
@@ -869,6 +913,85 @@ pub fn verify_zkai_native_seq32_attention_mlp_single_proof_envelope(
 ) -> Result<bool> {
     validate_single_envelope(envelope)?;
     verify_single_proof(&envelope.input, &envelope.proof)
+}
+
+pub fn sample_zkai_native_seq32_attention_mlp_openings(
+    input: &ZkAiNativeSeq32AttentionMlpSingleProofInput,
+) -> Result<ZkAiNativeSeq32AttentionMlpOpeningSampler> {
+    validate_single_input(input)?;
+    let extended = prove_single_extended(input)?;
+    let config = validate_pcs_config(extended.proof.config, input.adapter_mode)?;
+    let mut sorted_unique_query_locations = extended.aux.unsorted_query_locations.clone();
+    sorted_unique_query_locations.sort_unstable();
+    sorted_unique_query_locations.dedup();
+    if extended.aux.unsorted_query_locations.len() != config.fri_config.n_queries {
+        return Err(single_error(format!(
+            "opening sampler query count drift: got {}, expected {}",
+            extended.aux.unsorted_query_locations.len(),
+            config.fri_config.n_queries
+        )));
+    }
+    if sorted_unique_query_locations.is_empty() {
+        return Err(single_error(
+            "opening sampler query inventory unexpectedly empty",
+        ));
+    }
+    let unique_query_count = sorted_unique_query_locations.len();
+    let duplicate_query_count = config
+        .fri_config
+        .n_queries
+        .saturating_sub(unique_query_count);
+    let min_query_location = *sorted_unique_query_locations
+        .first()
+        .expect("query locations checked non-empty");
+    let max_query_location = *sorted_unique_query_locations
+        .last()
+        .expect("query locations checked non-empty");
+    let commitment_bytes = serde_json::to_vec(&extended.proof.commitments)
+        .map_err(|error| VmError::Serialization(error.to_string()))?;
+    let query_bytes = serde_json::to_vec(&extended.aux.unsorted_query_locations)
+        .map_err(|error| VmError::Serialization(error.to_string()))?;
+    Ok(ZkAiNativeSeq32AttentionMlpOpeningSampler {
+        schema: ZKAI_NATIVE_SEQ32_ATTENTION_MLP_OPENING_SAMPLER_SCHEMA.to_string(),
+        decision: ZKAI_NATIVE_SEQ32_ATTENTION_MLP_OPENING_SAMPLER_DECISION.to_string(),
+        sampler_boundary: ZKAI_NATIVE_SEQ32_ATTENTION_MLP_OPENING_SAMPLER_BOUNDARY.to_string(),
+        proof_backend: StarkProofBackend::Stwo,
+        proof_backend_version: input.adapter_mode.backend_version().to_string(),
+        statement_version: ZKAI_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_STATEMENT_VERSION
+            .to_string(),
+        semantic_scope: ZKAI_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_SEMANTIC_SCOPE.to_string(),
+        target_id: ZKAI_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_TARGET_ID.to_string(),
+        verifier_domain: ZKAI_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_VERIFIER_DOMAIN.to_string(),
+        adapter_mode: input.adapter_mode,
+        adapter_status: input.adapter_status.clone(),
+        statement_commitment: input.statement_commitment.clone(),
+        public_instance_commitment: input.public_instance_commitment.clone(),
+        proof_native_parameter_commitment: input.proof_native_parameter_commitment.clone(),
+        pcs_lifting_log_size: input.pcs_lifting_log_size,
+        expected_fri_queries: config.fri_config.n_queries,
+        trace_commitment_trees: EXPECTED_TRACE_COMMITMENT_TREES,
+        proof_commitment_count: extended.proof.commitments.len(),
+        commitment_roots_digest: blake2b_commitment_bytes(
+            &commitment_bytes,
+            OPENING_SAMPLER_COMMITMENT_DOMAIN,
+        ),
+        unsorted_query_locations: extended.aux.unsorted_query_locations,
+        sorted_unique_query_locations,
+        unsorted_query_count: config.fri_config.n_queries,
+        unique_query_count,
+        duplicate_query_count,
+        min_query_location,
+        max_query_location,
+        query_location_digest: blake2b_commitment_bytes(&query_bytes, OPENING_SAMPLER_QUERY_DOMAIN),
+        non_claims: vec![
+            "not a final proof byte-size measurement".to_string(),
+            "not grouped proof accounting".to_string(),
+            "not a production label-selection policy".to_string(),
+            "not a new proof-size frontier".to_string(),
+            "not a NANOZK comparison".to_string(),
+            "not timing evidence".to_string(),
+        ],
+    })
 }
 
 fn validate_single_envelope(
@@ -1172,6 +1295,15 @@ fn expect_attention_summary(
 }
 
 fn prove_single_proof(input: &ZkAiNativeSeq32AttentionMlpSingleProofInput) -> Result<Vec<u8>> {
+    let extended = prove_single_extended(input)?;
+    let stark_proof = extended.proof;
+    serde_json::to_vec(&NativeSeq32AttentionMlpSingleProofPayload { stark_proof })
+        .map_err(|error| VmError::Serialization(error.to_string()))
+}
+
+fn prove_single_extended(
+    input: &ZkAiNativeSeq32AttentionMlpSingleProofInput,
+) -> Result<ExtendedStarkProof<Blake2sM31MerkleHasher>> {
     let attention_summary = zkai_attention_kv_native_two_head_seq32_fused_softmax_table_summary(
         &input.attention_source_input,
     )?;
@@ -1324,13 +1456,8 @@ fn prove_single_proof(input: &ZkAiNativeSeq32AttentionMlpSingleProofInput) -> Re
         &down_projection_component,
         &residual_add_component,
     ]);
-    let stark_proof =
-        prove::<SimdBackend, Blake2sM31MerkleChannel>(&components, channel, commitment_scheme)
-            .map_err(|error| {
-                single_error(format!("native attention plus MLP proving failed: {error}"))
-            })?;
-    serde_json::to_vec(&NativeSeq32AttentionMlpSingleProofPayload { stark_proof })
-        .map_err(|error| VmError::Serialization(error.to_string()))
+    prove_ex::<SimdBackend, Blake2sM31MerkleChannel>(&components, channel, commitment_scheme, false)
+        .map_err(|error| single_error(format!("native attention plus MLP proving failed: {error}")))
 }
 
 fn verify_single_proof(
@@ -2666,6 +2793,52 @@ mod tests {
         relabeled.input.adapter_mode =
             ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed;
         assert!(verify_zkai_native_seq32_attention_mlp_single_proof_envelope(&relabeled).is_err());
+    }
+
+    #[test]
+    fn opening_sampler_exposes_query_locations_without_envelope_accounting() {
+        let input = fixture_input_with_mode(
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeB,
+        );
+        let sampler =
+            sample_zkai_native_seq32_attention_mlp_openings(&input).expect("opening sampler");
+        assert_eq!(
+            sampler.schema,
+            ZKAI_NATIVE_SEQ32_ATTENTION_MLP_OPENING_SAMPLER_SCHEMA
+        );
+        assert_eq!(
+            sampler.decision,
+            ZKAI_NATIVE_SEQ32_ATTENTION_MLP_OPENING_SAMPLER_DECISION
+        );
+        assert_eq!(
+            sampler.sampler_boundary,
+            ZKAI_NATIVE_SEQ32_ATTENTION_MLP_OPENING_SAMPLER_BOUNDARY
+        );
+        assert_eq!(sampler.adapter_mode, input.adapter_mode);
+        assert_eq!(sampler.statement_commitment, input.statement_commitment);
+        assert_eq!(sampler.proof_commitment_count, EXPECTED_PROOF_COMMITMENTS);
+        assert_eq!(
+            sampler.trace_commitment_trees,
+            EXPECTED_TRACE_COMMITMENT_TREES
+        );
+        assert_eq!(sampler.unsorted_query_count, sampler.expected_fri_queries);
+        assert_eq!(
+            sampler.unsorted_query_count,
+            sampler.unsorted_query_locations.len()
+        );
+        assert_eq!(
+            sampler.unique_query_count,
+            sampler.sorted_unique_query_locations.len()
+        );
+        assert!(sampler
+            .sorted_unique_query_locations
+            .windows(2)
+            .all(|pair| pair[0] < pair[1]));
+        assert!(sampler.query_location_digest.starts_with("blake2b-256:"));
+        assert!(sampler.commitment_roots_digest.starts_with("blake2b-256:"));
+        assert!(sampler
+            .non_claims
+            .contains(&"not grouped proof accounting".to_string()));
     }
 
     #[test]
