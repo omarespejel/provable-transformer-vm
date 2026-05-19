@@ -2630,6 +2630,46 @@ Seq32 adjacent probe-B bucket attribution reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
+Latest pre-prove opening-bucket predictor gate: issue `#695` is now checked as
+a useful NO-GO. The current source-visible pre-prove inventory does not predict
+the adjacent probe-B opening bucket. All nine adjacent rows share one structural
+pre-prove signature, but their final path-opening buckets split into five
+values. Probe B remains the smallest final bucket at `16,560` path-opening
+bytes / `37,532` typed bytes, while the best pre-registered seed remains
+`adjacent_seed_02` at `19,296` path-opening bytes / `40,268` typed bytes. The
+gap is still `2,736` typed bytes and direct value bytes remain constant at
+`20,924`. Row identity hashes are unique but rejected as predictors because
+they only identify a row after the row family is already known; they do not
+explain or predict the opening bucket. The next useful artifact is a dry-run
+query/opening sampler after source commitments and before final proof
+serialization. Follow-up issue `#697` tracks that sampler. See
+`docs/engineering/zkai-native-seq32-attention-mlp-preprove-opening-bucket-predictor-2026-05-19.md`.
+
+Seq32 pre-prove opening-bucket predictor reproducibility metadata:
+
+- Gate schema:
+  `zkai-native-seq32-attention-mlp-preprove-opening-bucket-predictor-gate-v1`.
+- Decision:
+  `NO_GO_SOURCE_VISIBLE_PREPROVE_INVENTORY_DOES_NOT_PREDICT_PROBE_B_BUCKET`.
+- Timing mode: proof-size/accounting predictor audit only; no timing claim and
+  no median-of-5.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-preprove-opening-bucket-predictor-2026-05.json`,
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-preprove-opening-bucket-predictor-2026-05.tsv`,
+  and
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-accounting-2026-05.json`.
+- Gate JSON SHA-256:
+  `98bcd9b9a574aa934c4ad571ae78aa1d738f0fb720488cb992be88609a8b785b`.
+- Payload commitment:
+  `blake2b-256:a86044d35f5c6ce8b3f372d24b2e0afe2db8fef5a5b124711f801dfd53d8455b`.
+- Local validation commands:
+  `python3.10 scripts/zkai_native_seq32_attention_mlp_preprove_opening_bucket_predictor_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-preprove-opening-bucket-predictor-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-preprove-opening-bucket-predictor-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_preprove_opening_bucket_predictor_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_preprove_opening_bucket_predictor_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_preprove_opening_bucket_predictor_gate`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
 ## Resume protocol
 
 1. Read `AGENTS.md`.
