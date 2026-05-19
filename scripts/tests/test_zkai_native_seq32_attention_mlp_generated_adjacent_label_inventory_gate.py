@@ -397,6 +397,17 @@ class NativeSeq32GeneratedAdjacentLabelInventoryGateTest(unittest.TestCase):
         ):
             self.gate.cli_adjacent_commands(b"\xff", {})
 
+    def test_cli_decoder_rejects_unpinned_seed_command_without_value_error(self) -> None:
+        raw = (
+            b'"build-input-rmsnorm-fused-adjacent-seed-06" => { '
+            b"Some(ZkAiNativeSeq32AttentionMlpAdapterMode::KnownVariant)"
+        )
+        with self.assertRaisesRegex(
+            self.gate.GeneratedAdjacentLabelInventoryGateError,
+            "generated CLI command drift",
+        ):
+            self.gate.cli_adjacent_commands(raw, {"known_mode": "KnownVariant"})
+
 
 if __name__ == "__main__":
     unittest.main()

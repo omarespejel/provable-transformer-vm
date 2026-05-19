@@ -115,8 +115,18 @@ class NativeSeq32GeneratedProofObjectBuilderGateTest(unittest.TestCase):
             tuple(policy["accepted_label_ids"]),
             ("adjacent_label_probe_a", "adjacent_label_probe_b"),
         )
-        self.assertIn("fixed_adjacent_layout", policy["rejected_label_ids"])
-        self.assertIn("adjacent_seed_02", policy["rejected_label_ids"])
+        self.assertEqual(
+            tuple(policy["rejected_label_ids"]),
+            (
+                "fixed_adjacent_layout",
+                "adjacent_seed_00",
+                "adjacent_seed_01",
+                "adjacent_seed_02",
+                "adjacent_seed_03",
+                "adjacent_seed_04",
+                "adjacent_seed_05",
+            ),
+        )
         self.assertEqual(
             policy["row_join_key"],
             "generated_label_inventory.path == accounting.evidence_relative_path",
