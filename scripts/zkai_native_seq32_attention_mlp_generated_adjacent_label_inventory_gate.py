@@ -463,7 +463,11 @@ def cli_adjacent_commands(raw: bytes, mode_to_variant: dict[str, str]) -> list[d
                 "rust_enum_variant": rust_enum_variant,
             }
         )
-    rows.sort(key=lambda row: EXPECTED_CLI_COMMANDS.index(row["cli_command"]))
+    command_order = {command: index for index, command in enumerate(EXPECTED_CLI_COMMANDS)}
+    for row in rows:
+        if row["cli_command"] not in command_order:
+            raise GeneratedAdjacentLabelInventoryGateError("generated CLI command drift")
+    rows.sort(key=lambda row: command_order[row["cli_command"]])
     if tuple(row["cli_command"] for row in rows) != EXPECTED_CLI_COMMANDS:
         raise GeneratedAdjacentLabelInventoryGateError("generated CLI command drift")
     if tuple(row["adapter_mode"] for row in rows) != EXPECTED_ADJACENT_MODES:
@@ -1056,13 +1060,17 @@ def payload_with_mutations() -> dict[str, Any]:
     return build_payload()
 
 
-def main() -> None:
+def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--write-json", type=pathlib.Path)
     parser.add_argument("--write-tsv", type=pathlib.Path)
     args = parser.parse_args()
-    payload = build_payload()
-    write_outputs(payload, args.write_json, args.write_tsv)
+    try:
+        payload = build_payload()
+        write_outputs(payload, args.write_json, args.write_tsv)
+    except GeneratedAdjacentLabelInventoryGateError as err:
+        print(f"generated adjacent label inventory gate failed: {err}", file=sys.stderr)
+        return 1
     print(
         json.dumps(
             {
@@ -1077,7 +1085,8 @@ def main() -> None:
             sort_keys=True,
         )
     )
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
