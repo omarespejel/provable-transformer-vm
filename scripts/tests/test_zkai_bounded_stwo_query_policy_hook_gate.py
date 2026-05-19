@@ -110,6 +110,12 @@ class BoundedStwoQueryPolicyHookGateTest(unittest.TestCase):
         self.assertEqual(anchor["matched_two_proof_frontier_typed_bytes"], 47_188)
         self.assertEqual(anchor["saving_vs_two_proof_frontier_typed_bytes"], 9_656)
 
+    def test_current_metric_anchor_is_derived_from_predecommit_tsv(self):
+        self.assertEqual(
+            self.payload["current_metric_anchor"],
+            self.gate.predecommit_metric_anchor(),
+        )
+
     def test_forbidden_policy_inputs_remain_forbidden(self):
         forbidden = self.payload["forbidden_policy_inputs"]
         self.assertTrue(forbidden["final_envelope_json"])
@@ -170,6 +176,13 @@ class BoundedStwoQueryPolicyHookGateTest(unittest.TestCase):
         self.assertTrue(mutation["all_mutations_rejected"])
         self.assertEqual(mutation["mutations_rejected"], len(self.gate.MUTATION_NAMES))
         self.assertEqual(mutation["mutation_names"], list(self.gate.MUTATION_NAMES))
+
+    def test_source_artifact_lookup_rejects_missing_id(self):
+        with self.assertRaisesRegex(
+            self.gate.BoundedStwoQueryPolicyHookGateError,
+            "source artifact missing",
+        ):
+            self.gate.find_source_artifact(self.payload, "missing-artifact-id")
 
     def test_validate_mutation_result_rejects_malformed_case(self):
         bad_result = copy.deepcopy(self.payload["mutation_result"])

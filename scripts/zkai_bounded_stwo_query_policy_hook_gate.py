@@ -121,7 +121,8 @@ CURRENT_CHAMPION_PATH_OPENING_BYTES = 16_560
 MATCHED_TWO_PROOF_FRONTIER_TYPED_BYTES = 47_188
 QUERY_SPAN = 16_618
 MIN_PAIRWISE_QUERY_GAP = 5_969
-EXPECTED_UNITTEST_STEP_COUNT = 16
+SELECTED_PREDECOMMIT_VARIANT_ID = "adjacent_label_probe_b"
+EXPECTED_UNITTEST_STEP_COUNT = 18
 
 TSV_COLUMNS = (
     "hook_id",
@@ -224,6 +225,63 @@ def saving_vs_two_proof_frontier() -> int:
 def saving_share_vs_two_proof_frontier() -> str:
     saving = saving_vs_two_proof_frontier()
     return f"{100 * saving / MATCHED_TWO_PROOF_FRONTIER_TYPED_BYTES:.4f}%"
+
+
+def parse_tsv_int(row: dict[str, str], field: str) -> int:
+    try:
+        return int(row[field])
+    except (KeyError, ValueError) as err:
+        raise BoundedStwoQueryPolicyHookGateError(
+            f"predecommit TSV field {field} is not an integer"
+        ) from err
+
+
+def predecommit_metric_anchor() -> dict[str, Any]:
+    raw = read_repo_file(
+        PREDECOMMIT_TSV_PATH,
+        "predecommit opening policy TSV",
+        MAX_EVIDENCE_BYTES,
+    )
+    text = read_text_bytes(raw, "predecommit opening policy TSV")
+    rows = list(csv.DictReader(io.StringIO(text), delimiter="\t"))
+    selected = [
+        row
+        for row in rows
+        if row.get("variant_id") == SELECTED_PREDECOMMIT_VARIANT_ID
+    ]
+    if len(selected) != 1:
+        raise BoundedStwoQueryPolicyHookGateError(
+            f"expected one selected predecommit row for {SELECTED_PREDECOMMIT_VARIANT_ID}"
+        )
+    row = selected[0]
+    if row.get("selected_without_final_accounting") != "true":
+        raise BoundedStwoQueryPolicyHookGateError(
+            "selected predecommit row is not marked selected_without_final_accounting"
+        )
+    anchor = {
+        "selected_row": row["variant_id"],
+        "typed_bytes": parse_tsv_int(row, "final_typed_bytes"),
+        "path_opening_bytes": parse_tsv_int(row, "final_path_opening_bytes"),
+        "query_span": parse_tsv_int(row, "query_location_span"),
+        "min_pairwise_query_gap": parse_tsv_int(row, "min_pairwise_query_gap"),
+        "matched_two_proof_frontier_typed_bytes": MATCHED_TWO_PROOF_FRONTIER_TYPED_BYTES,
+    }
+    expected = {
+        "selected_row": SELECTED_PREDECOMMIT_VARIANT_ID,
+        "typed_bytes": CURRENT_CHAMPION_TYPED_BYTES,
+        "path_opening_bytes": CURRENT_CHAMPION_PATH_OPENING_BYTES,
+        "query_span": QUERY_SPAN,
+        "min_pairwise_query_gap": MIN_PAIRWISE_QUERY_GAP,
+        "matched_two_proof_frontier_typed_bytes": MATCHED_TWO_PROOF_FRONTIER_TYPED_BYTES,
+    }
+    if anchor != expected:
+        raise BoundedStwoQueryPolicyHookGateError("predecommit metric anchor drift")
+    saving = anchor["matched_two_proof_frontier_typed_bytes"] - anchor["typed_bytes"]
+    anchor["saving_vs_two_proof_frontier_typed_bytes"] = saving
+    anchor["saving_vs_two_proof_frontier_share"] = (
+        f"{100 * saving / anchor['matched_two_proof_frontier_typed_bytes']:.4f}%"
+    )
+    return anchor
 
 
 def reject_symlink_components(path: pathlib.Path, label: str) -> pathlib.Path:
@@ -511,22 +569,14 @@ def hook_designs() -> list[dict[str, Any]]:
 def build_payload_without_mutations() -> dict[str, Any]:
     stwo_root = find_stwo_source_root()
     audit = audit_source_markers(stwo_root)
+    metric_anchor = predecommit_metric_anchor()
     return {
         "schema": SCHEMA,
         "decision": DECISION,
         "result": RESULT,
         "issue": ISSUE_HINT,
         "claim_boundary": CLAIM_BOUNDARY,
-        "current_metric_anchor": {
-            "selected_row": "adjacent_label_probe_b",
-            "typed_bytes": CURRENT_CHAMPION_TYPED_BYTES,
-            "path_opening_bytes": CURRENT_CHAMPION_PATH_OPENING_BYTES,
-            "query_span": QUERY_SPAN,
-            "min_pairwise_query_gap": MIN_PAIRWISE_QUERY_GAP,
-            "matched_two_proof_frontier_typed_bytes": MATCHED_TWO_PROOF_FRONTIER_TYPED_BYTES,
-            "saving_vs_two_proof_frontier_typed_bytes": saving_vs_two_proof_frontier(),
-            "saving_vs_two_proof_frontier_share": saving_share_vs_two_proof_frontier(),
-        },
+        "current_metric_anchor": metric_anchor,
         "source_audit": audit,
         "bounded_hook_assessment": {
             "repo_local_hook_available": False,
@@ -647,6 +697,13 @@ def validate_mutation_result(mutation_result: Any) -> None:
         raise BoundedStwoQueryPolicyHookGateError("mutation all-rejected drift")
 
 
+def find_source_artifact(item: dict[str, Any], artifact_id: str) -> dict[str, Any]:
+    for artifact in item.get("source_artifacts", []):
+        if artifact.get("id") == artifact_id:
+            return artifact
+    raise BoundedStwoQueryPolicyHookGateError(f"source artifact missing: {artifact_id}")
+
+
 def mutate_payload(name: str, item: dict[str, Any]) -> None:
     if name == "decision_overclaim":
         item["decision"] = "GO_TRUE_STWO_QUERY_POLICY_HOOK"
@@ -658,11 +715,15 @@ def mutate_payload(name: str, item: dict[str, Any]) -> None:
             "",
         )
     elif name == "stwo_source_digest_drift":
-        item["source_artifacts"][4]["sha256"] = "0" * 64
+        find_source_artifact(item, "stwo_2_2_prover_mod")["sha256"] = "0" * 64
     elif name == "repo_source_digest_drift":
-        item["source_artifacts"][0]["sha256"] = "1" * 64
+        find_source_artifact(item, "rust_native_seq32_attention_mlp_source")["sha256"] = (
+            "1" * 64
+        )
     elif name == "predecommit_evidence_digest_drift":
-        item["source_artifacts"][2]["sha256"] = "2" * 64
+        find_source_artifact(item, "predecommit_opening_policy_evidence")["sha256"] = (
+            "2" * 64
+        )
     elif name == "source_marker_erasure":
         item["source_audit"]["stwo_markers"]["fri_decommit_draws_queries_from_channel"] = False
     elif name == "verifier_marker_erasure":
