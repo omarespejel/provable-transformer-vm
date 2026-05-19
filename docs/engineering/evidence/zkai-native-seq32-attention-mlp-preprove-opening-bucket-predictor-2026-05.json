@@ -1,0 +1,727 @@
+{
+  "claim_boundary": "SOURCE_VISIBLE_PREPROVE_INPUT_INVENTORY_ONLY;FINAL_ACCOUNTING_JOIN_USED_ONLY_FOR_EVALUATION;NO_PROOF_BYTES_OR_ACCOUNTING_BYTES_ALLOWED_IN_PREDICTOR;NOT_A_PRODUCTION_LABEL_POLICY_NOT_A_NANOZK_COMPARISON",
+  "decision": "NO_GO_SOURCE_VISIBLE_PREPROVE_INVENTORY_DOES_NOT_PREDICT_PROBE_B_BUCKET",
+  "final_accounting_join_rows": [
+    {
+      "envelope_path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.envelope.json",
+      "envelope_sha256": "91d6866982629e829ef4b53502c99c7215e0d6bb257336cdf2910b8c94ce52b3",
+      "groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 13696,
+        "fri_samples": 832,
+        "oods_samples": 11984,
+        "queries_values": 8940,
+        "trace_decommitments": 6656
+      },
+      "json_proof_bytes": 122688,
+      "path_opening_bytes": 21184,
+      "proof_sha256": "f1a495236e06cb3bb76e7f7cb900b9b96eb203809f791d28238fc948514126ed",
+      "record_stream_sha256": "24e3f16bf92320fd79059257ec70ca97bbf76b5859610c2013c58a7511f1feaf",
+      "typed_bytes": 42156,
+      "value_bytes": 20924,
+      "variant_id": "fixed_adjacent_layout"
+    },
+    {
+      "envelope_path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05.envelope.json",
+      "envelope_sha256": "2f15a7b6c6e15b889ffc61c6a74235efc43b416fe7384452ca07d5818447f0aa",
+      "groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 12320,
+        "fri_samples": 768,
+        "oods_samples": 11984,
+        "queries_values": 8940,
+        "trace_decommitments": 6272
+      },
+      "json_proof_bytes": 116321,
+      "path_opening_bytes": 19360,
+      "proof_sha256": "3421ac16f96bda07540698ccdbf1ea705ca384583c3b3275fc99471b5a156d7d",
+      "record_stream_sha256": "ab9c27d7b780f81ec8f8f562997392362c18c9ddc6315d1db303520e3fd7e682",
+      "typed_bytes": 40332,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_label_probe_a"
+    },
+    {
+      "envelope_path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.envelope.json",
+      "envelope_sha256": "8e3ba831ac7e858d069f1edfcb6ad46783b0d72f3f47666ae621bc159ac2c0df",
+      "groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 10240,
+        "fri_samples": 688,
+        "oods_samples": 11984,
+        "queries_values": 8940,
+        "trace_decommitments": 5632
+      },
+      "json_proof_bytes": 106317,
+      "path_opening_bytes": 16560,
+      "proof_sha256": "4a5dc66d63ee3ddd3acad65e88c42259fb925ee31768a3fdecdb528722630845",
+      "record_stream_sha256": "d0540f5cd1a69991226bcfb81475cec78ba0d416a39317503ad204b660aae1e0",
+      "typed_bytes": 37532,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_label_probe_b"
+    },
+    {
+      "envelope_path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-00-2026-05.envelope.json",
+      "envelope_sha256": "9e8ca35c303afbe3b1238b55821a37703bfe491b5b362b7b65d223a2f2a84a77",
+      "groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 13184,
+        "fri_samples": 800,
+        "oods_samples": 11984,
+        "queries_values": 8940,
+        "trace_decommitments": 6528
+      },
+      "json_proof_bytes": 120158,
+      "path_opening_bytes": 20512,
+      "proof_sha256": "2c222781635c51ab5298acd6b7758dbb3c2b546fe15d3dfc92f378f78c1c3c66",
+      "record_stream_sha256": "01ba426d79e56c9c017a8d6696a54c4408424a3b0cc125c12c95fdfcacaa6e04",
+      "typed_bytes": 41484,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_00"
+    },
+    {
+      "envelope_path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-01-2026-05.envelope.json",
+      "envelope_sha256": "d70f8f968d8eb2171e0cc09fa7a0b2bb001f8a83474aff819aead28bb5a295b9",
+      "groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 13184,
+        "fri_samples": 800,
+        "oods_samples": 11984,
+        "queries_values": 8940,
+        "trace_decommitments": 6528
+      },
+      "json_proof_bytes": 120064,
+      "path_opening_bytes": 20512,
+      "proof_sha256": "5fd4c1d54ad4e616292cf22f5c957ce53a02c227190e098db1db8aa4fe419171",
+      "record_stream_sha256": "01ba426d79e56c9c017a8d6696a54c4408424a3b0cc125c12c95fdfcacaa6e04",
+      "typed_bytes": 41484,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_01"
+    },
+    {
+      "envelope_path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-02-2026-05.envelope.json",
+      "envelope_sha256": "4d343553886d03acb055c85b94d0f31c5b4f3efbf25192fb474f57749b8262b2",
+      "groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 12256,
+        "fri_samples": 768,
+        "oods_samples": 11984,
+        "queries_values": 8940,
+        "trace_decommitments": 6272
+      },
+      "json_proof_bytes": 115995,
+      "path_opening_bytes": 19296,
+      "proof_sha256": "5de20c2647f31bd2d581c4b4090c924ef9dfbb67972e50969af554be6f849aba",
+      "record_stream_sha256": "1d1a58b9897120dd0beb15a7d159c2328304ed8e6103efa28551ee5b65b31539",
+      "typed_bytes": 40268,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_02"
+    },
+    {
+      "envelope_path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-03-2026-05.envelope.json",
+      "envelope_sha256": "1b15bf9fdee3449ea371e98bf16d1f231f4c8d68a3393e01cb95992ac8bb4ca3",
+      "groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 13696,
+        "fri_samples": 832,
+        "oods_samples": 11984,
+        "queries_values": 8940,
+        "trace_decommitments": 6656
+      },
+      "json_proof_bytes": 122588,
+      "path_opening_bytes": 21184,
+      "proof_sha256": "406905d8c6a1bb0a81f600aba4adb2d49ee1b9aa5f70b56065e5bf14f03d631b",
+      "record_stream_sha256": "24e3f16bf92320fd79059257ec70ca97bbf76b5859610c2013c58a7511f1feaf",
+      "typed_bytes": 42156,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_03"
+    },
+    {
+      "envelope_path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-04-2026-05.envelope.json",
+      "envelope_sha256": "e47070bc8ed81b31de8c72a479367232fb96ec3ed4f5549bfba1f9fab63ed876",
+      "groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 13696,
+        "fri_samples": 832,
+        "oods_samples": 11984,
+        "queries_values": 8940,
+        "trace_decommitments": 6656
+      },
+      "json_proof_bytes": 122648,
+      "path_opening_bytes": 21184,
+      "proof_sha256": "a8b0fe6c95ce8fb9cdc4cc60d4f0cbb96fdc0c615a23a715dc9ab44db5e50463",
+      "record_stream_sha256": "24e3f16bf92320fd79059257ec70ca97bbf76b5859610c2013c58a7511f1feaf",
+      "typed_bytes": 42156,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_04"
+    },
+    {
+      "envelope_path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-05-2026-05.envelope.json",
+      "envelope_sha256": "9cdded96b2cc6e2ceaab56c8f27717f1bfe3756d4f1ee2b0a2cf8f547885765f",
+      "groups": {
+        "fixed_overhead": 48,
+        "fri_decommitments": 12320,
+        "fri_samples": 768,
+        "oods_samples": 11984,
+        "queries_values": 8940,
+        "trace_decommitments": 6272
+      },
+      "json_proof_bytes": 116303,
+      "path_opening_bytes": 19360,
+      "proof_sha256": "9122f95a9eec12e75cabe7b99d9ba03ec55cefd880d0549eb185b911d818fbed",
+      "record_stream_sha256": "ab9c27d7b780f81ec8f8f562997392362c18c9ddc6315d1db303520e3fd7e682",
+      "typed_bytes": 40332,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_05"
+    }
+  ],
+  "interpretation": {
+    "human_read": "The pre-prove inputs can identify which label is being tried, but they do not expose why probe B lands in the smaller opening bucket. All checked adjacent rows share the same source-visible structural signature before proof generation.",
+    "mechanism_read": "The final difference is still real and path-opening dominated, but this gate rejects promoting statement or parameter hashes into a predictor. Those hashes are row identities; without a query-opening sampler they are only a post-hoc lookup table.",
+    "next_experiment": "Build a deeper dry-run transcript/query sampler that emits Fiat-Shamir query/opening positions after source commitments but before final proof serialization."
+  },
+  "issue_hint": "https://github.com/omarespejel/provable-transformer-vm/issues/695",
+  "mutation_result": {
+    "all_mutations_rejected": true,
+    "cases": [
+      {
+        "error": "decision drift",
+        "name": "decision_drift",
+        "rejected": true
+      },
+      {
+        "error": "claim_boundary drift",
+        "name": "claim_boundary_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "source_artifacts drift",
+        "name": "rust_source_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "source_artifacts drift",
+        "name": "cli_source_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "source_artifacts drift",
+        "name": "accounting_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "preprove_inventory_rows drift",
+        "name": "preprove_row_removed",
+        "rejected": true
+      },
+      {
+        "error": "final_accounting_join_rows drift",
+        "name": "final_join_row_removed",
+        "rejected": true
+      },
+      {
+        "error": "preprove_inventory_rows drift",
+        "name": "preprove_final_accounting_leak",
+        "rejected": true
+      },
+      {
+        "error": "predictor_assessment drift",
+        "name": "source_predictor_promotion",
+        "rejected": true
+      },
+      {
+        "error": "predictor_assessment drift",
+        "name": "structural_signature_unique_drift",
+        "rejected": true
+      },
+      {
+        "error": "preprove_inventory_policy drift",
+        "name": "row_identity_promoted_to_predictor",
+        "rejected": true
+      },
+      {
+        "error": "predictor_assessment drift",
+        "name": "bucket_span_drift",
+        "rejected": true
+      },
+      {
+        "error": "final_accounting_join_rows drift",
+        "name": "record_stream_erasure",
+        "rejected": true
+      },
+      {
+        "error": "validation_commands drift",
+        "name": "validation_command_drift",
+        "rejected": true
+      },
+      {
+        "error": "non_claims drift",
+        "name": "removed_non_claim",
+        "rejected": true
+      },
+      {
+        "error": "payload commitment drift",
+        "name": "payload_commitment_drift",
+        "rejected": true
+      }
+    ],
+    "mutation_names": [
+      "decision_drift",
+      "claim_boundary_overclaim",
+      "rust_source_digest_drift",
+      "cli_source_digest_drift",
+      "accounting_digest_drift",
+      "preprove_row_removed",
+      "final_join_row_removed",
+      "preprove_final_accounting_leak",
+      "source_predictor_promotion",
+      "structural_signature_unique_drift",
+      "row_identity_promoted_to_predictor",
+      "bucket_span_drift",
+      "record_stream_erasure",
+      "validation_command_drift",
+      "removed_non_claim",
+      "payload_commitment_drift"
+    ],
+    "mutations_rejected": 16
+  },
+  "non_claims": [
+    "not a source-exposed predictor for the probe-B opening bucket",
+    "not a new proof-size frontier",
+    "not a production label-selection policy",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not a full transformer block proof",
+    "not exact real-valued Softmax",
+    "not timing evidence",
+    "not production-ready zkML"
+  ],
+  "payload_commitment": "blake2b-256:a86044d35f5c6ce8b3f372d24b2e0afe2db8fef5a5b124711f801dfd53d8455b",
+  "predictor_assessment": {
+    "best_bucket_path_opening_bytes": 16560,
+    "best_bucket_variant_id": "adjacent_label_probe_b",
+    "best_pre_registered_seed_id": "adjacent_seed_02",
+    "best_pre_registered_seed_path_opening_bytes": 19296,
+    "candidate_predictors": [
+      {
+        "candidate": "source_visible_structural_signature",
+        "distinct_final_buckets_under_same_signature": 5,
+        "reason": "all checked adjacent rows share one structural signature before proving",
+        "status": "NO_GO_COLLIDES_ACROSS_DISTINCT_FINAL_BUCKETS",
+        "unique_preprove_values": 1
+      },
+      {
+        "candidate": "adapter_mode_or_statement_commitment_lookup",
+        "distinct_final_buckets_under_same_signature": 1,
+        "reason": "identifies a row but does not explain or predict the opening bucket without learned final accounting",
+        "status": "REJECTED_AS_POST_HOC_ROW_IDENTITY_LOOKUP",
+        "unique_preprove_values": 9
+      },
+      {
+        "candidate": "final_record_stream_or_grouped_accounting",
+        "distinct_final_buckets_under_same_signature": 0,
+        "reason": "uses the artifact the predictor is supposed to precede",
+        "status": "REJECTED_AS_FINAL_PROOF_ACCOUNTING_LEAKAGE",
+        "unique_preprove_values": 0
+      }
+    ],
+    "distinct_final_path_opening_buckets": 5,
+    "gap_vs_best_seed_path_opening_bytes": 2736,
+    "path_opening_span_bytes": 4624,
+    "required_next_artifact": "dry_run_query_opening_sampler_before_final_proof_serialization",
+    "row_identity_signatures_unique": true,
+    "rows_sharing_preprove_structural_signature": 9,
+    "source_exposed_bucket_predictor": false,
+    "unique_preprove_structural_signatures": 1,
+    "value_bytes_constant": 20924
+  },
+  "preprove_inventory_policy": {
+    "final_accounting_allowed_for_evaluation": true,
+    "final_accounting_allowed_for_prediction": false,
+    "prediction_scope": "input_json_and_source_visible_statement_fields_before_prove",
+    "proof_envelope_allowed_for_prediction": false,
+    "row_identity_hashes_are_predictors": false
+  },
+  "preprove_inventory_rows": [
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_fixed_v1",
+      "family": "adjacent_reference",
+      "input_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.input.json",
+      "input_sha256": "5db547362d4038f5d4d3c781bb83b5542726762cefcb6c2a9479764cfc2fc4db",
+      "policy_status": "reference_layout",
+      "row_identity_fields": {
+        "adapter_mode": "rmsnorm_input_fused_adjacent_fixed_v1",
+        "proof_native_parameter_commitment": "blake2b-256:2f165d7f941123838fd5f6cf5d3c6504ff0179434983cf266bf33105453d2de6",
+        "public_instance_commitment": "blake2b-256:06264210629db454d9b8b3c311286c86a6e52e0e01ad57dc2b78b8db92790248",
+        "statement_commitment": "blake2b-256:5ec4940f2055082e8e1e8d2aee03b647cb68c88da6dba7d6649a2a4c0d331d3c"
+      },
+      "row_identity_signature": "blake2b-256:96b788b6d14df0012285d9f4168f9bf2c9c55f1fbea16299dc0a2c9ae83b2244",
+      "source_visible_scope": "input_json_before_prove_no_envelope_no_accounting_no_proof_bytes",
+      "structural_features": {
+        "adapter_remainder_bit_columns": 3,
+        "adapter_row_count": 128,
+        "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_FUSED_INTO_RMSNORM_INPUT_COMPONENT",
+        "adapter_trace_cells": 0,
+        "adapter_value_columns": 0,
+        "attention_lookup_claims": 1184,
+        "attention_proof_version": "stwo-attention-kv-two-head-seq32-fused-bounded-softmax-table-logup-proof-v1",
+        "attention_table_rows": 9,
+        "current_attention_fused_typed_bytes": 22916,
+        "current_derived_mlp_fused_typed_bytes": 24272,
+        "current_two_proof_frontier_typed_bytes": 47188,
+        "decision": "GO_INPUT_FOR_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_OBJECT_PROBE",
+        "mlp_proof_version": "stwo-d128-rmsnorm-mlp-fused-air-proof-v1",
+        "mlp_row_count": 197504,
+        "nanozk_reported_d128_block_proof_bytes": 6900,
+        "pcs_lifting_log_size": 19,
+        "route_id": "native_stwo_two_head_seq32_attention_softmax_table_plus_seq32_derived_d128_rmsnorm_mlp_single_proof_object_probe",
+        "schema": "zkai-native-seq32-attention-mlp-single-proof-object-input-v1",
+        "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
+        "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1"
+      },
+      "structural_signature": "blake2b-256:707e010e59bd310124aca4b7e0da148c4b9bbc3c2079efa2169ff098c15b3463",
+      "variant_id": "fixed_adjacent_layout"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_a_v1",
+      "family": "adjacent_existing_probe",
+      "input_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05.input.json",
+      "input_sha256": "9243abc5a1dd008279fbadade8a3aeafecefb987d028f270eb1cb788a3d666a6",
+      "policy_status": "existing_non_frontier_probe",
+      "row_identity_fields": {
+        "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_a_v1",
+        "proof_native_parameter_commitment": "blake2b-256:f96ef91ea524e53dd26cd2fd49dc7781376c772b5a651aef49e1d5f95e054912",
+        "public_instance_commitment": "blake2b-256:e218bb7e3da4aaf535b0afbbaf94fc0b94d53dcf60226b3ca8fcc232baf78a65",
+        "statement_commitment": "blake2b-256:05bbc00dddc2642892a904567fad0d7e390b902a9449e23bce508845f110d47c"
+      },
+      "row_identity_signature": "blake2b-256:d9cf0b030829e31fe09c8ba9388e113fac9a44b565f02cae6abd2b82a67eef37",
+      "source_visible_scope": "input_json_before_prove_no_envelope_no_accounting_no_proof_bytes",
+      "structural_features": {
+        "adapter_remainder_bit_columns": 3,
+        "adapter_row_count": 128,
+        "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_FUSED_INTO_RMSNORM_INPUT_COMPONENT",
+        "adapter_trace_cells": 0,
+        "adapter_value_columns": 0,
+        "attention_lookup_claims": 1184,
+        "attention_proof_version": "stwo-attention-kv-two-head-seq32-fused-bounded-softmax-table-logup-proof-v1",
+        "attention_table_rows": 9,
+        "current_attention_fused_typed_bytes": 22916,
+        "current_derived_mlp_fused_typed_bytes": 24272,
+        "current_two_proof_frontier_typed_bytes": 47188,
+        "decision": "GO_INPUT_FOR_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_OBJECT_PROBE",
+        "mlp_proof_version": "stwo-d128-rmsnorm-mlp-fused-air-proof-v1",
+        "mlp_row_count": 197504,
+        "nanozk_reported_d128_block_proof_bytes": 6900,
+        "pcs_lifting_log_size": 19,
+        "route_id": "native_stwo_two_head_seq32_attention_softmax_table_plus_seq32_derived_d128_rmsnorm_mlp_single_proof_object_probe",
+        "schema": "zkai-native-seq32-attention-mlp-single-proof-object-input-v1",
+        "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
+        "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1"
+      },
+      "structural_signature": "blake2b-256:707e010e59bd310124aca4b7e0da148c4b9bbc3c2079efa2169ff098c15b3463",
+      "variant_id": "adjacent_label_probe_a"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+      "family": "adjacent_existing_probe",
+      "input_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.input.json",
+      "input_sha256": "44cc403f5b8bc77611190affc1b183acc4263faec3ed7dbc30b7a632e63098e2",
+      "policy_status": "current_frontier",
+      "row_identity_fields": {
+        "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+        "proof_native_parameter_commitment": "blake2b-256:cfc00d6a86ec46a66bbc32470aa4b9b1bdd86c8bff51453ef070ab5597528def",
+        "public_instance_commitment": "blake2b-256:e480cb2db392a9c5ebb98a32b4705e1453d354a21de5358b3f0ceb028b2088c5",
+        "statement_commitment": "blake2b-256:d9beeac3541370eb57e1ef331e2914aa4d680036f789311ef56cbb669cb61a37"
+      },
+      "row_identity_signature": "blake2b-256:08cef8a3917e508c13e7ab01854f083ffc2f69eeaaf1a52ad3c915f88adfdb6c",
+      "source_visible_scope": "input_json_before_prove_no_envelope_no_accounting_no_proof_bytes",
+      "structural_features": {
+        "adapter_remainder_bit_columns": 3,
+        "adapter_row_count": 128,
+        "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_FUSED_INTO_RMSNORM_INPUT_COMPONENT",
+        "adapter_trace_cells": 0,
+        "adapter_value_columns": 0,
+        "attention_lookup_claims": 1184,
+        "attention_proof_version": "stwo-attention-kv-two-head-seq32-fused-bounded-softmax-table-logup-proof-v1",
+        "attention_table_rows": 9,
+        "current_attention_fused_typed_bytes": 22916,
+        "current_derived_mlp_fused_typed_bytes": 24272,
+        "current_two_proof_frontier_typed_bytes": 47188,
+        "decision": "GO_INPUT_FOR_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_OBJECT_PROBE",
+        "mlp_proof_version": "stwo-d128-rmsnorm-mlp-fused-air-proof-v1",
+        "mlp_row_count": 197504,
+        "nanozk_reported_d128_block_proof_bytes": 6900,
+        "pcs_lifting_log_size": 19,
+        "route_id": "native_stwo_two_head_seq32_attention_softmax_table_plus_seq32_derived_d128_rmsnorm_mlp_single_proof_object_probe",
+        "schema": "zkai-native-seq32-attention-mlp-single-proof-object-input-v1",
+        "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
+        "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1"
+      },
+      "structural_signature": "blake2b-256:707e010e59bd310124aca4b7e0da148c4b9bbc3c2079efa2169ff098c15b3463",
+      "variant_id": "adjacent_label_probe_b"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_00_v1",
+      "family": "pre_registered_seed",
+      "input_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-00-2026-05.input.json",
+      "input_sha256": "36fa4d51c0d062bd1c92ff733f23da758a8d13cfafa3a8c729041a5a5666c1ed",
+      "policy_status": "seed_no_go",
+      "row_identity_fields": {
+        "adapter_mode": "rmsnorm_input_fused_adjacent_seed_00_v1",
+        "proof_native_parameter_commitment": "blake2b-256:79318a53a4cee5c8e02fc9b54d11af76c5a2e6d4afa00aa05deecca6082c35aa",
+        "public_instance_commitment": "blake2b-256:23ea0d130b5f693fc94ab1468beb243784c08cdb5d9a7a5f9c01ad8d5a039903",
+        "statement_commitment": "blake2b-256:fcfce231250efd833ede2ce0275650470c7b0e7ed4d40c8d3d7d941a7c354416"
+      },
+      "row_identity_signature": "blake2b-256:84fc9e48c329b224079ea5388302bfec55dc1810c8856acc3ee49a75703bf6e7",
+      "source_visible_scope": "input_json_before_prove_no_envelope_no_accounting_no_proof_bytes",
+      "structural_features": {
+        "adapter_remainder_bit_columns": 3,
+        "adapter_row_count": 128,
+        "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_FUSED_INTO_RMSNORM_INPUT_COMPONENT",
+        "adapter_trace_cells": 0,
+        "adapter_value_columns": 0,
+        "attention_lookup_claims": 1184,
+        "attention_proof_version": "stwo-attention-kv-two-head-seq32-fused-bounded-softmax-table-logup-proof-v1",
+        "attention_table_rows": 9,
+        "current_attention_fused_typed_bytes": 22916,
+        "current_derived_mlp_fused_typed_bytes": 24272,
+        "current_two_proof_frontier_typed_bytes": 47188,
+        "decision": "GO_INPUT_FOR_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_OBJECT_PROBE",
+        "mlp_proof_version": "stwo-d128-rmsnorm-mlp-fused-air-proof-v1",
+        "mlp_row_count": 197504,
+        "nanozk_reported_d128_block_proof_bytes": 6900,
+        "pcs_lifting_log_size": 19,
+        "route_id": "native_stwo_two_head_seq32_attention_softmax_table_plus_seq32_derived_d128_rmsnorm_mlp_single_proof_object_probe",
+        "schema": "zkai-native-seq32-attention-mlp-single-proof-object-input-v1",
+        "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
+        "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1"
+      },
+      "structural_signature": "blake2b-256:707e010e59bd310124aca4b7e0da148c4b9bbc3c2079efa2169ff098c15b3463",
+      "variant_id": "adjacent_seed_00"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_01_v1",
+      "family": "pre_registered_seed",
+      "input_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-01-2026-05.input.json",
+      "input_sha256": "92482c953c728cf029388676921df177fda7f42d4bbfc62a7d03295dcb86809e",
+      "policy_status": "seed_no_go",
+      "row_identity_fields": {
+        "adapter_mode": "rmsnorm_input_fused_adjacent_seed_01_v1",
+        "proof_native_parameter_commitment": "blake2b-256:08e83e7bcab0aae6e1393ba7c50b67da0f86396068cb6085292f6d18fe6bb3d1",
+        "public_instance_commitment": "blake2b-256:5b6ce36ae6023dba041916e8909a35fff4a3dcf0ad2d02fff8a39f127eacb9a9",
+        "statement_commitment": "blake2b-256:1480b336aff5fed2455eb7ec489c14ee8d78d41c0da57013fa2af82f41c0bb32"
+      },
+      "row_identity_signature": "blake2b-256:ee9770cd8552f9d916cc01872c640008568784c9a44791f0b6f1f015179fd6ff",
+      "source_visible_scope": "input_json_before_prove_no_envelope_no_accounting_no_proof_bytes",
+      "structural_features": {
+        "adapter_remainder_bit_columns": 3,
+        "adapter_row_count": 128,
+        "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_FUSED_INTO_RMSNORM_INPUT_COMPONENT",
+        "adapter_trace_cells": 0,
+        "adapter_value_columns": 0,
+        "attention_lookup_claims": 1184,
+        "attention_proof_version": "stwo-attention-kv-two-head-seq32-fused-bounded-softmax-table-logup-proof-v1",
+        "attention_table_rows": 9,
+        "current_attention_fused_typed_bytes": 22916,
+        "current_derived_mlp_fused_typed_bytes": 24272,
+        "current_two_proof_frontier_typed_bytes": 47188,
+        "decision": "GO_INPUT_FOR_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_OBJECT_PROBE",
+        "mlp_proof_version": "stwo-d128-rmsnorm-mlp-fused-air-proof-v1",
+        "mlp_row_count": 197504,
+        "nanozk_reported_d128_block_proof_bytes": 6900,
+        "pcs_lifting_log_size": 19,
+        "route_id": "native_stwo_two_head_seq32_attention_softmax_table_plus_seq32_derived_d128_rmsnorm_mlp_single_proof_object_probe",
+        "schema": "zkai-native-seq32-attention-mlp-single-proof-object-input-v1",
+        "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
+        "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1"
+      },
+      "structural_signature": "blake2b-256:707e010e59bd310124aca4b7e0da148c4b9bbc3c2079efa2169ff098c15b3463",
+      "variant_id": "adjacent_seed_01"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_02_v1",
+      "family": "pre_registered_seed",
+      "input_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-02-2026-05.input.json",
+      "input_sha256": "d01a4370197ccf685660e9ae4c5cbcd8d9ea30ebb7c5963a961351b57387c61c",
+      "policy_status": "best_seed_but_no_go",
+      "row_identity_fields": {
+        "adapter_mode": "rmsnorm_input_fused_adjacent_seed_02_v1",
+        "proof_native_parameter_commitment": "blake2b-256:f8bd3ee08c288ac7bfd234ba5a51db1c4862b530ab7541d78960126f77818958",
+        "public_instance_commitment": "blake2b-256:ff08ba215833b472222c356bb5480441c49afea91cf4cfe5520b582287f31f71",
+        "statement_commitment": "blake2b-256:7bca49a40c792dab9d75f0be245375b8db699af52268656ea404b6813f568df3"
+      },
+      "row_identity_signature": "blake2b-256:a1235b26d18b95aa983851849b99fce7c46a9b5ff6b21696b735a003e3a2a19b",
+      "source_visible_scope": "input_json_before_prove_no_envelope_no_accounting_no_proof_bytes",
+      "structural_features": {
+        "adapter_remainder_bit_columns": 3,
+        "adapter_row_count": 128,
+        "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_FUSED_INTO_RMSNORM_INPUT_COMPONENT",
+        "adapter_trace_cells": 0,
+        "adapter_value_columns": 0,
+        "attention_lookup_claims": 1184,
+        "attention_proof_version": "stwo-attention-kv-two-head-seq32-fused-bounded-softmax-table-logup-proof-v1",
+        "attention_table_rows": 9,
+        "current_attention_fused_typed_bytes": 22916,
+        "current_derived_mlp_fused_typed_bytes": 24272,
+        "current_two_proof_frontier_typed_bytes": 47188,
+        "decision": "GO_INPUT_FOR_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_OBJECT_PROBE",
+        "mlp_proof_version": "stwo-d128-rmsnorm-mlp-fused-air-proof-v1",
+        "mlp_row_count": 197504,
+        "nanozk_reported_d128_block_proof_bytes": 6900,
+        "pcs_lifting_log_size": 19,
+        "route_id": "native_stwo_two_head_seq32_attention_softmax_table_plus_seq32_derived_d128_rmsnorm_mlp_single_proof_object_probe",
+        "schema": "zkai-native-seq32-attention-mlp-single-proof-object-input-v1",
+        "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
+        "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1"
+      },
+      "structural_signature": "blake2b-256:707e010e59bd310124aca4b7e0da148c4b9bbc3c2079efa2169ff098c15b3463",
+      "variant_id": "adjacent_seed_02"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_03_v1",
+      "family": "pre_registered_seed",
+      "input_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-03-2026-05.input.json",
+      "input_sha256": "31ece4302be031e9bd68d5b53c164171b5438f1e173bc9b7b813fac97a8b94fb",
+      "policy_status": "seed_no_go",
+      "row_identity_fields": {
+        "adapter_mode": "rmsnorm_input_fused_adjacent_seed_03_v1",
+        "proof_native_parameter_commitment": "blake2b-256:7ff3462212149929d13c3b9e2611e0211d8f882ace1ee8d44def28fb18843645",
+        "public_instance_commitment": "blake2b-256:8b677d229416a1c40d7a6e83a3cfa00227c9b14f05de6ca701731234a5d63276",
+        "statement_commitment": "blake2b-256:5809bda39cb7992086d7d3b8731c065516798b22fbcd6d49ec57a8db18e337f2"
+      },
+      "row_identity_signature": "blake2b-256:77a85168e5d3b609eae43a7f394c12504474b2ccc907f8dd4c02344a1ed1035c",
+      "source_visible_scope": "input_json_before_prove_no_envelope_no_accounting_no_proof_bytes",
+      "structural_features": {
+        "adapter_remainder_bit_columns": 3,
+        "adapter_row_count": 128,
+        "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_FUSED_INTO_RMSNORM_INPUT_COMPONENT",
+        "adapter_trace_cells": 0,
+        "adapter_value_columns": 0,
+        "attention_lookup_claims": 1184,
+        "attention_proof_version": "stwo-attention-kv-two-head-seq32-fused-bounded-softmax-table-logup-proof-v1",
+        "attention_table_rows": 9,
+        "current_attention_fused_typed_bytes": 22916,
+        "current_derived_mlp_fused_typed_bytes": 24272,
+        "current_two_proof_frontier_typed_bytes": 47188,
+        "decision": "GO_INPUT_FOR_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_OBJECT_PROBE",
+        "mlp_proof_version": "stwo-d128-rmsnorm-mlp-fused-air-proof-v1",
+        "mlp_row_count": 197504,
+        "nanozk_reported_d128_block_proof_bytes": 6900,
+        "pcs_lifting_log_size": 19,
+        "route_id": "native_stwo_two_head_seq32_attention_softmax_table_plus_seq32_derived_d128_rmsnorm_mlp_single_proof_object_probe",
+        "schema": "zkai-native-seq32-attention-mlp-single-proof-object-input-v1",
+        "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
+        "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1"
+      },
+      "structural_signature": "blake2b-256:707e010e59bd310124aca4b7e0da148c4b9bbc3c2079efa2169ff098c15b3463",
+      "variant_id": "adjacent_seed_03"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_04_v1",
+      "family": "pre_registered_seed",
+      "input_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-04-2026-05.input.json",
+      "input_sha256": "910e1e7cfca7bf4113dadf0b8f3d53aa8a837628b049c28811db3b948db055e4",
+      "policy_status": "seed_no_go",
+      "row_identity_fields": {
+        "adapter_mode": "rmsnorm_input_fused_adjacent_seed_04_v1",
+        "proof_native_parameter_commitment": "blake2b-256:42dab4aaae026b7808dcd9099e625cd3de67618e01d29b3af898f3d5df02bd7b",
+        "public_instance_commitment": "blake2b-256:30b72fd4d39b24d8567c610c9953e3c11205537ccc06025109eca612f53d9263",
+        "statement_commitment": "blake2b-256:4ae9d4261fe435f65de2da0889fac98914360c9f7b03a1db245ca7ded3386134"
+      },
+      "row_identity_signature": "blake2b-256:80a06c5c1e8ea57f1daba4d3018c3410da32b9fca08d04a6742e96250da6602c",
+      "source_visible_scope": "input_json_before_prove_no_envelope_no_accounting_no_proof_bytes",
+      "structural_features": {
+        "adapter_remainder_bit_columns": 3,
+        "adapter_row_count": 128,
+        "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_FUSED_INTO_RMSNORM_INPUT_COMPONENT",
+        "adapter_trace_cells": 0,
+        "adapter_value_columns": 0,
+        "attention_lookup_claims": 1184,
+        "attention_proof_version": "stwo-attention-kv-two-head-seq32-fused-bounded-softmax-table-logup-proof-v1",
+        "attention_table_rows": 9,
+        "current_attention_fused_typed_bytes": 22916,
+        "current_derived_mlp_fused_typed_bytes": 24272,
+        "current_two_proof_frontier_typed_bytes": 47188,
+        "decision": "GO_INPUT_FOR_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_OBJECT_PROBE",
+        "mlp_proof_version": "stwo-d128-rmsnorm-mlp-fused-air-proof-v1",
+        "mlp_row_count": 197504,
+        "nanozk_reported_d128_block_proof_bytes": 6900,
+        "pcs_lifting_log_size": 19,
+        "route_id": "native_stwo_two_head_seq32_attention_softmax_table_plus_seq32_derived_d128_rmsnorm_mlp_single_proof_object_probe",
+        "schema": "zkai-native-seq32-attention-mlp-single-proof-object-input-v1",
+        "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
+        "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1"
+      },
+      "structural_signature": "blake2b-256:707e010e59bd310124aca4b7e0da148c4b9bbc3c2079efa2169ff098c15b3463",
+      "variant_id": "adjacent_seed_04"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_05_v1",
+      "family": "pre_registered_seed",
+      "input_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-05-2026-05.input.json",
+      "input_sha256": "e432219be16140b148bb981e0c4edfe9dd342e6192b780964a28498a8637b1ac",
+      "policy_status": "seed_no_go",
+      "row_identity_fields": {
+        "adapter_mode": "rmsnorm_input_fused_adjacent_seed_05_v1",
+        "proof_native_parameter_commitment": "blake2b-256:53e7f86d7211e9ebabeb47a16749fe978c90ddf5e97834a7cb64c66c5c2dce9d",
+        "public_instance_commitment": "blake2b-256:3116c47ae61d709a337185a340c1b5ed66e7f82286d18180d90c1b08f2bcdee2",
+        "statement_commitment": "blake2b-256:bfe9688d9a807a7c027bdc9496b458048e74bd47e25049604de8a3c0b490d940"
+      },
+      "row_identity_signature": "blake2b-256:d7bf1febaa27ff57a6a6b9b10b3d54de4b623e6de0a24d5b919123539ab0bf16",
+      "source_visible_scope": "input_json_before_prove_no_envelope_no_accounting_no_proof_bytes",
+      "structural_features": {
+        "adapter_remainder_bit_columns": 3,
+        "adapter_row_count": 128,
+        "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_FUSED_INTO_RMSNORM_INPUT_COMPONENT",
+        "adapter_trace_cells": 0,
+        "adapter_value_columns": 0,
+        "attention_lookup_claims": 1184,
+        "attention_proof_version": "stwo-attention-kv-two-head-seq32-fused-bounded-softmax-table-logup-proof-v1",
+        "attention_table_rows": 9,
+        "current_attention_fused_typed_bytes": 22916,
+        "current_derived_mlp_fused_typed_bytes": 24272,
+        "current_two_proof_frontier_typed_bytes": 47188,
+        "decision": "GO_INPUT_FOR_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_OBJECT_PROBE",
+        "mlp_proof_version": "stwo-d128-rmsnorm-mlp-fused-air-proof-v1",
+        "mlp_row_count": 197504,
+        "nanozk_reported_d128_block_proof_bytes": 6900,
+        "pcs_lifting_log_size": 19,
+        "route_id": "native_stwo_two_head_seq32_attention_softmax_table_plus_seq32_derived_d128_rmsnorm_mlp_single_proof_object_probe",
+        "schema": "zkai-native-seq32-attention-mlp-single-proof-object-input-v1",
+        "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
+        "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1"
+      },
+      "structural_signature": "blake2b-256:707e010e59bd310124aca4b7e0da148c4b9bbc3c2079efa2169ff098c15b3463",
+      "variant_id": "adjacent_seed_05"
+    }
+  ],
+  "result": "ALL_ADJACENT_ROWS_SHARE_ONE_STRUCTURAL_PREPROVE_SIGNATURE_BUT_FINAL_PATH_OPENING_BUCKETS_SPAN_4624_TYPED_BYTES",
+  "schema": "zkai-native-seq32-attention-mlp-preprove-opening-bucket-predictor-gate-v1",
+  "source_artifacts": [
+    {
+      "id": "rust_native_seq32_attention_mlp_source",
+      "path": "src/stwo_backend/native_seq32_attention_mlp_single_proof.rs",
+      "sha256": "35014074e972386ef8e1b261bb407eb842fc1b98037f4cac1f4da1a7e52cf6fb",
+      "size_bytes": 135974
+    },
+    {
+      "id": "cli_native_seq32_attention_mlp_source",
+      "path": "src/bin/zkai_native_seq32_attention_mlp_single_proof.rs",
+      "sha256": "6515f8a3e05661dc267b4c106d2e06d576d4f74d39bcc0821c892ac7e3b4bdac",
+      "size_bytes": 29586
+    },
+    {
+      "id": "adjacent_label_seed_sweep_accounting",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-accounting-2026-05.json",
+      "sha256": "90f04ada7e02f3777615417dec475c27ccff3511f42be0a084e6405b52fcd6db",
+      "size_bytes": 46080
+    }
+  ],
+  "validation_commands": [
+    "python3.10 scripts/zkai_native_seq32_attention_mlp_preprove_opening_bucket_predictor_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-preprove-opening-bucket-predictor-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-preprove-opening-bucket-predictor-2026-05.tsv",
+    "python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_preprove_opening_bucket_predictor_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_preprove_opening_bucket_predictor_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_preprove_opening_bucket_predictor_gate",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}
