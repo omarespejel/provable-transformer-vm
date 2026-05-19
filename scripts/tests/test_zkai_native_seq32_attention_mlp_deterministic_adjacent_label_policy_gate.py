@@ -186,7 +186,7 @@ class NativeSeq32DeterministicAdjacentLabelPolicyGateTest(unittest.TestCase):
             (2, "adapter_mode", "relabelled"),
             (3, "proof_json_bytes", 1),
             (1, "status_reason", "supported"),
-            (0, "value_bytes", 20_924),
+            (0, "value_bytes", self.gate.ADJACENT_VALUE_BYTES),
         ]
         for row_index, field, value in cases:
             with self.subTest(field=field):

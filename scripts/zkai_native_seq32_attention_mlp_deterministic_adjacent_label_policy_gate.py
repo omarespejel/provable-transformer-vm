@@ -51,6 +51,7 @@ ADJACENT_LABEL_INVENTORY = (FIXED_ADJACENT_ID, *SUPPORTED_LABEL_IDS)
 CURRENT_CHAMPION_TYPED_BYTES = 42_068
 CURRENT_CHAMPION_JSON_BYTES = 121_996
 CURRENT_CHAMPION_PATH_OPENING_BYTES = 20_592
+CURRENT_CHAMPION_VALUE_BYTES = 21_428
 ADJACENT_VALUE_BYTES = 20_924
 WORST_SUPPORTED_LABEL_ID = "adjacent_label_probe_a"
 WORST_SUPPORTED_TYPED_BYTES = 40_332
@@ -649,7 +650,7 @@ def validate_label_inventory(rows: list[Any]) -> None:
             "adapter_mode": "duplicate_base_preprocessed_v1",
             "proof_json_bytes": CURRENT_CHAMPION_JSON_BYTES,
             "status_reason": "baseline for typed/path-opening deltas",
-            "value_bytes": 21_428,
+            "value_bytes": CURRENT_CHAMPION_VALUE_BYTES,
         },
         FIXED_ADJACENT_ID: {
             "adapter_mode": "rmsnorm_input_fused_adjacent_fixed_v1",
