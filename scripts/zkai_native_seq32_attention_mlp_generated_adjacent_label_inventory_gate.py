@@ -367,6 +367,10 @@ def load_source_policy() -> tuple[dict[str, Any], bytes]:
         source, raw = deterministic_gate.load_source_policy()
     except deterministic_gate.DeterministicAdjacentLabelPolicyGateError as err:
         raise GeneratedAdjacentLabelInventoryGateError(str(err)) from err
+    if sha256(raw) != deterministic_gate.EXPECTED_SOURCE_POLICY_SHA256:
+        raise GeneratedAdjacentLabelInventoryGateError("source policy digest drift")
+    if source.get("payload_commitment") != deterministic_gate.EXPECTED_SOURCE_POLICY_COMMITMENT:
+        raise GeneratedAdjacentLabelInventoryGateError("source policy commitment drift")
     return source, raw
 
 
@@ -467,7 +471,7 @@ def source_artifact_rows(raws: dict[str, bytes], source_policy: dict[str, Any], 
         {
             "id": "source_adjacent_label_policy",
             "path": deterministic_gate.SOURCE_POLICY_RELATIVE_PATH,
-            "sha256": deterministic_gate.EXPECTED_SOURCE_POLICY_SHA256,
+            "sha256": sha256(raws["source_policy"]),
             "size_bytes": len(raws["source_policy"]),
             "payload_commitment": source_policy["payload_commitment"],
         },
@@ -858,12 +862,87 @@ def atomic_write_text(path: pathlib.Path, text: str) -> None:
         raise GeneratedAdjacentLabelInventoryGateError(f"failed to write output: {err}") from err
 
 
+def require_output_path(path: pathlib.Path) -> pathlib.Path:
+    try:
+        return source_gate.require_output_path(path)
+    except source_gate.AdjacentLabelPolicyGateError as err:
+        raise GeneratedAdjacentLabelInventoryGateError(str(err)) from err
+    except Exception as err:
+        raise GeneratedAdjacentLabelInventoryGateError(f"failed to prepare output path: {err}") from err
+
+
+def staged_output_path(path: pathlib.Path, text: str) -> pathlib.Path:
+    target = require_output_path(path)
+    text_hash = sha256(text.encode("utf-8"))[:16]
+    return target.with_name(f".{target.name}.paired-stage.{text_hash}")
+
+
+def cleanup_staged_outputs(paths: list[pathlib.Path]) -> None:
+    for path in paths:
+        try:
+            target = require_output_path(path)
+            if target.exists():
+                target.unlink()
+        except GeneratedAdjacentLabelInventoryGateError:
+            continue
+        except OSError:
+            continue
+
+
+def read_existing_output_text(path: pathlib.Path) -> str | None:
+    target = require_output_path(path)
+    if not target.exists():
+        return None
+    try:
+        return target.read_text(encoding="utf-8")
+    except OSError as err:
+        raise GeneratedAdjacentLabelInventoryGateError(f"failed to read existing output: {err}") from err
+
+
+def restore_outputs(previous: list[tuple[pathlib.Path, str | None]]) -> None:
+    for path, text in previous:
+        target = require_output_path(path)
+        if text is None:
+            try:
+                if target.exists():
+                    target.unlink()
+            except OSError as err:
+                raise GeneratedAdjacentLabelInventoryGateError(f"failed to roll back output: {err}") from err
+        else:
+            atomic_write_text(path, text)
+
+
+def publish_outputs_atomically(outputs: list[tuple[pathlib.Path, str]]) -> None:
+    if len(outputs) <= 1:
+        for path, text in outputs:
+            atomic_write_text(path, text)
+        return
+
+    staged: list[pathlib.Path] = []
+    try:
+        for path, text in outputs:
+            stage_path = staged_output_path(path, text)
+            atomic_write_text(stage_path, text)
+            staged.append(stage_path)
+        previous = [(path, read_existing_output_text(path)) for path, _text in outputs]
+        try:
+            for path, text in outputs:
+                atomic_write_text(path, text)
+        except GeneratedAdjacentLabelInventoryGateError:
+            restore_outputs(previous)
+            raise
+    finally:
+        cleanup_staged_outputs(staged)
+
+
 def write_outputs(payload: dict[str, Any], json_path: pathlib.Path | None, tsv_path: pathlib.Path | None) -> None:
     validate_payload(payload)
+    outputs = []
     if json_path is not None:
-        atomic_write_text(json_path, json.dumps(payload, indent=2, sort_keys=True) + "\n")
+        outputs.append((json_path, json.dumps(payload, indent=2, sort_keys=True) + "\n"))
     if tsv_path is not None:
-        atomic_write_text(tsv_path, render_tsv(payload))
+        outputs.append((tsv_path, render_tsv(payload)))
+    publish_outputs_atomically(outputs)
 
 
 def payload_with_mutations() -> dict[str, Any]:

@@ -2330,7 +2330,9 @@ a new proof-size frontier, not a matched external benchmark, and not a NANOZK
 win. Post-review hardening now makes the TSV evidence repeat payload/source
 commitment pins, generated/supported/rejected label sets, rejected unseen
 adapter modes, and mutation outcomes; UTF-8 decode and output-write failures
-raise the generated gate's own error type. See
+raise the generated gate's own error type; the loaded source-policy bytes are
+re-hashed locally; and paired JSON/TSV publication is staged with rollback on a
+second-final-write failure. See
 `docs/engineering/zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-2026-05-19.md`.
 
 Seq32 generated adjacent label-inventory reproducibility metadata:

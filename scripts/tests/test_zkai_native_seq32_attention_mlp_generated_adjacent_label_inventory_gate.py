@@ -175,6 +175,23 @@ class NativeSeq32GeneratedAdjacentLabelInventoryGateTest(unittest.TestCase):
         ):
             self.gate.validate_payload(payload)
 
+    def test_load_source_policy_rechecks_raw_digest(self) -> None:
+        original = self.gate.deterministic_gate.load_source_policy
+        source, raw = original()
+
+        def drifted_source_policy():
+            return source, raw + b"\n"
+
+        self.gate.deterministic_gate.load_source_policy = drifted_source_policy
+        try:
+            with self.assertRaisesRegex(
+                self.gate.GeneratedAdjacentLabelInventoryGateError,
+                "source policy digest drift",
+            ):
+                self.gate.load_source_policy()
+        finally:
+            self.gate.deterministic_gate.load_source_policy = original
+
     def test_rejects_unseen_label_acceptance(self) -> None:
         payload = copy.deepcopy(self.__class__.payload)
         payload["rejected_unseen_labels"][0]["reason"] = "accepted"
@@ -292,6 +309,34 @@ class NativeSeq32GeneratedAdjacentLabelInventoryGateTest(unittest.TestCase):
                 self.gate.write_outputs(self.__class__.payload, self.gate.JSON_OUT, None)
         finally:
             self.gate.source_gate.atomic_write_text = original
+
+    def test_write_outputs_rolls_back_paired_publish_if_second_final_fails(self) -> None:
+        original = self.gate.source_gate.atomic_write_text
+        calls = 0
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmpdir:
+            tmp = pathlib.Path(tmpdir)
+            json_out = tmp / "generated.json"
+            tsv_out = tmp / "generated.tsv"
+
+            def fail_fourth_write(path: pathlib.Path, text: str) -> None:
+                nonlocal calls
+                calls += 1
+                if calls == 4:
+                    raise OSError("second final publish failed")
+                original(path, text)
+
+            self.gate.source_gate.atomic_write_text = fail_fourth_write
+            try:
+                with self.assertRaisesRegex(
+                    self.gate.GeneratedAdjacentLabelInventoryGateError,
+                    "failed to write output: second final publish failed",
+                ):
+                    self.gate.write_outputs(self.__class__.payload, json_out, tsv_out)
+            finally:
+                self.gate.source_gate.atomic_write_text = original
+            self.assertFalse(json_out.exists())
+            self.assertFalse(tsv_out.exists())
+            self.assertEqual(list(tmp.glob(".*.paired-stage.*")), [])
 
     @unittest.skipUnless(hasattr(os, "symlink"), "symlink support required")
     def test_write_outputs_rejects_symlink_parent(self) -> None:

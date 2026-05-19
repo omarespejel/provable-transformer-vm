@@ -113,6 +113,9 @@ The TSV evidence now repeats the payload commitment, source artifact digest
 pins, source payload commitments, generated/supported/rejected label sets,
 rejected unseen adapter modes, and mutation outcomes on every inventory row so
 TSV-only audit readers keep the same reproduction pins as the JSON envelope.
+The gate also re-hashes the loaded source-policy bytes locally and stages paired
+JSON/TSV publication before final writes, with rollback if the second final
+artifact write fails.
 
 ## Reproduction
 
