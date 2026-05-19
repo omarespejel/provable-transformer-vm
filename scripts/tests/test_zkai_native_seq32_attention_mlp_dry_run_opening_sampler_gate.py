@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import os
 import pathlib
 import tempfile
 import unittest
@@ -137,6 +138,24 @@ class DryRunOpeningSamplerGateTest(unittest.TestCase):
                 self.gate.write_outputs(
                     pathlib.Path(tmp) / "out.json",
                     pathlib.Path(tmp) / "out.tsv",
+                    self.payload,
+                )
+
+    @unittest.skipUnless(hasattr(os, "symlink"), "requires symlink support")
+    def test_rejects_output_paths_through_symlinked_parent(self):
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:
+            tmp_path = pathlib.Path(tmp)
+            real_parent = tmp_path / "real"
+            real_parent.mkdir()
+            link_parent = tmp_path / "link"
+            link_parent.symlink_to(real_parent, target_is_directory=True)
+            with self.assertRaisesRegex(
+                self.gate.DryRunOpeningSamplerGateError,
+                "output path must not traverse symlinks",
+            ):
+                self.gate.write_outputs(
+                    link_parent / "out.json",
+                    link_parent / "out.tsv",
                     self.payload,
                 )
 
