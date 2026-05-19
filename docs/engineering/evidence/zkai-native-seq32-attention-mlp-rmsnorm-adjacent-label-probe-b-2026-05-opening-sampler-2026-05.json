@@ -1,0 +1,45 @@
+{
+  "schema": "zkai-native-seq32-attention-mlp-dry-run-opening-sampler-v1",
+  "decision": "GO_PROVER_INTERNAL_QUERY_OPENING_SAMPLER_BEFORE_FINAL_PROOF_SERIALIZATION",
+  "sampler_boundary": "PROVER_INTERNAL_EXTENDED_AUX_QUERY_LOCATIONS_ONLY;NO_ENVELOPE_JSON_NO_PROOF_BYTES_NO_GROUPED_ACCOUNTING_NO_RECORD_STREAMS",
+  "proof_backend": "stwo",
+  "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+  "statement_version": "zkai-native-seq32-attention-mlp-single-proof-object-native-adapter-statement-v1",
+  "semantic_scope": "two_head_seq32_attention_softmax_table_attention_to_d128_adapter_and_seq32_derived_d128_rmsnorm_mlp_surfaces_in_one_native_stwo_proof_object",
+  "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
+  "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1",
+  "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+  "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_FUSED_INTO_RMSNORM_INPUT_COMPONENT",
+  "statement_commitment": "blake2b-256:d9beeac3541370eb57e1ef331e2914aa4d680036f789311ef56cbb669cb61a37",
+  "public_instance_commitment": "blake2b-256:e480cb2db392a9c5ebb98a32b4705e1453d354a21de5358b3f0ceb028b2088c5",
+  "proof_native_parameter_commitment": "blake2b-256:cfc00d6a86ec46a66bbc32470aa4b9b1bdd86c8bff51453ef070ab5597528def",
+  "pcs_lifting_log_size": 19,
+  "expected_fri_queries": 3,
+  "trace_commitment_trees": 3,
+  "proof_commitment_count": 4,
+  "commitment_roots_digest": "blake2b-256:f9ada23b749f7ef8a8b2d65871668cdb3e8f79d806738ba97b2c3032a750d98a",
+  "unsorted_query_locations": [
+    433264,
+    427295,
+    443913
+  ],
+  "sorted_unique_query_locations": [
+    427295,
+    433264,
+    443913
+  ],
+  "unsorted_query_count": 3,
+  "unique_query_count": 3,
+  "duplicate_query_count": 0,
+  "min_query_location": 427295,
+  "max_query_location": 443913,
+  "query_location_digest": "blake2b-256:ef4edfe7457ea69e7c6de540167727511b9f86cac3cc25a7821b7b34dad20b76",
+  "non_claims": [
+    "not a final proof byte-size measurement",
+    "not grouped proof accounting",
+    "not a production label-selection policy",
+    "not a new proof-size frontier",
+    "not a NANOZK comparison",
+    "not timing evidence"
+  ]
+}

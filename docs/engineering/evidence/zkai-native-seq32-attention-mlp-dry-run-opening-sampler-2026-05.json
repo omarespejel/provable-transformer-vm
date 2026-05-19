@@ -1,0 +1,445 @@
+{
+  "claim_boundary": "SAMPLER_USES_PROVER_INTERNAL_QUERY_LOCATIONS_ONLY;FINAL_ACCOUNTING_JOIN_USED_ONLY_FOR_EVALUATION;NO_ENVELOPE_JSON_NO_PROOF_BYTES_NO_GROUPED_ACCOUNTING_NO_RECORD_STREAMS_IN_PREDICTOR;NOT_A_PRODUCTION_LABEL_POLICY_NOT_A_NANOZK_COMPARISON",
+  "decision": "GO_QUERY_LOCATION_SAMPLER_PREDICTS_CHECKED_ADJACENT_OPENING_BUCKETS",
+  "interpretation": {
+    "human_read": "The source-visible inventory was blind, but prover-internal query locations expose a checked mechanism for this small adjacent-label inventory. Probe B lands in the tightest three-query cluster and in the smallest final path-opening bucket.",
+    "mechanism_read": "The predictor uses only query-location geometry from the Stwo extended proof auxiliary data. Final proof-size accounting is joined after prediction only to score the result.",
+    "next_experiment": "Move from this checked inventory rule to a true pre-decommitment sampler or multi-run layout policy before promoting any production label-selection claim."
+  },
+  "issue": "https://github.com/omarespejel/provable-transformer-vm/issues/697",
+  "mutation_result": {
+    "all_mutations_rejected": true,
+    "cases": [
+      {
+        "error": "base payload drift",
+        "name": "decision_drift",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "result_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "rust_source_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "cli_source_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "preprove_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "sampler_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "sampler_row_removed",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "query_location_erasure",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "row_identity_promoted_to_predictor",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "final_accounting_leak_to_predictor",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "probe_b_prediction_drift",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "prediction_rule_threshold_drift",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "validation_command_removed",
+        "rejected": true
+      },
+      {
+        "error": "base payload drift",
+        "name": "non_claim_removed",
+        "rejected": true
+      },
+      {
+        "error": "payload commitment drift",
+        "name": "payload_commitment_drift",
+        "rejected": true
+      }
+    ],
+    "mutation_names": [
+      "decision_drift",
+      "result_overclaim",
+      "rust_source_digest_drift",
+      "cli_source_digest_drift",
+      "preprove_digest_drift",
+      "sampler_digest_drift",
+      "sampler_row_removed",
+      "query_location_erasure",
+      "row_identity_promoted_to_predictor",
+      "final_accounting_leak_to_predictor",
+      "probe_b_prediction_drift",
+      "prediction_rule_threshold_drift",
+      "validation_command_removed",
+      "non_claim_removed",
+      "payload_commitment_drift"
+    ],
+    "mutations_rejected": 15
+  },
+  "non_claims": [
+    "not a production label-selection policy",
+    "not a new proof-size frontier",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not a full transformer block proof",
+    "not exact real-valued Softmax",
+    "not timing evidence",
+    "not production-ready zkML"
+  ],
+  "payload_commitment": "blake2b-256:ceb6a94da9c1a2c9b016376ebed2560ca0f927560f34094d21b11e7aa66231af",
+  "predictor_policy": {
+    "best_final_path_opening_bytes": 16560,
+    "best_final_variant_id": "adjacent_label_probe_b",
+    "best_predicted_path_opening_bytes": 16560,
+    "best_predicted_variant_id": "adjacent_label_probe_b",
+    "distinct_final_path_opening_buckets": 5,
+    "distinct_predicted_path_opening_buckets": 5,
+    "final_accounting_is_predictor_input": false,
+    "forbidden_predictor_keys": [
+      "adapter_mode",
+      "envelope_sha256",
+      "groups",
+      "json_proof_bytes",
+      "path_opening_bytes",
+      "proof_native_parameter_commitment",
+      "proof_sha256",
+      "public_instance_commitment",
+      "record_stream_sha256",
+      "statement_commitment",
+      "typed_bytes",
+      "variant_id"
+    ],
+    "prediction_all_correct": true,
+    "predictor_feature_keys": [
+      "unique_query_count",
+      "query_location_span",
+      "min_pairwise_query_gap"
+    ],
+    "row_identity_fields_are_predictors": false
+  },
+  "result": "QUERY_LOCATION_GEOMETRY_PREDICTS_PROBE_B_AND_SEED_BUCKETS_WITHOUT_FINAL_PROOF_BYTES",
+  "sampler_rows": [
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_a_v1",
+      "commitment_roots_digest": "blake2b-256:c7f6622315dad4f8f728fe466a78a61021180962c3dd03c50b49f8bf19962fe8",
+      "final_path_opening_bytes": 19360,
+      "final_value_bytes": 20924,
+      "predicted_path_opening_bytes": 19360,
+      "prediction_correct": true,
+      "prediction_rule": "one_tight_pair_inside_wider_span",
+      "predictor_features": {
+        "min_pairwise_query_gap": 14670,
+        "query_location_span": 110651,
+        "unique_query_count": 3
+      },
+      "query_location_digest": "blake2b-256:a97e6dd4578e767c32a6ed50a2494e9a6819316a52211e16a7bc815cad1789bf",
+      "sampler_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05-opening-sampler-2026-05.json",
+      "sampler_sha256": "e5789e6876e13a68542aadad1a8b2649b2d31bc1c08843b595818eb031c170b8",
+      "sorted_unique_query_locations": [
+        366651,
+        462632,
+        477302
+      ],
+      "variant_id": "adjacent_label_probe_a"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+      "commitment_roots_digest": "blake2b-256:f9ada23b749f7ef8a8b2d65871668cdb3e8f79d806738ba97b2c3032a750d98a",
+      "final_path_opening_bytes": 16560,
+      "final_value_bytes": 20924,
+      "predicted_path_opening_bytes": 16560,
+      "prediction_correct": true,
+      "prediction_rule": "tight_three_query_cluster",
+      "predictor_features": {
+        "min_pairwise_query_gap": 5969,
+        "query_location_span": 16618,
+        "unique_query_count": 3
+      },
+      "query_location_digest": "blake2b-256:ef4edfe7457ea69e7c6de540167727511b9f86cac3cc25a7821b7b34dad20b76",
+      "sampler_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05-opening-sampler-2026-05.json",
+      "sampler_sha256": "5421f80d39bf80c3301d4f65f412fb9bb6d8f9b333577b7f305b02912dda6252",
+      "sorted_unique_query_locations": [
+        427295,
+        433264,
+        443913
+      ],
+      "variant_id": "adjacent_label_probe_b"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_fixed_v1",
+      "commitment_roots_digest": "blake2b-256:afd75885486be084a6d51bbe33f403e6f41f91fe4ed4756e1f02e211d3e667e8",
+      "final_path_opening_bytes": 21184,
+      "final_value_bytes": 20924,
+      "predicted_path_opening_bytes": 21184,
+      "prediction_correct": true,
+      "prediction_rule": "wide_query_span",
+      "predictor_features": {
+        "min_pairwise_query_gap": 30179,
+        "query_location_span": 291186,
+        "unique_query_count": 3
+      },
+      "query_location_digest": "blake2b-256:b3b6131a17d9bf8efabaaebb3d37f0dc2c86c9c9a2c2bd791b391de8a36aef02",
+      "sampler_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05-opening-sampler-2026-05.json",
+      "sampler_sha256": "6fd4527aa1e62a22e96f413b252677aae3c778b10823cce96cb6a879df8337d4",
+      "sorted_unique_query_locations": [
+        191201,
+        452208,
+        482387
+      ],
+      "variant_id": "fixed_adjacent_layout"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_00_v1",
+      "commitment_roots_digest": "blake2b-256:72ffa26f6bfb83096cb839512c5a54cf91513868e10194eb5fe28684ad9f4709",
+      "final_path_opening_bytes": 20512,
+      "final_value_bytes": 20924,
+      "predicted_path_opening_bytes": 20512,
+      "prediction_correct": true,
+      "prediction_rule": "medium_wide_span_without_tight_pair",
+      "predictor_features": {
+        "min_pairwise_query_gap": 34301,
+        "query_location_span": 180956,
+        "unique_query_count": 3
+      },
+      "query_location_digest": "blake2b-256:768e673c32e0037f57367558819b50f3887bad29e9e5428fe054e0dec640c9c5",
+      "sampler_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-00-2026-05-opening-sampler-2026-05.json",
+      "sampler_sha256": "6a99c0a0eb1f57ee96ac629e09e6e98d84a621dcf3b7d7492bd19e07b09ce226",
+      "sorted_unique_query_locations": [
+        297431,
+        331732,
+        478387
+      ],
+      "variant_id": "adjacent_seed_00"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_01_v1",
+      "commitment_roots_digest": "blake2b-256:85aaa3b7410a103e432a25c7fddee23564e04b278ca384f0947a564315975591",
+      "final_path_opening_bytes": 20512,
+      "final_value_bytes": 20924,
+      "predicted_path_opening_bytes": 20512,
+      "prediction_correct": true,
+      "prediction_rule": "medium_wide_span_without_tight_pair",
+      "predictor_features": {
+        "min_pairwise_query_gap": 49574,
+        "query_location_span": 145631,
+        "unique_query_count": 3
+      },
+      "query_location_digest": "blake2b-256:fd48a5bd86cd638e7ca6c63cd64368dd7f71dd0e42e78aa593a6fb9dbf196c4d",
+      "sampler_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-01-2026-05-opening-sampler-2026-05.json",
+      "sampler_sha256": "bb2005983a1d783eb80b12e9b988a493ae3e1247f6e086a9d32d2e75bdaed375",
+      "sorted_unique_query_locations": [
+        318468,
+        368042,
+        464099
+      ],
+      "variant_id": "adjacent_seed_01"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_02_v1",
+      "commitment_roots_digest": "blake2b-256:7bd27949b3a4c6917b15ff4fa480f983b76ebb754a656e4b50846b7c52d46940",
+      "final_path_opening_bytes": 19296,
+      "final_value_bytes": 20924,
+      "predicted_path_opening_bytes": 19296,
+      "prediction_correct": true,
+      "prediction_rule": "medium_span_without_tight_pair",
+      "predictor_features": {
+        "min_pairwise_query_gap": 32220,
+        "query_location_span": 86468,
+        "unique_query_count": 3
+      },
+      "query_location_digest": "blake2b-256:31c275bccdb51beb6c9ae7e28fd6fe464286eee5b531369672ce7e1cc55e4965",
+      "sampler_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-02-2026-05-opening-sampler-2026-05.json",
+      "sampler_sha256": "747708f9c6f28af8f7383e15fef6a2f8fa48745a64dc9f3f8930012ee02082d4",
+      "sorted_unique_query_locations": [
+        288012,
+        342260,
+        374480
+      ],
+      "variant_id": "adjacent_seed_02"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_03_v1",
+      "commitment_roots_digest": "blake2b-256:b81daf85f4fd5e6aa81066c7df8aa8309138f05ac4e80215ca32bd251c56a59a",
+      "final_path_opening_bytes": 21184,
+      "final_value_bytes": 20924,
+      "predicted_path_opening_bytes": 21184,
+      "prediction_correct": true,
+      "prediction_rule": "wide_query_span",
+      "predictor_features": {
+        "min_pairwise_query_gap": 80748,
+        "query_location_span": 391501,
+        "unique_query_count": 3
+      },
+      "query_location_digest": "blake2b-256:cfd0580dc70f925a0ad18ff15b61eedb9dd70f9e174ce964c5ba1e4ace9e8aca",
+      "sampler_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-03-2026-05-opening-sampler-2026-05.json",
+      "sampler_sha256": "9edc1870d6aa63e04ea703cc3ea0824bc27acf8bcade1e08ddcc929e366c9b1b",
+      "sorted_unique_query_locations": [
+        5039,
+        85787,
+        396540
+      ],
+      "variant_id": "adjacent_seed_03"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_04_v1",
+      "commitment_roots_digest": "blake2b-256:b5de829784fbd01a80c789ea40b8e50829aa7c6e0dbb8b457d459d1192966b0e",
+      "final_path_opening_bytes": 21184,
+      "final_value_bytes": 20924,
+      "predicted_path_opening_bytes": 21184,
+      "prediction_correct": true,
+      "prediction_rule": "wide_query_span",
+      "predictor_features": {
+        "min_pairwise_query_gap": 57938,
+        "query_location_span": 422330,
+        "unique_query_count": 3
+      },
+      "query_location_digest": "blake2b-256:91f7d90dab5d1639cfde72ca8ed336c0b6d1a3372cd4dba070fca4d9acb6ba98",
+      "sampler_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-04-2026-05-opening-sampler-2026-05.json",
+      "sampler_sha256": "0016d0f425f5ed79c14c847ae32bbd54b317a1d1149137b55eb2fbbb4c56050b",
+      "sorted_unique_query_locations": [
+        29404,
+        87342,
+        451734
+      ],
+      "variant_id": "adjacent_seed_04"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_05_v1",
+      "commitment_roots_digest": "blake2b-256:9beaca35b327c03dc0a575e914515654798e747f516364193487b89ce5fd6087",
+      "final_path_opening_bytes": 19360,
+      "final_value_bytes": 20924,
+      "predicted_path_opening_bytes": 19360,
+      "prediction_correct": true,
+      "prediction_rule": "one_tight_pair_inside_wider_span",
+      "predictor_features": {
+        "min_pairwise_query_gap": 15995,
+        "query_location_span": 125812,
+        "unique_query_count": 3
+      },
+      "query_location_digest": "blake2b-256:81da56e8d19d1218d6f12cb67acc7ebc9a24016cb56dc6239dc7c0f369aeb073",
+      "sampler_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-05-2026-05-opening-sampler-2026-05.json",
+      "sampler_sha256": "967f5bffb6a7d35ecdcb059444851d194d9e03dbd80a38f3ec8ddc9c3260230e",
+      "sorted_unique_query_locations": [
+        390942,
+        500759,
+        516754
+      ],
+      "variant_id": "adjacent_seed_05"
+    }
+  ],
+  "schema": "zkai-native-seq32-attention-mlp-dry-run-opening-sampler-gate-v1",
+  "source_artifacts": [
+    {
+      "id": "rust_native_seq32_attention_mlp_source",
+      "path": "src/stwo_backend/native_seq32_attention_mlp_single_proof.rs",
+      "sha256": "5f0173ea4e4aedf5d13a8c4520cc6bff3fa1c557cc40a8a366784a9d612e12a5",
+      "size_bytes": 144156
+    },
+    {
+      "id": "cli_native_seq32_attention_mlp_source",
+      "path": "src/bin/zkai_native_seq32_attention_mlp_single_proof.rs",
+      "sha256": "5e7a7468a96f08edd76ca5b53060b5c29364ecdad80b455c4eee1cdfb0d43b6d",
+      "size_bytes": 31888
+    },
+    {
+      "id": "preprove_opening_bucket_predictor_evidence",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-preprove-opening-bucket-predictor-2026-05.json",
+      "sha256": "98bcd9b9a574aa934c4ad571ae78aa1d738f0fb720488cb992be88609a8b785b",
+      "size_bytes": 38580
+    },
+    {
+      "id": "adjacent_label_probe_a_opening_sampler",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05-opening-sampler-2026-05.json",
+      "sha256": "e5789e6876e13a68542aadad1a8b2649b2d31bc1c08843b595818eb031c170b8",
+      "size_bytes": 2323
+    },
+    {
+      "id": "adjacent_label_probe_b_opening_sampler",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05-opening-sampler-2026-05.json",
+      "sha256": "5421f80d39bf80c3301d4f65f412fb9bb6d8f9b333577b7f305b02912dda6252",
+      "size_bytes": 2323
+    },
+    {
+      "id": "fixed_adjacent_layout_opening_sampler",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05-opening-sampler-2026-05.json",
+      "sha256": "6fd4527aa1e62a22e96f413b252677aae3c778b10823cce96cb6a879df8337d4",
+      "size_bytes": 2315
+    },
+    {
+      "id": "adjacent_seed_00_opening_sampler",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-00-2026-05-opening-sampler-2026-05.json",
+      "sha256": "6a99c0a0eb1f57ee96ac629e09e6e98d84a621dcf3b7d7492bd19e07b09ce226",
+      "size_bytes": 2317
+    },
+    {
+      "id": "adjacent_seed_01_opening_sampler",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-01-2026-05-opening-sampler-2026-05.json",
+      "sha256": "bb2005983a1d783eb80b12e9b988a493ae3e1247f6e086a9d32d2e75bdaed375",
+      "size_bytes": 2317
+    },
+    {
+      "id": "adjacent_seed_02_opening_sampler",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-02-2026-05-opening-sampler-2026-05.json",
+      "sha256": "747708f9c6f28af8f7383e15fef6a2f8fa48745a64dc9f3f8930012ee02082d4",
+      "size_bytes": 2317
+    },
+    {
+      "id": "adjacent_seed_03_opening_sampler",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-03-2026-05-opening-sampler-2026-05.json",
+      "sha256": "9edc1870d6aa63e04ea703cc3ea0824bc27acf8bcade1e08ddcc929e366c9b1b",
+      "size_bytes": 2309
+    },
+    {
+      "id": "adjacent_seed_04_opening_sampler",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-04-2026-05-opening-sampler-2026-05.json",
+      "sha256": "0016d0f425f5ed79c14c847ae32bbd54b317a1d1149137b55eb2fbbb4c56050b",
+      "size_bytes": 2312
+    },
+    {
+      "id": "adjacent_seed_05_opening_sampler",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-05-2026-05-opening-sampler-2026-05.json",
+      "sha256": "967f5bffb6a7d35ecdcb059444851d194d9e03dbd80a38f3ec8ddc9c3260230e",
+      "size_bytes": 2317
+    }
+  ],
+  "validation_commands": [
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib",
+    "cargo +nightly-2025-07-14 build --locked --features stwo-backend --bin zkai_native_seq32_attention_mlp_single_proof",
+    "for input in docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent*2026-05.input.json; do output=\"${input%.input.json}-opening-sampler-2026-05.json\"; target/debug/zkai_native_seq32_attention_mlp_single_proof sample-openings \"$input\" \"$output\"; done",
+    "python3.10 scripts/zkai_native_seq32_attention_mlp_dry_run_opening_sampler_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-dry-run-opening-sampler-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-dry-run-opening-sampler-2026-05.tsv",
+    "python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_dry_run_opening_sampler_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_dry_run_opening_sampler_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_dry_run_opening_sampler_gate",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}

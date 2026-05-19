@@ -205,6 +205,18 @@ This repository currently has three live lanes.
      decommitment bytes while saving `504` OODS/query bytes. The next attack is
      query/opening stability, not more base-cell removal; see
      `docs/engineering/zkai-native-seq32-attention-mlp-adapter-variant-selector-2026-05-19.md`.
+   - The current dry-run opening sampler is a checked GO for explaining the
+     adjacent probe-B bucket inside the nine-row adjacent label/seed inventory.
+     The prior source-visible pre-prove inventory could not distinguish the
+     five final path-opening buckets, but Stwo prover-internal query locations
+     do: `adjacent_label_probe_b` has the tightest three-query cluster
+     (`16,618` query span / `5,969` min pairwise gap) and predicts the
+     smallest `16,560` typed-byte path-opening bucket. The checked inventory
+     predicts all nine final buckets with `15 / 15` mutation guards rejected.
+     This is not a production label policy, not a new proof-size frontier, and
+     not a NANOZK comparison; it says the next lever is transcript/query
+     opening geometry. See
+     `docs/engineering/zkai-native-seq32-attention-mlp-dry-run-opening-sampler-2026-05-19.md`.
    - The current source-backed adapter frontier is a correctness GO and a
      proof-shape learning result, not a compression breakthrough. The compact
      selector verifies at `40,812` local typed bytes, only `112` typed bytes

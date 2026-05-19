@@ -16,6 +16,7 @@ use llm_provable_computer::stwo_backend::{
     build_zkai_native_seq32_attention_mlp_single_proof_input,
     build_zkai_native_seq32_attention_mlp_single_proof_input_with_adapter_mode,
     prove_zkai_native_seq32_attention_mlp_single_proof_envelope,
+    sample_zkai_native_seq32_attention_mlp_openings,
     verify_zkai_native_seq32_attention_mlp_single_proof_envelope,
     zkai_attention_kv_native_two_head_seq32_fused_softmax_table_source_input_from_json_str,
     zkai_d128_rmsnorm_mlp_fused_input_from_json_str,
@@ -24,6 +25,7 @@ use llm_provable_computer::stwo_backend::{
     ZkAiNativeSeq32AttentionMlpAdapterMode,
     ZKAI_ATTENTION_KV_NATIVE_TWO_HEAD_SEQ32_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES,
     ZKAI_D128_RMSNORM_MLP_FUSED_MAX_JSON_BYTES,
+    ZKAI_NATIVE_SEQ32_ATTENTION_MLP_OPENING_SAMPLER_MAX_JSON_BYTES,
     ZKAI_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_MAX_ENVELOPE_JSON_BYTES,
     ZKAI_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_MAX_INPUT_JSON_BYTES,
 };
@@ -126,6 +128,48 @@ fn run() -> Result<String, String> {
                 "adapter_status": envelope.input.adapter_status,
                 "adapter_trace_cells": envelope.input.adapter_trace_cells,
                 "pcs_lifting_log_size": envelope.input.pcs_lifting_log_size,
+            })
+            .to_string())
+        }
+        "sample-openings" => {
+            if args.len() != 2 {
+                return Err("usage: sample-openings <single-input.json> <sampler.json>".to_string());
+            }
+            let input_path = PathBuf::from(&args[0]);
+            let sampler_path = PathBuf::from(&args[1]);
+            let input_raw = read_bounded_utf8(
+                &input_path,
+                ZKAI_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_MAX_INPUT_JSON_BYTES,
+                "seq32 native single proof input JSON",
+            )?;
+            let input =
+                zkai_native_seq32_attention_mlp_single_proof_input_from_json_str(&input_raw)
+                    .map_err(|error| error.to_string())?;
+            let sampler = sample_zkai_native_seq32_attention_mlp_openings(&input)
+                .map_err(|error| error.to_string())?;
+            let bytes = pretty_json_bytes_with_trailing_newline(
+                &sampler,
+                ZKAI_NATIVE_SEQ32_ATTENTION_MLP_OPENING_SAMPLER_MAX_JSON_BYTES,
+                "seq32 native single proof opening sampler JSON",
+            )?;
+            atomic_write_file(
+                &sampler_path,
+                &bytes,
+                "seq32 native single proof opening sampler",
+            )?;
+            Ok(serde_json::json!({
+                "schema": "zkai-native-seq32-attention-mlp-single-proof-cli-summary-v1",
+                "mode": "sample-openings",
+                "sampler_path": sampler_path.display().to_string(),
+                "sampler_size_bytes": bytes.len(),
+                "statement_commitment": sampler.statement_commitment,
+                "public_instance_commitment": sampler.public_instance_commitment,
+                "adapter_mode": sampler.adapter_mode,
+                "adapter_status": sampler.adapter_status,
+                "expected_fri_queries": sampler.expected_fri_queries,
+                "unique_query_count": sampler.unique_query_count,
+                "duplicate_query_count": sampler.duplicate_query_count,
+                "query_location_digest": sampler.query_location_digest,
             })
             .to_string())
         }
@@ -258,7 +302,7 @@ fn build_input_with_adapter_mode(
 fn usage() -> String {
     "usage: zkai_native_seq32_attention_mlp_single_proof \
 build-input|build-input-compact|build-input-preprocessed-anchor|build-input-rmsnorm-fused|build-input-rmsnorm-fused-label-probe-a|build-input-rmsnorm-fused-label-probe-b|build-input-rmsnorm-fused-adjacent|build-input-rmsnorm-fused-adjacent-label-probe-a|build-input-rmsnorm-fused-adjacent-label-probe-b|build-input-rmsnorm-fused-adjacent-seed-00|build-input-rmsnorm-fused-adjacent-seed-01|build-input-rmsnorm-fused-adjacent-seed-02|build-input-rmsnorm-fused-adjacent-seed-03|build-input-rmsnorm-fused-adjacent-seed-04|build-input-rmsnorm-fused-adjacent-seed-05|build-input-rmsnorm-fused-post-tail|build-input-rmsnorm-fused-post-tail-label-probe-a|build-input-rmsnorm-fused-post-tail-label-probe-b \
-<attention-source.json> <mlp-input.json> <single-input.json> | prove <single-input.json> <envelope.json> | verify <envelope.json>"
+<attention-source.json> <mlp-input.json> <single-input.json> | prove <single-input.json> <envelope.json> | verify <envelope.json> | sample-openings <single-input.json> <sampler.json>"
         .to_string()
 }
 
