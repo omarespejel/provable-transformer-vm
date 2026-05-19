@@ -2657,9 +2657,11 @@ Seq32 pre-decommitment opening-policy reproducibility metadata:
   and
   `docs/engineering/evidence/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05.tsv`.
 - Gate JSON SHA-256:
-  `b474e0990945733af1cf3f1e4fdea76c958284675b30c8c78900161dd9422409`.
+  `07d711adf35a960f64c2cb644ba0e912b0d167698f2c4597d1294075eaa36084`.
+- Gate TSV SHA-256:
+  `9d27db58076a846b5cdfa15b5f8e74cdcd703cf41292c03f33f867a75e531a81`.
 - Payload commitment:
-  `blake2b-256:e1c41e345a3eee68b3d5eb64c4328b6bc757dd6c0bb9efb124794f15e5d92eb2`.
+  `blake2b-256:8aa57c5c28b85f5fa37ff90a46c116731528215d5d7875dd70c099342bca31d5`.
 - Canonical source:
   the JSON/TSV values above come from regenerating the checked evidence with
   the local gate command, then updating the PR description and this handoff to
@@ -2669,7 +2671,7 @@ Seq32 pre-decommitment opening-policy reproducibility metadata:
 - Selected adapter mode:
   `rmsnorm_input_fused_adjacent_label_probe_b_v1`.
 - Step counts:
-  `9` policy rows, `3` FRI query locations per row, `18` mutation cases, `14`
+  `9` policy rows, `3` FRI query locations per row, `18` mutation cases, `15`
   Python unit tests, and `14` local release-gate steps.
 - Local validation commands:
   `python3.10 scripts/zkai_native_seq32_attention_mlp_predecommit_opening_policy_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05.tsv`;

@@ -68,7 +68,7 @@ EXPECTED_CANDIDATE_SAVING_VS_CHAMPION = 4_536
 EXPECTED_CANDIDATE_SAVING_SHARE_VS_CHAMPION = "10.7825%"
 EXPECTED_CANDIDATE_SAVING_VS_BEST_SEED = 2_736
 EXPECTED_POLICY_ROW_COUNT = len(sampler_gate.VARIANTS)
-EXPECTED_UNITTEST_STEP_COUNT = 14
+EXPECTED_UNITTEST_STEP_COUNT = 15
 EXPECTED_LOCAL_RELEASE_GATE_STEP_COUNT = 14
 
 SOURCE_MARKERS = {
@@ -465,6 +465,15 @@ def validate_mutation_result(mutation_result: Any) -> None:
     cases = mutation_result.get("cases")
     if not isinstance(cases, list) or len(cases) != len(MUTATION_NAMES):
         raise PredecommitOpeningPolicyGateError("mutation case count drift")
+    for case in cases:
+        if not isinstance(case, dict):
+            raise PredecommitOpeningPolicyGateError("mutation case schema drift")
+        if (
+            not isinstance(case.get("name"), str)
+            or not isinstance(case.get("rejected"), bool)
+            or not isinstance(case.get("error"), str)
+        ):
+            raise PredecommitOpeningPolicyGateError("mutation case schema drift")
     rejected_names = [case.get("name") for case in cases if case.get("rejected") is True]
     if rejected_names != list(MUTATION_NAMES):
         raise PredecommitOpeningPolicyGateError("mutation rejection drift")
