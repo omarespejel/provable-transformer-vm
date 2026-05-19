@@ -142,8 +142,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 136. `docs/engineering/zkai-bounded-stwo-query-policy-hook-2026-05-19.md`
 137. `docs/engineering/zkai-stwo-query-preview-split-prototype-2026-05-19.md`
 138. `docs/engineering/zkai-stwo-query-grinding-budget-2026-05-19.md`
-139. `docs/engineering/reproducibility.md`
-140. `git status --short --branch`
+139. `docs/engineering/zkai-stwo-attempt-domain-binding-2026-05-19.md`
+140. `docs/engineering/reproducibility.md`
+141. `git status --short --branch`
 
 ## What this repository is now
 
@@ -249,6 +250,17 @@ This repository currently has three live lanes.
      all-inventory budget `9` is unnecessary extra grinding (`3.169925` loss
      bits for the same champion). See
      `docs/engineering/zkai-stwo-query-grinding-budget-2026-05-19.md`.
+   - The current attempt-domain binding gate promotes that mechanism one step
+     toward a verifier-facing statement boundary. The generated inventory and
+     proof-object builder are source-complete over nine adjacent labels: only
+     `adjacent_label_probe_a` and `adjacent_label_probe_b` are accepted, while
+     fixed plus six seed labels are explicit rejected rows. The typed outer
+     envelope binds the two-probe domain, selected probe-B row, `1.000000`
+     security-loss bits, builder commitment, query-budget commitment, and
+     selected envelope/proof/input/record-stream hashes. It still does not
+     regenerate the proof and does not bind the attempt domain inside the inner
+     Stwo transcript; see
+     `docs/engineering/zkai-stwo-attempt-domain-binding-2026-05-19.md`.
    - The current source-backed adapter frontier is a correctness GO and a
      proof-shape learning result, not a compression breakthrough. The compact
      selector verifies at `40,812` local typed bytes, only `112` typed bytes

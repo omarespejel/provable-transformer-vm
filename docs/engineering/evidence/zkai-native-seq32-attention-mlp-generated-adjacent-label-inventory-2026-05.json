@@ -49,6 +49,102 @@
       "typed_delta_vs_champion": -4536,
       "value_bytes": 20924,
       "variant_id": "adjacent_label_probe_b"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_00_v1",
+      "cli_command": "build-input-rmsnorm-fused-adjacent-seed-00",
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-00-2026-05.envelope.json",
+      "path_opening_bytes": 20512,
+      "path_opening_delta_vs_champion": -80,
+      "policy_status": "rejected_unpromoted_seed_label",
+      "proof_accounting_pinned": true,
+      "proof_json_bytes": 120158,
+      "rust_enum_variant": "RmsnormInputFusedAdjacentSeed00",
+      "status_reason": "seed is outside the verifier-bound two-probe attempt domain",
+      "typed_bytes": 41484,
+      "typed_delta_vs_champion": -584,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_00"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_01_v1",
+      "cli_command": "build-input-rmsnorm-fused-adjacent-seed-01",
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-01-2026-05.envelope.json",
+      "path_opening_bytes": 20512,
+      "path_opening_delta_vs_champion": -80,
+      "policy_status": "rejected_unpromoted_seed_label",
+      "proof_accounting_pinned": true,
+      "proof_json_bytes": 120064,
+      "rust_enum_variant": "RmsnormInputFusedAdjacentSeed01",
+      "status_reason": "seed is outside the verifier-bound two-probe attempt domain",
+      "typed_bytes": 41484,
+      "typed_delta_vs_champion": -584,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_01"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_02_v1",
+      "cli_command": "build-input-rmsnorm-fused-adjacent-seed-02",
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-02-2026-05.envelope.json",
+      "path_opening_bytes": 19296,
+      "path_opening_delta_vs_champion": -1296,
+      "policy_status": "rejected_unpromoted_seed_label",
+      "proof_accounting_pinned": true,
+      "proof_json_bytes": 115995,
+      "rust_enum_variant": "RmsnormInputFusedAdjacentSeed02",
+      "status_reason": "seed is outside the verifier-bound two-probe attempt domain",
+      "typed_bytes": 40268,
+      "typed_delta_vs_champion": -1800,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_02"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_03_v1",
+      "cli_command": "build-input-rmsnorm-fused-adjacent-seed-03",
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-03-2026-05.envelope.json",
+      "path_opening_bytes": 21184,
+      "path_opening_delta_vs_champion": 592,
+      "policy_status": "rejected_inflating_label",
+      "proof_accounting_pinned": true,
+      "proof_json_bytes": 122588,
+      "rust_enum_variant": "RmsnormInputFusedAdjacentSeed03",
+      "status_reason": "seed path-opening or typed bytes do not beat the current champion",
+      "typed_bytes": 42156,
+      "typed_delta_vs_champion": 88,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_03"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_04_v1",
+      "cli_command": "build-input-rmsnorm-fused-adjacent-seed-04",
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-04-2026-05.envelope.json",
+      "path_opening_bytes": 21184,
+      "path_opening_delta_vs_champion": 592,
+      "policy_status": "rejected_inflating_label",
+      "proof_accounting_pinned": true,
+      "proof_json_bytes": 122648,
+      "rust_enum_variant": "RmsnormInputFusedAdjacentSeed04",
+      "status_reason": "seed path-opening or typed bytes do not beat the current champion",
+      "typed_bytes": 42156,
+      "typed_delta_vs_champion": 88,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_04"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_seed_05_v1",
+      "cli_command": "build-input-rmsnorm-fused-adjacent-seed-05",
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-seed-05-2026-05.envelope.json",
+      "path_opening_bytes": 19360,
+      "path_opening_delta_vs_champion": -1232,
+      "policy_status": "rejected_unpromoted_seed_label",
+      "proof_accounting_pinned": true,
+      "proof_json_bytes": 116303,
+      "rust_enum_variant": "RmsnormInputFusedAdjacentSeed05",
+      "status_reason": "seed is outside the verifier-bound two-probe attempt domain",
+      "typed_bytes": 40332,
+      "typed_delta_vs_champion": -1736,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_seed_05"
     }
   ],
   "generator_policy": {
@@ -56,6 +152,7 @@
       "adapter mode is generated from the pinned Rust adjacent family",
       "matching CLI build-input command exists",
       "proof/accounting row exists in the pinned source policy",
+      "label is inside the verifier-bound two-probe attempt domain",
       "direct value bytes equal 20924",
       "path-opening bytes are below the 20592-byte champion path-opening budget",
       "typed bytes are below the 42068-byte champion typed budget"
@@ -67,27 +164,52 @@
     "generated_adapter_modes": [
       "rmsnorm_input_fused_adjacent_fixed_v1",
       "rmsnorm_input_fused_adjacent_label_probe_a_v1",
-      "rmsnorm_input_fused_adjacent_label_probe_b_v1"
+      "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+      "rmsnorm_input_fused_adjacent_seed_00_v1",
+      "rmsnorm_input_fused_adjacent_seed_01_v1",
+      "rmsnorm_input_fused_adjacent_seed_02_v1",
+      "rmsnorm_input_fused_adjacent_seed_03_v1",
+      "rmsnorm_input_fused_adjacent_seed_04_v1",
+      "rmsnorm_input_fused_adjacent_seed_05_v1"
     ],
     "generated_cli_commands": [
       "build-input-rmsnorm-fused-adjacent",
       "build-input-rmsnorm-fused-adjacent-label-probe-a",
-      "build-input-rmsnorm-fused-adjacent-label-probe-b"
+      "build-input-rmsnorm-fused-adjacent-label-probe-b",
+      "build-input-rmsnorm-fused-adjacent-seed-00",
+      "build-input-rmsnorm-fused-adjacent-seed-01",
+      "build-input-rmsnorm-fused-adjacent-seed-02",
+      "build-input-rmsnorm-fused-adjacent-seed-03",
+      "build-input-rmsnorm-fused-adjacent-seed-04",
+      "build-input-rmsnorm-fused-adjacent-seed-05"
     ],
     "generated_label_ids": [
       "fixed_adjacent_layout",
       "adjacent_label_probe_a",
-      "adjacent_label_probe_b"
+      "adjacent_label_probe_b",
+      "adjacent_seed_00",
+      "adjacent_seed_01",
+      "adjacent_seed_02",
+      "adjacent_seed_03",
+      "adjacent_seed_04",
+      "adjacent_seed_05"
     ],
     "manual_override_allowed": false,
     "name": "rust_cli_generated_adjacent_label_inventory_v1",
     "rejected_label_ids": [
-      "fixed_adjacent_layout"
+      "fixed_adjacent_layout",
+      "adjacent_seed_00",
+      "adjacent_seed_01",
+      "adjacent_seed_02",
+      "adjacent_seed_03",
+      "adjacent_seed_04",
+      "adjacent_seed_05"
     ],
     "rejection_criteria": [
       "adapter mode is absent from the pinned Rust adjacent family",
       "matching CLI build-input command is absent",
       "proof/accounting row is missing",
+      "label is outside the verifier-bound two-probe attempt domain",
       "direct value bytes drift from 20924",
       "path-opening bytes are greater than or equal to 20592",
       "typed bytes are greater than or equal to 42068"
@@ -95,9 +217,9 @@
     "source_rule": "Rust serde adapter modes with prefix rmsnorm_input_fused_adjacent_ plus matching CLI build-input-rmsnorm-fused-adjacent commands"
   },
   "interpretation": {
-    "human_read": "The good adjacent-label numbers are no longer just a hand-picked probe pair. The gate derives the current adjacent label family from Rust enum variants and CLI build commands, then accepts only the generated labels whose pinned proof accounting beats the 42,068 typed-byte champion.",
-    "mechanism_read": "The full generated adjacent family is still not promotable because the fixed adjacent label remains 88 typed bytes above the champion. The source-generated accepted subset keeps probe A and probe B; worst accepted proof size remains 40,332 typed bytes.",
-    "next_experiment": "Move from source-generated label policy to a source-generated proof-object builder so future label additions produce proof/accounting rows automatically before promotion."
+    "human_read": "The adjacent-label inventory is now source-complete for the current Rust and CLI surface. The gate derives fixed, probe A, probe B, and six pre-registered seed labels from source, then accepts only the verifier-budgeted probe pair.",
+    "mechanism_read": "The full generated adjacent family is still not promotable because fixed/seed labels either miss the 42,068 typed-byte champion or are outside the bounded two-probe attempt domain. The accepted subset keeps probe A and probe B; worst accepted proof size remains 40,332 typed bytes and best accepted remains 37,532 typed bytes.",
+    "next_experiment": "Move the proof-object builder from the old three-row probe accounting to the nine-row seed-sweep accounting so future source labels cannot hide outside the evidence table."
   },
   "issue_hint": "generator-backed-seq32-adjacent-label-inventory",
   "mutation_result": {
@@ -255,7 +377,7 @@
   "non_claims": [
     "not a new proof-size frontier beyond the deterministic label-policy gate",
     "not a final production label-selection policy",
-    "not robust to future Rust label additions without regenerating this gate",
+    "not robust to future Rust label additions without regenerating source and seed-sweep evidence",
     "not a NANOZK proof-size win",
     "not a matched external zkML benchmark",
     "not a full transformer block proof",
@@ -263,7 +385,7 @@
     "not timing evidence",
     "not production-ready zkML"
   ],
-  "payload_commitment": "blake2b-256:8b195e5ce4ec9dd594605d34528a9227b2fc59cb7d4a6b31f5293667fe35cab4",
+  "payload_commitment": "blake2b-256:8a0697d929b242d9894f58c61716bbca2b13612d76670ef5500258c490587851",
   "policy_summary": {
     "accepted_label_count": 2,
     "accepted_value_bytes_stable": true,
@@ -278,10 +400,10 @@
     "full_generated_miss_vs_champion_typed_bytes": 88,
     "full_generated_worst_label_id": "fixed_adjacent_layout",
     "full_generated_worst_typed_bytes": 42156,
-    "generated_label_count": 3,
+    "generated_label_count": 9,
     "nanozk_reported_d128_block_proof_bytes": 6900,
     "proof_size_comparable_external_rows": 0,
-    "rejected_label_count": 1,
+    "rejected_label_count": 7,
     "worst_accepted_label_id": "adjacent_label_probe_a",
     "worst_accepted_saving_share": "0.041267",
     "worst_accepted_saving_typed_bytes": 1736,
@@ -297,22 +419,22 @@
       "reason": "adapter mode belongs to the post-tail family, not the pinned adjacent family"
     }
   ],
-  "result": "WORST_GENERATED_ACCEPTED_LABEL_SAVES_1736_TYPED_BYTES_AND_FULL_GENERATED_WORST_MISSES_BY_88",
+  "result": "NINE_LABEL_SOURCE_INVENTORY_ACCEPTS_PROBE_A_B_AND_REJECTS_FIXED_PLUS_SEEDS",
   "schema": "zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-gate-v1",
   "source_artifacts": [
     {
       "id": "rust_native_seq32_attention_mlp_source",
       "path": "src/stwo_backend/native_seq32_attention_mlp_single_proof.rs",
       "payload_commitment": null,
-      "sha256": "3d740bda9a3f301edea7a10dc1b9f58878d1a0f067397eecb5ed50465e4b7d95",
-      "size_bytes": 130368
+      "sha256": "7818c25b034da111cddd090783ea6bc66fd0c4dc2c67f95e3281899d0235344b",
+      "size_bytes": 145752
     },
     {
       "id": "cli_native_seq32_attention_mlp_source",
       "path": "src/bin/zkai_native_seq32_attention_mlp_single_proof.rs",
       "payload_commitment": null,
-      "sha256": "8408ccfe9a4882b19484326f9bad1670a87c582313f4d93d75305177cdfd8e17",
-      "size_bytes": 27300
+      "sha256": "ea68996b62dd763255e20479672bf7a392494a710c87eb2c0da84482873b4b52",
+      "size_bytes": 32531
     },
     {
       "id": "source_adjacent_label_policy",
@@ -327,6 +449,13 @@
       "payload_commitment": "blake2b-256:cb60558f8b274ffa44d51de3367a34759b408b5c1dd3427583d3031ef9017fdd",
       "sha256": "d5cbe419a545c022036b7347b6fb75a1fbb127dc7a861948d96103e646f338ab",
       "size_bytes": 11362
+    },
+    {
+      "id": "adjacent_label_seed_sweep",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-2026-05.json",
+      "payload_commitment": "blake2b-256:68b16bb7614972f29d5f1a0015ea9d2e3d2cdf2ce33c42afdf6eaed7cbe933db",
+      "sha256": "a3be0b33193fe661cb75dc32342e9c221bdf0016a98f7cf7f9ec71369fc801e4",
+      "size_bytes": 18105
     }
   ],
   "validation_commands": [
@@ -334,6 +463,7 @@
     "python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_generated_adjacent_label_inventory_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_generated_adjacent_label_inventory_gate.py",
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_generated_adjacent_label_inventory_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_deterministic_adjacent_label_policy_gate",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adjacent_label_seed_sweep_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adjacent_label_policy_gate",
     "cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_adjacent_label --lib",
     "git diff --check",

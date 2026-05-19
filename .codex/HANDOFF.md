@@ -2870,6 +2870,50 @@ Stwo query-grinding budget reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
+Latest Stwo attempt-domain binding gate: issue `#708` is now checked as a
+verifier-facing correctness GO, not a new proof-size frontier. The generated
+inventory and proof-object builder were refreshed to the current nine-label
+Rust/CLI adjacent surface: probe A and probe B are accepted, while the fixed
+layout and six seed labels are explicit rejected rows. The typed outer envelope
+binds the two-probe attempt domain, selected `adjacent_label_probe_b`, the
+`1.000000` bit relative Fiat-Shamir loss, the generated-builder payload
+commitment, the query-budget payload commitment, and the selected envelope,
+proof, input, and record-stream hashes. The selected row remains `37,532` typed
+bytes / `106,317` JSON proof bytes, saving `4,536` typed bytes versus the
+current single-proof champion and `9,656` typed bytes versus the matched
+two-proof frontier. This is not fresh proof generation and does not bind the
+attempt domain inside the inner Stwo transcript. See
+`docs/engineering/zkai-stwo-attempt-domain-binding-2026-05-19.md`.
+
+Stwo attempt-domain binding reproducibility metadata:
+
+- Gate schema: `zkai-stwo-attempt-domain-binding-gate-v1`.
+- Decision:
+  `GO_TYPED_OUTER_ENVELOPE_BINDS_TWO_PROBE_ATTEMPT_DOMAIN_TO_EXISTING_PROOF_ROW`.
+- Result:
+  `PROBE_B_ROW_BOUND_WITH_1_BIT_RELATIVE_LOSS_NOT_INNER_STWO_TRANSCRIPT_BINDING`.
+- Timing mode: outer-envelope binding and source-complete proof-object
+  accounting only; no regenerated proof object, no new proof-size frontier, and
+  no NANOZK comparison.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-stwo-attempt-domain-binding-gate-2026-05.json`
+  and `docs/engineering/evidence/zkai-stwo-attempt-domain-binding-gate-2026-05.tsv`.
+- Gate JSON SHA-256:
+  `807f0d5a6018d488d36ed03fc6f265f285dd8baf409cfec97c7169303f2fb3e0`.
+- Gate TSV SHA-256:
+  `ea0a484ad0edc055663baf34eedcfd2acc678293fc175c307bca0bf1e1798653`.
+- Payload commitment:
+  `blake2b-256:1dac8ed53a269f2649da650afce07f4a96810e4f1c0a37426fd3c10a12b86691`.
+- Step counts: `25` mutation cases and `7` attempt-domain Python unit tests;
+  supporting refreshed gates cover `9` builder rows and `9` inventory rows.
+- Local validation commands:
+  `python3.10 scripts/zkai_stwo_attempt_domain_binding_gate.py --write-json docs/engineering/evidence/zkai-stwo-attempt-domain-binding-gate-2026-05.json --write-tsv docs/engineering/evidence/zkai-stwo-attempt-domain-binding-gate-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_stwo_attempt_domain_binding_gate.py scripts/tests/test_zkai_stwo_attempt_domain_binding_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_stwo_attempt_domain_binding_gate`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
 ## Resume protocol
 
 1. Read `AGENTS.md`.

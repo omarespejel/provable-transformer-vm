@@ -45,12 +45,12 @@ class NativeSeq32GeneratedAdjacentLabelInventoryGateTest(unittest.TestCase):
         )
         self.assertEqual(
             payload["result"],
-            "WORST_GENERATED_ACCEPTED_LABEL_SAVES_1736_TYPED_BYTES_AND_FULL_GENERATED_WORST_MISSES_BY_88",
+            "NINE_LABEL_SOURCE_INVENTORY_ACCEPTS_PROBE_A_B_AND_REJECTS_FIXED_PLUS_SEEDS",
         )
         self.assertFalse(summary["full_generated_inventory_promotable_vs_current_champion"])
-        self.assertEqual(summary["generated_label_count"], 3)
+        self.assertEqual(summary["generated_label_count"], 9)
         self.assertEqual(summary["accepted_label_count"], 2)
-        self.assertEqual(summary["rejected_label_count"], 1)
+        self.assertEqual(summary["rejected_label_count"], 7)
         self.assertEqual(summary["full_generated_worst_label_id"], "fixed_adjacent_layout")
         self.assertEqual(summary["full_generated_worst_typed_bytes"], 42_156)
         self.assertEqual(summary["full_generated_miss_vs_champion_typed_bytes"], 88)
@@ -75,13 +75,34 @@ class NativeSeq32GeneratedAdjacentLabelInventoryGateTest(unittest.TestCase):
         )
         self.assertEqual(
             tuple(policy["generated_label_ids"]),
-            ("fixed_adjacent_layout", "adjacent_label_probe_a", "adjacent_label_probe_b"),
+            (
+                "fixed_adjacent_layout",
+                "adjacent_label_probe_a",
+                "adjacent_label_probe_b",
+                "adjacent_seed_00",
+                "adjacent_seed_01",
+                "adjacent_seed_02",
+                "adjacent_seed_03",
+                "adjacent_seed_04",
+                "adjacent_seed_05",
+            ),
         )
         self.assertEqual(
             tuple(policy["accepted_label_ids"]),
             ("adjacent_label_probe_a", "adjacent_label_probe_b"),
         )
-        self.assertEqual(tuple(policy["rejected_label_ids"]), ("fixed_adjacent_layout",))
+        self.assertEqual(
+            tuple(policy["rejected_label_ids"]),
+            (
+                "fixed_adjacent_layout",
+                "adjacent_seed_00",
+                "adjacent_seed_01",
+                "adjacent_seed_02",
+                "adjacent_seed_03",
+                "adjacent_seed_04",
+                "adjacent_seed_05",
+            ),
+        )
         self.assertFalse(policy["manual_override_allowed"])
 
     def test_generated_label_rows_pin_policy_status_and_accounting(self) -> None:
@@ -89,6 +110,7 @@ class NativeSeq32GeneratedAdjacentLabelInventoryGateTest(unittest.TestCase):
         fixed = rows["fixed_adjacent_layout"]
         probe_a = rows["adjacent_label_probe_a"]
         probe_b = rows["adjacent_label_probe_b"]
+        seed_02 = rows["adjacent_seed_02"]
         self.assertEqual(fixed["policy_status"], "rejected_inflating_label")
         self.assertEqual(fixed["path_opening_delta_vs_champion"], 592)
         self.assertTrue(fixed["proof_accounting_pinned"])
@@ -100,6 +122,9 @@ class NativeSeq32GeneratedAdjacentLabelInventoryGateTest(unittest.TestCase):
         self.assertEqual(probe_b["typed_delta_vs_champion"], -4_536)
         self.assertEqual(probe_b["path_opening_delta_vs_champion"], -4_032)
         self.assertEqual(probe_b["value_bytes"], 20_924)
+        self.assertEqual(seed_02["policy_status"], "rejected_unpromoted_seed_label")
+        self.assertEqual(seed_02["typed_delta_vs_champion"], -1_800)
+        self.assertEqual(seed_02["path_opening_delta_vs_champion"], -1_296)
 
     def test_rejects_unseen_and_cross_family_labels(self) -> None:
         rejected = self.__class__.payload["rejected_unseen_labels"]
@@ -216,9 +241,10 @@ class NativeSeq32GeneratedAdjacentLabelInventoryGateTest(unittest.TestCase):
         text = self.gate.render_tsv(self.__class__.payload)
         self.assertTrue(text.startswith("variant_id\tadapter_mode\tcli_command\t"))
         rows = list(csv.DictReader(io.StringIO(text), delimiter="\t"))
-        self.assertEqual(len(rows), 3)
+        self.assertEqual(len(rows), 9)
         fixed = rows[0]
         probe_b = rows[2]
+        seed_02 = rows[5]
         self.assertEqual(fixed["variant_id"], "fixed_adjacent_layout")
         self.assertEqual(fixed["policy_status"], "rejected_inflating_label")
         self.assertEqual(fixed["typed_bytes"], "42156")
@@ -228,13 +254,16 @@ class NativeSeq32GeneratedAdjacentLabelInventoryGateTest(unittest.TestCase):
         self.assertEqual(probe_b["policy_status"], "supported_label")
         self.assertEqual(probe_b["typed_bytes"], "37532")
         self.assertEqual(probe_b["typed_delta_vs_champion"], "-4536")
+        self.assertEqual(seed_02["variant_id"], "adjacent_seed_02")
+        self.assertEqual(seed_02["policy_status"], "rejected_unpromoted_seed_label")
+        self.assertEqual(seed_02["typed_bytes"], "40268")
 
     def test_render_tsv_records_audit_pins(self) -> None:
         rows = list(csv.DictReader(io.StringIO(self.gate.render_tsv(self.__class__.payload)), delimiter="\t"))
         row = rows[1]
         self.assertEqual(row["payload_commitment"], self.__class__.payload["payload_commitment"])
         self.assertIn(
-            "rust_native_seq32_attention_mlp_source=3d740bda9a3f301edea7a10dc1b9f58878d1a0f067397eecb5ed50465e4b7d95",
+            "rust_native_seq32_attention_mlp_source=7818c25b034da111cddd090783ea6bc66fd0c4dc2c67f95e3281899d0235344b",
             row["source_artifact_digest_pins"],
         )
         self.assertIn(
@@ -245,7 +274,7 @@ class NativeSeq32GeneratedAdjacentLabelInventoryGateTest(unittest.TestCase):
             row["accepted_label_ids"],
             "adjacent_label_probe_a,adjacent_label_probe_b",
         )
-        self.assertEqual(row["rejected_label_ids"], "fixed_adjacent_layout")
+        self.assertIn("adjacent_seed_02", row["rejected_label_ids"])
         self.assertIn(
             "rmsnorm_input_fused_adjacent_label_probe_c_v1",
             row["rejected_unseen_adapter_modes"],

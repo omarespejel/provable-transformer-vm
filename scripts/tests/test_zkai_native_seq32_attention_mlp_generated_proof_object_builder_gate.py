@@ -43,9 +43,9 @@ class NativeSeq32GeneratedProofObjectBuilderGateTest(unittest.TestCase):
             payload["decision"],
             "GO_SOURCE_GENERATED_PROOF_OBJECT_ROWS_REPRODUCE_CURRENT_ADJACENT_FRONTIER",
         )
-        self.assertEqual(summary["generated_proof_object_row_count"], 3)
+        self.assertEqual(summary["generated_proof_object_row_count"], 9)
         self.assertEqual(summary["accepted_row_count"], 2)
-        self.assertEqual(summary["rejected_row_count"], 1)
+        self.assertEqual(summary["rejected_row_count"], 7)
         self.assertEqual(summary["fixed_adjacent_typed_bytes"], 42_156)
         self.assertEqual(summary["fixed_adjacent_miss_vs_champion_typed_bytes"], 88)
         self.assertEqual(summary["worst_accepted_label_id"], "adjacent_label_probe_a")
@@ -64,6 +64,7 @@ class NativeSeq32GeneratedProofObjectBuilderGateTest(unittest.TestCase):
         fixed = rows["fixed_adjacent_layout"]
         probe_a = rows["adjacent_label_probe_a"]
         probe_b = rows["adjacent_label_probe_b"]
+        seed_02 = rows["adjacent_seed_02"]
         self.assertEqual(fixed["policy_status"], "rejected_inflating_label")
         self.assertEqual(fixed["typed_saving_vs_champion"], -88)
         self.assertEqual(fixed["proof_len_bytes"], 122_688)
@@ -80,11 +81,14 @@ class NativeSeq32GeneratedProofObjectBuilderGateTest(unittest.TestCase):
         self.assertEqual(probe_b["proof_json_bytes"], 106_317)
         self.assertEqual(probe_b["path_opening_bytes"], 16_560)
         self.assertEqual(probe_b["value_bytes"], 20_924)
+        self.assertEqual(seed_02["policy_status"], "rejected_unpromoted_seed_label")
+        self.assertEqual(seed_02["typed_bytes"], 40_268)
+        self.assertEqual(seed_02["path_opening_bytes"], 19_296)
 
     def test_source_artifacts_pin_generated_inventory_and_accounting(self) -> None:
         artifacts = {row["id"]: row for row in self.__class__.payload["source_artifacts"]}
         inventory = artifacts["generated_adjacent_label_inventory"]
-        accounting = artifacts["adjacent_label_probe_accounting"]
+        accounting = artifacts["adjacent_label_seed_sweep_accounting"]
         self.assertEqual(inventory["sha256"], self.gate.EXPECTED_GENERATED_INVENTORY_SHA256)
         self.assertEqual(inventory["payload_commitment"], self.gate.EXPECTED_GENERATED_INVENTORY_COMMITMENT)
         self.assertEqual(accounting["sha256"], self.gate.EXPECTED_ACCOUNTING_SHA256)
@@ -95,13 +99,24 @@ class NativeSeq32GeneratedProofObjectBuilderGateTest(unittest.TestCase):
         self.assertFalse(policy["manual_override_allowed"])
         self.assertEqual(
             tuple(policy["generated_label_ids"]),
-            ("fixed_adjacent_layout", "adjacent_label_probe_a", "adjacent_label_probe_b"),
+            (
+                "fixed_adjacent_layout",
+                "adjacent_label_probe_a",
+                "adjacent_label_probe_b",
+                "adjacent_seed_00",
+                "adjacent_seed_01",
+                "adjacent_seed_02",
+                "adjacent_seed_03",
+                "adjacent_seed_04",
+                "adjacent_seed_05",
+            ),
         )
         self.assertEqual(
             tuple(policy["accepted_label_ids"]),
             ("adjacent_label_probe_a", "adjacent_label_probe_b"),
         )
-        self.assertEqual(tuple(policy["rejected_label_ids"]), ("fixed_adjacent_layout",))
+        self.assertIn("fixed_adjacent_layout", policy["rejected_label_ids"])
+        self.assertIn("adjacent_seed_02", policy["rejected_label_ids"])
         self.assertEqual(
             policy["row_join_key"],
             "generated_label_inventory.path == accounting.evidence_relative_path",
@@ -243,14 +258,17 @@ class NativeSeq32GeneratedProofObjectBuilderGateTest(unittest.TestCase):
         text = self.gate.render_tsv(self.__class__.payload)
         self.assertTrue(text.startswith("variant_id\tadapter_mode\tcli_command\t"))
         rows = list(csv.DictReader(io.StringIO(text), delimiter="\t"))
-        self.assertEqual(len(rows), 3)
+        self.assertEqual(len(rows), 9)
         fixed = rows[0]
         probe_b = rows[2]
+        seed_02 = rows[5]
         self.assertEqual(fixed["variant_id"], "fixed_adjacent_layout")
         self.assertEqual(fixed["typed_saving_vs_champion"], "-88")
         self.assertEqual(probe_b["variant_id"], "adjacent_label_probe_b")
         self.assertEqual(probe_b["typed_bytes"], "37532")
         self.assertEqual(probe_b["proof_len_bytes"], "106317")
+        self.assertEqual(seed_02["variant_id"], "adjacent_seed_02")
+        self.assertEqual(seed_02["policy_status"], "rejected_unpromoted_seed_label")
         self.assertIn(
             f"generated_adjacent_label_inventory={self.gate.EXPECTED_GENERATED_INVENTORY_SHA256}",
             probe_b["source_artifact_digest_pins"],
