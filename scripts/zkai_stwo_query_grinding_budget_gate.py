@@ -56,6 +56,18 @@ TSV_COLUMNS = (
     "requires_verifier_bound_attempt_domain",
     "claims_new_frontier",
 )
+REQUIRED_INVENTORY_COLUMNS = (
+    "variant_id",
+    "adapter_mode",
+    "policy_stage",
+    "query_location_span",
+    "min_pairwise_query_gap",
+    "selected_without_final_accounting",
+    "predicted_path_opening_bytes",
+    "final_path_opening_bytes",
+    "final_typed_bytes",
+    "api_control_status",
+)
 VALIDATION_COMMANDS = (
     "python3.10 scripts/zkai_stwo_query_grinding_budget_gate.py --write-json docs/engineering/evidence/zkai-stwo-query-grinding-budget-2026-05.json --write-tsv docs/engineering/evidence/zkai-stwo-query-grinding-budget-2026-05.tsv",
     "python3.10 -m py_compile scripts/zkai_stwo_query_grinding_budget_gate.py scripts/tests/test_zkai_stwo_query_grinding_budget_gate.py",
@@ -143,21 +155,27 @@ def load_inventory() -> list[dict[str, Any]]:
         text = raw.decode("utf-8")
     except UnicodeDecodeError as err:
         raise StwoQueryGrindingBudgetGateError("predecommit inventory TSV is not UTF-8") from err
-    rows = list(csv.DictReader(io.StringIO(text), delimiter="\t"))
+    reader = csv.DictReader(io.StringIO(text), delimiter="\t")
+    if tuple(reader.fieldnames or ()) != REQUIRED_INVENTORY_COLUMNS:
+        raise StwoQueryGrindingBudgetGateError("inventory header drift")
+    rows = list(reader)
     if len(rows) != EXPECTED_INVENTORY_COUNT:
         raise StwoQueryGrindingBudgetGateError("inventory row count drift")
     inventory = []
     for row in rows:
-        inventory.append(
-            {
-                "variant_id": row["variant_id"],
-                "adapter_mode": row["adapter_mode"],
-                "query_location_span": parse_int(row, "query_location_span"),
-                "min_pairwise_query_gap": parse_int(row, "min_pairwise_query_gap"),
-                "final_path_opening_bytes": parse_int(row, "final_path_opening_bytes"),
-                "final_typed_bytes": parse_int(row, "final_typed_bytes"),
-            }
-        )
+        try:
+            inventory.append(
+                {
+                    "variant_id": row["variant_id"],
+                    "adapter_mode": row["adapter_mode"],
+                    "query_location_span": parse_int(row, "query_location_span"),
+                    "min_pairwise_query_gap": parse_int(row, "min_pairwise_query_gap"),
+                    "final_path_opening_bytes": parse_int(row, "final_path_opening_bytes"),
+                    "final_typed_bytes": parse_int(row, "final_typed_bytes"),
+                }
+            )
+        except KeyError as err:
+            raise StwoQueryGrindingBudgetGateError(f"inventory field missing: {err.args[0]}") from err
     return inventory
 
 
@@ -179,30 +197,43 @@ def loss_bits(attempt_budget: int) -> str:
     return f"{math.log2(attempt_budget):.6f}"
 
 
-def policy(
-    inventory: list[dict[str, Any]],
-    policy_id: str,
-    variant_ids: tuple[str, ...],
-    status: str,
-    requires_verifier_bound_attempt_domain: bool,
-    claims_new_frontier: bool,
-) -> dict[str, Any]:
+def classify_policy(policy_id: str, best: dict[str, Any], attempt_budget: int) -> str:
+    if policy_id == "fixed_layout_budget_1":
+        return "BASELINE_NO_GRINDING"
+    if policy_id == "two_probe_budget_2":
+        if attempt_budget == 2 and best["variant_id"] == CHAMPION_VARIANT_ID:
+            return "MECHANISM_GO_REQUIRES_VERIFIER_BOUND_ATTEMPT_DOMAIN"
+        return "NO_GO_TWO_PROBE_DOES_NOT_RECOVER_CHAMPION"
+    if policy_id == "seed_only_budget_6":
+        if best["variant_id"] == CHAMPION_VARIANT_ID:
+            return "NO_GO_SEED_ONLY_RECOVERS_CHAMPION_BUT_SPENDS_EXTRA_BUDGET"
+        return "NO_GO_SEED_ONLY_DOES_NOT_RECOVER_CHAMPION"
+    if policy_id == "all_inventory_budget_9":
+        if best["variant_id"] == CHAMPION_VARIANT_ID:
+            return "NO_GO_UNNEEDED_EXTRA_GRINDING"
+        return "NO_GO_ALL_INVENTORY_DOES_NOT_RECOVER_CHAMPION"
+    raise StwoQueryGrindingBudgetGateError(f"unknown policy: {policy_id}")
+
+
+def policy(inventory: list[dict[str, Any]], policy_id: str, variant_ids: tuple[str, ...]) -> dict[str, Any]:
     baseline = find_variant(inventory, BASELINE_VARIANT_ID)
     champion = find_variant(inventory, CHAMPION_VARIANT_ID)
     best = best_variant(inventory, variant_ids)
+    attempt_budget = len(variant_ids)
+    status = classify_policy(policy_id, best, attempt_budget)
     return {
         "policy_id": policy_id,
         "status": status,
         "allowed_variant_ids": list(variant_ids),
-        "attempt_budget": len(variant_ids),
-        "security_loss_bits": loss_bits(len(variant_ids)),
+        "attempt_budget": attempt_budget,
+        "security_loss_bits": loss_bits(attempt_budget),
         "best_variant_id": best["variant_id"],
         "best_typed_bytes": best["final_typed_bytes"],
         "best_path_opening_bytes": best["final_path_opening_bytes"],
         "improvement_vs_fixed_typed_bytes": baseline["final_typed_bytes"] - best["final_typed_bytes"],
         "improvement_vs_champion_typed_bytes": champion["final_typed_bytes"] - best["final_typed_bytes"],
-        "requires_verifier_bound_attempt_domain": requires_verifier_bound_attempt_domain,
-        "claims_new_frontier": claims_new_frontier,
+        "requires_verifier_bound_attempt_domain": attempt_budget > 1,
+        "claims_new_frontier": False,
     }
 
 
@@ -212,17 +243,11 @@ def policies(inventory: list[dict[str, Any]]) -> list[dict[str, Any]]:
             inventory,
             "fixed_layout_budget_1",
             ("fixed_adjacent_layout",),
-            "BASELINE_NO_GRINDING",
-            False,
-            False,
         ),
         policy(
             inventory,
             "two_probe_budget_2",
             ("adjacent_label_probe_a", "adjacent_label_probe_b"),
-            "MECHANISM_GO_REQUIRES_VERIFIER_BOUND_ATTEMPT_DOMAIN",
-            True,
-            False,
         ),
         policy(
             inventory,
@@ -235,17 +260,11 @@ def policies(inventory: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "adjacent_seed_04",
                 "adjacent_seed_05",
             ),
-            "NO_GO_SEED_ONLY_DOES_NOT_RECOVER_CHAMPION",
-            True,
-            False,
         ),
         policy(
             inventory,
             "all_inventory_budget_9",
             tuple(row["variant_id"] for row in inventory),
-            "NO_GO_UNNEEDED_EXTRA_GRINDING",
-            True,
-            False,
         ),
         {
             "policy_id": "unbounded_abort_and_retry",
