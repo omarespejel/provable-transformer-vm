@@ -126,8 +126,10 @@ variables before validation. If the source is not available locally, run
 
 ## Next Attack
 
-Open a follow-up for bounded transcript grinding or deterministic policy
-commitment. The smallest useful experiment should:
+Follow-up: https://github.com/omarespejel/provable-transformer-vm/issues/706
+
+The bounded transcript-grinding or deterministic policy-commitment experiment
+should:
 
 - keep canonical Fiat-Shamir query derivation intact;
 - make every retry budget explicit;
