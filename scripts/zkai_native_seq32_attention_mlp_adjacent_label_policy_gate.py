@@ -509,12 +509,7 @@ def mutation_result(payload: dict[str, Any]) -> dict[str, Any]:
         item.pop("mutation_result", None)
         item.pop("payload_commitment", None)
         mutate(item)
-        item["mutation_result"] = {
-            "all_mutations_rejected": True,
-            "mutations_rejected": len(MUTATION_NAMES),
-            "mutation_names": list(MUTATION_NAMES),
-            "cases": expected_mutation_cases(),
-        }
+        item["mutation_result"] = expected_mutation_result()
         if name != "payload_commitment_drift":
             item["payload_commitment"] = payload_commitment(item)
         try:
