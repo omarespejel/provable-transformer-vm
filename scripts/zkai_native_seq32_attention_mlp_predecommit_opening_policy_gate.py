@@ -68,7 +68,7 @@ EXPECTED_CANDIDATE_SAVING_VS_CHAMPION = 4_536
 EXPECTED_CANDIDATE_SAVING_SHARE_VS_CHAMPION = "10.7825%"
 EXPECTED_CANDIDATE_SAVING_VS_BEST_SEED = 2_736
 EXPECTED_POLICY_ROW_COUNT = len(sampler_gate.VARIANTS)
-EXPECTED_UNITTEST_STEP_COUNT = 12
+EXPECTED_UNITTEST_STEP_COUNT = 13
 EXPECTED_LOCAL_RELEASE_GATE_STEP_COUNT = 14
 
 SOURCE_MARKERS = {
@@ -590,4 +590,4 @@ if __name__ == "__main__":
         raise SystemExit(main())
     except PredecommitOpeningPolicyGateError as err:
         print(f"error: {err}", file=sys.stderr)
-        raise SystemExit(2)
+        raise SystemExit(2) from None

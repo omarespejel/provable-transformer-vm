@@ -91,8 +91,13 @@ class PredecommitOpeningPolicyGateTest(unittest.TestCase):
         self.assertEqual(metadata["policy_row_count"], 9)
         self.assertEqual(metadata["fri_query_count_per_row"], 3)
         self.assertEqual(metadata["mutation_step_count"], len(self.gate.MUTATION_NAMES))
-        self.assertEqual(metadata["unittest_step_count"], 12)
+        self.assertEqual(metadata["unittest_step_count"], self.gate.EXPECTED_UNITTEST_STEP_COUNT)
         self.assertEqual(metadata["local_release_gate_step_count"], 14)
+
+    def test_pinned_unittest_count_matches_loaded_suite(self):
+        count = unittest.TestLoader().loadTestsFromTestCase(type(self)).countTestCases()
+        self.assertEqual(count, self.gate.EXPECTED_UNITTEST_STEP_COUNT)
+        self.assertEqual(count, self.payload["reproducibility_metadata"]["unittest_step_count"])
 
     def test_source_stage_markers_are_pinned(self):
         markers = self.payload["api_stage_audit"]["source_markers"]
