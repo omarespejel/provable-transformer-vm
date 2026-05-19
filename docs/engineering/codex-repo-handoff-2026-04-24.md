@@ -2371,6 +2371,49 @@ Seq32 generated adjacent label-inventory reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
+Latest generated proof-object builder gate: the generated adjacent-label
+inventory now joins to the actual Stwo envelope/accounting artifacts instead
+of remaining a source-policy table. The builder reconstructs three generated
+rows from the generated inventory, the local binary accounting JSON, and the
+envelope bytes: fixed adjacent at `42,156` typed bytes (`+88`, rejected),
+probe A at `40,332` typed bytes (saving `1,736`), and probe B at `37,532`
+typed bytes (saving `4,536`, `10.7825%`). This is not a new proof-size
+frontier beyond probe B; the contribution is promotion hardening. Every
+generated row now has to bind `path`, envelope SHA-256, proof byte SHA-256,
+proof length, typed accounting, path-opening/value bytes, record-stream hash,
+and envelope metadata before it can be treated as evidence. The gate rejects
+`21 / 21` mutation classes. See
+`docs/engineering/zkai-native-seq32-attention-mlp-generated-proof-object-builder-2026-05-19.md`.
+
+Seq32 generated proof-object builder reproducibility metadata:
+
+- Generated inventory SHA-256:
+  `10ef45339f48c41e6cd264906e8ffbcfb49e8e7bb8738ea21174ba8fbb63a1bb`.
+- Generated inventory payload commitment:
+  `blake2b-256:a1ad83f3dea22610a51dce6530ef699f7112fff70bda55dd7c4250f5a89d1c5f`.
+- Adjacent accounting SHA-256:
+  `0841dd4dbf6d3ff76ede4c3e088b301745e04f649024d50aa378fb239cd1ef5c`.
+- Gate schema:
+  `zkai-native-seq32-attention-mlp-generated-proof-object-builder-gate-v1`.
+- Decision:
+  `GO_SOURCE_GENERATED_PROOF_OBJECT_ROWS_REPRODUCE_CURRENT_ADJACENT_FRONTIER`.
+- Timing mode: proof-size/accounting only; no timing claim and no median-of-5.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-generated-proof-object-builder-2026-05.json`
+  and
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-generated-proof-object-builder-2026-05.tsv`.
+- Local validation commands:
+  `python3.10 scripts/zkai_native_seq32_attention_mlp_generated_proof_object_builder_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-generated-proof-object-builder-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-generated-proof-object-builder-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_generated_proof_object_builder_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_generated_proof_object_builder_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_generated_proof_object_builder_gate`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_generated_adjacent_label_inventory_gate`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_deterministic_adjacent_label_policy_gate`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adjacent_label_policy_gate`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_adjacent_label --lib`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
 1. Treat `rmsnorm_mlp_fused` as the current positive MLP-side fusion result:
    the native fused proof saves `32,144` local typed bytes (`56.4167%`) versus
    separate RMSNorm, bridge, gate/value, activation, down-projection, and
