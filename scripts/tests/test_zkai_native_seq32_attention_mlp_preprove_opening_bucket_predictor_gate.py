@@ -177,7 +177,10 @@ class PreproveOpeningBucketPredictorGateTest(unittest.TestCase):
                 self.gate.write_outputs(tmp_path / "out.json", tmp_path / "out.tsv", self.payload)
 
     def test_rejects_symlink_output_path(self):
-        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp, tempfile.TemporaryDirectory() as outside_tmp:
+        with (
+            tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp,
+            tempfile.TemporaryDirectory() as outside_tmp,
+        ):
             tmp_path = pathlib.Path(tmp)
             outside = pathlib.Path(outside_tmp) / "outside.json"
             outside.write_text("{}")
@@ -188,6 +191,32 @@ class PreproveOpeningBucketPredictorGateTest(unittest.TestCase):
                 "symlink",
             ):
                 self.gate.write_outputs(symlink_path, tmp_path / "out.tsv", self.payload)
+
+    def test_rejects_symlinked_output_parent(self):
+        with (
+            tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp,
+            tempfile.TemporaryDirectory() as outside_tmp,
+        ):
+            tmp_path = pathlib.Path(tmp)
+            outside = pathlib.Path(outside_tmp)
+            linkdir = tmp_path / "linkdir"
+            linkdir.symlink_to(outside, target_is_directory=True)
+            with self.assertRaisesRegex(
+                self.gate.PreproveOpeningBucketPredictorGateError,
+                "traverse symlinks",
+            ):
+                self.gate.write_outputs(linkdir / "out.json", tmp_path / "out.tsv", self.payload)
+
+    def test_rejects_directory_output_target(self):
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:
+            tmp_path = pathlib.Path(tmp)
+            directory_target = tmp_path / "out.json"
+            directory_target.mkdir()
+            with self.assertRaisesRegex(
+                self.gate.PreproveOpeningBucketPredictorGateError,
+                "non-symlink file",
+            ):
+                self.gate.write_outputs(directory_target, tmp_path / "out.tsv", self.payload)
 
     @staticmethod
     def row_from(rows, variant_id):
