@@ -2741,6 +2741,8 @@ bytes, `16,560` path-opening bytes, `16,618` query span, `5,969` min pairwise
 query gap, and `9,656` typed bytes saved versus the `47,188` typed-byte matched
 two-proof frontier. See
 `docs/engineering/zkai-stwo-query-preview-split-prototype-2026-05-19.md`.
+Follow-up issue `#706` tracks bounded transcript grinding or a deterministic
+policy commitment with explicit soundness accounting.
 
 Stwo query-preview split prototype reproducibility metadata:
 
