@@ -2682,6 +2682,45 @@ Seq32 pre-prove opening-bucket predictor reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
+Latest pre-decommitment opening-policy gate: issue `#700` is now checked as a
+narrow claim, not a true pre-decommitment GO. The query-geometry policy still
+selects `adjacent_label_probe_b` without using final accounting as a predictor:
+probe B remains `37,532` typed bytes with `16,560` path-opening bytes, saving
+`4,536` typed bytes (`10.7825%`) versus the `42,068` typed-byte champion and
+`2,736` typed bytes versus the best pre-registered seed. The limiting fact is
+API stage: the current sampler calls `prove_single_extended(input)?`, reads
+`ExtendedStarkProof::aux`, and `prove_single_extended` delegates to Stwo
+`prove_ex`, so the signal is available post-transcript/pre-accounting but not
+as true pre-decommitment control. The next useful attack is a bounded Stwo
+query-policy hook that splits query drawing from Merkle/FRI decommitment or
+accepts a committed external query policy before decommitment. Follow-up issue
+`#701` tracks that hook. See
+`docs/engineering/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05-19.md`.
+
+Seq32 pre-decommitment opening-policy reproducibility metadata:
+
+- Gate schema:
+  `zkai-native-seq32-attention-mlp-predecommit-opening-policy-gate-v1`.
+- Decision:
+  `NARROW_CLAIM_CURRENT_STWO_WRAPPER_EXPOSES_QUERY_GEOMETRY_AFTER_PROVE_EX`.
+- Timing mode: proof-size/accounting policy-boundary audit only; no timing
+  claim and no median-of-5.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05.json`
+  and
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05.tsv`.
+- Gate JSON SHA-256:
+  `9753b22f5eb72ce1a741d80d972577615a0df82e2c2258b8eb169b2f46ab87dc`.
+- Payload commitment:
+  `blake2b-256:80178f088636181b2ba8ca7a98adc0dc568a0eda780b75f3d0e4d86202eb98d7`.
+- Local validation commands:
+  `python3.10 scripts/zkai_native_seq32_attention_mlp_predecommit_opening_policy_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_predecommit_opening_policy_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_predecommit_opening_policy_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_predecommit_opening_policy_gate`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
 ## Resume protocol
 
 1. Read `AGENTS.md`.
