@@ -1,0 +1,5 @@
+variant_id	policy_status	typed_bytes	typed_delta_vs_champion	path_opening_bytes	path_opening_delta_vs_champion	value_bytes	status_reason
+current_duplicate_base	comparison_champion	42068	0	20592	0	21428	baseline for typed/path-opening deltas
+fixed_adjacent_layout	rejected_inflating_label	42156	88	21184	592	20924	path-opening bytes are not below the current champion
+adjacent_label_probe_a	supported_label	40332	-1736	19360	-1232	20924	value bytes stable and path-opening/typed bytes beat the current champion
+adjacent_label_probe_b	supported_label	37532	-4536	16560	-4032	20924	value bytes stable and path-opening/typed bytes beat the current champion

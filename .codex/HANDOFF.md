@@ -2369,6 +2369,47 @@ Seq32 adjacent label-policy reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
+Latest deterministic adjacent label-policy gate: the follow-up policy gate
+turns the adjacent-label result into a stricter supported-label rule without
+promoting the whole inventory. The full adjacent inventory remains a NO-GO
+because the fixed adjacent label is `42,156` typed bytes (`+88` versus the
+`42,068` champion) and adds `592` path-opening typed bytes. The deterministic
+supported-label policy rejects that inflating label and keeps the two checked
+labels whose worst case is probe A at `40,332` typed bytes, saving `1,736`
+typed bytes (`4.1267%`) versus the champion; probe B is `37,532` typed bytes,
+saving `4,536` typed bytes (`10.7825%`). Direct value bytes stay fixed at
+`20,924`, so the mechanism remains transcript/opening material, not changed
+arithmetic. This is not a final generator-backed label policy, not robust to
+unseen labels, not a matched external benchmark, and not a NANOZK proof-size
+win. See
+`docs/engineering/zkai-native-seq32-attention-mlp-deterministic-adjacent-label-policy-2026-05-19.md`.
+
+Seq32 deterministic adjacent label-policy reproducibility metadata:
+
+- Source policy path:
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-policy-2026-05.json`.
+- Source policy SHA-256:
+  `b85b9001dc0e9387b4cc2fc49302c9d7bbe7e9ff8d8f6c9b31c394a21b14b9d1`.
+- Source policy payload commitment:
+  `blake2b-256:f2bcfec2552cc89befcb489271b357063cf13ea302fb91732cb416249ea427a2`.
+- Gate schema:
+  `zkai-native-seq32-attention-mlp-deterministic-adjacent-label-policy-gate-v1`.
+- Decision:
+  `GO_SUPPORTED_ADJACENT_LABEL_POLICY_BEATS_CURRENT_CHAMPION`.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-deterministic-adjacent-label-policy-2026-05.json`
+  and
+  `docs/engineering/evidence/zkai-native-seq32-attention-mlp-deterministic-adjacent-label-policy-2026-05.tsv`.
+- Local validation commands:
+  `python3.10 scripts/zkai_native_seq32_attention_mlp_deterministic_adjacent_label_policy_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-deterministic-adjacent-label-policy-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-deterministic-adjacent-label-policy-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_deterministic_adjacent_label_policy_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_deterministic_adjacent_label_policy_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_deterministic_adjacent_label_policy_gate`;
+  `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adjacent_label_policy_gate`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_adjacent_label --lib`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
 ## Resume protocol
 
 1. Read `AGENTS.md`.
