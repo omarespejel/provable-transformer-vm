@@ -46,6 +46,7 @@ class StwoQueryGrindingBudgetGateTest(unittest.TestCase):
         self.assertEqual(inventory["row_count"], 9)
         self.assertEqual(inventory["source_path"], str(self.gate.INVENTORY_TSV.relative_to(self.gate.ROOT)))
         self.assertTrue(inventory["commitment"].startswith("blake2b-256:"))
+        self.assertEqual(inventory["commitment"], self.gate.EXPECTED_INVENTORY_COMMITMENT)
         self.assertEqual(len(inventory["rows"]), 9)
         header = self.gate.INVENTORY_TSV.read_text(encoding="utf-8").splitlines()[0].split("\t")
         self.assertEqual(tuple(header), self.gate.REQUIRED_INVENTORY_COLUMNS)
@@ -154,6 +155,7 @@ class StwoQueryGrindingBudgetGateTest(unittest.TestCase):
     def test_committed_evidence_contains_integrity_fields(self):
         evidence = json.loads(self.gate.JSON_OUT.read_text(encoding="utf-8"))
         self.assertEqual(evidence["payload_commitment"], self.payload["payload_commitment"])
+        self.assertEqual(evidence["payload_commitment"], self.gate.EXPECTED_PAYLOAD_COMMITMENT)
         self.assertEqual(evidence["mutation_result"], self.payload["mutation_result"])
         self.gate.validate_payload(evidence)
 
