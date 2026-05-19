@@ -131,6 +131,11 @@ class StwoQueryGrindingBudgetGateTest(unittest.TestCase):
             self.gate.find_variant(self.payload["inventory"]["rows"], "missing")
         with self.assertRaisesRegex(self.gate.StwoQueryGrindingBudgetGateError, "policy missing"):
             self.gate.policy_row(self.payload, "missing")
+        with self.assertRaisesRegex(
+            self.gate.StwoQueryGrindingBudgetGateError,
+            "query_location_span is negative: -1",
+        ):
+            self.gate.parse_int({"query_location_span": "-1"}, "query_location_span")
 
     def test_all_mutations_rejected(self):
         mutation = self.payload["mutation_result"]
