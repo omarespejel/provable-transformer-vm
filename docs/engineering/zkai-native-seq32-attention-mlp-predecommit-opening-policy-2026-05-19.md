@@ -124,7 +124,7 @@ just gate
 ```
 
 The gate run evaluates `9` policy rows, checks `3` FRI query locations per row,
-and executes `18` mutation cases. The unit-test command currently runs `14`
+and executes `18` mutation cases. The unit-test command currently runs `15`
 tests. The full local release gate has `14` steps.
 
 ## Non-Claims
