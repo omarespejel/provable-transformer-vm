@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import copy
 import csv
+import functools
 import hashlib
 import io
 import json
@@ -26,6 +27,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts import zkai_native_seq32_attention_mlp_adjacent_label_policy_gate as source_gate
+from scripts import zkai_native_seq32_attention_mlp_adjacent_label_seed_sweep_gate as seed_sweep_gate
 from scripts import zkai_native_seq32_attention_mlp_deterministic_adjacent_label_policy_gate as deterministic_gate
 
 
@@ -34,12 +36,13 @@ RUST_SOURCE_PATH = ROOT / "src" / "stwo_backend" / "native_seq32_attention_mlp_s
 CLI_SOURCE_PATH = ROOT / "src" / "bin" / "zkai_native_seq32_attention_mlp_single_proof.rs"
 SOURCE_POLICY_PATH = deterministic_gate.SOURCE_POLICY_PATH
 DETERMINISTIC_POLICY_PATH = deterministic_gate.JSON_OUT
+SEED_SWEEP_PATH = EVIDENCE_DIR / "zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-2026-05.json"
 JSON_OUT = EVIDENCE_DIR / "zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-2026-05.json"
 TSV_OUT = EVIDENCE_DIR / "zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-2026-05.tsv"
 
 SCHEMA = "zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-gate-v1"
 DECISION = "GO_GENERATED_SUPPORTED_ADJACENT_LABELS_BEAT_CURRENT_CHAMPION_WITH_FULL_INVENTORY_NO_GO"
-RESULT = "WORST_GENERATED_ACCEPTED_LABEL_SAVES_1736_TYPED_BYTES_AND_FULL_GENERATED_WORST_MISSES_BY_88"
+RESULT = "NINE_LABEL_SOURCE_INVENTORY_ACCEPTS_PROBE_A_B_AND_REJECTS_FIXED_PLUS_SEEDS"
 CLAIM_BOUNDARY = (
     "SOURCE_GENERATED_POLICY_OVER_CURRENT_RUST_ADJACENT_LABEL_FAMILY;"
     "ACCEPTS_ONLY_SOURCE_GENERATED_LABELS_WITH_PINNED_ACCOUNTING_BELOW_42068;"
@@ -48,25 +51,45 @@ CLAIM_BOUNDARY = (
 ISSUE_HINT = "generator-backed-seq32-adjacent-label-inventory"
 PAYLOAD_DOMAIN = "ptvm:zkai:native-seq32-attention-mlp-generated-adjacent-label-inventory:v1"
 
-EXPECTED_RUST_SOURCE_SHA256 = "3d740bda9a3f301edea7a10dc1b9f58878d1a0f067397eecb5ed50465e4b7d95"
-EXPECTED_CLI_SOURCE_SHA256 = "8408ccfe9a4882b19484326f9bad1670a87c582313f4d93d75305177cdfd8e17"
+EXPECTED_RUST_SOURCE_SHA256 = "7818c25b034da111cddd090783ea6bc66fd0c4dc2c67f95e3281899d0235344b"
+EXPECTED_CLI_SOURCE_SHA256 = "ea68996b62dd763255e20479672bf7a392494a710c87eb2c0da84482873b4b52"
 EXPECTED_DETERMINISTIC_POLICY_SHA256 = "d5cbe419a545c022036b7347b6fb75a1fbb127dc7a861948d96103e646f338ab"
 EXPECTED_DETERMINISTIC_POLICY_COMMITMENT = "blake2b-256:cb60558f8b274ffa44d51de3367a34759b408b5c1dd3427583d3031ef9017fdd"
+EXPECTED_SEED_SWEEP_SHA256 = "a3be0b33193fe661cb75dc32342e9c221bdf0016a98f7cf7f9ec71369fc801e4"
+EXPECTED_SEED_SWEEP_COMMITMENT = "blake2b-256:68b16bb7614972f29d5f1a0015ea9d2e3d2cdf2ce33c42afdf6eaed7cbe933db"
 
 EXPECTED_ADJACENT_MODES = (
     "rmsnorm_input_fused_adjacent_fixed_v1",
     "rmsnorm_input_fused_adjacent_label_probe_a_v1",
     "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+    "rmsnorm_input_fused_adjacent_seed_00_v1",
+    "rmsnorm_input_fused_adjacent_seed_01_v1",
+    "rmsnorm_input_fused_adjacent_seed_02_v1",
+    "rmsnorm_input_fused_adjacent_seed_03_v1",
+    "rmsnorm_input_fused_adjacent_seed_04_v1",
+    "rmsnorm_input_fused_adjacent_seed_05_v1",
 )
 EXPECTED_CLI_COMMANDS = (
     "build-input-rmsnorm-fused-adjacent",
     "build-input-rmsnorm-fused-adjacent-label-probe-a",
     "build-input-rmsnorm-fused-adjacent-label-probe-b",
+    "build-input-rmsnorm-fused-adjacent-seed-00",
+    "build-input-rmsnorm-fused-adjacent-seed-01",
+    "build-input-rmsnorm-fused-adjacent-seed-02",
+    "build-input-rmsnorm-fused-adjacent-seed-03",
+    "build-input-rmsnorm-fused-adjacent-seed-04",
+    "build-input-rmsnorm-fused-adjacent-seed-05",
 )
 ADAPTER_MODE_TO_LABEL_ID = {
     "rmsnorm_input_fused_adjacent_fixed_v1": "fixed_adjacent_layout",
     "rmsnorm_input_fused_adjacent_label_probe_a_v1": "adjacent_label_probe_a",
     "rmsnorm_input_fused_adjacent_label_probe_b_v1": "adjacent_label_probe_b",
+    "rmsnorm_input_fused_adjacent_seed_00_v1": "adjacent_seed_00",
+    "rmsnorm_input_fused_adjacent_seed_01_v1": "adjacent_seed_01",
+    "rmsnorm_input_fused_adjacent_seed_02_v1": "adjacent_seed_02",
+    "rmsnorm_input_fused_adjacent_seed_03_v1": "adjacent_seed_03",
+    "rmsnorm_input_fused_adjacent_seed_04_v1": "adjacent_seed_04",
+    "rmsnorm_input_fused_adjacent_seed_05_v1": "adjacent_seed_05",
 }
 ADAPTER_MODE_TO_CLI_COMMAND = dict(zip(EXPECTED_ADJACENT_MODES, EXPECTED_CLI_COMMANDS, strict=True))
 
@@ -76,8 +99,9 @@ CURRENT_CHAMPION_PATH_OPENING_BYTES = deterministic_gate.CURRENT_CHAMPION_PATH_O
 CURRENT_CHAMPION_VALUE_BYTES = deterministic_gate.CURRENT_CHAMPION_VALUE_BYTES
 ADJACENT_VALUE_BYTES = deterministic_gate.ADJACENT_VALUE_BYTES
 FIXED_ADJACENT_ID = deterministic_gate.FIXED_ADJACENT_ID
+SEED_LABEL_IDS = seed_sweep_gate.PRE_REGISTERED_SEED_IDS
 ACCEPTED_LABEL_IDS = deterministic_gate.SUPPORTED_LABEL_IDS
-REJECTED_LABEL_IDS = (FIXED_ADJACENT_ID,)
+REJECTED_LABEL_IDS = (FIXED_ADJACENT_ID, *SEED_LABEL_IDS)
 WORST_ACCEPTED_LABEL_ID = deterministic_gate.WORST_SUPPORTED_LABEL_ID
 WORST_ACCEPTED_TYPED_BYTES = deterministic_gate.WORST_SUPPORTED_TYPED_BYTES
 WORST_ACCEPTED_SAVING_BYTES = deterministic_gate.WORST_SUPPORTED_SAVING_BYTES
@@ -103,26 +127,26 @@ EXPECTED_REJECTED_UNSEEN_LABELS = (
 
 EXPECTED_INTERPRETATION = {
     "human_read": (
-        "The good adjacent-label numbers are no longer just a hand-picked probe pair. The gate "
-        "derives the current adjacent label family from Rust enum variants and CLI build commands, "
-        "then accepts only the generated labels whose pinned proof accounting beats the 42,068 "
-        "typed-byte champion."
+        "The adjacent-label inventory is now source-complete for the current Rust and CLI surface. "
+        "The gate derives fixed, probe A, probe B, and six pre-registered seed labels from source, "
+        "then accepts only the verifier-budgeted probe pair."
     ),
     "mechanism_read": (
-        "The full generated adjacent family is still not promotable because the fixed adjacent "
-        "label remains 88 typed bytes above the champion. The source-generated accepted subset "
-        "keeps probe A and probe B; worst accepted proof size remains 40,332 typed bytes."
+        "The full generated adjacent family is still not promotable because fixed/seed labels either "
+        "miss the 42,068 typed-byte champion or are outside the bounded two-probe attempt domain. "
+        "The accepted subset keeps probe A and probe B; worst accepted proof size remains 40,332 "
+        "typed bytes and best accepted remains 37,532 typed bytes."
     ),
     "next_experiment": (
-        "Move from source-generated label policy to a source-generated proof-object builder so "
-        "future label additions produce proof/accounting rows automatically before promotion."
+        "Move the proof-object builder from the old three-row probe accounting to the nine-row "
+        "seed-sweep accounting so future source labels cannot hide outside the evidence table."
     ),
 }
 
 NON_CLAIMS = (
     "not a new proof-size frontier beyond the deterministic label-policy gate",
     "not a final production label-selection policy",
-    "not robust to future Rust label additions without regenerating this gate",
+    "not robust to future Rust label additions without regenerating source and seed-sweep evidence",
     "not a NANOZK proof-size win",
     "not a matched external zkML benchmark",
     "not a full transformer block proof",
@@ -136,6 +160,7 @@ VALIDATION_COMMANDS = (
     "python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_generated_adjacent_label_inventory_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_generated_adjacent_label_inventory_gate.py",
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_generated_adjacent_label_inventory_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_deterministic_adjacent_label_policy_gate",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adjacent_label_seed_sweep_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adjacent_label_policy_gate",
     "cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_adjacent_label --lib",
     "git diff --check",
@@ -387,6 +412,22 @@ def load_deterministic_policy() -> tuple[dict[str, Any], bytes]:
     return payload, raw
 
 
+def load_seed_sweep_policy() -> tuple[dict[str, Any], bytes]:
+    payload, raw = load_json_file(SEED_SWEEP_PATH, "adjacent label seed sweep")
+    if sha256(raw) != EXPECTED_SEED_SWEEP_SHA256:
+        raise GeneratedAdjacentLabelInventoryGateError("seed sweep digest drift")
+    if payload.get("payload_commitment") != EXPECTED_SEED_SWEEP_COMMITMENT:
+        raise GeneratedAdjacentLabelInventoryGateError("seed sweep commitment drift")
+    try:
+        seed_sweep_gate.validate_payload(payload)
+        rebuilt = seed_sweep_gate.build_payload()
+        if rebuilt != payload:
+            raise GeneratedAdjacentLabelInventoryGateError("seed sweep rebuild drift")
+    except seed_sweep_gate.AdjacentSeedSweepGateError as err:
+        raise GeneratedAdjacentLabelInventoryGateError(f"seed sweep invalid: {err}") from err
+    return payload, raw
+
+
 def rust_adjacent_adapter_modes(raw: bytes) -> list[dict[str, str]]:
     text = decode_utf8(raw, "rust native seq32 attention mlp source")
     rows = []
@@ -405,7 +446,7 @@ def rust_adjacent_adapter_modes(raw: bytes) -> list[dict[str, str]]:
 def cli_adjacent_commands(raw: bytes, mode_to_variant: dict[str, str]) -> list[dict[str, str]]:
     text = decode_utf8(raw, "cli native seq32 attention mlp source")
     pattern = re.compile(
-        r'"(build-input-rmsnorm-fused-adjacent(?:-label-probe-[ab])?)"\s*=>\s*\{\s*'
+        r'"(build-input-rmsnorm-fused-adjacent(?:-label-probe-[ab]|-seed-\d\d)?)"\s*=>\s*\{\s*'
         r"Some\(ZkAiNativeSeq32AttentionMlpAdapterMode::([A-Za-z0-9]+)\)",
         re.MULTILINE | re.DOTALL,
     )
@@ -452,7 +493,26 @@ def deterministic_rows_by_id(deterministic_policy: dict[str, Any]) -> dict[str, 
     return rows
 
 
-def source_artifact_rows(raws: dict[str, bytes], source_policy: dict[str, Any], deterministic_policy: dict[str, Any]) -> list[dict[str, Any]]:
+def seed_sweep_rows_by_id(seed_sweep_policy: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    rows = {}
+    for item in _list(seed_sweep_policy.get("proof_object_rows"), "seed sweep proof object rows"):
+        row = _dict(item, "seed sweep row")
+        variant_id = row.get("variant_id")
+        if not isinstance(variant_id, str):
+            raise GeneratedAdjacentLabelInventoryGateError("seed sweep row id drift")
+        rows[variant_id] = row
+    for seed_id in SEED_LABEL_IDS:
+        if seed_id not in rows:
+            raise GeneratedAdjacentLabelInventoryGateError("seed sweep inventory drift")
+    return rows
+
+
+def source_artifact_rows(
+    raws: dict[str, bytes],
+    source_policy: dict[str, Any],
+    deterministic_policy: dict[str, Any],
+    seed_sweep_policy: dict[str, Any],
+) -> list[dict[str, Any]]:
     return [
         {
             "id": "rust_native_seq32_attention_mlp_source",
@@ -482,22 +542,64 @@ def source_artifact_rows(raws: dict[str, bytes], source_policy: dict[str, Any], 
             "size_bytes": len(raws["deterministic_policy"]),
             "payload_commitment": deterministic_policy["payload_commitment"],
         },
+        {
+            "id": "adjacent_label_seed_sweep",
+            "path": SEED_SWEEP_PATH.relative_to(ROOT).as_posix(),
+            "sha256": sha256(raws["seed_sweep"]),
+            "size_bytes": len(raws["seed_sweep"]),
+            "payload_commitment": seed_sweep_policy["payload_commitment"],
+        },
     ]
+
+
+def seed_policy_status(row: dict[str, Any]) -> tuple[str, str]:
+    if row["path_opening_bytes"] >= CURRENT_CHAMPION_PATH_OPENING_BYTES or row["typed_bytes"] >= CURRENT_CHAMPION_TYPED_BYTES:
+        return "rejected_inflating_label", "seed path-opening or typed bytes do not beat the current champion"
+    return "rejected_unpromoted_seed_label", "seed is outside the verifier-bound two-probe attempt domain"
+
+
+def seed_generated_label_row(mode_row: dict[str, str], seed_row: dict[str, Any], cli_row: dict[str, str]) -> dict[str, Any]:
+    adapter_mode = mode_row["adapter_mode"]
+    if seed_row["adapter_mode"] != adapter_mode:
+        raise GeneratedAdjacentLabelInventoryGateError("generated seed adapter drift")
+    policy_status, status_reason = seed_policy_status(seed_row)
+    return {
+        "variant_id": seed_row["variant_id"],
+        "adapter_mode": adapter_mode,
+        "rust_enum_variant": mode_row["rust_enum_variant"],
+        "cli_command": cli_row["cli_command"],
+        "path": seed_row["path"],
+        "typed_bytes": seed_row["typed_bytes"],
+        "proof_json_bytes": seed_row["json_proof_bytes"],
+        "path_opening_bytes": seed_row["path_opening_bytes"],
+        "value_bytes": seed_row["value_bytes"],
+        "typed_delta_vs_champion": seed_row["typed_bytes"] - CURRENT_CHAMPION_TYPED_BYTES,
+        "path_opening_delta_vs_champion": seed_row["path_opening_bytes"] - CURRENT_CHAMPION_PATH_OPENING_BYTES,
+        "policy_status": policy_status,
+        "status_reason": status_reason,
+        "proof_accounting_pinned": True,
+    }
 
 
 def build_generated_label_inventory(
     source_policy: dict[str, Any],
     deterministic_policy: dict[str, Any],
+    seed_sweep_policy: dict[str, Any],
     rust_modes: list[dict[str, str]],
     cli_rows: list[dict[str, str]],
 ) -> list[dict[str, Any]]:
     source_rows = variants_by_id(source_policy)
     deterministic_rows = deterministic_rows_by_id(deterministic_policy)
+    seed_rows = seed_sweep_rows_by_id(seed_sweep_policy)
     cli_by_mode = {row["adapter_mode"]: row for row in cli_rows}
     rows = []
     for mode_row in rust_modes:
         adapter_mode = mode_row["adapter_mode"]
         variant_id = ADAPTER_MODE_TO_LABEL_ID[adapter_mode]
+        cli_row = cli_by_mode[adapter_mode]
+        if variant_id in seed_rows and variant_id not in source_rows:
+            rows.append(seed_generated_label_row(mode_row, seed_rows[variant_id], cli_row))
+            continue
         if variant_id not in source_rows or variant_id not in deterministic_rows:
             raise GeneratedAdjacentLabelInventoryGateError("generated label missing proof accounting")
         source_row = source_rows[variant_id]
@@ -513,7 +615,7 @@ def build_generated_label_inventory(
                 "variant_id": variant_id,
                 "adapter_mode": adapter_mode,
                 "rust_enum_variant": mode_row["rust_enum_variant"],
-                "cli_command": cli_by_mode[adapter_mode]["cli_command"],
+                "cli_command": cli_row["cli_command"],
                 "path": source_row["path"],
                 "typed_bytes": source_row["typed_bytes"],
                 "proof_json_bytes": source_row["proof_json_bytes"],
@@ -534,10 +636,11 @@ def build_core_payload() -> dict[str, Any]:
     cli_raw = read_source(CLI_SOURCE_PATH, "cli native seq32 attention mlp source", EXPECTED_CLI_SOURCE_SHA256)
     source_policy, source_policy_raw = load_source_policy()
     deterministic_policy, deterministic_policy_raw = load_deterministic_policy()
+    seed_sweep_policy, seed_sweep_raw = load_seed_sweep_policy()
     rust_modes = rust_adjacent_adapter_modes(rust_raw)
     mode_to_variant = {row["adapter_mode"]: row["rust_enum_variant"] for row in rust_modes}
     cli_rows = cli_adjacent_commands(cli_raw, mode_to_variant)
-    label_inventory = build_generated_label_inventory(source_policy, deterministic_policy, rust_modes, cli_rows)
+    label_inventory = build_generated_label_inventory(source_policy, deterministic_policy, seed_sweep_policy, rust_modes, cli_rows)
     accepted = [row for row in label_inventory if row["policy_status"] == "supported_label"]
     rejected = [row for row in label_inventory if row["policy_status"].startswith("rejected")]
     worst_generated = max(label_inventory, key=lambda row: row["typed_bytes"])
@@ -551,6 +654,7 @@ def build_core_payload() -> dict[str, Any]:
         "cli": cli_raw,
         "source_policy": source_policy_raw,
         "deterministic_policy": deterministic_policy_raw,
+        "seed_sweep": seed_sweep_raw,
     }
     return {
         "schema": SCHEMA,
@@ -558,7 +662,7 @@ def build_core_payload() -> dict[str, Any]:
         "result": RESULT,
         "claim_boundary": CLAIM_BOUNDARY,
         "issue_hint": ISSUE_HINT,
-        "source_artifacts": source_artifact_rows(raws, source_policy, deterministic_policy),
+        "source_artifacts": source_artifact_rows(raws, source_policy, deterministic_policy, seed_sweep_policy),
         "generator_policy": {
             "name": "rust_cli_generated_adjacent_label_inventory_v1",
             "source_rule": "Rust serde adapter modes with prefix rmsnorm_input_fused_adjacent_ plus matching CLI build-input-rmsnorm-fused-adjacent commands",
@@ -572,6 +676,7 @@ def build_core_payload() -> dict[str, Any]:
                 "adapter mode is generated from the pinned Rust adjacent family",
                 "matching CLI build-input command exists",
                 "proof/accounting row exists in the pinned source policy",
+                "label is inside the verifier-bound two-probe attempt domain",
                 "direct value bytes equal 20924",
                 "path-opening bytes are below the 20592-byte champion path-opening budget",
                 "typed bytes are below the 42068-byte champion typed budget",
@@ -580,6 +685,7 @@ def build_core_payload() -> dict[str, Any]:
                 "adapter mode is absent from the pinned Rust adjacent family",
                 "matching CLI build-input command is absent",
                 "proof/accounting row is missing",
+                "label is outside the verifier-bound two-probe attempt domain",
                 "direct value bytes drift from 20924",
                 "path-opening bytes are greater than or equal to 20592",
                 "typed bytes are greater than or equal to 42068",
@@ -624,6 +730,7 @@ def build_payload() -> dict[str, Any]:
     return payload
 
 
+@functools.lru_cache(maxsize=1)
 def expected_payload_with_empty_mutations() -> dict[str, Any]:
     payload = build_core_payload()
     payload["mutation_result"] = expected_mutation_result()

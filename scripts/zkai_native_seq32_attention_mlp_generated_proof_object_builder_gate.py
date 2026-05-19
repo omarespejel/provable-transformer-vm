@@ -30,13 +30,13 @@ from scripts import zkai_native_seq32_attention_mlp_generated_adjacent_label_inv
 
 EVIDENCE_DIR = inventory_gate.EVIDENCE_DIR
 GENERATED_INVENTORY_PATH = inventory_gate.JSON_OUT
-ACCOUNTING_PATH = EVIDENCE_DIR / "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-accounting-2026-05.json"
+ACCOUNTING_PATH = EVIDENCE_DIR / "zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-accounting-2026-05.json"
 JSON_OUT = EVIDENCE_DIR / "zkai-native-seq32-attention-mlp-generated-proof-object-builder-2026-05.json"
 TSV_OUT = EVIDENCE_DIR / "zkai-native-seq32-attention-mlp-generated-proof-object-builder-2026-05.tsv"
 
 SCHEMA = "zkai-native-seq32-attention-mlp-generated-proof-object-builder-gate-v1"
 DECISION = "GO_SOURCE_GENERATED_PROOF_OBJECT_ROWS_REPRODUCE_CURRENT_ADJACENT_FRONTIER"
-RESULT = "BUILDER_REPRODUCES_THREE_ADJACENT_ROWS_BEST_37532_TYPED_BYTES_AND_FIXED_LABEL_REJECTED_AT_42156"
+RESULT = "BUILDER_REPRODUCES_NINE_ADJACENT_ROWS_BEST_37532_TYPED_BYTES_AND_SEEDS_REJECTED"
 CLAIM_BOUNDARY = (
     "SOURCE_GENERATED_BUILDER_OVER_EXISTING_STWO_SEQ32_D128_PROOF_ENVELOPES;"
     "JOINS_RUST_CLI_GENERATED_LABELS_TO_PINNED_ACCOUNTING_AND_ENVELOPES;"
@@ -45,9 +45,9 @@ CLAIM_BOUNDARY = (
 ISSUE_HINT = "source-generated-seq32-proof-object-builder"
 PAYLOAD_DOMAIN = "ptvm:zkai:native-seq32-attention-mlp-generated-proof-object-builder:v1"
 
-EXPECTED_GENERATED_INVENTORY_SHA256 = "737eccaeb16051a4733d122ab2fc332d59c3b28feb36707088731ea93ae156f3"
-EXPECTED_GENERATED_INVENTORY_COMMITMENT = "blake2b-256:8b195e5ce4ec9dd594605d34528a9227b2fc59cb7d4a6b31f5293667fe35cab4"
-EXPECTED_ACCOUNTING_SHA256 = "0841dd4dbf6d3ff76ede4c3e088b301745e04f649024d50aa378fb239cd1ef5c"
+EXPECTED_GENERATED_INVENTORY_SHA256 = "9f65bb46dab42bacb1530dc7f6cb31da9b4097dc5e2866feda26a72fa0611929"
+EXPECTED_GENERATED_INVENTORY_COMMITMENT = "blake2b-256:8a0697d929b242d9894f58c61716bbca2b13612d76670ef5500258c490587851"
+EXPECTED_ACCOUNTING_SHA256 = "90f04ada7e02f3777615417dec475c27ccff3511f42be0a084e6405b52fcd6db"
 EXPECTED_ACCOUNTING_SCHEMA = "zkai-stwo-local-binary-proof-accounting-cli-v1"
 EXPECTED_ACCOUNTING_DOMAIN = "zkai:stwo:local-binary-proof-accounting"
 EXPECTED_ACCOUNTING_SOURCE = "repo_owned_canonical_local_accounting_from_stwo_2_2_0_typed_StarkProof_fields"
@@ -70,8 +70,8 @@ VALUE_GROUPS = ("oods_samples", "queries_values")
 EXPECTED_INTERPRETATION = {
     "human_read": (
         "The source-generated label inventory is now connected to the actual proof-object files. "
-        "Each adjacent label has to join to a pinned accounting row and a real envelope whose proof "
-        "length, proof hash, envelope hash, and typed accounting all match."
+        "Each adjacent label, including the six seed labels, has to join to a pinned accounting row "
+        "and a real envelope whose proof length, proof hash, envelope hash, and typed accounting all match."
     ),
     "mechanism_read": (
         "This does not create a new proof. It removes a manual promotion gap: a generated Rust/CLI "
@@ -81,7 +81,7 @@ EXPECTED_INTERPRETATION = {
     "next_experiment": (
         "Move from builder verification over existing envelopes to source-generated proving for "
         "new query/opening-stability labels, then keep only labels that beat the 37,532 typed-byte "
-        "best adjacent row without widening the statement."
+        "best adjacent row without widening the verifier-bound attempt domain."
     ),
 }
 
@@ -102,6 +102,7 @@ VALIDATION_COMMANDS = (
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_generated_proof_object_builder_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_generated_adjacent_label_inventory_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_deterministic_adjacent_label_policy_gate",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adjacent_label_seed_sweep_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adjacent_label_policy_gate",
     "cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_adjacent_label --lib",
     "git diff --check",
@@ -354,7 +355,7 @@ def load_generated_inventory() -> tuple[dict[str, Any], bytes]:
 
 
 def load_accounting() -> tuple[dict[str, Any], bytes]:
-    payload, raw = load_json_file(ACCOUNTING_PATH, "adjacent label probe accounting")
+    payload, raw = load_json_file(ACCOUNTING_PATH, "adjacent label seed-sweep accounting")
     if sha256(raw) != EXPECTED_ACCOUNTING_SHA256:
         raise GeneratedProofObjectBuilderGateError("accounting digest drift")
     expected_top = {
@@ -369,7 +370,7 @@ def load_accounting() -> tuple[dict[str, Any], bytes]:
         if payload.get(key) != expected:
             raise GeneratedProofObjectBuilderGateError("accounting schema drift")
     rows = _list(payload.get("rows"), "accounting rows")
-    if len(rows) != 4:
+    if len(rows) != 9:
         raise GeneratedProofObjectBuilderGateError("accounting row count drift")
     return payload, raw
 
@@ -384,7 +385,7 @@ def source_artifact_rows(raws: dict[str, bytes], generated_inventory: dict[str, 
             "payload_commitment": generated_inventory["payload_commitment"],
         },
         {
-            "id": "adjacent_label_probe_accounting",
+            "id": "adjacent_label_seed_sweep_accounting",
             "path": ACCOUNTING_PATH.relative_to(ROOT).as_posix(),
             "sha256": sha256(raws["accounting"]),
             "size_bytes": len(raws["accounting"]),
@@ -615,11 +616,11 @@ def build_core_payload() -> dict[str, Any]:
         ),
         "builder_policy": {
             "name": "source_generated_seq32_attention_mlp_proof_object_builder_v1",
-            "source_rule": "generated adjacent labels from Rust+CLI inventory must join to the pinned local binary accounting row and the referenced envelope bytes",
+            "source_rule": "generated adjacent labels from Rust+CLI inventory must join to the pinned nine-row local binary accounting table and the referenced envelope bytes",
             "manual_override_allowed": False,
             "input_artifact_ids": [
                 "generated_adjacent_label_inventory",
-                "adjacent_label_probe_accounting",
+                "adjacent_label_seed_sweep_accounting",
             ],
             "generated_label_ids": [row["variant_id"] for row in rows],
             "accepted_label_ids": accepted_label_ids,

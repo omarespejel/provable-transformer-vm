@@ -119,7 +119,7 @@
     "not timing evidence",
     "not production-ready zkML"
   ],
-  "payload_commitment": "blake2b-256:a775e08bbb5efc31221a9998b52a56fda5a414f389de3fd8fe9a2c64a26fb986",
+  "payload_commitment": "blake2b-256:68b16bb7614972f29d5f1a0015ea9d2e3d2cdf2ce33c42afdf6eaed7cbe933db",
   "proof_object_rows": [
     {
       "adapter_mode": "rmsnorm_input_fused_adjacent_fixed_v1",
@@ -331,14 +331,14 @@
     {
       "id": "rust_native_seq32_attention_mlp_source",
       "path": "src/stwo_backend/native_seq32_attention_mlp_single_proof.rs",
-      "sha256": "35014074e972386ef8e1b261bb407eb842fc1b98037f4cac1f4da1a7e52cf6fb",
-      "size_bytes": 135974
+      "sha256": "7818c25b034da111cddd090783ea6bc66fd0c4dc2c67f95e3281899d0235344b",
+      "size_bytes": 145752
     },
     {
       "id": "cli_native_seq32_attention_mlp_source",
       "path": "src/bin/zkai_native_seq32_attention_mlp_single_proof.rs",
-      "sha256": "6515f8a3e05661dc267b4c106d2e06d576d4f74d39bcc0821c892ac7e3b4bdac",
-      "size_bytes": 29586
+      "sha256": "ea68996b62dd763255e20479672bf7a392494a710c87eb2c0da84482873b4b52",
+      "size_bytes": 32531
     },
     {
       "id": "adjacent_label_seed_sweep_accounting",

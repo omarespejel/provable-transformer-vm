@@ -1,0 +1,280 @@
+{
+  "binding_summary": {
+    "attempt_budget": 2,
+    "inner_stwo_transcript_binds_attempt_domain": false,
+    "inner_stwo_transcript_binds_selected_attempt_id": false,
+    "new_frontier_claimed": false,
+    "outer_envelope_binds_attempt_domain": true,
+    "outer_envelope_binds_selected_attempt_id": true,
+    "outer_envelope_binds_selected_proof_hashes": true,
+    "proof_object_regenerated": false,
+    "result_status": "GO_OUTER_ENVELOPE_BINDING_NEEDS_REGENERATED_INNER_METADATA_NEXT",
+    "saving_vs_current_single_proof_champion_typed_bytes": 4536,
+    "saving_vs_matched_two_proof_frontier_typed_bytes": 9656,
+    "security_loss_bits": "1.000000",
+    "selected_attempt_id": "adjacent_label_probe_b",
+    "selected_json_bytes": 106317,
+    "selected_typed_bytes": 37532
+  },
+  "claim_boundary": "TYPED_VERIFIER_FACING_ENVELOPE_OVER_EXISTING_SEQ32_D128_STWO_PROOF_ROW;BINDS_ATTEMPT_DOMAIN_SELECTED_ATTEMPT_AND_PROOF_ARTIFACT_HASHES;NOT_FRESH_PROOF_GENERATION_NOT_INNER_STWO_TRANSCRIPT_BINDING_NOT_A_NANOZK_WIN",
+  "decision": "GO_TYPED_OUTER_ENVELOPE_BINDS_TWO_PROBE_ATTEMPT_DOMAIN_TO_EXISTING_PROOF_ROW",
+  "interpretation": {
+    "human_read": "The proof row is already real and artifact-bound. This gate adds the missing typed statement wrapper: a verifier-facing envelope names the only allowed attempts, names probe B as the selected attempt, and binds that choice to the selected proof hashes.",
+    "research_read": "This is a correctness promotion for the existing 37,532 typed-byte row, not a fresh proof-size frontier. The next stronger result is a regenerated proof whose inner statement metadata also carries the attempt domain and selected attempt id.",
+    "security_read": "The envelope charges the two-probe search as 1.000000 bit of relative Fiat-Shamir loss and forbids final proof bytes, post-decommitment accounting, and unbounded retry as policy inputs."
+  },
+  "issue_hint": "https://github.com/omarespejel/provable-transformer-vm/issues/708",
+  "mutation_result": {
+    "all_mutations_rejected": true,
+    "cases": [
+      {
+        "error": "decision drift",
+        "name": "decision_drift",
+        "rejected": true
+      },
+      {
+        "error": "result drift",
+        "name": "result_drift",
+        "rejected": true
+      },
+      {
+        "error": "claim_boundary drift",
+        "name": "claim_boundary_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "source artifact drift",
+        "name": "builder_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "source artifact drift",
+        "name": "builder_commitment_drift",
+        "rejected": true
+      },
+      {
+        "error": "source artifact drift",
+        "name": "budget_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "source artifact drift",
+        "name": "budget_commitment_drift",
+        "rejected": true
+      },
+      {
+        "error": "attempt domain drift",
+        "name": "attempt_domain_removed",
+        "rejected": true
+      },
+      {
+        "error": "attempt domain drift",
+        "name": "attempt_domain_reordered",
+        "rejected": true
+      },
+      {
+        "error": "selected attempt drift",
+        "name": "selected_attempt_changed",
+        "rejected": true
+      },
+      {
+        "error": "selected attempt drift",
+        "name": "selected_attempt_outside_domain",
+        "rejected": true
+      },
+      {
+        "error": "attempt budget drift",
+        "name": "attempt_budget_drift",
+        "rejected": true
+      },
+      {
+        "error": "security loss drift",
+        "name": "security_loss_understated",
+        "rejected": true
+      },
+      {
+        "error": "unbounded retry drift",
+        "name": "unbounded_retry_allowed",
+        "rejected": true
+      },
+      {
+        "error": "policy input drift",
+        "name": "final_proof_bytes_allowed",
+        "rejected": true
+      },
+      {
+        "error": "policy input drift",
+        "name": "post_decommitment_accounting_allowed",
+        "rejected": true
+      },
+      {
+        "error": "outer envelope binding drift",
+        "name": "outer_envelope_binding_removed",
+        "rejected": true
+      },
+      {
+        "error": "inner transcript binding drift",
+        "name": "inner_transcript_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "selected proof artifact drift",
+        "name": "selected_proof_hash_drift",
+        "rejected": true
+      },
+      {
+        "error": "selected proof artifact drift",
+        "name": "selected_typed_bytes_drift",
+        "rejected": true
+      },
+      {
+        "error": "binding summary drift",
+        "name": "new_frontier_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "claim_boundary drift",
+        "name": "nanozk_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "validation command drift",
+        "name": "validation_command_drift",
+        "rejected": true
+      },
+      {
+        "error": "non_claims drift",
+        "name": "removed_non_claim",
+        "rejected": true
+      },
+      {
+        "error": "payload commitment drift",
+        "name": "payload_commitment_drift",
+        "rejected": true
+      }
+    ],
+    "mutation_names": [
+      "decision_drift",
+      "result_drift",
+      "claim_boundary_overclaim",
+      "builder_digest_drift",
+      "builder_commitment_drift",
+      "budget_digest_drift",
+      "budget_commitment_drift",
+      "attempt_domain_removed",
+      "attempt_domain_reordered",
+      "selected_attempt_changed",
+      "selected_attempt_outside_domain",
+      "attempt_budget_drift",
+      "security_loss_understated",
+      "unbounded_retry_allowed",
+      "final_proof_bytes_allowed",
+      "post_decommitment_accounting_allowed",
+      "outer_envelope_binding_removed",
+      "inner_transcript_overclaim",
+      "selected_proof_hash_drift",
+      "selected_typed_bytes_drift",
+      "new_frontier_overclaim",
+      "nanozk_overclaim",
+      "validation_command_drift",
+      "removed_non_claim",
+      "payload_commitment_drift"
+    ],
+    "mutations_rejected": 25
+  },
+  "non_claims": [
+    "not fresh proof generation",
+    "not a new proof-size frontier beyond the existing 37,532 typed-byte probe-B row",
+    "not inner Stwo transcript binding of the attempt domain",
+    "not an absolute soundness claim",
+    "not unbounded retry",
+    "not post-decommitment proof-byte selection",
+    "not a NANOZK proof-size comparison",
+    "not a full transformer block proof",
+    "not timing evidence",
+    "not production-ready zkML"
+  ],
+  "payload_commitment": "blake2b-256:1dac8ed53a269f2649da650afce07f4a96810e4f1c0a37426fd3c10a12b86691",
+  "result": "PROBE_B_ROW_BOUND_WITH_1_BIT_RELATIVE_LOSS_NOT_INNER_STWO_TRANSCRIPT_BINDING",
+  "schema": "zkai-stwo-attempt-domain-binding-gate-v1",
+  "source_artifacts": [
+    {
+      "decision": "GO_SOURCE_GENERATED_PROOF_OBJECT_ROWS_REPRODUCE_CURRENT_ADJACENT_FRONTIER",
+      "id": "generated_proof_object_builder",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-generated-proof-object-builder-2026-05.json",
+      "payload_commitment": "blake2b-256:c25c9d8b0af3394006b266754ba65fc92ee79080f1755066c2fab034161e18dd",
+      "schema": "zkai-native-seq32-attention-mlp-generated-proof-object-builder-gate-v1",
+      "sha256": "d8685f504a7f9fd935ec1b317aa8afd244c84e83d4e45ef7da9e80bca022f7b1"
+    },
+    {
+      "decision": "NARROW_CLAIM_SMALL_VERIFIER_BOUND_RETRY_BUDGET_CAN_RECOVER_PROBE_B_INVENTORY",
+      "id": "query_grinding_budget",
+      "path": "docs/engineering/evidence/zkai-stwo-query-grinding-budget-2026-05.json",
+      "payload_commitment": "blake2b-256:139ebaf55f70c771cf1d1f9f6fb8a132bc2215118e46a6ca4dbd2d6da4e0aea6",
+      "schema": "zkai-stwo-query-grinding-budget-gate-v1",
+      "sha256": "a5ef30dc1cdd2aa0bc72163a40f2c66358265a1ef0f29d0e41ff4cf972951303"
+    }
+  ],
+  "validation_commands": [
+    "python3.10 scripts/zkai_stwo_attempt_domain_binding_gate.py --write-json docs/engineering/evidence/zkai-stwo-attempt-domain-binding-gate-2026-05.json --write-tsv docs/engineering/evidence/zkai-stwo-attempt-domain-binding-gate-2026-05.tsv",
+    "python3.10 -m py_compile scripts/zkai_stwo_attempt_domain_binding_gate.py scripts/tests/test_zkai_stwo_attempt_domain_binding_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_stwo_attempt_domain_binding_gate",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_generated_proof_object_builder_gate",
+    "python3.10 -m unittest scripts.tests.test_zkai_stwo_query_grinding_budget_gate",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ],
+  "verifier_facing_attempt_envelope": {
+    "attempt_budget": 2,
+    "attempt_domain": [
+      "adjacent_label_probe_a",
+      "adjacent_label_probe_b"
+    ],
+    "bound_proof_artifact": {
+      "accounting_path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-adjacent-label-seed-sweep-accounting-2026-05.json",
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+      "envelope_sha256": "8e3ba831ac7e858d069f1edfcb6ad46783b0d72f3f47666ae621bc159ac2c0df",
+      "input_sha256": "f7c899cab3790eda5c770e56d0b9ed02ab5b65c7a72d4e1ccaaab7ed80a4a4da",
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.envelope.json",
+      "path_opening_bytes": 16560,
+      "policy_status": "supported_label",
+      "proof_json_bytes": 106317,
+      "proof_sha256": "4a5dc66d63ee3ddd3acad65e88c42259fb925ee31768a3fdecdb528722630845",
+      "record_stream_sha256": "d0540f5cd1a69991226bcfb81475cec78ba0d416a39317503ad204b660aae1e0",
+      "typed_bytes": 37532,
+      "typed_saving_vs_matched_two_proof_frontier": 9656,
+      "typed_saving_vs_single_proof_champion": 4536,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_label_probe_b"
+    },
+    "bound_source_commitments": {
+      "generated_proof_object_builder_payload_commitment": "blake2b-256:c25c9d8b0af3394006b266754ba65fc92ee79080f1755066c2fab034161e18dd",
+      "generated_proof_object_builder_sha256": "d8685f504a7f9fd935ec1b317aa8afd244c84e83d4e45ef7da9e80bca022f7b1",
+      "query_grinding_budget_payload_commitment": "blake2b-256:139ebaf55f70c771cf1d1f9f6fb8a132bc2215118e46a6ca4dbd2d6da4e0aea6",
+      "query_grinding_budget_sha256": "a5ef30dc1cdd2aa0bc72163a40f2c66358265a1ef0f29d0e41ff4cf972951303"
+    },
+    "envelope_version": "ptvm-zkai-stwo-attempt-domain-envelope-v1",
+    "policy_inputs": {
+      "attempt_domain": true,
+      "final_envelope_json": false,
+      "final_proof_bytes": false,
+      "post_decommitment_accounting": false,
+      "security_loss_bits": true,
+      "selected_attempt_id": true,
+      "unbounded_retry_count": false
+    },
+    "proof_backend": "stwo",
+    "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+    "proof_schema_version": "stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-payload-v1",
+    "security_loss_bits": "1.000000",
+    "security_loss_formula": "log2(attempt_budget)",
+    "selected_attempt_id": "adjacent_label_probe_b",
+    "selected_attempt_index": 1,
+    "statement_version": "zkai-native-seq32-attention-mlp-single-proof-object-native-adapter-statement-v1",
+    "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
+    "unbounded_retry_allowed": false,
+    "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1",
+    "verifier_rejects_attempts_outside_domain": true
+  }
+}
