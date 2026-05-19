@@ -415,6 +415,13 @@ def mutation_functions() -> tuple[tuple[str, Callable[[dict[str, Any]], None]], 
     )
 
 
+def mutation_function_names() -> tuple[str, ...]:
+    return tuple(name for name, _ in mutation_functions())
+
+
+assert mutation_function_names() == MUTATION_NAMES, "mutation function inventory must match MUTATION_NAMES"
+
+
 def _row(payload: dict[str, Any], variant_id: str) -> dict[str, Any]:
     for row in payload["proof_object_rows"]:
         if row["variant_id"] == variant_id:
