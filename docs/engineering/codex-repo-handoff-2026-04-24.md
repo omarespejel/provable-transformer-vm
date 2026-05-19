@@ -2660,6 +2660,10 @@ Seq32 pre-decommitment opening-policy reproducibility metadata:
   `aa623005579aa408ba652fad63dedf7020b6cbe1237b66fc8f33febe828d4923`.
 - Payload commitment:
   `blake2b-256:367bc34be7660e0d4351af47a0ecc6551486dad7acd098ecb73216f447d1790c`.
+- Canonical source:
+  the JSON/TSV values above come from regenerating the checked evidence with
+  the local gate command, then updating the PR description and this handoff to
+  match the regenerated artifact.
 - Selected backend version:
   `stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1`.
 - Selected adapter mode:
