@@ -1,0 +1,4 @@
+variant_id	adapter_mode	cli_command	policy_status	typed_bytes	typed_delta_vs_champion	path_opening_bytes	path_opening_delta_vs_champion	value_bytes	proof_accounting_pinned
+fixed_adjacent_layout	rmsnorm_input_fused_adjacent_fixed_v1	build-input-rmsnorm-fused-adjacent	rejected_inflating_label	42156	88	21184	592	20924	True
+adjacent_label_probe_a	rmsnorm_input_fused_adjacent_label_probe_a_v1	build-input-rmsnorm-fused-adjacent-label-probe-a	supported_label	40332	-1736	19360	-1232	20924	True
+adjacent_label_probe_b	rmsnorm_input_fused_adjacent_label_probe_b_v1	build-input-rmsnorm-fused-adjacent-label-probe-b	supported_label	37532	-4536	16560	-4032	20924	True

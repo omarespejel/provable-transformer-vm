@@ -1,0 +1,343 @@
+{
+  "claim_boundary": "SOURCE_GENERATED_POLICY_OVER_CURRENT_RUST_ADJACENT_LABEL_FAMILY;ACCEPTS_ONLY_SOURCE_GENERATED_LABELS_WITH_PINNED_ACCOUNTING_BELOW_42068;NOT_A_NEW_PROOF_SIZE_FRONTIER_NOT_A_NANOZK_WIN",
+  "decision": "GO_GENERATED_SUPPORTED_ADJACENT_LABELS_BEAT_CURRENT_CHAMPION_WITH_FULL_INVENTORY_NO_GO",
+  "generated_label_inventory": [
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_fixed_v1",
+      "cli_command": "build-input-rmsnorm-fused-adjacent",
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-layout-2026-05.envelope.json",
+      "path_opening_bytes": 21184,
+      "path_opening_delta_vs_champion": 592,
+      "policy_status": "rejected_inflating_label",
+      "proof_accounting_pinned": true,
+      "proof_json_bytes": 122688,
+      "rust_enum_variant": "RmsnormInputFusedAdjacentFixed",
+      "status_reason": "path-opening bytes are not below the current champion",
+      "typed_bytes": 42156,
+      "typed_delta_vs_champion": 88,
+      "value_bytes": 20924,
+      "variant_id": "fixed_adjacent_layout"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_a_v1",
+      "cli_command": "build-input-rmsnorm-fused-adjacent-label-probe-a",
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-a-2026-05.envelope.json",
+      "path_opening_bytes": 19360,
+      "path_opening_delta_vs_champion": -1232,
+      "policy_status": "supported_label",
+      "proof_accounting_pinned": true,
+      "proof_json_bytes": 116321,
+      "rust_enum_variant": "RmsnormInputFusedAdjacentLabelProbeA",
+      "status_reason": "value bytes stable and path-opening/typed bytes beat the current champion",
+      "typed_bytes": 40332,
+      "typed_delta_vs_champion": -1736,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_label_probe_a"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+      "cli_command": "build-input-rmsnorm-fused-adjacent-label-probe-b",
+      "path": "zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-2026-05.envelope.json",
+      "path_opening_bytes": 16560,
+      "path_opening_delta_vs_champion": -4032,
+      "policy_status": "supported_label",
+      "proof_accounting_pinned": true,
+      "proof_json_bytes": 106317,
+      "rust_enum_variant": "RmsnormInputFusedAdjacentLabelProbeB",
+      "status_reason": "value bytes stable and path-opening/typed bytes beat the current champion",
+      "typed_bytes": 37532,
+      "typed_delta_vs_champion": -4536,
+      "value_bytes": 20924,
+      "variant_id": "adjacent_label_probe_b"
+    }
+  ],
+  "generator_policy": {
+    "acceptance_criteria": [
+      "adapter mode is generated from the pinned Rust adjacent family",
+      "matching CLI build-input command exists",
+      "proof/accounting row exists in the pinned source policy",
+      "direct value bytes equal 20924",
+      "path-opening bytes are below the 20592-byte champion path-opening budget",
+      "typed bytes are below the 42068-byte champion typed budget"
+    ],
+    "accepted_label_ids": [
+      "adjacent_label_probe_a",
+      "adjacent_label_probe_b"
+    ],
+    "generated_adapter_modes": [
+      "rmsnorm_input_fused_adjacent_fixed_v1",
+      "rmsnorm_input_fused_adjacent_label_probe_a_v1",
+      "rmsnorm_input_fused_adjacent_label_probe_b_v1"
+    ],
+    "generated_cli_commands": [
+      "build-input-rmsnorm-fused-adjacent",
+      "build-input-rmsnorm-fused-adjacent-label-probe-a",
+      "build-input-rmsnorm-fused-adjacent-label-probe-b"
+    ],
+    "generated_label_ids": [
+      "fixed_adjacent_layout",
+      "adjacent_label_probe_a",
+      "adjacent_label_probe_b"
+    ],
+    "manual_override_allowed": false,
+    "name": "rust_cli_generated_adjacent_label_inventory_v1",
+    "rejected_label_ids": [
+      "fixed_adjacent_layout"
+    ],
+    "rejection_criteria": [
+      "adapter mode is absent from the pinned Rust adjacent family",
+      "matching CLI build-input command is absent",
+      "proof/accounting row is missing",
+      "direct value bytes drift from 20924",
+      "path-opening bytes are greater than or equal to 20592",
+      "typed bytes are greater than or equal to 42068"
+    ],
+    "source_rule": "Rust serde adapter modes with prefix rmsnorm_input_fused_adjacent_ plus matching CLI build-input-rmsnorm-fused-adjacent commands"
+  },
+  "interpretation": {
+    "human_read": "The good adjacent-label numbers are no longer just a hand-picked probe pair. The gate derives the current adjacent label family from Rust enum variants and CLI build commands, then accepts only the generated labels whose pinned proof accounting beats the 42,068 typed-byte champion.",
+    "mechanism_read": "The full generated adjacent family is still not promotable because the fixed adjacent label remains 88 typed bytes above the champion. The source-generated accepted subset keeps probe A and probe B; worst accepted proof size remains 40,332 typed bytes.",
+    "next_experiment": "Move from source-generated label policy to a source-generated proof-object builder so future label additions produce proof/accounting rows automatically before promotion."
+  },
+  "issue_hint": "generator-backed-seq32-adjacent-label-inventory",
+  "mutation_result": {
+    "all_mutations_rejected": true,
+    "cases": [
+      {
+        "error": "decision drift",
+        "name": "decision_drift",
+        "rejected": true
+      },
+      {
+        "error": "result drift",
+        "name": "result_drift",
+        "rejected": true
+      },
+      {
+        "error": "claim_boundary drift",
+        "name": "claim_boundary_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "source artifact drift",
+        "name": "rust_source_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "source artifact drift",
+        "name": "cli_source_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "source artifact drift",
+        "name": "deterministic_policy_commitment_drift",
+        "rejected": true
+      },
+      {
+        "error": "generator policy drift",
+        "name": "generated_mode_removed",
+        "rejected": true
+      },
+      {
+        "error": "generator policy drift",
+        "name": "generated_mode_extra",
+        "rejected": true
+      },
+      {
+        "error": "generator policy drift",
+        "name": "cli_command_drift",
+        "rejected": true
+      },
+      {
+        "error": "generator policy drift",
+        "name": "accepted_label_erased",
+        "rejected": true
+      },
+      {
+        "error": "generated label inventory drift",
+        "name": "fixed_label_accepted",
+        "rejected": true
+      },
+      {
+        "error": "generated label inventory drift",
+        "name": "accepted_value_drift",
+        "rejected": true
+      },
+      {
+        "error": "generated label inventory drift",
+        "name": "accepted_typed_drift",
+        "rejected": true
+      },
+      {
+        "error": "generated label inventory drift",
+        "name": "proof_accounting_erased",
+        "rejected": true
+      },
+      {
+        "error": "rejected unseen label drift",
+        "name": "unseen_label_accepted",
+        "rejected": true
+      },
+      {
+        "error": "rejected unseen label drift",
+        "name": "post_tail_cross_family_accepted",
+        "rejected": true
+      },
+      {
+        "error": "generator policy drift",
+        "name": "generator_rule_drift",
+        "rejected": true
+      },
+      {
+        "error": "generator policy drift",
+        "name": "manual_override_enabled",
+        "rejected": true
+      },
+      {
+        "error": "policy summary drift",
+        "name": "summary_worst_accepted_drift",
+        "rejected": true
+      },
+      {
+        "error": "policy summary drift",
+        "name": "full_inventory_promoted",
+        "rejected": true
+      },
+      {
+        "error": "validation command drift",
+        "name": "validation_command_drift",
+        "rejected": true
+      },
+      {
+        "error": "non_claims drift",
+        "name": "removed_non_claim",
+        "rejected": true
+      },
+      {
+        "error": "generated label order drift",
+        "name": "label_order_drift",
+        "rejected": true
+      },
+      {
+        "error": "payload commitment drift",
+        "name": "payload_commitment_drift",
+        "rejected": true
+      }
+    ],
+    "mutation_names": [
+      "decision_drift",
+      "result_drift",
+      "claim_boundary_overclaim",
+      "rust_source_digest_drift",
+      "cli_source_digest_drift",
+      "deterministic_policy_commitment_drift",
+      "generated_mode_removed",
+      "generated_mode_extra",
+      "cli_command_drift",
+      "accepted_label_erased",
+      "fixed_label_accepted",
+      "accepted_value_drift",
+      "accepted_typed_drift",
+      "proof_accounting_erased",
+      "unseen_label_accepted",
+      "post_tail_cross_family_accepted",
+      "generator_rule_drift",
+      "manual_override_enabled",
+      "summary_worst_accepted_drift",
+      "full_inventory_promoted",
+      "validation_command_drift",
+      "removed_non_claim",
+      "label_order_drift",
+      "payload_commitment_drift"
+    ],
+    "mutations_rejected": 24
+  },
+  "non_claims": [
+    "not a new proof-size frontier beyond the deterministic label-policy gate",
+    "not a final production label-selection policy",
+    "not robust to future Rust label additions without regenerating this gate",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not a full transformer block proof",
+    "not exact real-valued Softmax",
+    "not timing evidence",
+    "not production-ready zkML"
+  ],
+  "payload_commitment": "blake2b-256:a1ad83f3dea22610a51dce6530ef699f7112fff70bda55dd7c4250f5a89d1c5f",
+  "policy_summary": {
+    "accepted_label_count": 2,
+    "accepted_value_bytes_stable": true,
+    "best_accepted_label_id": "adjacent_label_probe_b",
+    "best_accepted_saving_typed_bytes": 4536,
+    "best_accepted_typed_bytes": 37532,
+    "current_champion_path_opening_bytes": 20592,
+    "current_champion_typed_bytes": 42068,
+    "current_champion_value_bytes": 21428,
+    "fixed_adjacent_path_opening_overhang_vs_champion": 592,
+    "full_generated_inventory_promotable_vs_current_champion": false,
+    "full_generated_miss_vs_champion_typed_bytes": 88,
+    "full_generated_worst_label_id": "fixed_adjacent_layout",
+    "full_generated_worst_typed_bytes": 42156,
+    "generated_label_count": 3,
+    "nanozk_reported_d128_block_proof_bytes": 6900,
+    "proof_size_comparable_external_rows": 0,
+    "rejected_label_count": 1,
+    "worst_accepted_label_id": "adjacent_label_probe_a",
+    "worst_accepted_saving_share": "0.041267",
+    "worst_accepted_saving_typed_bytes": 1736,
+    "worst_accepted_typed_bytes": 40332
+  },
+  "rejected_unseen_labels": [
+    {
+      "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_c_v1",
+      "reason": "adapter mode is absent from the pinned Rust enum and CLI generator surface"
+    },
+    {
+      "adapter_mode": "rmsnorm_input_fused_post_tail_label_probe_a_v1",
+      "reason": "adapter mode belongs to the post-tail family, not the pinned adjacent family"
+    }
+  ],
+  "result": "WORST_GENERATED_ACCEPTED_LABEL_SAVES_1736_TYPED_BYTES_AND_FULL_GENERATED_WORST_MISSES_BY_88",
+  "schema": "zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-gate-v1",
+  "source_artifacts": [
+    {
+      "id": "rust_native_seq32_attention_mlp_source",
+      "path": "src/stwo_backend/native_seq32_attention_mlp_single_proof.rs",
+      "payload_commitment": null,
+      "sha256": "3d740bda9a3f301edea7a10dc1b9f58878d1a0f067397eecb5ed50465e4b7d95",
+      "size_bytes": 130368
+    },
+    {
+      "id": "cli_native_seq32_attention_mlp_source",
+      "path": "src/bin/zkai_native_seq32_attention_mlp_single_proof.rs",
+      "payload_commitment": null,
+      "sha256": "ef857b997450d683526e0f2d85000da6b5ddfcd33c96640b2e68a323588ec71f",
+      "size_bytes": 25744
+    },
+    {
+      "id": "source_adjacent_label_policy",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-policy-2026-05.json",
+      "payload_commitment": "blake2b-256:f2bcfec2552cc89befcb489271b357063cf13ea302fb91732cb416249ea427a2",
+      "sha256": "b85b9001dc0e9387b4cc2fc49302c9d7bbe7e9ff8d8f6c9b31c394a21b14b9d1",
+      "size_bytes": 14744
+    },
+    {
+      "id": "deterministic_adjacent_label_policy",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-deterministic-adjacent-label-policy-2026-05.json",
+      "payload_commitment": "blake2b-256:cb60558f8b274ffa44d51de3367a34759b408b5c1dd3427583d3031ef9017fdd",
+      "sha256": "d5cbe419a545c022036b7347b6fb75a1fbb127dc7a861948d96103e646f338ab",
+      "size_bytes": 11362
+    }
+  ],
+  "validation_commands": [
+    "python3.10 scripts/zkai_native_seq32_attention_mlp_generated_adjacent_label_inventory_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-generated-adjacent-label-inventory-2026-05.tsv",
+    "python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_generated_adjacent_label_inventory_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_generated_adjacent_label_inventory_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_generated_adjacent_label_inventory_gate",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_deterministic_adjacent_label_policy_gate",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_adjacent_label_policy_gate",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_adjacent_label --lib",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}
