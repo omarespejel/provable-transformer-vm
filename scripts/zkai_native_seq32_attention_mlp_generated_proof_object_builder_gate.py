@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import copy
 import csv
+import functools
 import hashlib
 import io
 import json
@@ -396,7 +397,10 @@ def generated_rows_by_id(generated_inventory: dict[str, Any]) -> dict[str, dict[
     rows = {}
     for item in _list(generated_inventory.get("generated_label_inventory"), "generated label inventory"):
         row = _dict(item, "generated label row")
-        rows[_str(row.get("variant_id"), "generated variant id")] = row
+        variant_id = _str(row.get("variant_id"), "generated variant id")
+        if variant_id in rows:
+            raise GeneratedProofObjectBuilderGateError("generated label inventory duplicate variant_id")
+        rows[variant_id] = row
     return rows
 
 
@@ -405,6 +409,8 @@ def accounting_rows_by_path(accounting: dict[str, Any]) -> dict[str, dict[str, A
     for item in _list(accounting.get("rows"), "accounting rows"):
         row = _dict(item, "accounting row")
         key = _str(row.get("evidence_relative_path"), "accounting evidence_relative_path")
+        if key in rows:
+            raise GeneratedProofObjectBuilderGateError("accounting rows duplicate evidence_relative_path")
         rows[key] = row
     return rows
 
@@ -445,6 +451,15 @@ def grouped_accounting(accounting_row: dict[str, Any]) -> dict[str, int]:
     return {key: _int(value, f"grouped {key}") for key, value in grouped.items()}
 
 
+def envelope_metadata_fields(envelope: dict[str, Any], metadata: dict[str, Any]) -> dict[str, str]:
+    fields = {}
+    for key in metadata:
+        fields[key] = _str(envelope.get(key), f"envelope {key}")
+    if metadata != fields:
+        raise GeneratedProofObjectBuilderGateError("envelope metadata drift")
+    return fields
+
+
 def proof_object_row(
     generated_row: dict[str, Any],
     accounting_row: dict[str, Any],
@@ -480,8 +495,8 @@ def proof_object_row(
         raise GeneratedProofObjectBuilderGateError("path opening accounting drift")
     if value_bytes != _int(generated_row.get("value_bytes"), "generated value_bytes"):
         raise GeneratedProofObjectBuilderGateError("value accounting drift")
-    if metadata != {key: envelope[key] for key in metadata}:
-        raise GeneratedProofObjectBuilderGateError("envelope metadata drift")
+    metadata_fields = envelope_metadata_fields(envelope, metadata)
+    envelope_input = _dict(envelope.get("input"), "envelope input")
     return {
         "variant_id": generated_row["variant_id"],
         "adapter_mode": generated_row["adapter_mode"],
@@ -489,12 +504,12 @@ def proof_object_row(
         "cli_command": generated_row["cli_command"],
         "path": path,
         "accounting_path": ACCOUNTING_PATH.relative_to(ROOT).as_posix(),
-        "proof_backend": metadata["proof_backend"],
-        "proof_backend_version": metadata["proof_backend_version"],
-        "proof_schema_version": metadata["proof_schema_version"],
-        "statement_version": metadata["statement_version"],
-        "target_id": metadata["target_id"],
-        "verifier_domain": metadata["verifier_domain"],
+        "proof_backend": metadata_fields["proof_backend"],
+        "proof_backend_version": metadata_fields["proof_backend_version"],
+        "proof_schema_version": metadata_fields["proof_schema_version"],
+        "statement_version": metadata_fields["statement_version"],
+        "target_id": metadata_fields["target_id"],
+        "verifier_domain": metadata_fields["verifier_domain"],
         "policy_status": generated_row["policy_status"],
         "builder_status": "reconstructed_from_generated_label_accounting_and_envelope",
         "typed_bytes": typed_bytes,
@@ -516,7 +531,7 @@ def proof_object_row(
         "record_stream_sha256": local["record_stream_sha256"],
         "envelope_sha256": accounting_row["envelope_sha256"],
         "proof_sha256": accounting_row["proof_sha256"],
-        "input_sha256": sha256(canonical_json_bytes(envelope["input"])),
+        "input_sha256": sha256(canonical_json_bytes(envelope_input)),
     }
 
 
@@ -537,9 +552,17 @@ def build_proof_object_rows(generated_inventory: dict[str, Any], accounting: dic
 def build_frontier_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     accepted = [row for row in rows if row["policy_status"] == "supported_label"]
     rejected = [row for row in rows if row["policy_status"].startswith("rejected")]
+    if not accepted:
+        raise GeneratedProofObjectBuilderGateError("frontier summary drift")
     best = min(accepted, key=lambda row: row["typed_bytes"])
     worst_accepted = max(accepted, key=lambda row: row["typed_bytes"])
-    fixed = next(row for row in rows if row["variant_id"] == FIXED_ADJACENT_LABEL_ID)
+    fixed = None
+    for row in rows:
+        if row["variant_id"] == FIXED_ADJACENT_LABEL_ID:
+            fixed = row
+            break
+    if fixed is None:
+        raise GeneratedProofObjectBuilderGateError("frontier summary drift")
     return {
         "generated_proof_object_row_count": len(rows),
         "accepted_row_count": len(accepted),
@@ -629,6 +652,7 @@ def build_payload() -> dict[str, Any]:
     return payload
 
 
+@functools.lru_cache(maxsize=1)
 def expected_payload_with_empty_mutations() -> dict[str, Any]:
     payload = build_core_payload()
     payload["mutation_result"] = expected_mutation_result()
@@ -923,6 +947,8 @@ def publish_outputs_atomically(outputs: list[tuple[pathlib.Path, str]]) -> None:
 
 def write_outputs(payload: dict[str, Any], json_path: pathlib.Path | None, tsv_path: pathlib.Path | None) -> None:
     validate_payload(payload)
+    if (json_path is None) != (tsv_path is None):
+        raise GeneratedProofObjectBuilderGateError("paired JSON/TSV output paths required")
     outputs = []
     if json_path is not None:
         outputs.append((json_path, json.dumps(payload, indent=2, sort_keys=True) + "\n"))

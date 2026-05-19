@@ -176,6 +176,69 @@ class NativeSeq32GeneratedProofObjectBuilderGateTest(unittest.TestCase):
         finally:
             self.gate.inventory_gate.build_payload = original
 
+    def test_rejects_duplicate_generated_or_accounting_join_keys(self) -> None:
+        generated = {
+            "generated_label_inventory": [
+                {"variant_id": "duplicate"},
+                {"variant_id": "duplicate"},
+            ]
+        }
+        accounting = {
+            "rows": [
+                {"evidence_relative_path": "same.envelope.json"},
+                {"evidence_relative_path": "same.envelope.json"},
+            ]
+        }
+        with self.assertRaisesRegex(
+            self.gate.GeneratedProofObjectBuilderGateError,
+            "generated label inventory duplicate variant_id",
+        ):
+            self.gate.generated_rows_by_id(generated)
+        with self.assertRaisesRegex(
+            self.gate.GeneratedProofObjectBuilderGateError,
+            "accounting rows duplicate evidence_relative_path",
+        ):
+            self.gate.accounting_rows_by_path(accounting)
+
+    def test_frontier_summary_rejects_missing_required_partitions(self) -> None:
+        rows = copy.deepcopy(self.__class__.payload["proof_object_rows"])
+        for row in rows:
+            row["policy_status"] = "rejected_inflating_label"
+        with self.assertRaisesRegex(
+            self.gate.GeneratedProofObjectBuilderGateError,
+            "frontier summary drift",
+        ):
+            self.gate.build_frontier_summary(rows)
+        rows = [
+            row
+            for row in self.__class__.payload["proof_object_rows"]
+            if row["variant_id"] != "fixed_adjacent_layout"
+        ]
+        with self.assertRaisesRegex(
+            self.gate.GeneratedProofObjectBuilderGateError,
+            "frontier summary drift",
+        ):
+            self.gate.build_frontier_summary(rows)
+
+    def test_envelope_metadata_rejects_missing_or_mismatched_fields(self) -> None:
+        metadata = {
+            "proof_backend": "stwo",
+            "proof_backend_version": "version",
+        }
+        with self.assertRaisesRegex(
+            self.gate.GeneratedProofObjectBuilderGateError,
+            "envelope proof_backend_version must be non-empty string",
+        ):
+            self.gate.envelope_metadata_fields({"proof_backend": "stwo"}, metadata)
+        with self.assertRaisesRegex(
+            self.gate.GeneratedProofObjectBuilderGateError,
+            "envelope metadata drift",
+        ):
+            self.gate.envelope_metadata_fields(
+                {"proof_backend": "stwo", "proof_backend_version": "other"},
+                metadata,
+            )
+
     def test_render_tsv_records_proof_object_rows_and_audit_pins(self) -> None:
         text = self.gate.render_tsv(self.__class__.payload)
         self.assertTrue(text.startswith("variant_id\tadapter_mode\tcli_command\t"))
@@ -229,14 +292,26 @@ class NativeSeq32GeneratedProofObjectBuilderGateTest(unittest.TestCase):
             self.assertFalse(bad_tsv.exists())
 
     def test_write_outputs_rejects_path_outside_evidence_dir(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            outside = pathlib.Path(tmpdir) / "outside.json"
+        with tempfile.TemporaryDirectory() as outside_dir, tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmpdir:
+            outside = pathlib.Path(outside_dir) / "outside.json"
+            tsv_out = pathlib.Path(tmpdir) / "inside.tsv"
             with self.assertRaisesRegex(
                 self.gate.GeneratedProofObjectBuilderGateError,
                 "output path escapes evidence dir",
             ):
-                self.gate.write_outputs(self.__class__.payload, outside, None)
+                self.gate.write_outputs(self.__class__.payload, outside, tsv_out)
             self.assertFalse(outside.exists())
+            self.assertFalse(tsv_out.exists())
+
+    def test_write_outputs_requires_paired_json_and_tsv_paths(self) -> None:
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmpdir:
+            json_out = pathlib.Path(tmpdir) / "builder.json"
+            with self.assertRaisesRegex(
+                self.gate.GeneratedProofObjectBuilderGateError,
+                "paired JSON/TSV output paths required",
+            ):
+                self.gate.write_outputs(self.__class__.payload, json_out, None)
+            self.assertFalse(json_out.exists())
 
     def test_write_outputs_wraps_raw_writer_exceptions(self) -> None:
         original = self.gate.inventory_gate.source_gate.atomic_write_text
@@ -250,26 +325,29 @@ class NativeSeq32GeneratedProofObjectBuilderGateTest(unittest.TestCase):
                 self.gate.GeneratedProofObjectBuilderGateError,
                 "failed to write output: disk full",
             ):
-                self.gate.write_outputs(self.__class__.payload, self.gate.JSON_OUT, None)
+                self.gate.write_outputs(self.__class__.payload, self.gate.JSON_OUT, self.gate.TSV_OUT)
         finally:
             self.gate.inventory_gate.source_gate.atomic_write_text = original
 
     def test_write_outputs_rolls_back_paired_publish_if_second_final_fails(self) -> None:
         original = self.gate.inventory_gate.source_gate.atomic_write_text
         calls = 0
+        final_publish_calls = 0
         with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmpdir:
             tmp = pathlib.Path(tmpdir)
             json_out = tmp / "builder.json"
             tsv_out = tmp / "builder.tsv"
 
-            def fail_fourth_write(path: pathlib.Path, text: str) -> None:
-                nonlocal calls
+            def fail_second_final_publish(path: pathlib.Path, text: str) -> None:
+                nonlocal calls, final_publish_calls
                 calls += 1
-                if calls == 4:
-                    raise OSError("second final publish failed")
+                if path in {json_out, tsv_out}:
+                    final_publish_calls += 1
+                    if final_publish_calls == 2:
+                        raise OSError("second final publish failed")
                 original(path, text)
 
-            self.gate.inventory_gate.source_gate.atomic_write_text = fail_fourth_write
+            self.gate.inventory_gate.source_gate.atomic_write_text = fail_second_final_publish
             try:
                 with self.assertRaisesRegex(
                     self.gate.GeneratedProofObjectBuilderGateError,
@@ -297,7 +375,7 @@ class NativeSeq32GeneratedProofObjectBuilderGateTest(unittest.TestCase):
                 self.gate.write_outputs(
                     self.__class__.payload,
                     link_parent / "out.json",
-                    None,
+                    link_parent / "out.tsv",
                 )
 
 
