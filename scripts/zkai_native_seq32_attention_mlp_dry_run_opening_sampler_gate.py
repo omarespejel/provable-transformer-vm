@@ -844,11 +844,6 @@ def atomic_write_pair(
         os.replace(tsv_tmp, tsv_target.name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
         tsv_tmp = None
         tsv_published = True
-        for backup_name in (json_backup, tsv_backup):
-            if backup_name is not None:
-                os.unlink(backup_name, dir_fd=parent_fd)
-        json_backup = None
-        tsv_backup = None
         fsync_parent_dir(parent_fd, "paired output publish")
     except DryRunOpeningSamplerGateError:
         restore_output_backup(parent_fd, json_target.name, json_backup, json_published)

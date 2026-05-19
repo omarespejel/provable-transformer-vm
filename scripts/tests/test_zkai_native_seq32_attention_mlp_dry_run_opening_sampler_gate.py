@@ -237,6 +237,35 @@ class DryRunOpeningSamplerGateTest(unittest.TestCase):
             self.assertEqual(json_sentinel.read_bytes(), b"sentinel-json")
             self.assertEqual(tsv_sentinel.read_bytes(), b"sentinel-tsv")
 
+    def test_paired_publish_rolls_back_if_publish_fsync_fails(self):
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:
+            tmp_path = pathlib.Path(tmp)
+            json_path = tmp_path / "out.json"
+            tsv_path = tmp_path / "out.tsv"
+            json_path.write_bytes(b"old-json")
+            tsv_path.write_bytes(b"old-tsv")
+            real_fsync_parent_dir = self.gate.fsync_parent_dir
+
+            def fail_publish_fsync(parent_fd, context):
+                if context == "paired output publish":
+                    raise self.gate.DryRunOpeningSamplerGateError(
+                        "forced paired publish fsync failure"
+                    )
+                return real_fsync_parent_dir(parent_fd, context)
+
+            self.gate.fsync_parent_dir = fail_publish_fsync
+            try:
+                with self.assertRaisesRegex(
+                    self.gate.DryRunOpeningSamplerGateError,
+                    "forced paired publish fsync failure",
+                ):
+                    self.gate.atomic_write_pair(json_path, b"new-json", tsv_path, b"new-tsv")
+            finally:
+                self.gate.fsync_parent_dir = real_fsync_parent_dir
+
+            self.assertEqual(json_path.read_bytes(), b"old-json")
+            self.assertEqual(tsv_path.read_bytes(), b"old-tsv")
+
     def test_fsync_parent_dir_wraps_os_errors(self):
         with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:
             fd = os.open(tmp, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
