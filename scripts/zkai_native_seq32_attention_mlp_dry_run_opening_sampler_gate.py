@@ -298,8 +298,13 @@ def read_json(path: pathlib.Path, label: str, max_bytes: int) -> Any:
         raise DryRunOpeningSamplerGateError(f"{label} is not valid JSON: {err}") from err
 
 
-def source_artifact(path: pathlib.Path, artifact_id: str, expected_sha256: str) -> dict[str, Any]:
-    raw = read_bounded_repo_file(path, artifact_id, MAX_SOURCE_ARTIFACT_BYTES)
+def source_artifact(
+    path: pathlib.Path,
+    artifact_id: str,
+    expected_sha256: str,
+    max_bytes: int = MAX_SOURCE_ARTIFACT_BYTES,
+) -> dict[str, Any]:
+    raw = read_bounded_repo_file(path, artifact_id, max_bytes)
     digest = sha256_bytes(raw)
     if digest != expected_sha256:
         raise DryRunOpeningSamplerGateError(f"{artifact_id} source digest drift")
@@ -444,6 +449,7 @@ def build_payload_without_mutations() -> dict[str, Any]:
             PREPROVE_EVIDENCE_PATH,
             "preprove_opening_bucket_predictor_evidence",
             EXPECTED_PREPROVE_EVIDENCE_SHA256,
+            MAX_PREPROVE_EVIDENCE_BYTES,
         ),
     ]
     source_artifacts.extend(sampler_artifact(spec) for spec in VARIANTS)
@@ -599,41 +605,86 @@ def render_tsv(payload: dict[str, Any]) -> str:
     return output.getvalue()
 
 
-def ensure_output_path(path: pathlib.Path) -> None:
-    target = pathlib.Path(os.path.abspath(path))
+def require_output_path(path: pathlib.Path) -> pathlib.Path:
+    target = pathlib.Path(os.path.abspath(path if path.is_absolute() else ROOT / path))
     evidence = EVIDENCE_DIR.resolve()
     try:
-        target.relative_to(evidence)
+        relative = target.relative_to(evidence)
     except ValueError as err:
         raise DryRunOpeningSamplerGateError("output path must stay under evidence directory") from err
-    parent = target.parent
-    parent.mkdir(parents=True, exist_ok=True)
-    for ancestor in target.parents:
-        if ancestor == evidence.parent:
-            break
-        if ancestor.exists() and ancestor.is_symlink():
+    current = evidence
+    for part in relative.parent.parts:
+        current = current / part
+        try:
+            mode = current.lstat().st_mode
+        except OSError as err:
+            raise DryRunOpeningSamplerGateError(f"output parent must exist: {current}") from err
+        if stat.S_ISLNK(mode):
             raise DryRunOpeningSamplerGateError("output path must not traverse symlinks")
+        if not stat.S_ISDIR(mode):
+            raise DryRunOpeningSamplerGateError(f"output parent must be directory: {current}")
+    if target.is_symlink() or (target.exists() and target.is_dir()):
+        raise DryRunOpeningSamplerGateError("output path must be a non-symlink file")
+    return target
 
 
 def atomic_write(path: pathlib.Path, data: bytes) -> None:
-    ensure_output_path(path)
-    if path.exists() and path.is_symlink():
-        raise DryRunOpeningSamplerGateError("refusing to overwrite symlink")
-    parent = path.parent
-    for attempt in range(DETERMINISTIC_TEMP_ATTEMPTS):
-        tmp = parent / f".{path.name}.tmp.{attempt}"
-        try:
-            fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-        except FileExistsError:
-            continue
-        try:
-            os.write(fd, data)
-            os.fsync(fd)
-        finally:
-            os.close(fd)
-        os.replace(tmp, path)
-        return
-    raise DryRunOpeningSamplerGateError("deterministic temp file collision")
+    target = require_output_path(path)
+    try:
+        parent_fd = os.open(
+            target.parent,
+            os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0),
+        )
+    except OSError as err:
+        raise DryRunOpeningSamplerGateError(f"failed to open output parent: {target.parent}") from err
+    try:
+        for attempt in range(DETERMINISTIC_TEMP_ATTEMPTS):
+            tmp_name = f".{target.name}.tmp.{attempt}"
+            tmp_created = False
+            fd: int | None = None
+            try:
+                fd = os.open(
+                    tmp_name,
+                    os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0),
+                    0o600,
+                    dir_fd=parent_fd,
+                )
+            except FileExistsError:
+                continue
+            except OSError as err:
+                raise DryRunOpeningSamplerGateError(
+                    f"failed to create temp output: {tmp_name}"
+                ) from err
+            try:
+                tmp_created = True
+                try:
+                    handle = os.fdopen(fd, "wb")
+                except Exception:
+                    os.close(fd)
+                    fd = None
+                    raise
+                fd = None
+                with handle:
+                    handle.write(data)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                os.replace(tmp_name, target.name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
+                tmp_created = False
+                os.fsync(parent_fd)
+                return
+            except OSError as err:
+                raise DryRunOpeningSamplerGateError(f"failed to write output: {target}") from err
+            finally:
+                if tmp_created:
+                    try:
+                        os.unlink(tmp_name, dir_fd=parent_fd)
+                    except OSError:
+                        pass
+                if fd is not None:
+                    os.close(fd)
+        raise DryRunOpeningSamplerGateError("deterministic temp file collision")
+    finally:
+        os.close(parent_fd)
 
 
 def write_outputs(json_path: pathlib.Path, tsv_path: pathlib.Path, payload: dict[str, Any]) -> None:
