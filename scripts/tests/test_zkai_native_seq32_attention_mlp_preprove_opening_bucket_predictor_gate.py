@@ -125,9 +125,27 @@ class PreproveOpeningBucketPredictorGateTest(unittest.TestCase):
             self.gate.MUTATION_NAMES = original_names
 
     def test_payload_commitment_is_stable(self):
+        payload_a = self.gate.build_payload()
+        payload_b = self.gate.build_payload()
         self.assertEqual(
             self.payload["payload_commitment"],
-            self.gate.payload_commitment(self.payload),
+            self.gate.payload_commitment(payload_a),
+        )
+        self.assertEqual(
+            payload_a["payload_commitment"],
+            self.gate.payload_commitment(payload_b),
+        )
+        self.assertEqual(
+            self.payload["payload_commitment"],
+            payload_a["payload_commitment"],
+        )
+        self.assertEqual(
+            payload_a["payload_commitment"],
+            payload_b["payload_commitment"],
+        )
+        self.assertEqual(
+            self.gate.render_tsv(payload_a),
+            self.gate.render_tsv(payload_b),
         )
 
     def test_rejects_source_predictor_promotion(self):
