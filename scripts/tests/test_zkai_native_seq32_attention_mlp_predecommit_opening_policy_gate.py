@@ -134,6 +134,15 @@ class PredecommitOpeningPolicyGateTest(unittest.TestCase):
         finally:
             self.gate.run_mutations = original_run_mutations
 
+    def test_validate_mutation_result_rejects_malformed_case(self):
+        bad_result = copy.deepcopy(self.payload["mutation_result"])
+        bad_result["cases"][0] = "not-a-mutation-case"
+        with self.assertRaisesRegex(
+            self.gate.PredecommitOpeningPolicyGateError,
+            "mutation case schema drift",
+        ):
+            self.gate.validate_mutation_result(bad_result)
+
     def test_committed_evidence_contains_integrity_fields(self):
         evidence = json.loads(self.gate.JSON_OUT.read_text())
         self.assertEqual(evidence["payload_commitment"], self.payload["payload_commitment"])

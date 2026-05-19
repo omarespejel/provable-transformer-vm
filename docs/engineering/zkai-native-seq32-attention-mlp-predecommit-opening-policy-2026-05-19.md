@@ -81,11 +81,11 @@ with the command in the reproduction block. PR descriptions and handoff notes
 must be updated to these values after evidence metadata changes.
 
 - Gate JSON SHA-256:
-  `b474e0990945733af1cf3f1e4fdea76c958284675b30c8c78900161dd9422409`
+  `07d711adf35a960f64c2cb644ba0e912b0d167698f2c4597d1294075eaa36084`
 - Gate TSV SHA-256:
   `9d27db58076a846b5cdfa15b5f8e74cdcd703cf41292c03f33f867a75e531a81`
 - Payload commitment:
-  `blake2b-256:e1c41e345a3eee68b3d5eb64c4328b6bc757dd6c0bb9efb124794f15e5d92eb2`
+  `blake2b-256:8aa57c5c28b85f5fa37ff90a46c116731528215d5d7875dd70c099342bca31d5`
 - Mutation guards:
   `18 / 18` rejected.
 
@@ -102,7 +102,7 @@ Reproducibility metadata:
 - `policy_row_count`: `9`
 - `fri_query_count_per_row`: `3`
 - `mutation_step_count`: `18`
-- `unittest_step_count`: `14`
+- `unittest_step_count`: `15`
 - `local_release_gate_step_count`: `14`
 
 The mutation suite rejects decision drift, result overclaiming, true
