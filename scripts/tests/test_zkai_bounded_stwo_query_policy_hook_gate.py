@@ -133,6 +133,38 @@ class BoundedStwoQueryPolicyHookGateTest(unittest.TestCase):
             ):
                 self.gate.read_external_file(link, "symlink source", 1024)
 
+    def test_stwo_source_root_expands_env_vars_and_user(self):
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:
+            tmp_path = pathlib.Path(tmp)
+            source_root = tmp_path / "stwo-source"
+            for rel in self.gate.STWO_FILES.values():
+                path = source_root / rel
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("// fixture\n", encoding="utf-8")
+            old_env = os.environ.get("STWO_SOURCE_ROOT")
+            old_fixture_root = os.environ.get("PTVM_STWO_FIXTURE_ROOT")
+            old_home = os.environ.get("HOME")
+            try:
+                os.environ["PTVM_STWO_FIXTURE_ROOT"] = str(tmp_path)
+                os.environ["STWO_SOURCE_ROOT"] = "$PTVM_STWO_FIXTURE_ROOT/stwo-source"
+                self.assertEqual(self.gate.find_stwo_source_root(), source_root)
+                os.environ["HOME"] = str(tmp_path)
+                os.environ["STWO_SOURCE_ROOT"] = "~/stwo-source"
+                self.assertEqual(self.gate.find_stwo_source_root(), source_root)
+            finally:
+                if old_env is None:
+                    os.environ.pop("STWO_SOURCE_ROOT", None)
+                else:
+                    os.environ["STWO_SOURCE_ROOT"] = old_env
+                if old_fixture_root is None:
+                    os.environ.pop("PTVM_STWO_FIXTURE_ROOT", None)
+                else:
+                    os.environ["PTVM_STWO_FIXTURE_ROOT"] = old_fixture_root
+                if old_home is None:
+                    os.environ.pop("HOME", None)
+                else:
+                    os.environ["HOME"] = old_home
+
     def test_all_mutations_rejected(self):
         mutation = self.payload["mutation_result"]
         self.assertTrue(mutation["all_mutations_rejected"])

@@ -198,13 +198,13 @@
     "not timing evidence",
     "not production-ready zkML"
   ],
-  "payload_commitment": "blake2b-256:26208805aad3241b7a29d20d058b5265ca6d5e5cb80c581cea26f5f2bdc8da8d",
+  "payload_commitment": "blake2b-256:9fd9da6dcd8f16d413e9a601ca3b36be6f293de36e285c7de04294e77417fbea",
   "reproducibility_metadata": {
     "cargo_dependency": "stwo = 2.2.0",
     "local_release_gate_step_count": 14,
     "mutation_step_count": 18,
     "stwo_version": "2.2.0",
-    "unittest_step_count": 15
+    "unittest_step_count": 16
   },
   "result": "NO_GO_REPO_LOCAL_QUERY_POLICY_HOOK_WITHOUT_STWO_PROVER_VERIFIER_API_PATCH",
   "schema": "zkai-bounded-stwo-query-policy-hook-gate-v1",
