@@ -40,6 +40,12 @@ But it also blocks promotion into a production label policy. We can attribute
 the bucket after the proof/accounting exists; we still cannot predict the small
 bucket from source-exposed fields before proving.
 
+This is an intentional NO-GO branch for issue `#693`, not a silent failure of
+the gate. The falsifying question was whether the small bucket could be
+explained and promoted into a deterministic policy. This PR explains the byte
+source and records that the predictor is still absent; issue `#695` carries the
+separate pre-prove predictor experiment.
+
 ## Claim Boundary
 
 The checked claim is only:
