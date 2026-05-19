@@ -158,6 +158,15 @@ class DryRunOpeningSamplerGateTest(unittest.TestCase):
                     self.payload,
                 )
 
+    def test_rejects_identical_paired_output_paths(self):
+        with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:
+            output_path = pathlib.Path(tmp) / "same.out"
+            with self.assertRaisesRegex(
+                self.gate.DryRunOpeningSamplerGateError,
+                "paired output paths must be distinct files",
+            ):
+                self.gate.write_outputs(output_path, output_path, self.payload)
+
     def test_temp_collision_error_names_target(self):
         with tempfile.TemporaryDirectory(dir=self.gate.EVIDENCE_DIR) as tmp:
             tmp_path = pathlib.Path(tmp)

@@ -257,17 +257,44 @@ def read_bounded_repo_file(path: pathlib.Path, label: str, max_bytes: int) -> by
         relative = candidate.relative_to(root)
     except ValueError as err:
         raise DryRunOpeningSamplerGateError(f"{label} escapes repo root") from err
-    current = root
-    for part in relative.parts:
-        current = current / part
+    if not relative.parts:
+        raise DryRunOpeningSamplerGateError(f"{label} must name a repo file")
+    try:
+        current_fd = os.open(
+            root,
+            os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0),
+        )
+    except OSError as err:
+        raise DryRunOpeningSamplerGateError("failed to open repo root") from err
+    fd: int | None = None
+    try:
+        for part in relative.parts[:-1]:
+            try:
+                next_fd = os.open(
+                    part,
+                    os.O_RDONLY
+                    | getattr(os, "O_DIRECTORY", 0)
+                    | getattr(os, "O_NOFOLLOW", 0),
+                    dir_fd=current_fd,
+                )
+            except FileNotFoundError as err:
+                raise DryRunOpeningSamplerGateError(f"{label} missing: {relative}") from err
+            except OSError as err:
+                raise DryRunOpeningSamplerGateError(
+                    f"{label} must not traverse symlinks or non-directories"
+                ) from err
+            os.close(current_fd)
+            current_fd = next_fd
         try:
-            mode = current.lstat().st_mode
+            fd = os.open(
+                relative.parts[-1],
+                os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0),
+                dir_fd=current_fd,
+            )
         except FileNotFoundError as err:
             raise DryRunOpeningSamplerGateError(f"{label} missing: {relative}") from err
-        if stat.S_ISLNK(mode):
-            raise DryRunOpeningSamplerGateError(f"{label} must not traverse symlinks")
-    fd = os.open(candidate, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
-    try:
+        except OSError as err:
+            raise DryRunOpeningSamplerGateError(f"{label} must not be a symlink") from err
         opened = os.fstat(fd)
         if not stat.S_ISREG(opened.st_mode):
             raise DryRunOpeningSamplerGateError(f"{label} must be a regular file")
@@ -287,7 +314,9 @@ def read_bounded_repo_file(path: pathlib.Path, label: str, max_bytes: int) -> by
             chunks.append(chunk)
         return b"".join(chunks)
     finally:
-        os.close(fd)
+        if fd is not None:
+            os.close(fd)
+        os.close(current_fd)
 
 
 def read_json(path: pathlib.Path, label: str, max_bytes: int) -> Any:
@@ -628,6 +657,43 @@ def require_output_path(path: pathlib.Path) -> pathlib.Path:
     return target
 
 
+def open_output_parent_fd(target: pathlib.Path) -> int:
+    evidence = EVIDENCE_DIR.resolve()
+    try:
+        relative = target.relative_to(evidence)
+    except ValueError as err:
+        raise DryRunOpeningSamplerGateError("output path must stay under evidence directory") from err
+    try:
+        current_fd = os.open(
+            evidence,
+            os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0),
+        )
+    except OSError as err:
+        raise DryRunOpeningSamplerGateError("failed to open evidence directory") from err
+    try:
+        for part in relative.parent.parts:
+            try:
+                next_fd = os.open(
+                    part,
+                    os.O_RDONLY
+                    | getattr(os, "O_DIRECTORY", 0)
+                    | getattr(os, "O_NOFOLLOW", 0),
+                    dir_fd=current_fd,
+                )
+            except FileNotFoundError as err:
+                raise DryRunOpeningSamplerGateError(f"output parent must exist: {target.parent}") from err
+            except OSError as err:
+                raise DryRunOpeningSamplerGateError(
+                    "output path must not traverse symlinks or non-directories"
+                ) from err
+            os.close(current_fd)
+            current_fd = next_fd
+        return current_fd
+    except Exception:
+        os.close(current_fd)
+        raise
+
+
 def write_temp_output(parent_fd: int, target_name: str, data: bytes) -> str:
     for attempt in range(DETERMINISTIC_TEMP_ATTEMPTS):
         tmp_name = f".{target_name}.tmp.{attempt}"
@@ -730,13 +796,7 @@ def restore_output_backup(
 
 def atomic_write(path: pathlib.Path, data: bytes) -> None:
     target = require_output_path(path)
-    try:
-        parent_fd = os.open(
-            target.parent,
-            os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0),
-        )
-    except OSError as err:
-        raise DryRunOpeningSamplerGateError(f"failed to open output parent: {target.parent}") from err
+    parent_fd = open_output_parent_fd(target)
     tmp_name: str | None = None
     try:
         tmp_name = write_temp_output(parent_fd, target.name, data)
@@ -762,17 +822,11 @@ def atomic_write_pair(
 ) -> None:
     json_target = require_output_path(json_path)
     tsv_target = require_output_path(tsv_path)
+    if json_target == tsv_target:
+        raise DryRunOpeningSamplerGateError("paired output paths must be distinct files")
     if json_target.parent != tsv_target.parent:
         raise DryRunOpeningSamplerGateError("paired output paths must share one parent directory")
-    try:
-        parent_fd = os.open(
-            json_target.parent,
-            os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0),
-        )
-    except OSError as err:
-        raise DryRunOpeningSamplerGateError(
-            f"failed to open output parent: {json_target.parent}"
-        ) from err
+    parent_fd = open_output_parent_fd(json_target)
     json_tmp: str | None = None
     tsv_tmp: str | None = None
     json_backup: str | None = None
