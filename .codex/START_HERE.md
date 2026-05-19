@@ -138,8 +138,10 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 132. `docs/engineering/zkai-larger-native-boundary-source-compatibility-2026-05-18.md`
 133. `docs/engineering/zkai-seq32-derived-d128-native-mlp-surface-2026-05-18.md`
 134. `docs/engineering/zkai-seq32-value-compatible-boundary-frontier-2026-05-18.md`
-135. `docs/engineering/reproducibility.md`
-136. `git status --short --branch`
+135. `docs/engineering/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05-19.md`
+136. `docs/engineering/zkai-bounded-stwo-query-policy-hook-2026-05-19.md`
+137. `docs/engineering/reproducibility.md`
+138. `git status --short --branch`
 
 ## What this repository is now
 
@@ -217,6 +219,19 @@ This repository currently has three live lanes.
      not a NANOZK comparison; it says the next lever is transcript/query
      opening geometry. See
      `docs/engineering/zkai-native-seq32-attention-mlp-dry-run-opening-sampler-2026-05-19.md`.
+   - The current pre-decommitment opening-policy gate is a checked narrow
+     claim, not a true pre-decommitment GO. `adjacent_label_probe_b` remains
+     `37,532` typed bytes with `16,560` path-opening bytes, but the current
+     wrapper only sees query locations after Stwo `prove_ex` returns
+     `ExtendedStarkProof::aux`. The bounded Stwo query-policy hook gate then
+     pins the next blocker: Stwo `2.2.0` draws FRI queries inside
+     `FriProver::decommit(channel)` and the verifier samples them from the
+     transcript, so a sound policy needs a matched prover/verifier API patch,
+     not a repo-local wrapper override. Follow-up issue `#704` tracks the
+     bounded Stwo query-preview split prototype. See
+     `docs/engineering/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05-19.md`
+     and
+     `docs/engineering/zkai-bounded-stwo-query-policy-hook-2026-05-19.md`.
    - The current source-backed adapter frontier is a correctness GO and a
      proof-shape learning result, not a compression breakthrough. The compact
      selector verifies at `40,812` local typed bytes, only `112` typed bytes

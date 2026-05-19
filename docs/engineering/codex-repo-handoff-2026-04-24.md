@@ -4,7 +4,7 @@ This is the tracked GitHub-safe mirror of the local `.codex` handoff notes.
 If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 `.codex/HANDOFF.md` first. This file is the durable shared resume surface.
 
-**Mainline tip at last refresh:** `0ef8aeac97a02326533e0a18776a9d8a952d9ec0` (matches
+**Mainline tip at last refresh:** `c561e350ab85bbf571a9d031c9b61e0ad24f3ef9` (matches
 `.codex/HANDOFF.md` “Mainline reference at refresh”; update both together).
 
 ## Read order for a fresh agent
@@ -92,8 +92,10 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 81. `docs/engineering/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05-18.md`
 82. `docs/engineering/zkai-seq32-derived-d128-native-mlp-surface-2026-05-18.md`
 83. `docs/engineering/zkai-seq32-value-compatible-boundary-frontier-2026-05-18.md`
-84. `docs/engineering/reproducibility.md`
-85. `git status --short --branch`
+84. `docs/engineering/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05-19.md`
+85. `docs/engineering/zkai-bounded-stwo-query-policy-hook-2026-05-19.md`
+86. `docs/engineering/reproducibility.md`
+87. `git status --short --branch`
 
 ## Current lane split
 
@@ -2677,6 +2679,50 @@ Seq32 pre-decommitment opening-policy reproducibility metadata:
   `python3.10 scripts/zkai_native_seq32_attention_mlp_predecommit_opening_policy_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05.tsv`;
   `python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_predecommit_opening_policy_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_predecommit_opening_policy_gate.py`;
   `python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_predecommit_opening_policy_gate`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
+Latest bounded Stwo query-policy hook gate: issue `#701` is now checked as a
+source-pinned narrow NO-GO for repo-local query control. The recent probe-B
+row remains the current numeric anchor (`37,532` typed bytes, `16,560`
+path-opening bytes, `16,618` query span, `5,969` min pairwise query gap,
+`9,656` typed bytes saved versus the `47,188` typed-byte matched two-proof
+frontier). The gate pins the blocking source fact in Stwo `2.2.0`: the prover
+draws FRI query locations inside `FriProver::decommit(channel)` and immediately
+uses them for FRI and trace Merkle decommitments, while the verifier samples
+query positions from the transcript channel. A sound policy therefore needs a
+matched prover/verifier API patch, not a wrapper-side external query override.
+Follow-up issue `#704` tracks the bounded Stwo query-preview split prototype.
+See `docs/engineering/zkai-bounded-stwo-query-policy-hook-2026-05-19.md`.
+
+Bounded Stwo query-policy hook reproducibility metadata:
+
+- Gate schema: `zkai-bounded-stwo-query-policy-hook-gate-v1`.
+- Decision: `NARROW_CLAIM_STWO_2_2_COUPLES_QUERY_DRAW_AND_DECOMMITMENT`.
+- Result:
+  `NO_GO_REPO_LOCAL_QUERY_POLICY_HOOK_WITHOUT_STWO_PROVER_VERIFIER_API_PATCH`.
+- Timing mode: source-bound proof-system API audit only; no new proof-size
+  frontier, no proof regeneration under a true query policy, and no timing
+  claim.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-bounded-stwo-query-policy-hook-2026-05.json`
+  and `docs/engineering/evidence/zkai-bounded-stwo-query-policy-hook-2026-05.tsv`.
+- Gate JSON SHA-256:
+  `932dee97fce00e403137518ba8724a384790f5580e6a97e0fce64dac28bc6b59`.
+- Gate TSV SHA-256:
+  `a0182d6e2317425d42cda836a5c430994aab6eb48892fb20a1e9e4f48dfa90fe`.
+- Payload commitment:
+  `blake2b-256:d369d3d463c557831bb965a910da0e84ae3c2786a2f71c7d3700a2830f3c1acc`.
+- Hook candidates:
+  `query_preview_split`, `policy_commitment_mix`, and rejected
+  `external_query_override`.
+- Step counts: `17` mutation cases, `14` Python unit tests, and `14` local
+  release-gate steps.
+- Local validation commands:
+  `python3.10 scripts/zkai_bounded_stwo_query_policy_hook_gate.py --write-json docs/engineering/evidence/zkai-bounded-stwo-query-policy-hook-2026-05.json --write-tsv docs/engineering/evidence/zkai-bounded-stwo-query-policy-hook-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_bounded_stwo_query_policy_hook_gate.py scripts/tests/test_zkai_bounded_stwo_query_policy_hook_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_bounded_stwo_query_policy_hook_gate`;
   `git diff --check`;
   `just gate-fast`;
   `just gate`.
