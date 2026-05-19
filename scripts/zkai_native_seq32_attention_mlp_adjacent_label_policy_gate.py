@@ -212,6 +212,8 @@ EXPECTED_MUTATION_ERRORS = {
     "nanozk_overclaim": "claim_boundary drift",
     "payload_commitment_drift": "payload commitment drift",
 }
+PROBE_A_VARIANT_INDEX = 2
+PROBE_B_VARIANT_INDEX = 3
 
 TSV_COLUMNS = (
     "variant_id",
@@ -527,13 +529,14 @@ def mutation_result(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def mutation_functions() -> tuple[tuple[str, Callable[[dict[str, Any]], None]], ...]:
+    # These mutation indices follow EXPECTED_ROWS; validate_variants rejects order drift.
     return (
         ("decision_drift", lambda item: item.update({"decision": "NO_GO"})),
         ("result_drift", lambda item: item.update({"result": "NO_RESULT"})),
         ("worst_probe_saving_erased", lambda item: item["summary"].update({"worst_probe_saving_typed_bytes": 0})),
-        ("best_probe_typed_drift", lambda item: item["variants"][3].update({"typed_bytes": 42_100})),
-        ("probe_adapter_mode_relabel", lambda item: item["variants"][2].update({"adapter_mode": "rmsnorm_input_fused_adjacent_fixed_v1"})),
-        ("probe_value_group_drift", lambda item: item["variants"][2]["grouped"].update({"queries_values": 9_000})),
+        ("best_probe_typed_drift", lambda item: item["variants"][PROBE_B_VARIANT_INDEX].update({"typed_bytes": 42_100})),
+        ("probe_adapter_mode_relabel", lambda item: item["variants"][PROBE_A_VARIANT_INDEX].update({"adapter_mode": "rmsnorm_input_fused_adjacent_fixed_v1"})),
+        ("probe_value_group_drift", lambda item: item["variants"][PROBE_A_VARIANT_INDEX]["grouped"].update({"queries_values": 9_000})),
         ("path_opening_saving_erased", lambda item: item["summary"].update({"worst_probe_path_opening_saving_vs_champion": 0})),
         ("label_span_erased", lambda item: item["summary"].update({"label_span_typed_bytes": 0})),
         ("source_artifact_digest_drift", lambda item: item["source_artifacts"][0].update({"sha256": "0" * 64})),
