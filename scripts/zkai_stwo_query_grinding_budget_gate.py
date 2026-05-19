@@ -153,9 +153,12 @@ def payload_commitment(payload: dict[str, Any]) -> str:
 
 def parse_int(row: dict[str, str], field: str) -> int:
     try:
-        return int(row[field])
+        value = int(row[field])
     except (KeyError, TypeError, ValueError) as err:
         raise StwoQueryGrindingBudgetGateError(f"inventory field {field} is invalid") from err
+    if value < 0:
+        raise StwoQueryGrindingBudgetGateError(f"inventory field {field} is negative: {value}")
+    return value
 
 
 def parse_text(row: dict[str, str], field: str) -> str:
