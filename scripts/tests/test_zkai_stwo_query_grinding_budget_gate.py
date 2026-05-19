@@ -47,6 +47,8 @@ class StwoQueryGrindingBudgetGateTest(unittest.TestCase):
         self.assertEqual(inventory["source_path"], str(self.gate.INVENTORY_TSV.relative_to(self.gate.ROOT)))
         self.assertTrue(inventory["commitment"].startswith("blake2b-256:"))
         self.assertEqual(len(inventory["rows"]), 9)
+        header = self.gate.INVENTORY_TSV.read_text(encoding="utf-8").splitlines()[0].split("\t")
+        self.assertEqual(tuple(header), self.gate.REQUIRED_INVENTORY_COLUMNS)
 
     def test_baseline_and_champion_metrics_are_pinned(self):
         self.assertEqual(self.payload["baseline"]["variant_id"], "fixed_adjacent_layout")
@@ -142,7 +144,7 @@ class StwoQueryGrindingBudgetGateTest(unittest.TestCase):
         self.assertEqual(count, self.payload["reproducibility_metadata"]["unittest_step_count"])
 
     def test_committed_evidence_contains_integrity_fields(self):
-        evidence = json.loads(self.gate.JSON_OUT.read_text())
+        evidence = json.loads(self.gate.JSON_OUT.read_text(encoding="utf-8"))
         self.assertEqual(evidence["payload_commitment"], self.payload["payload_commitment"])
         self.assertEqual(evidence["mutation_result"], self.payload["mutation_result"])
         self.gate.validate_payload(evidence)
@@ -163,9 +165,9 @@ class StwoQueryGrindingBudgetGateTest(unittest.TestCase):
             json_path = tmp_path / "out.json"
             tsv_path = tmp_path / "out.tsv"
             self.gate.write_outputs(json_path, tsv_path, self.payload)
-            loaded = json.loads(json_path.read_text())
+            loaded = json.loads(json_path.read_text(encoding="utf-8"))
             self.assertEqual(loaded["payload_commitment"], self.payload["payload_commitment"])
-            lines = tsv_path.read_text().splitlines()
+            lines = tsv_path.read_text(encoding="utf-8").splitlines()
             self.assertEqual(lines[0], "\t".join(self.gate.TSV_COLUMNS))
             self.assertEqual(len(lines), 1 + len(self.payload["policy_rows"]))
 

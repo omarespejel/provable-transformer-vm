@@ -90,6 +90,20 @@ Evidence hashes:
 - Unit tests:
   `18`.
 
+## Reproducibility Metadata
+
+- Gate schema: `zkai-stwo-query-grinding-budget-gate-v1`
+- Decision:
+  `NARROW_CLAIM_SMALL_VERIFIER_BOUND_RETRY_BUDGET_CAN_RECOVER_PROBE_B_INVENTORY`
+- Result: `GO_MECHANISM_LEAD_NOT_PROOF_SIZE_FRONTIER`
+- Timing mode: inventory/budget accounting only; no regenerated proof object,
+  no new proof-size frontier, and no absolute soundness claim
+- Step counts: `21` mutation cases, `18` Python unit tests, and `14` local
+  release-gate steps
+- Evidence paths:
+  `docs/engineering/evidence/zkai-stwo-query-grinding-budget-2026-05.json`
+  and `docs/engineering/evidence/zkai-stwo-query-grinding-budget-2026-05.tsv`
+
 ## Reproduction
 
 ```bash
