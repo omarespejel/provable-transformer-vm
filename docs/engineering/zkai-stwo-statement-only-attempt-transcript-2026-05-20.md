@@ -116,8 +116,8 @@ Accounting and gate outputs:
 Gate schema:
 `zkai-stwo-statement-only-attempt-transcript-gate-v1`
 
-Backend version:
-`stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-v1`
+Proof backend version:
+`stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1`
 
 Timing mode:
 `none; proof-size/accounting correctness gate only`

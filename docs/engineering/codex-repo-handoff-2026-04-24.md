@@ -2934,8 +2934,8 @@ not a NANOZK comparison. See
 Stwo statement-only attempt transcript reproducibility metadata:
 
 - Gate schema: `zkai-stwo-statement-only-attempt-transcript-gate-v1`.
-- Backend version:
-  `stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-v1`.
+- Proof backend version:
+  `stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1`.
 - Decision:
   `GO_STATEMENT_ONLY_ATTEMPT_POLICY_TRANSCRIPT_REDUCES_REGENERATED_STWO_PROOF_BYTES`.
 - Result:
