@@ -14,12 +14,13 @@ The axes are:
 - sequence length: two heads at `d8`, eight steps per head to sixteen and
   thirty-two steps per head;
 - combined width/head: `d16` and `d32`, two heads, eight steps per head;
-- combined width/head/sequence: `d16`, two heads, sixteen steps per head.
+- combined width/head/sequence: `d16` and `d32`, two heads, sixteen steps per
+  head.
 
 ## Result
 
 GO for a controlled engineering route matrix, now with matched source-plus-LogUp
-sidecar comparators for all twelve profile rows.
+sidecar comparators for all thirteen profile rows.
 
 The checked matrix is machine-readable at:
 
@@ -28,7 +29,7 @@ The checked matrix is machine-readable at:
 
 The gate validates the existing per-route fused evidence files, checks the
 source-input dimensions, normalizes the matched source-plus-sidecar comparators,
-and rejects `32 / 32` matrix drift, provenance-drift, and overclaim mutations.
+and rejects `34 / 34` matrix drift, provenance-drift, and overclaim mutations.
 
 ## Route Matrix
 
@@ -46,6 +47,7 @@ and rejects `32 / 32` matrix drift, provenance-drift, and overclaim mutations.
 | d16 two-head seq8 | combined width/head | 16 | 2 | 8 | 104 | 128 | 78,211 | 91,596 | 0.853869 |
 | d32 two-head seq8 | combined width/head extension | 32 | 2 | 8 | 104 | 128 | 125,756 | 142,063 | 0.885213 |
 | d16 two-head seq16 | combined width/head/sequence | 16 | 2 | 16 | 336 | 512 | 84,868 | 108,158 | 0.784667 |
+| d32 two-head seq16 | combined width/head/sequence extension | 32 | 2 | 16 | 336 | 512 | 132,543 | 162,138 | 0.817470 |
 
 ## Axis Read
 
@@ -136,15 +138,32 @@ Combined width/head/sequence row:
   row is `108,158` bytes; the fused proof is `84,868` bytes, saving `23,290`
   bytes (`0.784667x`).
 
+Combined width/head/sequence extension row:
+
+- The `d32` two-head seq16 row is the first checked `d32` all-axis extension.
+- Against the `d32` two-head seq8 row, steps per head double, lookup claims grow
+  `3.230769x` (`104` to `336`), trace rows grow `4.000000x` (`128` to `512`),
+  while fused proof bytes grow `1.053970x` (`125,756` to `132,543`).
+- Against the `d16` two-head seq16 row, lookup claims and trace rows are held
+  fixed (`336` and `512`), while widening from `d16` to `d32` grows fused proof
+  bytes `1.561755x` (`84,868` to `132,543`).
+- The matched source-plus-sidecar control for the combined extension row is
+  `162,138` bytes; the fused proof is `132,543` bytes, saving `29,595` bytes
+  (`0.817470x`).
+- The fused proof is also `2,520` bytes smaller than the source arithmetic proof
+  alone (`135,063` bytes). This is the strongest local signal in this route
+  family that table membership can share enough proof plumbing to offset more
+  than the standalone sidecar.
+
 ## Aggregate Read
 
-Across the twelve checked rows:
+Across the thirteen checked rows:
 
-- total lookup claims: `3,780`;
-- total trace rows: `5,440`;
-- total fused proof bytes: `862,483`;
-- total matched source-plus-sidecar proof bytes: `1,072,887`;
-- total fused savings against matched source-plus-sidecar: `210,404` bytes;
+- total lookup claims: `4,116`;
+- total trace rows: `5,952`;
+- total fused proof bytes: `995,026`;
+- total matched source-plus-sidecar proof bytes: `1,235,025`;
+- total fused savings against matched source-plus-sidecar: `239,999` bytes;
 - matched fused ratios range from `0.676723` to `0.919259`.
 
 ## Claim Boundary
