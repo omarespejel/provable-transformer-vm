@@ -97,6 +97,14 @@ class Seq32AttentionMlpMedianTimingGateTest(unittest.TestCase):
         with self.assertRaises(gate.Seq32TimingGateError):
             gate.validate_payload(candidate, check_mutations=False)
 
+    def test_missing_source_artifact_rejected_as_gate_error(self):
+        candidate = copy.deepcopy(self.payload)
+        candidate["source_artifacts"][0]["path"] = "docs/engineering/evidence/does-not-exist.json"
+        candidate["payload_commitment"] = gate.payload_commitment(candidate)
+        with self.assertRaises(gate.Seq32TimingGateError) as ctx:
+            gate.validate_payload(candidate, check_mutations=False)
+        self.assertEqual(ctx.exception.layer, "artifact_binding")
+
 
 if __name__ == "__main__":
     unittest.main()
