@@ -23,9 +23,9 @@ class May2026CompetitorMetricMatrixGateTests(unittest.TestCase):
         self.assertEqual(payload["schema"], gate.SCHEMA)
         self.assertEqual(payload["decision"], gate.DECISION)
         self.assertEqual(payload["claim_boundary"], gate.CLAIM_BOUNDARY)
-        self.assertEqual(len(payload["source_artifacts"]), 5)
+        self.assertEqual(len(payload["source_artifacts"]), 6)
         self.assertEqual(len(payload["external_rows"]), 5)
-        self.assertEqual(len(payload["local_rows"]), 5)
+        self.assertEqual(len(payload["local_rows"]), 6)
         self.assertIn("not a matched benchmark", payload["non_claims"][0])
 
         external = {(row["system"], row["workload_label"]): row for row in payload["external_rows"]}
@@ -38,6 +38,17 @@ class May2026CompetitorMetricMatrixGateTests(unittest.TestCase):
         self.assertEqual(local["Stwo attention/Softmax-table fusion"]["value"], 194097)
         self.assertEqual(local["d64 RMSNorm/SwiGLU/residual block receipt"]["value"], 49600)
         self.assertEqual(local["d128 RMSNorm/SwiGLU/residual comparator target"]["value"], 196608)
+        self.assertEqual(local["seq32+d128 statement-only native proof object"]["value"], 39516)
+        self.assertEqual(
+            local["seq32+d128 statement-only native proof object"]["local_status"],
+            "GO_STWO_SEQ32_D128_INNER_POLICY_BOUND_FRONTIER",
+        )
+        self.assertEqual(
+            local["seq32+d128 statement-only native proof object"]["comparison_status"],
+            "LOCAL_INNER_POLICY_BOUND_PROOF_OBJECT_NOT_EXTERNAL_LAYER_BENCHMARK",
+        )
+        self.assertIn("saves 7672 typed bytes", local["seq32+d128 statement-only native proof object"]["support"])
+        self.assertIn("0 NANOZK-comparable rows", local["seq32+d128 statement-only native proof object"]["support"])
         self.assertEqual(local["attention-derived d128 executable package without VK"]["value"], 4752)
         self.assertEqual(local["attention-derived d128 executable package with VK"]["value"], 10608)
         self.assertEqual(
@@ -74,6 +85,8 @@ class May2026CompetitorMetricMatrixGateTests(unittest.TestCase):
         self.assertIn("external\tNANOZK\tTransformer block proof\t6.3\t0.023\t6.9 KB", tsv)
         self.assertIn("local\tprovable-transformer-vm\tStwo attention/Softmax-table fusion", tsv)
         self.assertIn("matched route JSON proof-byte saving\t194097", tsv)
+        self.assertIn("local\tprovable-transformer-vm\tseq32+d128 statement-only native proof object", tsv)
+        self.assertIn("typed proof bytes\t39516", tsv)
         self.assertIn("attention-derived d128 executable package without VK", tsv)
         self.assertIn("compressed artifact plus proof plus public signals\t4752", tsv)
 
@@ -86,6 +99,7 @@ class May2026CompetitorMetricMatrixGateTests(unittest.TestCase):
             gate.D64_BLOCK_RECEIPT,
             gate.D128_TARGET,
             gate.PACKAGE_ACCOUNTING,
+            gate.STATEMENT_ONLY_ATTEMPT_GATE,
         ):
             raw = gate.read_source_bytes(path, "test source")
             artifact = source_by_path[str(path.relative_to(gate.ROOT))]
@@ -318,46 +332,53 @@ class May2026CompetitorMetricMatrixGateTests(unittest.TestCase):
         d64 = gate.load_json(gate.D64_BLOCK_RECEIPT)
         d128 = gate.load_json(gate.D128_TARGET)
         package = gate.load_json(gate.PACKAGE_ACCOUNTING)
+        statement_only = gate.load_json(gate.STATEMENT_ONLY_ATTEMPT_GATE)
 
         with self.assertRaisesRegex(gate.CompetitorMetricMatrixError, "fusion savings must be integer"):
-            gate._local_rows(fusion, d64, d128, package)
+            gate._local_rows(fusion, d64, d128, package, statement_only)
 
         fusion = gate.load_json(gate.FUSION_MECHANISM)
         fusion["section_delta"]["opening_bucket_savings_share"] = "0.927722"
         with self.assertRaisesRegex(gate.CompetitorMetricMatrixError, "fusion opening share must be numeric"):
-            gate._local_rows(fusion, d64, d128, package)
+            gate._local_rows(fusion, d64, d128, package, statement_only)
 
         fusion = gate.load_json(gate.FUSION_MECHANISM)
         fusion["section_delta"]["opening_bucket_savings_share"] = math.inf
         with self.assertRaisesRegex(gate.CompetitorMetricMatrixError, "fusion opening share must be finite"):
-            gate._local_rows(fusion, d64, d128, package)
+            gate._local_rows(fusion, d64, d128, package, statement_only)
 
         fusion = gate.load_json(gate.FUSION_MECHANISM)
         fusion["section_delta"]["opening_bucket_savings_share"] = 1.1
         with self.assertRaisesRegex(gate.CompetitorMetricMatrixError, "fusion opening share must be between 0 and 1"):
-            gate._local_rows(fusion, d64, d128, package)
+            gate._local_rows(fusion, d64, d128, package, statement_only)
 
         fusion = gate.load_json(gate.FUSION_MECHANISM)
         fusion["route_matrix"]["fused_savings_bytes_total"] = 0
         with self.assertRaisesRegex(gate.CompetitorMetricMatrixError, "fusion savings must be positive"):
-            gate._local_rows(fusion, d64, d128, package)
+            gate._local_rows(fusion, d64, d128, package, statement_only)
 
         fusion = gate.load_json(gate.FUSION_MECHANISM)
         d64 = gate.load_json(gate.D64_BLOCK_RECEIPT)
         d64["summary"]["mutations_rejected"] = d64["summary"]["mutation_cases"] - 1
         with self.assertRaisesRegex(gate.CompetitorMetricMatrixError, "d64 mutation rejection summary drift"):
-            gate._local_rows(fusion, d64, d128, package)
+            gate._local_rows(fusion, d64, d128, package, statement_only)
 
         d64 = gate.load_json(gate.D64_BLOCK_RECEIPT)
         package = gate.load_json(gate.PACKAGE_ACCOUNTING)
         package["summary"]["package_without_vk_bytes"] = 1
         with self.assertRaisesRegex(gate.CompetitorMetricMatrixError, "package without VK bytes drift"):
-            gate._local_rows(fusion, d64, d128, package)
+            gate._local_rows(fusion, d64, d128, package, statement_only)
 
         package = gate.load_json(gate.PACKAGE_ACCOUNTING)
         package["all_mutations_rejected"] = False
         with self.assertRaisesRegex(gate.CompetitorMetricMatrixError, "package accounting mutations"):
-            gate._local_rows(fusion, d64, d128, package)
+            gate._local_rows(fusion, d64, d128, package, statement_only)
+
+        package = gate.load_json(gate.PACKAGE_ACCOUNTING)
+        statement_only = gate.load_json(gate.STATEMENT_ONLY_ATTEMPT_GATE)
+        statement_only["binding_summary"]["best_typed_bytes"] = 42068
+        with self.assertRaisesRegex(gate.CompetitorMetricMatrixError, "statement-only typed bytes drift"):
+            gate._local_rows(fusion, d64, d128, package, statement_only)
 
     def test_load_tsv_rejects_missing_required_columns(self):
         with tempfile.NamedTemporaryFile(
