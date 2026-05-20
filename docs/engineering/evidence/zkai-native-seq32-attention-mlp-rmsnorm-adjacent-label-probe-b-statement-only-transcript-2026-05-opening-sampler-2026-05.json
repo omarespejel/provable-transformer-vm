@@ -1,0 +1,65 @@
+{
+  "schema": "zkai-native-seq32-attention-mlp-dry-run-opening-sampler-v1",
+  "decision": "GO_PROVER_INTERNAL_QUERY_OPENING_SAMPLER_BEFORE_FINAL_PROOF_SERIALIZATION",
+  "sampler_boundary": "PROVER_INTERNAL_EXTENDED_AUX_QUERY_LOCATIONS_ONLY;NO_ENVELOPE_JSON_NO_PROOF_BYTES_NO_GROUPED_ACCOUNTING_NO_RECORD_STREAMS",
+  "proof_backend": "stwo",
+  "proof_backend_version": "stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1",
+  "statement_version": "zkai-native-seq32-attention-mlp-single-proof-object-native-adapter-statement-v1",
+  "semantic_scope": "two_head_seq32_attention_softmax_table_attention_to_d128_adapter_and_seq32_derived_d128_rmsnorm_mlp_surfaces_in_one_native_stwo_proof_object",
+  "target_id": "attention-kv-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
+  "verifier_domain": "ptvm:zkai:native-seq32-attention-mlp-single-proof-object:v1",
+  "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+  "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_FUSED_INTO_RMSNORM_INPUT_COMPONENT",
+  "attempt_policy": {
+    "policy_version": "seq32-d128-adjacent-attempt-domain-statement-only-transcript-v1",
+    "policy_stage": "inner_statement_digest_only_transcript_metadata",
+    "attempt_domain": [
+      "adjacent_label_probe_a",
+      "adjacent_label_probe_b"
+    ],
+    "selected_attempt_id": "adjacent_label_probe_b",
+    "selected_attempt_index": 1,
+    "attempt_budget": 2,
+    "security_loss_bits": "1.000000",
+    "security_loss_formula": "log2(2)",
+    "non_claims": [
+      "not unbounded retry",
+      "not post-decommitment selection",
+      "not final proof-byte selection",
+      "not absolute soundness",
+      "not a NANOZK proof-size comparison"
+    ]
+  },
+  "statement_commitment": "blake2b-256:6a14c2912df3b2dcd3ce298d8bde566317468be53d084a42104249d7304cf712",
+  "public_instance_commitment": "blake2b-256:dda271e9eeae84b8ade4020dd7146be75e1160e00368948173bd4796dcdff954",
+  "proof_native_parameter_commitment": "blake2b-256:ed60a38df328e49773410b2335fed805704478ce07712147f3b855be9924b1d2",
+  "pcs_lifting_log_size": 19,
+  "expected_fri_queries": 3,
+  "trace_commitment_trees": 3,
+  "proof_commitment_count": 4,
+  "commitment_roots_digest": "blake2b-256:9009ac9a2ce38df308871eb8b5e09513599b6884c186d2adf9fff795e6e9f663",
+  "unsorted_query_locations": [
+    448295,
+    124757,
+    125622
+  ],
+  "sorted_unique_query_locations": [
+    124757,
+    125622,
+    448295
+  ],
+  "unsorted_query_count": 3,
+  "unique_query_count": 3,
+  "duplicate_query_count": 0,
+  "min_query_location": 124757,
+  "max_query_location": 448295,
+  "query_location_digest": "blake2b-256:f74d6370ed83ed9edebf1d523797360a3f91d6946846ce7dc57468916b790989",
+  "non_claims": [
+    "not a final proof byte-size measurement",
+    "not grouped proof accounting",
+    "not a production label-selection policy",
+    "not a new proof-size frontier",
+    "not a NANOZK comparison",
+    "not timing evidence"
+  ]
+}
