@@ -38,7 +38,7 @@ bytes / `113,388` JSON proof bytes and saves `7,672` typed bytes versus the
 matched `47,188` typed-byte two-proof frontier. Local release medians on the
 capturing macOS/aarch64 host were: build input from source JSON `778,465 us`,
 prove existing input `1,292,909 us`, and verify existing envelope
-`898,432 us`. The timing gate rejects `13 / 13` policy/source/overclaim
+`898,432 us`. The timing gate rejects `14 / 14` policy/source/overclaim
 mutations. This is engineering-local timing evidence only, not a public
 benchmark, not an external-system timing comparison, and not production
 throughput evidence. See

@@ -82,8 +82,11 @@ python3.10 scripts/zkai_native_seq32_attention_mlp_median_timing_gate.py --write
 python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_median_timing_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_median_timing_gate.py
 python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_median_timing_gate
 cargo +nightly-2025-07-14 test --locked --release --features stwo-backend --bin zkai_native_seq32_attention_mlp_median_timing
+git diff --check
+just gate-fast
+just gate
 ```
 
-The gate rejects `13 / 13` timing-policy, source-binding, public-benchmark,
+The gate rejects `14 / 14` timing-policy, source-binding, public-benchmark,
 NANOZK-overclaim, host-metadata, validation-command, and payload-commitment
 mutations.

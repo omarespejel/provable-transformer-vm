@@ -70,6 +70,19 @@ class Seq32AttentionMlpMedianTimingGateTest(unittest.TestCase):
         with self.assertRaises(gate.Seq32TimingGateError):
             gate.validate_payload(candidate, check_mutations=False)
 
+    def test_payload_host_metadata_extra_key_rejected(self):
+        candidate = copy.deepcopy(self.payload)
+        candidate["host_metadata_policy"]["raw_host_metadata"]["hostname"] = "example.local"
+        candidate["payload_commitment"] = gate.payload_commitment(candidate)
+        with self.assertRaises(gate.Seq32TimingGateError):
+            gate.validate_payload(candidate, check_mutations=False)
+
+    def test_raw_host_metadata_extra_key_rejected(self):
+        raw = gate.raw_timing_payload()
+        raw["host_metadata"]["hostname"] = "example.local"
+        with self.assertRaises(gate.Seq32TimingGateError):
+            gate.validate_raw_timing(raw)
+
     def test_absolute_source_path_rejected(self):
         candidate = copy.deepcopy(self.payload)
         candidate["source_artifacts"][0]["path"] = "/tmp/not-in-repo.json"
