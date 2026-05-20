@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.10
 """Paper claim-pack validator for the Stwo attention/Softmax-table evidence.
 
 This gate is intentionally small. It checks that the machine-readable paper
@@ -77,7 +77,7 @@ EVIDENCE_REFS = [
     {
         "id": "route_matrix",
         "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
-        "supports": "eleven checked source-sidecar-fused route rows with matched proof-byte ratios",
+        "supports": "twelve checked source-sidecar-fused route rows with matched proof-byte ratios",
     },
     {
         "id": "controlled_component_grid",

@@ -15,9 +15,9 @@ The bounded grid is:
 
 `GO_CHECKED_FULLER_CROSSING_GRID_WITH_FULL_PROOF_GRID_NO_GO`
 
-This PR7 slice adds a checkable status grid over all `45` width/head/sequence
-cells. It does not add a new proof profile. The current evidence frontier is
-`11 / 45` proved cells and `34 / 45` missing cells.
+This slice adds a checkable status grid over all `45` width/head/sequence
+cells. The current evidence frontier is `12 / 45` proved cells and `33 / 45`
+missing cells.
 
 ## Evidence
 
@@ -40,10 +40,10 @@ The gate is derived from the checked route matrix:
 | Metric | Value |
 |---|---:|
 | Grid cells | `45` |
-| Proved cells | `11` |
-| Missing cells | `34` |
-| Coverage | `24.4444%` |
-| Proved crossing cells | `4` |
+| Proved cells | `12` |
+| Missing cells | `33` |
+| Coverage | `26.6667%` |
+| Proved crossing cells | `5` |
 | Proved all-axis cells | `1` |
 | Missing all-axis cells | `15` |
 
@@ -59,6 +59,7 @@ The proved cells are exactly the checked route-matrix cells:
 - `d8_h2_seq16`
 - `d8_h2_seq32`
 - `d16_h2_seq8`
+- `d32_h2_seq8`
 - `d16_h2_seq16`
 
 Every other cell is marked
@@ -70,38 +71,40 @@ ratio, or evidence-path metrics.
 GO for a controlled crossing-grid artifact:
 
 - the upstream fused Softmax-table route matrix validates locally;
-- exactly `11` checked route cells are marked proved and exactly `34` cells are
+- exactly `12` checked route cells are marked proved and exactly `33` cells are
   marked missing;
 - every proved cell has matched source-plus-LogUp-sidecar comparator evidence;
 - missing cells carry no proof-byte, ratio, or evidence-path claims.
 
 NO-GO for stronger claims:
 
-- no full factorial proof-grid claim, because `34 / 45` cells are missing;
-- no new crossing proof claim, because this PR7 slice adds no new proof profile;
+- no full factorial proof-grid claim, because `33 / 45` cells are missing;
+- no broad crossing proof claim, because this slice adds only `d32_two_head_seq8`;
 - no timing or public benchmark claim;
 - no real-valued Softmax or full-inference claim.
 
-## Next Proof Candidate
+## Next Proof Candidates
 
-The lowest-risk next proof profile is `d32_two_head_seq8`: it is the smallest
-missing `d32` width/head crossing at the shortest checked sequence length. It
-should only become a GO row after the source, sidecar, fused proof, verifier,
-and matched-comparator gate all validate.
+The lowest-risk next proof profiles are now:
+
+- `d16_two_head_seq32`: extend the existing `d16` two-head all-axis row along
+  sequence only.
+- `d32_two_head_seq16`: first `d32` row with all three pressure axes crossed,
+  after the shorter `d32` two-head crossing has validated.
 
 ## Claim Boundary
 
 This may be cited internally as:
 
 > The fuller crossing grid makes the current native Stwo fused Softmax-table
-> evidence frontier explicit: `11 / 45` width/head/sequence cells are proved
-> with matched source-plus-sidecar comparators, while `34 / 45` cells remain
+> evidence frontier explicit: `12 / 45` width/head/sequence cells are proved
+> with matched source-plus-sidecar comparators, while `33 / 45` cells remain
 > unproved and carry no proof-size claims.
 
 Do not cite it as:
 
 - a full factorial proved grid;
-- a new native Stwo proof profile;
+- a full grid of new native Stwo proof profiles;
 - timing evidence;
 - exact real-valued Softmax;
 - implementation-exact model Softmax;

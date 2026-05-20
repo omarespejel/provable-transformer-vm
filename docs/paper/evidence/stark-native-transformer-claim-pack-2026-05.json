@@ -13,7 +13,7 @@
     {
       "id": "route_matrix",
       "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
-      "supports": "eleven checked source-sidecar-fused route rows with matched proof-byte ratios"
+      "supports": "twelve checked source-sidecar-fused route rows with matched proof-byte ratios"
     },
     {
       "id": "controlled_component_grid",
@@ -120,7 +120,7 @@
     "Section-delta and typed-component evidence both point to shared opening and decommitment structure as the dominant source of savings.",
     "A model-facing quantized attention policy is checked equivalent to the existing d8 bounded Softmax-table fixture trace at the trace boundary."
   ],
-  "payload_commitment": "sha256:682399c442e74decad977ea4aada6128142980fc2c3950a4a8f06121747278c3",
+  "payload_commitment": "sha256:4687e28a3bfe6ed5aea2ea0daca408438db0909ad793c8f0b1fcc2cdb6bcf17b",
   "schema": "stark-native-transformer-paper-claim-pack-v1",
   "thesis": "Checked Stwo evidence supports a paper-facing architecture claim: bounded integer attention arithmetic and Softmax-table LogUp membership can be fused into one native STARK proof object, sharing proof-system commitment and opening plumbing across the arithmetic and lookup-heavy parts.",
   "thesis_id": "stark_native_attention_arithmetic_softmax_table_fusion",

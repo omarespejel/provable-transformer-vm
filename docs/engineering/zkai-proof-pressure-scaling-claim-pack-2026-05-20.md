@@ -36,16 +36,19 @@ The stricter route-status grid adds a fuller shape map:
 | metric | value |
 |---|---:|
 | width/head/sequence cells | `45` |
-| checked native fused cells | `11` |
-| missing native fused cells | `34` |
-| coverage share | `0.244444` |
-| proved crossing cells | `4` |
+| checked native fused cells | `12` |
+| missing native fused cells | `33` |
+| coverage share | `0.266667` |
+| proved crossing cells | `5` |
 | proved all-axis cells | `1` |
 | highest checked attention width | `d32` |
 | d32 single-head seq8 fused bytes | `107,261` |
 | d32 single-head seq8 fused raw bytes | `not available in current route row` |
 | d32 single-head seq8 source+sidecar bytes | `116,682` |
 | d32 fused/source+sidecar ratio | `not claimed: fused JSON bytes vs source+sidecar raw bytes` |
+| d32 two-head seq8 fused bytes | `125,756` |
+| d32 two-head seq8 source+sidecar bytes | `142,063` |
+| d32 two-head seq8 fused/source+sidecar ratio | `0.885213` |
 
 The current seq32+d128 boundary rows are:
 
@@ -71,7 +74,7 @@ ratio across mixed byte domains.
 | object | evidence | context |
 |---|---|---|
 | attention grid | `docs/engineering/evidence/zkai-attention-kv-stwo-controlled-component-grid-2026-05.json` | `10` local checked Stwo attention/table profiles; proof-size accounting only |
-| fuller crossing grid | `docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json` | `45` width/head/sequence cells; `11` proved and `34` explicitly missing; status grid only |
+| fuller crossing grid | `docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json` | `45` width/head/sequence cells; `12` proved and `33` explicitly missing; status grid only |
 | native seq32+d128 single proof | `docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.json` and `.envelope.json` | backend `stwo`, version `stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-v1` |
 | statement-only probe B | `docs/engineering/evidence/zkai-stwo-statement-only-attempt-transcript-gate-2026-05.json` and `zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-statement-only-transcript-2026-05.envelope.json` | backend `stwo`, version `stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1`; attempt policy stays statement-bound |
 | local binary accounting | `docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-binary-accounting-2026-05.json`, `zkai-native-seq32-attention-mlp-statement-only-attempt-accounting-2026-05.json`, `zkai-attention-kv-stwo-binary-typed-proof-accounting-2026-05.json`, `zkai-seq32-derived-d128-rmsnorm-mlp-fused-binary-accounting-2026-05.json` | local typed and record-stream accounting; no upstream Stwo serialization claim |

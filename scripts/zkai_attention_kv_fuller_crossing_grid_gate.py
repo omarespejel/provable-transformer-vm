@@ -4,7 +4,7 @@
 This gate is intentionally derived from the checked route matrix. It does not
 generate new proofs. Its job is to make the missing width/head/sequence
 crossings explicit, so the evidence frontier is auditable without promoting the
-current 11 proved rows into a full factorial proof claim.
+current 12 proved rows into a full factorial proof claim.
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ SOURCE_ISSUE = matrix.ISSUE
 DECISION = "GO_CHECKED_FULLER_CROSSING_GRID_WITH_FULL_PROOF_GRID_NO_GO"
 ROUTE_ID = "local_stwo_attention_kv_fuller_width_head_sequence_crossing_grid"
 GRID_STATUS = "GO_45_CELL_WIDTH_HEAD_SEQUENCE_STATUS_GRID_FROM_CHECKED_ROUTE_MATRIX"
-FULL_PROOF_GRID_STATUS = "NO_GO_34_OF_45_GRID_CELLS_DO_NOT_HAVE_NATIVE_FUSED_PROOFS"
+FULL_PROOF_GRID_STATUS = "NO_GO_33_OF_45_GRID_CELLS_DO_NOT_HAVE_NATIVE_FUSED_PROOFS"
 CLAIM_BOUNDARY = (
     "ENGINEERING_STATUS_GRID_FOR_CHECKED_NATIVE_STWO_FUSED_BOUNDED_SOFTMAX_TABLE_ROUTES_"
     "MAPS_PROVED_AND_MISSING_WIDTH_HEAD_SEQUENCE_CELLS_NOT_A_FULL_FACTORIAL_PROOF_GRID_"
@@ -62,6 +62,7 @@ EXPECTED_PROVED_KEYS = (
     (8, 2, 16),
     (8, 2, 32),
     (16, 2, 8),
+    (32, 2, 8),
     (16, 2, 16),
 )
 EXPECTED_PROVED_PROFILE_IDS = (
@@ -75,6 +76,7 @@ EXPECTED_PROVED_PROFILE_IDS = (
     "d8_two_head_seq16",
     "d8_two_head_seq32",
     "d16_two_head_seq8",
+    "d32_two_head_seq8",
     "d16_two_head_seq16",
 )
 VALIDATION_COMMANDS = (
@@ -85,25 +87,17 @@ VALIDATION_COMMANDS = (
 )
 GO_CRITERIA = (
     "the upstream fused Softmax-table route matrix validates locally",
-    "exactly 11 checked route cells are marked proved and exactly 34 cells are marked missing",
+    "exactly 12 checked route cells are marked proved and exactly 33 cells are marked missing",
     "every proved cell has matched source-plus-LogUp-sidecar comparator evidence from the route matrix",
     "missing cells carry no proof-byte, ratio, or evidence-path claims",
 )
 NO_GO_CRITERIA = (
-    "full factorial proof-grid claim: 34 of 45 grid cells are missing native fused proofs",
-    "new crossing proof claim: this PR7 slice adds no new proof profile",
+    "full factorial proof-grid claim: 33 of 45 grid cells are missing native fused proofs",
+    "new crossing proof claim: this slice adds only the d32/two-head/seq8 profile",
     "timing or public benchmark claim: this gate records status only",
     "real-valued Softmax or full-inference claim: the upstream kernel is bounded integer Softmax-table/floor division",
 )
 NEXT_LOW_RISK_PROFILES = (
-    {
-        "profile_id": "d32_two_head_seq8",
-        "key_width": 32,
-        "head_count": 2,
-        "steps_per_head": 8,
-        "reason": "smallest missing d32 width/head crossing at the shortest checked sequence length",
-        "go_condition": "source, sidecar, fused proof, verifier, and gate all validate with matched comparator evidence",
-    },
     {
         "profile_id": "d16_two_head_seq32",
         "key_width": 16,
@@ -123,7 +117,7 @@ NEXT_LOW_RISK_PROFILES = (
 )
 NON_CLAIMS = (
     "not a full factorial proved grid",
-    "not a new native Stwo proof profile",
+    "not a full grid of new native Stwo proof profiles",
     "not timing evidence",
     "not exact real-valued Softmax",
     "not implementation-exact model Softmax",
