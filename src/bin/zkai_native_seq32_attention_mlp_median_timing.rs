@@ -531,4 +531,21 @@ mod tests {
         .unwrap();
         assert_eq!(config.runs, 4);
     }
+
+    #[test]
+    fn target_validation_rejects_statement_commitment_drift() {
+        let raw = std::fs::read_to_string(
+            Path::new("docs/engineering/evidence").join(DEFAULT_SINGLE_INPUT),
+        )
+        .unwrap();
+        let mut input = zkai_native_seq32_attention_mlp_single_proof_input_from_json_str(&raw)
+            .expect("fixture input parses");
+
+        validate_statement_only_target(&input, EXPECTED_JSON_PROOF_BYTES)
+            .expect("fixture target validates");
+        input.statement_commitment.push_str("-mutated");
+
+        let error = validate_statement_only_target(&input, EXPECTED_JSON_PROOF_BYTES).unwrap_err();
+        assert!(error.contains("statement commitment drift"));
+    }
 }
