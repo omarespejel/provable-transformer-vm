@@ -145,7 +145,10 @@ def sha256_bytes(data: bytes) -> str:
 
 
 def sha256_file(path: pathlib.Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    try:
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+    except OSError as err:
+        raise Seq32TimingGateError(f"failed to read source artifact {path}: {err}", layer="artifact_binding") from err
 
 
 def blake2b256_bytes(data: bytes) -> str:
