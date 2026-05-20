@@ -12,7 +12,8 @@
       "arch",
       "family",
       "logical_cpus",
-      "cargo_profile"
+      "cargo_profile",
+      "privacy_policy"
     ],
     "raw_host_metadata": {
       "arch": "aarch64",
@@ -73,7 +74,7 @@
         "name": "sample_count_relabeling"
       },
       {
-        "error": "payload commitment mismatch: got 'blake2b-256:c048d39b33bbdd6ca88cd1b5a5cf44eec4972df3df12020fb244a3ccd17e4b59', expected 'blake2b-256:75279e0c1038ccaf1d0061a3ec68e49ef006c7e3e3f081847b5be1c938cb7521'",
+        "error": "payload commitment mismatch: got 'blake2b-256:4f339dced2f0bddc86e69ce15d03cf549d653814e3caec4727fb1bb0df144fd9', expected 'blake2b-256:32134b723eb5a83fce0f4be9c6f66ddc737fb8315ef05d36d4c3ba1983243b13'",
         "layer": "parser_or_schema",
         "name": "prove_metric_zeroed"
       },
@@ -98,7 +99,7 @@
         "name": "validation_command_removed"
       },
       {
-        "error": "payload commitment mismatch: got 'blake2b-256:0000000000000000000000000000000000000000000000000000000000000000', expected 'blake2b-256:c048d39b33bbdd6ca88cd1b5a5cf44eec4972df3df12020fb244a3ccd17e4b59'",
+        "error": "payload commitment mismatch: got 'blake2b-256:0000000000000000000000000000000000000000000000000000000000000000', expected 'blake2b-256:4f339dced2f0bddc86e69ce15d03cf549d653814e3caec4727fb1bb0df144fd9'",
         "layer": "parser_or_schema",
         "name": "payload_commitment_drift"
       }
@@ -130,7 +131,7 @@
     "not GitHub Actions evidence",
     "not a full transformer block benchmark"
   ],
-  "payload_commitment": "blake2b-256:7481d96f3c456aba51728eb25ef389b6bbe742f3aa8582238dd8cb31ac45192f",
+  "payload_commitment": "blake2b-256:f8d4533ad8fec7861eebae99510be598ad6e363e54908c9af142eea6dc329547",
   "result": "GO_MEDIAN_OF_5_BUILD_PROVE_VERIFY_TIMING_CAPTURED_WITH_NON_BENCHMARK_GUARDRAILS",
   "schema": "zkai-native-seq32-attention-mlp-median-timing-gate-v1",
   "source_artifacts": [
@@ -149,11 +150,11 @@
       "sha256": "d6e8d8ebe36fc438b61ba879cc9d6979cf437a76fe2beda98477138e0e341881"
     },
     {
-      "bytes": 21926,
+      "bytes": 22712,
       "id": "timing_rust_source",
       "kind": "rust_source",
       "path": "src/bin/zkai_native_seq32_attention_mlp_median_timing.rs",
-      "sha256": "907060ea01f874129bd232183a1c88f34e449fb69cc7e400b0bc52ad70ae3d99"
+      "sha256": "dd1254abb5ec5eff3c5e7aae2640c10a34cfc1c4d32e62eda547be8593453869"
     },
     {
       "bytes": 168715,

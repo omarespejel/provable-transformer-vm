@@ -535,7 +535,9 @@ mod tests {
     #[test]
     fn target_validation_rejects_statement_commitment_drift() {
         let raw = std::fs::read_to_string(
-            Path::new("docs/engineering/evidence").join(DEFAULT_SINGLE_INPUT),
+            Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("docs/engineering/evidence")
+                .join(DEFAULT_SINGLE_INPUT),
         )
         .unwrap();
         let mut input = zkai_native_seq32_attention_mlp_single_proof_input_from_json_str(&raw)
