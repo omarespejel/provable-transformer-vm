@@ -203,6 +203,16 @@ def _source_from_bytes(path: pathlib.Path, kind: str, raw: bytes) -> dict[str, s
     }
 
 
+def _artifact_path(path: pathlib.Path) -> str:
+    return str(path.relative_to(ROOT))
+
+
+def _list(value: Any, label: str) -> list[Any]:
+    if not isinstance(value, list):
+        raise CompetitorMetricMatrixError(f"{label} must be list")
+    return value
+
+
 def _parse_json_bytes(path: pathlib.Path, raw: bytes) -> dict[str, Any]:
     try:
         payload = json.loads(
@@ -557,6 +567,7 @@ def _local_rows(
         {
             "system": "provable-transformer-vm",
             "surface": "Stwo attention/Softmax-table fusion",
+            "artifact_path": _artifact_path(FUSION_MECHANISM),
             "local_status": "GO_BOUNDED_ARCHITECTURE_MECHANISM",
             "metric": "matched route JSON proof-byte saving",
             "value": fused_savings,
@@ -567,6 +578,7 @@ def _local_rows(
         {
             "system": "provable-transformer-vm",
             "surface": "d64 RMSNorm/SwiGLU/residual block receipt",
+            "artifact_path": _artifact_path(D64_BLOCK_RECEIPT),
             "local_status": "GO_STATEMENT_BOUND_RECEIPT_COMPOSITION",
             "metric": "checked slice rows",
             "value": total_checked_rows,
@@ -577,6 +589,7 @@ def _local_rows(
         {
             "system": "provable-transformer-vm",
             "surface": "d128 RMSNorm/SwiGLU/residual comparator target",
+            "artifact_path": _artifact_path(D128_TARGET),
             "local_status": "NO_GO_LOCAL_D128_PROOF_ARTIFACT_MISSING",
             "metric": "target estimated linear multiplications",
             "value": target_linear_muls,
@@ -587,6 +600,7 @@ def _local_rows(
         {
             "system": "provable-transformer-vm",
             "surface": "seq32+d128 statement-only native proof object",
+            "artifact_path": _artifact_path(STATEMENT_ONLY_ATTEMPT_GATE),
             "local_status": "GO_STWO_SEQ32_D128_INNER_POLICY_BOUND_FRONTIER",
             "metric": "typed proof bytes",
             "value": statement_typed_bytes,
@@ -604,6 +618,7 @@ def _local_rows(
         {
             "system": "provable-transformer-vm",
             "surface": "attention-derived d128 executable package without VK",
+            "artifact_path": _artifact_path(PACKAGE_ACCOUNTING),
             "local_status": "GO_EXTERNAL_RECEIPT_PACKAGE_ACCOUNTING_NO_GO_NATIVE_LAYER_PROOF",
             "metric": "compressed artifact plus proof plus public signals",
             "value": package_without_vk_bytes,
@@ -618,6 +633,7 @@ def _local_rows(
         {
             "system": "provable-transformer-vm",
             "surface": "attention-derived d128 executable package with VK",
+            "artifact_path": _artifact_path(PACKAGE_ACCOUNTING),
             "local_status": "GO_EXTERNAL_RECEIPT_PACKAGE_ACCOUNTING_NO_GO_NATIVE_LAYER_PROOF",
             "metric": "compressed artifact plus proof plus public signals plus verification key",
             "value": package_with_vk_bytes,
@@ -656,8 +672,28 @@ def validate_payload(payload: dict[str, Any], *, expected: dict[str, Any] | None
         if payload.get("non_claims") != NON_CLAIMS:
             raise CompetitorMetricMatrixError("non_claims drift")
         raise CompetitorMetricMatrixError("payload drift")
+    _assert_row_source_references(payload)
     if payload.get("payload_commitment") != payload_commitment(payload):
         raise CompetitorMetricMatrixError("payload commitment drift")
+
+
+def _assert_row_source_references(payload: dict[str, Any]) -> None:
+    source_paths = {
+        artifact["path"]
+        for artifact in _list(payload.get("source_artifacts"), "source_artifacts")
+        if isinstance(artifact, dict) and isinstance(artifact.get("path"), str)
+    }
+    for index, row in enumerate(_list(payload.get("external_rows"), "external_rows")):
+        if not isinstance(row, dict) or not isinstance(row.get("source_url"), str) or not row["source_url"]:
+            raise CompetitorMetricMatrixError(f"external row {index} missing source_url")
+    for index, row in enumerate(_list(payload.get("local_rows"), "local_rows")):
+        if not isinstance(row, dict):
+            raise CompetitorMetricMatrixError(f"local row {index} malformed")
+        artifact_path = row.get("artifact_path")
+        if not isinstance(artifact_path, str) or not artifact_path:
+            raise CompetitorMetricMatrixError(f"local row {index} missing artifact_path")
+        if artifact_path not in source_paths:
+            raise CompetitorMetricMatrixError(f"local row {index} artifact_path not in source_artifacts")
 
 
 def build_payload_uncommitted() -> dict[str, Any]:

@@ -142,7 +142,7 @@
     "not exact real-valued Softmax, LayerNorm, or GELU",
     "not production-ready"
   ],
-  "payload_commitment": "sha256:94479c79fb1f3b253148ffca5e1ffe2a612d0280f7fd9e50a7291ac390f2e6fb",
+  "payload_commitment": "sha256:30d42121db754bb23a3cb43b477f4c1347a25f6da50749f2eea475026c7cee09",
   "result": "GO_INTERESTING_PACKAGE_SIGNAL_NO_GO_NANOZK_SIZE_WIN",
   "schema": "zkai-d128-native-block-gap-accounting-v1",
   "source_artifacts": [
@@ -163,12 +163,12 @@
       "schema": "zkai-one-block-executable-package-accounting-v1"
     },
     {
-      "decision": "GO_SOURCE_BACKED_COMPETITOR_MATRIX_NO_GO_MATCHED_BENCHMARK_CLAIMS",
-      "file_sha256": "275b2494effb9658dba051cd77231ae572c55a282dcd752b592b2a7e6172e01a",
+      "decision": "GO_SOURCE_BACKED_COMPETITOR_MATRIX_WITH_STATEMENT_ONLY_FRONTIER_NO_GO_MATCHED_BENCHMARK_CLAIMS",
+      "file_sha256": "03ff22e24861b317769de38f8137bae70c82aa558175fd49b7bc6b49a8321342",
       "kind": "competitor_metric_matrix_json",
       "path": "docs/engineering/evidence/zkai-may2026-competitor-metric-matrix.json",
-      "payload_sha256": "114af1b6d149d9049a15c0f5ea3bd4fedc4505c8b7e014212248c77205311ca0",
-      "schema": "zkai-may2026-competitor-metric-matrix-v1"
+      "payload_sha256": "fa9d0abf264c6950455146af855483194b4dc8c3bc5278902c119c3e7103d676",
+      "schema": "zkai-may2026-competitor-metric-matrix-v2"
     },
     {
       "file_sha256": "aa16aa98493ecf9f984d238875890c81b4525ebde21463b76010c92f6767390b",
