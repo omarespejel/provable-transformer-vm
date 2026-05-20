@@ -88,6 +88,7 @@
   ],
   "local_rows": [
     {
+      "artifact_path": "docs/engineering/evidence/zkai-attention-kv-stwo-fusion-mechanism-ablation-2026-05.json",
       "comparison_status": "LOCAL_MECHANISM_EVIDENCE_NOT_LAYERWISE_FULL_MODEL_BENCHMARK",
       "local_status": "GO_BOUNDED_ARCHITECTURE_MECHANISM",
       "metric": "matched route JSON proof-byte saving",
@@ -98,6 +99,7 @@
       "value": 194097
     },
     {
+      "artifact_path": "docs/engineering/evidence/zkai-d64-block-receipt-composition-gate-2026-05.json",
       "comparison_status": "LOCAL_RECEIPT_CHAIN_NOT_RECURSIVE_PROOF_COMPRESSION",
       "local_status": "GO_STATEMENT_BOUND_RECEIPT_COMPOSITION",
       "metric": "checked slice rows",
@@ -108,6 +110,7 @@
       "value": 49600
     },
     {
+      "artifact_path": "docs/engineering/evidence/zkai-d128-layerwise-comparator-target-2026-05.json",
       "comparison_status": "TARGET_SPEC_ONLY_NOT_LOCAL_PROOF_RESULT",
       "local_status": "NO_GO_LOCAL_D128_PROOF_ARTIFACT_MISSING",
       "metric": "target estimated linear multiplications",
@@ -118,6 +121,7 @@
       "value": 196608
     },
     {
+      "artifact_path": "docs/engineering/evidence/zkai-stwo-statement-only-attempt-transcript-gate-2026-05.json",
       "comparison_status": "LOCAL_INNER_POLICY_BOUND_PROOF_OBJECT_NOT_EXTERNAL_LAYER_BENCHMARK",
       "local_status": "GO_STWO_SEQ32_D128_INNER_POLICY_BOUND_FRONTIER",
       "metric": "typed proof bytes",
@@ -128,6 +132,7 @@
       "value": 39516
     },
     {
+      "artifact_path": "docs/engineering/evidence/zkai-one-block-executable-package-accounting-2026-05.json",
       "comparison_status": "LOCAL_EXECUTABLE_PACKAGE_ACCOUNTING_NOT_MATCHED_LAYER_PROOF_BENCHMARK",
       "local_status": "GO_EXTERNAL_RECEIPT_PACKAGE_ACCOUNTING_NO_GO_NATIVE_LAYER_PROOF",
       "metric": "compressed artifact plus proof plus public signals",
@@ -138,6 +143,7 @@
       "value": 4752
     },
     {
+      "artifact_path": "docs/engineering/evidence/zkai-one-block-executable-package-accounting-2026-05.json",
       "comparison_status": "LOCAL_EXECUTABLE_PACKAGE_ACCOUNTING_WITH_SETUP_NOT_MATCHED_LAYER_PROOF_BENCHMARK",
       "local_status": "GO_EXTERNAL_RECEIPT_PACKAGE_ACCOUNTING_NO_GO_NATIVE_LAYER_PROOF",
       "metric": "compressed artifact plus proof plus public signals plus verification key",
@@ -157,7 +163,7 @@
     "not exact real-valued Softmax",
     "not production-ready"
   ],
-  "payload_commitment": "sha256:f5f34fc2f4339e077371da4dda02a3b96c51edf5570023b2c6808542d38fbfc4",
+  "payload_commitment": "sha256:1334a4dfb5fab4c6fa1857d4fb25a202bbcca8502baceca18f5d2d4b892ef117",
   "schema": "zkai-may2026-competitor-metric-matrix-v2",
   "source_artifacts": [
     {

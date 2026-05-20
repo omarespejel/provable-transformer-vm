@@ -46,7 +46,10 @@ CLAIM_BOUNDARY = (
 EXPECTED_SURFACE_DECISION = "GO_ONE_TRANSFORMER_BLOCK_SURFACE_NO_GO_MATCHED_LAYER_PROOF"
 EXPECTED_PACKAGE_DECISION = "GO_ONE_BLOCK_EXECUTABLE_PACKAGE_ACCOUNTING_NO_GO_NATIVE_PROOF_SIZE"
 EXPECTED_PACKAGE_RESULT = "GO_EXTERNAL_RECEIPT_PACKAGE_ACCOUNTING_NO_GO_NATIVE_BLOCK_PROOF"
-EXPECTED_MATRIX_DECISION = "GO_SOURCE_BACKED_COMPETITOR_MATRIX_NO_GO_MATCHED_BENCHMARK_CLAIMS"
+EXPECTED_MATRIX_SCHEMA = "zkai-may2026-competitor-metric-matrix-v2"
+EXPECTED_MATRIX_DECISION = (
+    "GO_SOURCE_BACKED_COMPETITOR_MATRIX_WITH_STATEMENT_ONLY_FRONTIER_NO_GO_MATCHED_BENCHMARK_CLAIMS"
+)
 
 EXPECTED_NANOZK_BLOCK_PROOF_BYTES_DECIMAL = 6_900
 EXPECTED_NANOZK_BLOCK_PROOF_SIZE = "6.9 KB"
@@ -326,7 +329,7 @@ def checked_sources() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], d
         if package_summary.get(field) != expected:
             raise D128NativeBlockGapAccountingError(f"package field drift: {field}")
 
-    if matrix.get("schema") != "zkai-may2026-competitor-metric-matrix-v1":
+    if matrix.get("schema") != EXPECTED_MATRIX_SCHEMA:
         raise D128NativeBlockGapAccountingError("competitor matrix schema drift")
     if matrix.get("decision") != EXPECTED_MATRIX_DECISION:
         raise D128NativeBlockGapAccountingError("competitor matrix decision drift")

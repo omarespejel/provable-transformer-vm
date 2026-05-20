@@ -27,6 +27,11 @@ class May2026CompetitorMetricMatrixGateTests(unittest.TestCase):
         self.assertEqual(len(payload["external_rows"]), 5)
         self.assertEqual(len(payload["local_rows"]), 6)
         self.assertIn("not a matched benchmark", payload["non_claims"][0])
+        source_paths = {artifact["path"] for artifact in payload["source_artifacts"]}
+        for row in payload["external_rows"]:
+            self.assertTrue(row["source_url"])
+        for row in payload["local_rows"]:
+            self.assertIn(row["artifact_path"], source_paths)
 
         external = {(row["system"], row["workload_label"]): row for row in payload["external_rows"]}
         self.assertEqual(external[("NANOZK", "Transformer block proof")]["proof_size_reported"], "6.9 KB")
@@ -39,6 +44,10 @@ class May2026CompetitorMetricMatrixGateTests(unittest.TestCase):
         self.assertEqual(local["d64 RMSNorm/SwiGLU/residual block receipt"]["value"], 49600)
         self.assertEqual(local["d128 RMSNorm/SwiGLU/residual comparator target"]["value"], 196608)
         self.assertEqual(local["seq32+d128 statement-only native proof object"]["value"], 39516)
+        self.assertEqual(
+            local["seq32+d128 statement-only native proof object"]["artifact_path"],
+            "docs/engineering/evidence/zkai-stwo-statement-only-attempt-transcript-gate-2026-05.json",
+        )
         self.assertEqual(
             local["seq32+d128 statement-only native proof object"]["local_status"],
             "GO_STWO_SEQ32_D128_INNER_POLICY_BOUND_FRONTIER",
@@ -73,6 +82,17 @@ class May2026CompetitorMetricMatrixGateTests(unittest.TestCase):
         payload["payload_commitment"] = gate.payload_commitment(payload)
         with self.assertRaisesRegex(gate.CompetitorMetricMatrixError, "payload drift"):
             gate.validate_payload(payload)
+
+    def test_rejects_missing_local_artifact_path(self):
+        payload = copy.deepcopy(self.payload)
+        del payload["local_rows"][3]["artifact_path"]
+        with self.assertRaisesRegex(gate.CompetitorMetricMatrixError, "local row 3 missing artifact_path"):
+            gate._assert_row_source_references(payload)
+
+        payload = copy.deepcopy(self.payload)
+        payload["local_rows"][3]["artifact_path"] = "docs/engineering/evidence/missing.json"
+        with self.assertRaisesRegex(gate.CompetitorMetricMatrixError, "local row 3 artifact_path not in source_artifacts"):
+            gate._assert_row_source_references(payload)
 
     def test_rejects_commitment_drift(self):
         payload = copy.deepcopy(self.payload)
