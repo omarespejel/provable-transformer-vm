@@ -90,18 +90,18 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 79. `docs/engineering/zkai-tablero-hybrid-zkml-boundary-2026-05-17.md`
 80. `docs/engineering/zkai-claim-audit-comparison-artifacts-2026-05-17.md`
 81. `docs/engineering/zkai-hybrid-proof-pressure-selector-2026-05-17.md`
-81. `docs/engineering/zkai-gkr-d128-projection-scaling-preflight-2026-05-17.md`
-82. `docs/engineering/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05-18.md`
-83. `docs/engineering/zkai-seq32-derived-d128-native-mlp-surface-2026-05-18.md`
-84. `docs/engineering/zkai-seq32-value-compatible-boundary-frontier-2026-05-18.md`
-85. `docs/engineering/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05-19.md`
-86. `docs/engineering/zkai-bounded-stwo-query-policy-hook-2026-05-19.md`
-87. `docs/engineering/zkai-stwo-query-preview-split-prototype-2026-05-19.md`
-88. `docs/engineering/zkai-stwo-query-grinding-budget-2026-05-19.md`
-89. `docs/engineering/zkai-stwo-attempt-domain-binding-2026-05-19.md`
-90. `docs/engineering/zkai-stwo-inner-attempt-domain-statement-2026-05-19.md`
-91. `docs/engineering/reproducibility.md`
-92. `git status --short --branch`
+82. `docs/engineering/zkai-gkr-d128-projection-scaling-preflight-2026-05-17.md`
+83. `docs/engineering/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05-18.md`
+84. `docs/engineering/zkai-seq32-derived-d128-native-mlp-surface-2026-05-18.md`
+85. `docs/engineering/zkai-seq32-value-compatible-boundary-frontier-2026-05-18.md`
+86. `docs/engineering/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05-19.md`
+87. `docs/engineering/zkai-bounded-stwo-query-policy-hook-2026-05-19.md`
+88. `docs/engineering/zkai-stwo-query-preview-split-prototype-2026-05-19.md`
+89. `docs/engineering/zkai-stwo-query-grinding-budget-2026-05-19.md`
+90. `docs/engineering/zkai-stwo-attempt-domain-binding-2026-05-19.md`
+91. `docs/engineering/zkai-stwo-inner-attempt-domain-statement-2026-05-19.md`
+92. `docs/engineering/reproducibility.md`
+93. `git status --short --branch`
 
 ## Current lane split
 
