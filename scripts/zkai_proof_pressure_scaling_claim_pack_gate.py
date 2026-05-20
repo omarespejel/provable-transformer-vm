@@ -66,7 +66,7 @@ MEDIAN_TIMING_PATH = EVIDENCE_DIR / "zkai-native-seq32-attention-mlp-median-timi
 
 SCHEMA = "zkai-proof-pressure-scaling-claim-pack-v1"
 ISSUE = "https://github.com/omarespejel/provable-transformer-vm/issues/715"
-DECISION = "GO_BOUNDED_SCALE_SIGNAL_SYNTHESIS_NO_GO_FULL_BLOCK_OR_EXTERNAL_WIN"
+DECISION = "GO_BOUNDED_SCALE_SIGNAL_SYNTHESIS_KEEP_ISSUE_OPEN_FOR_FULL_GRID"
 RESULT = "TEN_ATTENTION_ROWS_SCALE_LOOKUP_PRESSURE_AND_SEQ32_D128_BOUNDARY_SAVES_7672_TYPED_BYTES"
 PAYLOAD_DOMAIN = "ptvm:zkai:proof-pressure-scaling-claim-pack:v1"
 CLAIM_BOUNDARY = (
@@ -159,8 +159,28 @@ TSV_COLUMNS = (
     "typed_saving_bytes",
     "typed_saving_share",
     "json_bytes",
+    "binary_raw_bytes",
+    "binary_raw_status",
     "comparison_status",
     "source_status",
+)
+
+ATTENTION_BINARY_RAW_STATUS = "NOT_AVAILABLE_IN_CONTROLLED_COMPONENT_GRID_ROW"
+LOCAL_RECORD_STREAM_STATUS = "LOCAL_RECORD_STREAM_ACCOUNTING_NOT_UPSTREAM_STWO_SERIALIZATION"
+
+EXPECTED_SOURCE_ARTIFACT_IDS = (
+    "controlled_component_grid",
+    "native_seq32_d128_single_proof",
+    "statement_only_attempt_transcript",
+    "native_single_binary_accounting",
+    "statement_only_binary_accounting",
+    "attention_binary_accounting",
+    "seq32_mlp_binary_accounting",
+    "d64_external_adapter_surface",
+    "ezkl_statement_envelope_benchmark",
+    "jolt_atlas_lookup_tensor_comparison",
+    "claim_audit_comparison_artifacts",
+    "seq32_d128_median_timing",
 )
 
 
@@ -208,6 +228,18 @@ def _full_repo_path(relative_path: pathlib.PurePosixPath) -> pathlib.Path:
     return ROOT.joinpath(*relative_path.parts)
 
 
+def _assert_no_symlink_components_for_output(path: pathlib.Path, label: str) -> None:
+    try:
+        relative_parts = path.relative_to(ROOT).parts
+    except ValueError as err:
+        raise ProofPressureScalingClaimPackError(f"{label} must stay inside repo") from err
+    current = ROOT
+    for part in relative_parts[:-1]:
+        current = current / part
+        if current.exists() and current.is_symlink():
+            raise ProofPressureScalingClaimPackError(f"{label} must not include symlink components")
+
+
 def _assert_repo_file(path: pathlib.Path, label: str) -> None:
     try:
         resolved = path.resolve(strict=True)
@@ -238,11 +270,88 @@ def read_json_source(path: pathlib.Path, label: str) -> tuple[dict[str, Any], di
         raise ProofPressureScalingClaimPackError(f"{label} must be a JSON object")
     source = {
         "id": label,
-        "path": str(path.relative_to(ROOT)),
+        "path": path.relative_to(ROOT).as_posix(),
         "sha256": sha256(raw),
         "size_bytes": len(raw),
     }
     return payload, source
+
+
+def validate_local_binary_accounting_payload(payload: dict[str, Any], label: str) -> None:
+    if payload.get("schema") != "zkai-stwo-local-binary-proof-accounting-cli-v1":
+        raise ProofPressureScalingClaimPackError(f"{label} accounting schema drift")
+    if payload.get("accounting_format_version") != "v1":
+        raise ProofPressureScalingClaimPackError(f"{label} accounting format drift")
+    if payload.get("accounting_domain") != "zkai:stwo:local-binary-proof-accounting":
+        raise ProofPressureScalingClaimPackError(f"{label} accounting domain drift")
+    if (
+        payload.get("upstream_stwo_serialization_status")
+        != "NOT_UPSTREAM_STWO_SERIALIZATION_LOCAL_ACCOUNTING_RECORD_STREAM_ONLY"
+    ):
+        raise ProofPressureScalingClaimPackError(f"{label} upstream serialization status drift")
+    rows = require_list(payload.get("rows"), f"{label} rows")
+    if not rows:
+        raise ProofPressureScalingClaimPackError(f"{label} rows must be non-empty")
+    for index, row_any in enumerate(rows):
+        row = require_dict(row_any, f"{label} rows[{index}]")
+        local = require_dict(row.get("local_binary_accounting"), f"{label} rows[{index}] local accounting")
+        if local.get("format_domain") != "zkai:stwo:local-binary-proof-accounting":
+            raise ProofPressureScalingClaimPackError(f"{label} row accounting domain drift")
+        if local.get("format_version") != "v1":
+            raise ProofPressureScalingClaimPackError(f"{label} row accounting format drift")
+        typed = int_field(local.get("typed_size_estimate_bytes"), f"{label} row typed bytes")
+        component_sum = int_field(local.get("component_sum_bytes"), f"{label} row component sum")
+        raw_stream = int_field(local.get("record_stream_bytes"), f"{label} row record stream bytes")
+        if typed != component_sum or raw_stream <= 0:
+            raise ProofPressureScalingClaimPackError(f"{label} row accounting byte drift")
+
+
+def validate_attention_binary_accounting_payload(payload: dict[str, Any]) -> None:
+    if payload.get("schema") != "zkai-attention-kv-stwo-binary-typed-proof-accounting-gate-v1":
+        raise ProofPressureScalingClaimPackError("attention binary accounting schema drift")
+    if payload.get("decision") != "GO_REPO_OWNED_LOCAL_BINARY_TYPED_ACCOUNTING_FOR_D32_MATCHED_ENVELOPES":
+        raise ProofPressureScalingClaimPackError("attention binary accounting decision drift")
+    if payload.get("accounting_status") != "GO_CANONICAL_LOCAL_BINARY_TYPED_ACCOUNTING_RECORD_STREAM":
+        raise ProofPressureScalingClaimPackError("attention binary accounting status drift")
+    if payload.get("binary_serialization_status") != "NO_GO_NOT_UPSTREAM_STWO_PROOF_SERIALIZATION":
+        raise ProofPressureScalingClaimPackError("attention binary serialization status drift")
+    aggregate = require_dict(payload.get("aggregate"), "attention binary aggregate")
+    if int_field(aggregate.get("profiles_checked"), "attention binary profiles") <= 0:
+        raise ProofPressureScalingClaimPackError("attention binary profiles drift")
+
+
+def validate_ezkl_payload(payload: dict[str, Any]) -> None:
+    if payload.get("schema") != "zkai-ezkl-statement-envelope-benchmark-v1":
+        raise ProofPressureScalingClaimPackError("EZKL benchmark schema drift")
+    summary = require_dict(payload.get("summary"), "EZKL summary")
+    proof_only = require_dict(summary.get("ezkl-proof-only"), "EZKL proof-only summary")
+    envelope = require_dict(summary.get("ezkl-statement-envelope"), "EZKL statement-envelope summary")
+    if proof_only.get("baseline_accepted") is not True or envelope.get("baseline_accepted") is not True:
+        raise ProofPressureScalingClaimPackError("EZKL baseline acceptance drift")
+    if envelope.get("all_mutations_rejected") is not True:
+        raise ProofPressureScalingClaimPackError("EZKL statement-envelope mutation drift")
+    if int_field(envelope.get("mutations_rejected"), "EZKL envelope rejected") != int_field(
+        envelope.get("mutation_count"), "EZKL envelope count"
+    ):
+        raise ProofPressureScalingClaimPackError("EZKL mutation count drift")
+
+
+def validate_timing_payload(payload: dict[str, Any]) -> None:
+    if payload.get("schema") != "zkai-native-seq32-attention-mlp-median-timing-gate-v1":
+        raise ProofPressureScalingClaimPackError("median timing schema drift")
+    if payload.get("decision") != "GO_SEQ32_D128_STATEMENT_ONLY_TIMING_CAPTURED_ENGINEERING_LOCAL_ONLY":
+        raise ProofPressureScalingClaimPackError("median timing decision drift")
+    if (
+        payload.get("timing_policy")
+        != "median_of_5_in_process_std_time_instant_microsecond_capture_engineering_only"
+    ):
+        raise ProofPressureScalingClaimPackError("median timing policy drift")
+    timing_summary = require_dict(payload.get("timing_summary"), "median timing summary")
+    if int_field(timing_summary.get("sample_count"), "median timing sample count") != 5:
+        raise ProofPressureScalingClaimPackError("median timing sample count drift")
+    target = require_dict(payload.get("target"), "median timing target")
+    if int_field(target.get("typed_bytes"), "median timing target typed bytes") != 39_516:
+        raise ProofPressureScalingClaimPackError("median timing target drift")
 
 
 def load_checked_payloads() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
@@ -261,15 +370,19 @@ def load_checked_payloads() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     sources[source["id"]] = source
 
     native_accounting, source = read_json_source(NATIVE_SINGLE_ACCOUNTING_PATH, "native_single_binary_accounting")
+    validate_local_binary_accounting_payload(native_accounting, "native_single_binary_accounting")
     sources[source["id"]] = source
 
     statement_accounting, source = read_json_source(STATEMENT_ONLY_ACCOUNTING_PATH, "statement_only_binary_accounting")
+    validate_local_binary_accounting_payload(statement_accounting, "statement_only_binary_accounting")
     sources[source["id"]] = source
 
     attention_accounting, source = read_json_source(ATTENTION_BINARY_ACCOUNTING_PATH, "attention_binary_accounting")
+    validate_attention_binary_accounting_payload(attention_accounting)
     sources[source["id"]] = source
 
     seq32_mlp_accounting, source = read_json_source(SEQ32_MLP_BINARY_ACCOUNTING_PATH, "seq32_mlp_binary_accounting")
+    validate_local_binary_accounting_payload(seq32_mlp_accounting, "seq32_mlp_binary_accounting")
     sources[source["id"]] = source
 
     d64_payload, source = read_json_source(D64_EXTERNAL_ADAPTER_PATH, "d64_external_adapter_surface")
@@ -277,6 +390,7 @@ def load_checked_payloads() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     sources[source["id"]] = source
 
     ezkl_payload, source = read_json_source(EZKL_ENVELOPE_PATH, "ezkl_statement_envelope_benchmark")
+    validate_ezkl_payload(ezkl_payload)
     sources[source["id"]] = source
 
     jolt_payload, source = read_json_source(JOLT_COMPARISON_PATH, "jolt_atlas_lookup_tensor_comparison")
@@ -288,6 +402,7 @@ def load_checked_payloads() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     sources[source["id"]] = source
 
     timing_payload, source = read_json_source(MEDIAN_TIMING_PATH, "seq32_d128_median_timing")
+    validate_timing_payload(timing_payload)
     sources[source["id"]] = source
 
     payloads = {
@@ -447,6 +562,8 @@ def build_attention_rows(controlled_payload: dict[str, Any]) -> list[dict[str, A
                 "typed_saving_bytes": saving,
                 "typed_saving_share": row_obj.get("typed_saving_share"),
                 "json_bytes": int_field(row_obj.get("fused_json_proof_size_bytes"), "fused JSON"),
+                "binary_raw_bytes": None,
+                "binary_raw_status": ATTENTION_BINARY_RAW_STATUS,
                 "comparison_status": "LOCAL_MATCHED_ATTENTION_SOURCE_PLUS_SIDECAR",
                 "source_status": "local_checked",
             }
@@ -454,9 +571,49 @@ def build_attention_rows(controlled_payload: dict[str, Any]) -> list[dict[str, A
     return rows
 
 
-def build_boundary_rows(native_payload: dict[str, Any], statement_payload: dict[str, Any]) -> list[dict[str, Any]]:
+def local_record_stream_bytes(
+    accounting_payload: dict[str, Any], evidence_path_fragment: str, label: str, expected_typed_bytes: int
+) -> int:
+    rows = require_list(accounting_payload.get("rows"), f"{label} accounting rows")
+    matches = [
+        require_dict(row, f"{label} accounting row")
+        for row in rows
+        if evidence_path_fragment in string_field(
+            require_dict(row, f"{label} accounting row").get("evidence_relative_path"),
+            f"{label} evidence path",
+        )
+    ]
+    if len(matches) != 1:
+        raise ProofPressureScalingClaimPackError(f"{label} accounting row match drift")
+    local = require_dict(matches[0].get("local_binary_accounting"), f"{label} local accounting")
+    typed = int_field(local.get("typed_size_estimate_bytes"), f"{label} typed accounting")
+    if typed != expected_typed_bytes:
+        raise ProofPressureScalingClaimPackError(f"{label} typed accounting drift")
+    return int_field(local.get("record_stream_bytes"), f"{label} record stream bytes")
+
+
+def build_boundary_rows(
+    native_payload: dict[str, Any],
+    statement_payload: dict[str, Any],
+    native_accounting_payload: dict[str, Any],
+    statement_accounting_payload: dict[str, Any],
+) -> list[dict[str, Any]]:
     native_summary = require_dict(native_payload.get("summary"), "native summary")
     statement_summary = require_dict(statement_payload.get("binding_summary"), "statement summary")
+    native_typed = int_field(native_summary.get("native_single_proof_typed_bytes"), "native typed")
+    statement_typed = int_field(statement_summary.get("best_typed_bytes"), "statement typed")
+    native_record_stream_bytes = local_record_stream_bytes(
+        native_accounting_payload,
+        "zkai-native-seq32-attention-mlp-single-proof-2026-05.envelope.json",
+        "native single boundary",
+        native_typed,
+    )
+    statement_record_stream_bytes = local_record_stream_bytes(
+        statement_accounting_payload,
+        "probe-b-statement-only-transcript",
+        "statement-only probe B boundary",
+        statement_typed,
+    )
 
     return [
         {
@@ -464,7 +621,7 @@ def build_boundary_rows(native_payload: dict[str, Any], statement_payload: dict[
             "category": "native_attention_plus_mlp_boundary",
             "status": "GO_SINGLE_NATIVE_STWO_OBJECT_BEATS_MATCHED_TWO_PROOF_FRONTIER",
             "lookup_claims": int_field(native_summary.get("selected_attention_lookup_claims"), "native lookups"),
-            "typed_bytes": int_field(native_summary.get("native_single_proof_typed_bytes"), "native typed"),
+            "typed_bytes": native_typed,
             "matched_frontier_typed_bytes": int_field(
                 native_summary.get("matched_two_proof_frontier_typed_bytes"), "native frontier"
             ),
@@ -473,6 +630,8 @@ def build_boundary_rows(native_payload: dict[str, Any], statement_payload: dict[
             ),
             "typed_saving_share": native_summary.get("typed_saving_vs_matched_frontier_share"),
             "json_bytes": int_field(native_summary.get("native_single_proof_json_bytes"), "native JSON"),
+            "binary_raw_bytes": native_record_stream_bytes,
+            "binary_raw_status": LOCAL_RECORD_STREAM_STATUS,
             "comparison_status": "LOCAL_MATCHED_SEQ32_D128_TWO_PROOF_FRONTIER",
             "source_status": "local_checked",
         },
@@ -481,7 +640,7 @@ def build_boundary_rows(native_payload: dict[str, Any], statement_payload: dict[
             "category": "statement_bound_native_attention_plus_mlp_boundary",
             "status": "GO_INNER_POLICY_BOUND_STATEMENT_ONLY_PROFILE_BEATS_MATCHED_FRONTIER",
             "lookup_claims": int_field(native_summary.get("selected_attention_lookup_claims"), "statement lookups"),
-            "typed_bytes": int_field(statement_summary.get("best_typed_bytes"), "statement typed"),
+            "typed_bytes": statement_typed,
             "matched_frontier_typed_bytes": 47_188,
             "typed_saving_bytes": int_field(
                 statement_summary.get("best_typed_saving_vs_matched_two_proof_frontier"),
@@ -495,6 +654,8 @@ def build_boundary_rows(native_payload: dict[str, Any], statement_payload: dict[
                 47_188,
             ),
             "json_bytes": int_field(statement_summary.get("best_json_bytes"), "statement JSON"),
+            "binary_raw_bytes": statement_record_stream_bytes,
+            "binary_raw_status": LOCAL_RECORD_STREAM_STATUS,
             "comparison_status": "LOCAL_MATCHED_SEQ32_D128_TWO_PROOF_FRONTIER",
             "source_status": "local_checked",
         },
@@ -626,7 +787,14 @@ def build_payload(*, include_mutations: bool = True) -> dict[str, Any]:
     payloads, sources = load_checked_payloads()
     scale_signal = build_scale_signal(payloads["controlled"])
     rows = build_attention_rows(payloads["controlled"])
-    rows.extend(build_boundary_rows(payloads["native"], payloads["statement"]))
+    rows.extend(
+        build_boundary_rows(
+            payloads["native"],
+            payloads["statement"],
+            payloads["native_accounting"],
+            payloads["statement_accounting"],
+        )
+    )
     payload: dict[str, Any] = {
         "schema": SCHEMA,
         "issue": ISSUE,
@@ -752,13 +920,13 @@ def run_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
 
 def validate_source_artifacts(payload: dict[str, Any]) -> None:
     artifacts = require_list(payload.get("source_artifacts"), "source artifacts")
-    ids = set()
+    ids = []
     for index, artifact_any in enumerate(artifacts):
         artifact = require_dict(artifact_any, f"source_artifacts[{index}]")
         artifact_id = string_field(artifact.get("id"), f"source_artifacts[{index}].id")
         if artifact_id in ids:
             raise ProofPressureScalingClaimPackError("duplicate source artifact id")
-        ids.add(artifact_id)
+        ids.append(artifact_id)
         relative = _repo_relative_path(string_field(artifact.get("path"), f"{artifact_id} path"), f"{artifact_id} path")
         full_path = _full_repo_path(relative)
         _assert_repo_file(full_path, f"{artifact_id} path")
@@ -767,6 +935,8 @@ def validate_source_artifacts(payload: dict[str, Any]) -> None:
             raise ProofPressureScalingClaimPackError(f"{artifact_id} source digest drift")
         if artifact.get("size_bytes") != len(raw):
             raise ProofPressureScalingClaimPackError(f"{artifact_id} source size drift")
+    if tuple(ids) != EXPECTED_SOURCE_ARTIFACT_IDS:
+        raise ProofPressureScalingClaimPackError("source artifact id drift")
 
 
 def validate_rows(payload: dict[str, Any]) -> None:
@@ -787,8 +957,16 @@ def validate_rows(payload: dict[str, Any]) -> None:
         if row.get("comparison_status") == "PROOF_SIZE_COMPARABLE":
             raise ProofPressureScalingClaimPackError("external comparability overclaim")
         if row.get("category") == "attention_fused_vs_split":
+            if row.get("binary_raw_bytes") is not None:
+                raise ProofPressureScalingClaimPackError("attention row binary raw byte overclaim")
+            if row.get("binary_raw_status") != ATTENTION_BINARY_RAW_STATUS:
+                raise ProofPressureScalingClaimPackError("attention row binary raw status drift")
             attention_rows.append(row)
         else:
+            if int_field(row.get("binary_raw_bytes"), "boundary row binary raw bytes") <= 0:
+                raise ProofPressureScalingClaimPackError("boundary row binary raw byte drift")
+            if row.get("binary_raw_status") != LOCAL_RECORD_STREAM_STATUS:
+                raise ProofPressureScalingClaimPackError("boundary row binary raw status drift")
             boundary_rows.append(row)
     if len(attention_rows) != 10 or len(boundary_rows) != 2:
         raise ProofPressureScalingClaimPackError("row category count drift")
@@ -933,23 +1111,24 @@ def render_tsv(payload: dict[str, Any]) -> str:
 
 def require_output_path(path: pathlib.Path, expected: pathlib.Path) -> pathlib.Path:
     relative = _repo_relative_path(path, "output path")
-    resolved = _full_repo_path(relative).resolve(strict=False)
-    if resolved != expected.resolve(strict=False):
+    full_path = _full_repo_path(relative)
+    if full_path != expected:
         raise ProofPressureScalingClaimPackError(f"output path must be {expected.relative_to(ROOT)}")
-    parent = resolved.parent
+    _assert_no_symlink_components_for_output(full_path, "output path")
+    if full_path.exists() and full_path.is_symlink():
+        raise ProofPressureScalingClaimPackError("output path must not be a symlink")
+    parent = full_path.parent
     parent.mkdir(parents=True, exist_ok=True)
     try:
         parent.resolve(strict=True).relative_to(EVIDENCE_DIR.resolve(strict=True))
     except ValueError as err:
         raise ProofPressureScalingClaimPackError("output path must stay under docs/engineering/evidence") from err
-    if resolved.exists() and resolved.is_symlink():
-        raise ProofPressureScalingClaimPackError("output path must not be a symlink")
-    return resolved
+    return full_path
 
 
 def atomic_write_text(path: pathlib.Path, text: str) -> None:
     temp = path.with_name(f".{path.name}.tmp")
-    temp.write_text(text, encoding="utf-8")
+    temp.write_text(text, encoding="utf-8", newline="\n")
     temp.replace(path)
 
 

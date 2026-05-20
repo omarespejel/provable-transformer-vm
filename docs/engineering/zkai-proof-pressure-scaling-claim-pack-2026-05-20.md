@@ -4,10 +4,13 @@ Issue: <https://github.com/omarespejel/provable-transformer-vm/issues/715>
 
 ## Decision
 
-`GO_BOUNDED_SCALE_SIGNAL_SYNTHESIS_NO_GO_FULL_BLOCK_OR_EXTERNAL_WIN`
+`GO_BOUNDED_SCALE_SIGNAL_SYNTHESIS_KEEP_ISSUE_OPEN_FOR_FULL_GRID`
 
 This note pins the current bounded evidence for the next paper path. It is a
 claim pack over checked artifacts, not a new proof-generation route.
+
+Issue #715 stays open after this claim-pack slice. The full d64/d128/d256 grid,
+seq64 row, and one matched external baseline are still follow-up work.
 
 ## Result
 
@@ -34,6 +37,21 @@ The current seq32+d128 boundary rows are:
 
 The `statement_only_probe_b` row is the current best inner-policy-bound local
 row. It is not a NANOZK comparison and not a full block proof.
+
+Binary/raw status is now explicit. The two seq32+d128 boundary rows include
+local record-stream accounting (`1,084` bytes each), but that is not stable
+upstream Stwo wire serialization. The attention-grid rows still have no per-row
+binary/raw byte field, so the claim remains typed/JSON-accounting bounded.
+
+## Provenance
+
+| object | evidence | context |
+|---|---|---|
+| attention grid | `docs/engineering/evidence/zkai-attention-kv-stwo-controlled-component-grid-2026-05.json` | `10` local checked Stwo attention/table profiles; proof-size accounting only |
+| native seq32+d128 single proof | `docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.json` and `.envelope.json` | backend `stwo`, version `stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-v1` |
+| statement-only probe B | `docs/engineering/evidence/zkai-stwo-statement-only-attempt-transcript-gate-2026-05.json` and `zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-statement-only-transcript-2026-05.envelope.json` | backend `stwo`, version `stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1`; attempt policy stays statement-bound |
+| local binary accounting | `docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-binary-accounting-2026-05.json`, `zkai-native-seq32-attention-mlp-statement-only-attempt-accounting-2026-05.json`, `zkai-attention-kv-stwo-binary-typed-proof-accounting-2026-05.json`, `zkai-seq32-derived-d128-rmsnorm-mlp-fused-binary-accounting-2026-05.json` | local typed and record-stream accounting; no upstream Stwo serialization claim |
+| timing context | `docs/engineering/evidence/zkai-native-seq32-attention-mlp-median-timing-2026-05.json` | median-of-5 engineering-local timing only; not a public benchmark |
 
 ## Interpretation
 
@@ -87,7 +105,7 @@ The gate rejects `14 / 14` mutation cases covering lookup-growth drift,
 typed-growth drift, attention saving drift, native-boundary saving drift,
 statement-only saving drift, external comparability overclaim, d64/d128/d256
 completion overclaim, stable binary serialization overclaim, public benchmark
-overclaim, non-claim removal, source-artifact drift, missing source artifact,
+overclaim, non-claim removal, source-artifact digest/path/manifest drift,
 validation-command drift, and payload-commitment drift.
 
 ## Validation
