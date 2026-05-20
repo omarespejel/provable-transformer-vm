@@ -68,6 +68,7 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 62. `docs/engineering/zkai-attention-kv-d16-two-head-quantized-softmax-receipt-gate-2026-05-09.md`
 63. `docs/engineering/zkai-attention-kv-stwo-native-d16-two-head-longseq-fused-softmax-table-gate-2026-05-10.md`
 64. `docs/engineering/zkai-attention-kv-stwo-native-d32-two-head-fused-softmax-table-gate-2026-05-20.md`
+65. `docs/engineering/zkai-attention-kv-stwo-native-d32-two-head-longseq-fused-softmax-table-gate-2026-05-21.md`
 65. `docs/engineering/zkai-attention-kv-proof-route-selector-2026-05-05.md`
 66. `docs/engineering/zkai-attention-kv-softmax-denominator-rounding-edge-corpus-2026-05-09.md`
 67. `docs/engineering/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05-09.md`
