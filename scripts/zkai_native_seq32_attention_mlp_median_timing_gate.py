@@ -60,7 +60,7 @@ EXPECTED_TIMING_METRICS = (
     "verify_existing_envelope_us",
 )
 HOST_METADATA_KEYS = {"os", "arch", "family", "logical_cpus", "cargo_profile", "privacy_policy"}
-HOST_METADATA_INCLUDED = ("os", "arch", "family", "logical_cpus", "cargo_profile")
+HOST_METADATA_INCLUDED = ("os", "arch", "family", "logical_cpus", "cargo_profile", "privacy_policy")
 HOST_METADATA_EXCLUDED = ("hostname", "username", "absolute_local_paths")
 HOST_PRIVACY_POLICY = "hostnames_usernames_and_absolute_local_paths_are_not_recorded"
 NON_CLAIMS = (
