@@ -1,0 +1,123 @@
+{
+  "clock": "std_time_instant_elapsed_as_micros",
+  "decision": "GO_ENGINEERING_LOCAL_MEDIAN_OF_5_TIMING_FOR_SEQ32_D128_STATEMENT_ONLY_FRONTIER",
+  "generated_proof_json_bytes": [
+    113388,
+    113388,
+    113388,
+    113388,
+    113388
+  ],
+  "host_metadata": {
+    "arch": "aarch64",
+    "cargo_profile": "release",
+    "family": "unix",
+    "logical_cpus": 12,
+    "os": "macos",
+    "privacy_policy": "hostnames_usernames_and_absolute_local_paths_are_not_recorded"
+  },
+  "issue": 681,
+  "non_claims": [
+    "not a public benchmark",
+    "not a NANOZK/Jolt/DeepProve/EZKL timing comparison",
+    "not proof-generation throughput evidence for production zkML",
+    "not hardware-normalized performance evidence",
+    "not GitHub Actions evidence",
+    "not a full transformer block benchmark"
+  ],
+  "result": "GO_TIMING_CAPTURED_ENGINEERING_LOCAL_ONLY",
+  "sample_count": 5,
+  "schema": "zkai-native-seq32-attention-mlp-median-timing-cli-v1",
+  "source_artifacts": [
+    {
+      "bytes": 1678999,
+      "id": "attention_source_input",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json",
+      "sha256": "e2907a3762a10247f9c2cb3232961c9ed31084f481e14f9b6f2c552bbccd0131"
+    },
+    {
+      "bytes": 150053,
+      "id": "seq32_derived_d128_mlp_input",
+      "path": "docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json",
+      "sha256": "41c1769d2e1b12aa8af12cf83dc2eb2efeb16928af200a08e311cbc9feb0166b"
+    },
+    {
+      "bytes": 2084204,
+      "id": "statement_only_single_input",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-statement-only-transcript-2026-05.input.json",
+      "sha256": "8493eabba18fce9798140b5cf8393341de17824c97c79246d251ebb67e5bf03b"
+    },
+    {
+      "bytes": 3243169,
+      "id": "statement_only_single_envelope",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-statement-only-transcript-2026-05.envelope.json",
+      "sha256": "421e3b01dadac84c17c204ebfbce1c725a48bb15e92536bca03104c817bd1f26"
+    }
+  ],
+  "target": {
+    "adapter_mode": "rmsnorm_input_fused_adjacent_label_probe_b_v1",
+    "attempt_policy_stage": "inner_statement_digest_only_transcript_metadata",
+    "attempt_policy_version": "seq32-d128-adjacent-attempt-domain-statement-only-transcript-v1",
+    "current_two_proof_frontier_typed_bytes": 47188,
+    "json_proof_bytes": 113388,
+    "profile_id": "statement_only_probe_b",
+    "proof_native_parameter_commitment": "blake2b-256:ed60a38df328e49773410b2335fed805704478ce07712147f3b855be9924b1d2",
+    "public_instance_commitment": "blake2b-256:dda271e9eeae84b8ade4020dd7146be75e1160e00368948173bd4796dcdff954",
+    "selected_attempt_id": "adjacent_label_probe_b",
+    "statement_commitment": "blake2b-256:6a14c2912df3b2dcd3ce298d8bde566317468be53d084a42104249d7304cf712",
+    "typed_bytes_from_checked_accounting": 39516
+  },
+  "timing_policy": "median_of_5_in_process_std_time_instant_microsecond_capture_engineering_only",
+  "timing_scope": "build_input_from_source_json_plus_existing_input_prove_plus_existing_envelope_verify",
+  "timings": [
+    {
+      "max_us": 1197446,
+      "median_us": 845225,
+      "metric": "build_input_from_source_json_us",
+      "min_us": 766867,
+      "runs_us": [
+        838561,
+        845225,
+        766867,
+        1197446,
+        1094362
+      ]
+    },
+    {
+      "max_us": 1621501,
+      "median_us": 1505001,
+      "metric": "prove_existing_input_us",
+      "min_us": 1422555,
+      "runs_us": [
+        1621501,
+        1434847,
+        1505001,
+        1535203,
+        1422555
+      ]
+    },
+    {
+      "max_us": 1145679,
+      "median_us": 1011613,
+      "metric": "verify_existing_envelope_us",
+      "min_us": 1006541,
+      "runs_us": [
+        1075991,
+        1006541,
+        1145679,
+        1010662,
+        1011613
+      ]
+    }
+  ],
+  "validation_commands": [
+    "cargo +nightly-2025-07-14 run --locked --release --features stwo-backend --bin zkai_native_seq32_attention_mlp_median_timing -- --evidence-dir docs/engineering/evidence --runs 5 > docs/engineering/evidence/zkai-native-seq32-attention-mlp-median-timing-raw-2026-05.json",
+    "python3.10 scripts/zkai_native_seq32_attention_mlp_median_timing_gate.py --write-json docs/engineering/evidence/zkai-native-seq32-attention-mlp-median-timing-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-seq32-attention-mlp-median-timing-2026-05.tsv",
+    "python3.10 -m py_compile scripts/zkai_native_seq32_attention_mlp_median_timing_gate.py scripts/tests/test_zkai_native_seq32_attention_mlp_median_timing_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_median_timing_gate",
+    "cargo +nightly-2025-07-14 test --locked --release --features stwo-backend --bin zkai_native_seq32_attention_mlp_median_timing",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}
