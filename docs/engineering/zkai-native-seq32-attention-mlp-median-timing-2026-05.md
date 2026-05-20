@@ -41,9 +41,9 @@ absolute local paths intentionally excluded from the artifact.
 
 | window | median | min | max |
 |---|---:|---:|---:|
-| build input from source JSON | `845,225 us` | `766,867 us` | `1,197,446 us` |
-| prove existing input | `1,505,001 us` | `1,422,555 us` | `1,621,501 us` |
-| verify existing envelope | `1,011,613 us` | `1,006,541 us` | `1,145,679 us` |
+| build input from source JSON | `778,465 us` | `760,109 us` | `793,783 us` |
+| prove existing input | `1,292,909 us` | `1,233,365 us` | `1,310,328 us` |
+| verify existing envelope | `898,432 us` | `889,941 us` | `922,254 us` |
 
 The five prover runs all regenerated `113,388` JSON proof bytes.
 
@@ -51,7 +51,7 @@ The five prover runs all regenerated `113,388` JSON proof bytes.
 
 This is useful because the current best local proof-size object is not only a
 small accounting row. It can be regenerated and verified locally with bounded
-median timing evidence. The proving median is about `1.49x` the verifier median
+median timing evidence. The proving median is about `1.44x` the verifier median
 on this host.
 
 The claim remains narrow:

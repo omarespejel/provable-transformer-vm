@@ -249,6 +249,10 @@ def validate_raw_timing(payload: dict[str, Any]) -> None:
     expect_equal(target.get("typed_bytes_from_checked_accounting"), EXPECTED_TYPED_BYTES, "target typed bytes", layer="artifact_binding")
     expect_equal(target.get("json_proof_bytes"), EXPECTED_JSON_PROOF_BYTES, "target JSON proof bytes", layer="artifact_binding")
     expect_equal(target.get("current_two_proof_frontier_typed_bytes"), EXPECTED_TWO_PROOF_FRONTIER_TYPED_BYTES, "two-proof frontier", layer="artifact_binding")
+    canonical_row = statement_only_best_row()
+    expect_equal(target.get("statement_commitment"), canonical_row.get("statement_commitment"), "statement commitment", layer="artifact_binding")
+    expect_equal(target.get("public_instance_commitment"), canonical_row.get("public_instance_commitment"), "public instance commitment", layer="artifact_binding")
+    expect_equal(target.get("proof_native_parameter_commitment"), canonical_row.get("proof_native_parameter_commitment"), "proof native parameter commitment", layer="artifact_binding")
 
     rows = require_list(payload["timings"], "timing rows", layer="timing_metrics")
     metrics = []
@@ -300,6 +304,18 @@ def source_artifact(id_: str, path: pathlib.Path, kind: str) -> dict[str, Any]:
         "sha256": sha256_file(path),
         "bytes": path.stat().st_size,
     }
+
+
+def safe_source_path(path_value: str) -> pathlib.Path:
+    path = pathlib.PurePosixPath(path_value)
+    if path.is_absolute() or ".." in path.parts:
+        raise Seq32TimingGateError(f"source artifact path must stay relative inside repo: {path_value}", layer="artifact_binding")
+    resolved = (ROOT / pathlib.Path(path_value)).resolve(strict=False)
+    try:
+        resolved.relative_to(ROOT.resolve())
+    except ValueError as err:
+        raise Seq32TimingGateError(f"source artifact path escapes repository: {path_value}", layer="artifact_binding") from err
+    return resolved
 
 
 def timing_row_map(raw: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -433,7 +449,7 @@ def validate_payload(payload: dict[str, Any], *, check_mutations: bool = True) -
         raise Seq32TimingGateError("host metadata privacy boundary drift", layer="timing_metrics")
     for source in payload["source_artifacts"]:
         source = require_object(source, "source artifact", layer="artifact_binding")
-        path = ROOT / source["path"]
+        path = safe_source_path(source["path"])
         expect_equal(source["sha256"], sha256_file(path), f"source digest {source['id']}", layer="artifact_binding")
     for non_claim in NON_CLAIMS:
         if non_claim not in payload["non_claims"]:
