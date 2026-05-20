@@ -31,6 +31,19 @@ is a local inner-policy-bound frontier, not a full transformer block proof,
 not a timing result, and not an external zkML benchmark. See
 `docs/engineering/zkai-may2026-competitor-metric-matrix-2026-05-13.md`.
 
+Latest seq32+d128 median timing guardrail: issue `#681` now has local
+median-of-5 build/prove/verify timing evidence for the current
+`statement_only_probe_b` object. The timed target is still `39,516` typed proof
+bytes / `113,388` JSON proof bytes and saves `7,672` typed bytes versus the
+matched `47,188` typed-byte two-proof frontier. Local release medians on the
+capturing macOS/aarch64 host were: build input from source JSON `845,225 us`,
+prove existing input `1,505,001 us`, and verify existing envelope
+`1,011,613 us`. The timing gate rejects `13 / 13` policy/source/overclaim
+mutations. This is engineering-local timing evidence only, not a public
+benchmark, not an external-system timing comparison, and not production
+throughput evidence. See
+`docs/engineering/zkai-native-seq32-attention-mlp-median-timing-2026-05.md`.
+
 Latest dry-run opening sampler: issue `#697` is now checked as a GO for the
 nine-row adjacent label/seed inventory. The source-visible pre-prove inventory
 could not distinguish the final path-opening buckets, but Stwo
