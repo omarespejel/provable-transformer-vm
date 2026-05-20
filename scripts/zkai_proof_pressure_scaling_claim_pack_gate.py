@@ -141,6 +141,8 @@ MUTATION_NAMES = (
     "typed_growth_drift",
     "fuller_grid_coverage_drift",
     "fuller_grid_d32_metric_drift",
+    "fuller_grid_d32_raw_status_overclaim",
+    "explicit_no_go_grid_row_promoted",
     "attention_grid_row_loses_saving",
     "native_single_saving_drift",
     "statement_only_saving_drift",
@@ -172,7 +174,38 @@ TSV_COLUMNS = (
 )
 
 ATTENTION_BINARY_RAW_STATUS = "NOT_AVAILABLE_IN_CONTROLLED_COMPONENT_GRID_ROW"
+FULLER_ROUTE_FUSED_BINARY_RAW_STATUS = "NOT_AVAILABLE_IN_FULLER_CROSSING_GRID_ROUTE_ROW"
 LOCAL_RECORD_STREAM_STATUS = "LOCAL_RECORD_STREAM_ACCOUNTING_NOT_UPSTREAM_STWO_SERIALIZATION"
+
+EXPLICIT_NO_GO_GRID_ROWS = (
+    {
+        "profile_id": "d64_attention_grid_no_go",
+        "status": "NO_GO_NOT_SOURCE_BACKED_NATIVE_FUSED_ATTENTION_ROW",
+        "width": 64,
+        "head_counts": [1, 2],
+        "sequence_lengths": [16, 32],
+        "proof_size_comparable": False,
+        "reason": "No checked source-backed native fused attention proof row exists for d64 in the current artifact set.",
+    },
+    {
+        "profile_id": "d128_attention_grid_no_go",
+        "status": "NO_GO_NOT_SOURCE_BACKED_NATIVE_FUSED_ATTENTION_ROW",
+        "width": 128,
+        "head_counts": [1, 2],
+        "sequence_lengths": [16, 32],
+        "proof_size_comparable": False,
+        "reason": "Current d128 evidence is MLP/boundary-side; no matched source-backed native fused attention proof row exists.",
+    },
+    {
+        "profile_id": "d256_attention_grid_no_go",
+        "status": "NO_GO_NOT_SOURCE_BACKED_NATIVE_FUSED_ATTENTION_ROW",
+        "width": 256,
+        "head_counts": [1, 2],
+        "sequence_lengths": [16, 32],
+        "proof_size_comparable": False,
+        "reason": "No checked source-backed native fused attention proof row exists for d256 in the current artifact set.",
+    },
+)
 
 EXPECTED_SOURCE_ARTIFACT_IDS = (
     "controlled_component_grid",
@@ -520,6 +553,7 @@ def build_scale_signal(controlled_payload: dict[str, Any], fuller_payload: dict[
             "seq64 attention row is not present in this checked grid",
             "full factorial width/head/sequence crossing is not present",
         ],
+        "explicit_no_go_grid_rows": list(EXPLICIT_NO_GO_GRID_ROWS),
         "all_checked_attention_rows_save_typed_bytes": all_rows_save,
         "typed_savings_bytes_total": int_field(
             aggregate.get("typed_savings_bytes_total"), "aggregate typed savings"
@@ -577,6 +611,8 @@ def build_scale_signal(controlled_payload: dict[str, Any], fuller_payload: dict[
                 "fused_json_proof_size_bytes": int_field(
                     d32_single_head.get("fused_proof_size_bytes"), "d32 fused proof bytes"
                 ),
+                "fused_binary_raw_proof_bytes": None,
+                "fused_binary_raw_status": FULLER_ROUTE_FUSED_BINARY_RAW_STATUS,
                 "source_plus_sidecar_raw_proof_bytes": int_field(
                     d32_single_head.get("source_plus_sidecar_raw_proof_bytes"), "d32 source plus sidecar bytes"
                 ),
@@ -805,6 +841,9 @@ def build_summary(rows: list[dict[str, Any]], scale_signal: dict[str, Any]) -> d
         "fuller_grid_missing_cell_count": require_dict(scale_signal.get("fuller_crossing_grid"), "fuller grid")[
             "missing_cell_count"
         ],
+        "explicit_no_go_grid_row_count": len(
+            require_list(scale_signal.get("explicit_no_go_grid_rows"), "explicit no-go grid rows")
+        ),
         "current_best_inner_policy_bound_row": best_boundary["row_id"],
         "current_best_inner_policy_bound_typed_bytes": best_boundary["typed_bytes"],
         "current_best_saving_vs_47188_frontier_bytes": best_boundary["typed_saving_bytes"],
@@ -896,6 +935,14 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
     def mutate_fuller_grid_d32_metric(item: dict[str, Any]) -> None:
         item["scale_signal"]["fuller_crossing_grid"]["d32_single_head_seq8"]["fused_json_proof_size_bytes"] = 1
 
+    def mutate_fuller_grid_d32_raw_status(item: dict[str, Any]) -> None:
+        item["scale_signal"]["fuller_crossing_grid"]["d32_single_head_seq8"][
+            "fused_binary_raw_status"
+        ] = "STABLE_UPSTREAM_STWO_BINARY_SERIALIZATION"
+
+    def mutate_explicit_no_go_grid_row(item: dict[str, Any]) -> None:
+        item["scale_signal"]["explicit_no_go_grid_rows"][1]["status"] = "GO_SOURCE_BACKED_NATIVE_FUSED_ATTENTION_ROW"
+
     def mutate_attention_saving(item: dict[str, Any]) -> None:
         row = next(row for row in item["fused_vs_split_rows"] if row["row_id"] == "d8_two_head_seq32")
         row["typed_saving_bytes"] = 0
@@ -942,6 +989,8 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
         ("typed_growth_drift", mutate_typed_growth),
         ("fuller_grid_coverage_drift", mutate_fuller_grid_coverage),
         ("fuller_grid_d32_metric_drift", mutate_fuller_grid_d32_metric),
+        ("fuller_grid_d32_raw_status_overclaim", mutate_fuller_grid_d32_raw_status),
+        ("explicit_no_go_grid_row_promoted", mutate_explicit_no_go_grid_row),
         ("attention_grid_row_loses_saving", mutate_attention_saving),
         ("native_single_saving_drift", mutate_native_saving),
         ("statement_only_saving_drift", mutate_statement_saving),
@@ -1062,6 +1111,9 @@ def validate_scale_signal(payload: dict[str, Any]) -> None:
     missing = require_list(signal.get("missing_axes"), "missing axes")
     if not any("d64/d128/d256" in str(item) for item in missing):
         raise ProofPressureScalingClaimPackError("missing d64/d128/d256 guardrail")
+    explicit_no_go_rows = require_list(signal.get("explicit_no_go_grid_rows"), "explicit no-go grid rows")
+    if explicit_no_go_rows != list(EXPLICIT_NO_GO_GRID_ROWS):
+        raise ProofPressureScalingClaimPackError("explicit no-go grid row drift")
     seq32 = require_dict(signal.get("seq32_vs_d8_single_head"), "seq32 signal")
     if seq32.get("lookup_claim_growth") != "22.769231":
         raise ProofPressureScalingClaimPackError("lookup growth drift")
@@ -1093,6 +1145,10 @@ def validate_scale_signal(payload: dict[str, Any]) -> None:
         raise ProofPressureScalingClaimPackError("d32 profile drift")
     if d32.get("lookup_claims") != 52 or d32.get("fused_json_proof_size_bytes") != 107_261:
         raise ProofPressureScalingClaimPackError("d32 metric drift")
+    if d32.get("fused_binary_raw_proof_bytes") is not None:
+        raise ProofPressureScalingClaimPackError("d32 fused raw byte overclaim")
+    if d32.get("fused_binary_raw_status") != FULLER_ROUTE_FUSED_BINARY_RAW_STATUS:
+        raise ProofPressureScalingClaimPackError("d32 fused raw status drift")
     if d32.get("source_plus_sidecar_raw_proof_bytes") != 116_682:
         raise ProofPressureScalingClaimPackError("d32 comparator metric drift")
     if d32.get("fused_to_source_plus_sidecar_ratio") != 0.919259:
@@ -1166,6 +1222,8 @@ def validate_payload(payload: dict[str, Any], *, check_mutations: bool = True) -
         raise ProofPressureScalingClaimPackError("best boundary summary drift")
     if summary.get("fuller_grid_proved_cell_count") != 11 or summary.get("fuller_grid_missing_cell_count") != 34:
         raise ProofPressureScalingClaimPackError("fuller grid summary drift")
+    if summary.get("explicit_no_go_grid_row_count") != len(EXPLICIT_NO_GO_GRID_ROWS):
+        raise ProofPressureScalingClaimPackError("explicit no-go summary drift")
     validate_source_artifacts(payload)
     if payload.get("payload_commitment") != payload_commitment(payload):
         raise ProofPressureScalingClaimPackError("payload commitment drift")
@@ -1189,6 +1247,16 @@ def render_tsv(payload: dict[str, Any]) -> str:
     writer.writeheader()
     for row in payload["fused_vs_split_rows"]:
         writer.writerow(row)
+    for row in require_dict(payload["scale_signal"], "scale signal")["explicit_no_go_grid_rows"]:
+        writer.writerow(
+            {
+                "row_id": row["profile_id"],
+                "category": "explicit_no_go_grid_row",
+                "status": row["status"],
+                "comparison_status": "NOT_PROOF_SIZE_COMPARABLE",
+                "source_status": "explicit_no_go",
+            }
+        )
     for row in payload["external_baseline_status"]:
         writer.writerow(
             {

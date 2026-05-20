@@ -11,7 +11,9 @@ claim pack over checked artifacts, not a new proof-generation route.
 
 Issue #715 stays open after this claim-pack slice. The checked route grid now
 reaches `d32`, but the full d64/d128/d256 grid, seq64 row, and one matched
-external baseline are still follow-up work.
+external baseline are still follow-up work. The missing d64/d128/d256
+attention rows are now explicit machine-readable no-go rows, not prose-only
+follow-ups.
 
 ## Result
 
@@ -41,6 +43,7 @@ The stricter route-status grid adds a fuller shape map:
 | proved all-axis cells | `1` |
 | highest checked attention width | `d32` |
 | d32 single-head seq8 fused bytes | `107,261` |
+| d32 single-head seq8 fused raw bytes | `not available in current route row` |
 | d32 single-head seq8 source+sidecar bytes | `116,682` |
 | d32 fused/source+sidecar ratio | `0.919259x` |
 
@@ -57,7 +60,9 @@ row. It is not a NANOZK comparison and not a full block proof.
 Binary/raw status is now explicit. The two seq32+d128 boundary rows include
 local record-stream accounting (`1,084` bytes each), but that is not stable
 upstream Stwo wire serialization. The attention-grid rows still have no per-row
-binary/raw byte field, so the claim remains typed/JSON-accounting bounded.
+binary/raw byte field, and the d32 fuller-grid fused row records
+`NOT_AVAILABLE_IN_FULLER_CROSSING_GRID_ROUTE_ROW` for fused raw bytes, so the
+claim remains typed/JSON-accounting bounded.
 
 ## Provenance
 
@@ -100,6 +105,17 @@ The gate includes external rows only as status labels:
 
 There are still zero proof-size-comparable external rows.
 
+## Explicit No-Go Grid Rows
+
+The issue asked for d64/d128/d256 where feasible. This slice does not pretend
+those proof rows exist. It records three machine-readable no-go rows:
+
+| row | status |
+|---|---|
+| d64 attention grid | `NO_GO_NOT_SOURCE_BACKED_NATIVE_FUSED_ATTENTION_ROW` |
+| d128 attention grid | `NO_GO_NOT_SOURCE_BACKED_NATIVE_FUSED_ATTENTION_ROW` |
+| d256 attention grid | `NO_GO_NOT_SOURCE_BACKED_NATIVE_FUSED_ATTENTION_ROW` |
+
 ## Open Follow-Ups
 
 The claim pack keeps three open follow-ups explicit:
@@ -120,13 +136,14 @@ The claim pack keeps three open follow-ups explicit:
 - Gate tests:
   `scripts/tests/test_zkai_proof_pressure_scaling_claim_pack_gate.py`
 
-The gate rejects `16 / 16` mutation cases covering lookup-growth drift,
+The gate rejects `18 / 18` mutation cases covering lookup-growth drift,
 typed-growth drift, fuller-grid coverage drift, d32 route metric drift,
-attention saving drift, native-boundary saving drift, statement-only saving
-drift, external comparability overclaim, d64/d128/d256 completion overclaim,
-stable binary serialization overclaim, public benchmark overclaim, non-claim
-removal, source-artifact digest/path/manifest drift, validation-command drift,
-and payload-commitment drift.
+d32 fused raw-status overclaim, explicit no-go row promotion, attention saving
+drift, native-boundary saving drift, statement-only saving drift, external
+comparability overclaim, d64/d128/d256 completion overclaim, stable binary
+serialization overclaim, public benchmark overclaim, non-claim removal,
+source-artifact digest/path/manifest drift, validation-command drift, and
+payload-commitment drift.
 
 ## Validation
 
