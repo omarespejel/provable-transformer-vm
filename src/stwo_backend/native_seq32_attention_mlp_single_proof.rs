@@ -152,7 +152,15 @@ const OPENING_SAMPLER_QUERY_DOMAIN: &str =
 const OPENING_SAMPLER_COMMITMENT_DOMAIN: &str =
     "ptvm:zkai:native-seq32-attention-mlp-opening-sampler-commitments:v1";
 const ATTEMPT_POLICY_VERSION: &str = "seq32-d128-adjacent-attempt-domain-v1";
+const ATTEMPT_POLICY_COMPACT_TRANSCRIPT_VERSION: &str =
+    "seq32-d128-adjacent-attempt-domain-compact-transcript-v1";
+const ATTEMPT_POLICY_STATEMENT_ONLY_TRANSCRIPT_VERSION: &str =
+    "seq32-d128-adjacent-attempt-domain-statement-only-transcript-v1";
 const ATTEMPT_POLICY_STAGE: &str = "inner_statement_transcript_metadata";
+const ATTEMPT_POLICY_COMPACT_TRANSCRIPT_STAGE: &str =
+    "inner_statement_digest_compact_transcript_metadata";
+const ATTEMPT_POLICY_STATEMENT_ONLY_TRANSCRIPT_STAGE: &str =
+    "inner_statement_digest_only_transcript_metadata";
 const ATTEMPT_SECURITY_LOSS_BITS: &str = "1.000000";
 const ATTEMPT_SECURITY_LOSS_FORMULA: &str = "log2(2)";
 const ADJACENT_ATTEMPT_DOMAIN: &[&str] = &["adjacent_label_probe_a", "adjacent_label_probe_b"];
@@ -315,6 +323,31 @@ pub enum ZkAiNativeSeq32AttentionMlpAdapterMode {
     RmsnormInputFusedLabelProbeA,
     #[serde(rename = "rmsnorm_input_fused_fixed_label_probe_b_v1")]
     RmsnormInputFusedLabelProbeB,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile {
+    FullTranscriptV1,
+    CompactTranscriptV1,
+    StatementOnlyTranscriptV1,
+}
+
+impl ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile {
+    fn policy_version(self) -> &'static str {
+        match self {
+            Self::FullTranscriptV1 => ATTEMPT_POLICY_VERSION,
+            Self::CompactTranscriptV1 => ATTEMPT_POLICY_COMPACT_TRANSCRIPT_VERSION,
+            Self::StatementOnlyTranscriptV1 => ATTEMPT_POLICY_STATEMENT_ONLY_TRANSCRIPT_VERSION,
+        }
+    }
+
+    fn policy_stage(self) -> &'static str {
+        match self {
+            Self::FullTranscriptV1 => ATTEMPT_POLICY_STAGE,
+            Self::CompactTranscriptV1 => ATTEMPT_POLICY_COMPACT_TRANSCRIPT_STAGE,
+            Self::StatementOnlyTranscriptV1 => ATTEMPT_POLICY_STATEMENT_ONLY_TRANSCRIPT_STAGE,
+        }
+    }
 }
 
 impl Default for ZkAiNativeSeq32AttentionMlpAdapterMode {
@@ -539,16 +572,17 @@ pub struct ZkAiNativeSeq32AttentionMlpAttemptPolicy {
     pub non_claims: Vec<String>,
 }
 
-fn attempt_policy_for_adapter_mode(
+fn attempt_policy_for_adapter_mode_with_profile(
     adapter_mode: ZkAiNativeSeq32AttentionMlpAdapterMode,
+    profile: ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile,
 ) -> Option<ZkAiNativeSeq32AttentionMlpAttemptPolicy> {
     let selected_attempt_id = adapter_mode.adjacent_attempt_id()?;
     let selected_attempt_index = ADJACENT_ATTEMPT_DOMAIN
         .iter()
         .position(|attempt_id| *attempt_id == selected_attempt_id)?;
     Some(ZkAiNativeSeq32AttentionMlpAttemptPolicy {
-        policy_version: ATTEMPT_POLICY_VERSION.to_string(),
-        policy_stage: ATTEMPT_POLICY_STAGE.to_string(),
+        policy_version: profile.policy_version().to_string(),
+        policy_stage: profile.policy_stage().to_string(),
         attempt_domain: ADJACENT_ATTEMPT_DOMAIN
             .iter()
             .map(|attempt_id| attempt_id.to_string())
@@ -834,6 +868,20 @@ pub fn build_zkai_native_seq32_attention_mlp_single_proof_input_with_adapter_mod
     mlp_input: ZkAiD128RmsnormMlpFusedInput,
     adapter_mode: ZkAiNativeSeq32AttentionMlpAdapterMode,
 ) -> Result<ZkAiNativeSeq32AttentionMlpSingleProofInput> {
+    build_zkai_native_seq32_attention_mlp_single_proof_input_with_adapter_mode_and_attempt_profile(
+        attention_source_input,
+        mlp_input,
+        adapter_mode,
+        ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile::FullTranscriptV1,
+    )
+}
+
+pub fn build_zkai_native_seq32_attention_mlp_single_proof_input_with_adapter_mode_and_attempt_profile(
+    attention_source_input: ZkAiAttentionKvNativeTwoHeadSeq32BoundedSoftmaxTableProofInput,
+    mlp_input: ZkAiD128RmsnormMlpFusedInput,
+    adapter_mode: ZkAiNativeSeq32AttentionMlpAdapterMode,
+    attempt_profile: ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile,
+) -> Result<ZkAiNativeSeq32AttentionMlpSingleProofInput> {
     zkai_attention_kv_native_two_head_seq32_fused_softmax_table_validate_source_input(
         &attention_source_input,
     )?;
@@ -880,7 +928,7 @@ pub fn build_zkai_native_seq32_attention_mlp_single_proof_input_with_adapter_mod
         adapter_value_columns: adapter_mode.base_value_columns(),
         adapter_remainder_bit_columns: ADAPTER_REMAINDER_BIT_COLUMNS,
         adapter_trace_cells: adapter_mode.base_trace_cells(),
-        attempt_policy: attempt_policy_for_adapter_mode(adapter_mode),
+        attempt_policy: attempt_policy_for_adapter_mode_with_profile(adapter_mode, attempt_profile),
         pcs_lifting_log_size,
         current_two_proof_frontier_typed_bytes: CURRENT_TWO_PROOF_FRONTIER_TYPED_BYTES,
         current_attention_fused_typed_bytes: CURRENT_ATTENTION_FUSED_TYPED_BYTES,
@@ -1329,21 +1377,38 @@ fn validate_single_input(input: &ZkAiNativeSeq32AttentionMlpSingleProofInput) ->
 }
 
 fn validate_attempt_policy(input: &ZkAiNativeSeq32AttentionMlpSingleProofInput) -> Result<()> {
-    let expected = attempt_policy_for_adapter_mode(input.adapter_mode);
-    match (&input.attempt_policy, expected) {
+    match (
+        &input.attempt_policy,
+        input.adapter_mode.adjacent_attempt_id(),
+    ) {
         (None, _) => Ok(()),
         (Some(_), None) => Err(single_error(
             "attempt policy is only allowed for adjacent label probe attempts",
         )),
-        (Some(actual), Some(expected)) => {
+        (Some(actual), Some(_)) => {
+            let profile = match actual.policy_version.as_str() {
+                ATTEMPT_POLICY_VERSION => {
+                    ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile::FullTranscriptV1
+                }
+                ATTEMPT_POLICY_COMPACT_TRANSCRIPT_VERSION => {
+                    ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile::CompactTranscriptV1
+                }
+                ATTEMPT_POLICY_STATEMENT_ONLY_TRANSCRIPT_VERSION => {
+                    ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile::StatementOnlyTranscriptV1
+                }
+                _ => return Err(single_error("attempt policy version drift")),
+            };
+            let expected =
+                attempt_policy_for_adapter_mode_with_profile(input.adapter_mode, profile)
+                    .ok_or_else(|| single_error("attempt policy expected adjacent probe"))?;
             expect_eq(
                 &actual.policy_version,
-                ATTEMPT_POLICY_VERSION,
+                expected.policy_version.as_str(),
                 "attempt policy version",
             )?;
             expect_eq(
                 &actual.policy_stage,
-                ATTEMPT_POLICY_STAGE,
+                expected.policy_stage.as_str(),
                 "attempt policy stage",
             )?;
             expect_eq(
@@ -2357,6 +2422,13 @@ fn mix_attempt_policy(
     channel: &mut Blake2sM31Channel,
     policy: &ZkAiNativeSeq32AttentionMlpAttemptPolicy,
 ) {
+    if policy.policy_version == ATTEMPT_POLICY_STATEMENT_ONLY_TRANSCRIPT_VERSION {
+        return;
+    }
+    if policy.policy_version == ATTEMPT_POLICY_COMPACT_TRANSCRIPT_VERSION {
+        mix_compact_attempt_policy(channel, policy);
+        return;
+    }
     mix_transcript_string(channel, &policy.policy_version);
     mix_transcript_string(channel, &policy.policy_stage);
     channel.mix_u64(policy.attempt_budget as u64);
@@ -2372,6 +2444,17 @@ fn mix_attempt_policy(
     for non_claim in &policy.non_claims {
         mix_transcript_string(channel, non_claim);
     }
+}
+
+fn mix_compact_attempt_policy(
+    channel: &mut Blake2sM31Channel,
+    policy: &ZkAiNativeSeq32AttentionMlpAttemptPolicy,
+) {
+    mix_transcript_string(channel, &policy.policy_version);
+    channel.mix_u64(policy.attempt_budget as u64);
+    channel.mix_u64(policy.attempt_domain.len() as u64);
+    channel.mix_u64(policy.selected_attempt_index as u64);
+    mix_transcript_string(channel, &policy.security_loss_bits);
 }
 
 fn mix_transcript_string(channel: &mut Blake2sM31Channel, value: &str) {
@@ -2552,6 +2635,16 @@ mod tests {
     fn fixture_input_with_mode(
         adapter_mode: ZkAiNativeSeq32AttentionMlpAdapterMode,
     ) -> ZkAiNativeSeq32AttentionMlpSingleProofInput {
+        fixture_input_with_mode_and_attempt_profile(
+            adapter_mode,
+            ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile::FullTranscriptV1,
+        )
+    }
+
+    fn fixture_input_with_mode_and_attempt_profile(
+        adapter_mode: ZkAiNativeSeq32AttentionMlpAdapterMode,
+        attempt_profile: ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile,
+    ) -> ZkAiNativeSeq32AttentionMlpSingleProofInput {
         let attention = zkai_attention_kv_native_two_head_seq32_fused_softmax_table_source_input_from_json_str(
             include_str!(
                 "../../docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json"
@@ -2562,10 +2655,11 @@ mod tests {
             "../../docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json"
         ))
         .expect("MLP input");
-        build_zkai_native_seq32_attention_mlp_single_proof_input_with_adapter_mode(
+        build_zkai_native_seq32_attention_mlp_single_proof_input_with_adapter_mode_and_attempt_profile(
             attention,
             mlp,
             adapter_mode,
+            attempt_profile,
         )
         .expect("single input")
     }
@@ -3001,8 +3095,9 @@ mod tests {
         let mut non_attempt_mode = fixture_input_with_mode(
             ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed,
         );
-        non_attempt_mode.attempt_policy = attempt_policy_for_adapter_mode(
+        non_attempt_mode.attempt_policy = attempt_policy_for_adapter_mode_with_profile(
             ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeB,
+            ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile::FullTranscriptV1,
         );
         non_attempt_mode.statement_commitment =
             statement_commitment(&non_attempt_mode).expect("non-attempt statement");
@@ -3014,6 +3109,89 @@ mod tests {
         )
         .expect("native params");
         assert!(validate_single_input(&non_attempt_mode).is_err());
+    }
+
+    #[test]
+    fn rmsnorm_input_adjacent_label_probe_compact_attempt_profile_is_statement_bound() {
+        let full = fixture_input_with_mode(
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeB,
+        );
+        let compact = fixture_input_with_mode_and_attempt_profile(
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeB,
+            ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile::CompactTranscriptV1,
+        );
+        let policy = compact
+            .attempt_policy
+            .as_ref()
+            .expect("compact attempt policy");
+        assert_eq!(
+            policy.policy_version,
+            ATTEMPT_POLICY_COMPACT_TRANSCRIPT_VERSION
+        );
+        assert_eq!(policy.policy_stage, ATTEMPT_POLICY_COMPACT_TRANSCRIPT_STAGE);
+        assert_eq!(policy.selected_attempt_id, "adjacent_label_probe_b");
+        assert_eq!(policy.selected_attempt_index, 1);
+        assert_eq!(policy.attempt_budget, 2);
+        assert_eq!(
+            policy.attempt_domain,
+            vec![
+                "adjacent_label_probe_a".to_string(),
+                "adjacent_label_probe_b".to_string()
+            ]
+        );
+        assert_ne!(compact.statement_commitment, full.statement_commitment);
+        assert_ne!(
+            compact.proof_native_parameter_commitment,
+            full.proof_native_parameter_commitment
+        );
+        validate_single_input(&compact).expect("compact attempt profile validates");
+
+        let mut changed_stage = compact.clone();
+        changed_stage
+            .attempt_policy
+            .as_mut()
+            .expect("compact attempt policy")
+            .policy_stage = ATTEMPT_POLICY_STAGE.to_string();
+        changed_stage.statement_commitment =
+            statement_commitment(&changed_stage).expect("changed-stage statement");
+        changed_stage.public_instance_commitment =
+            public_instance_commitment(&changed_stage.statement_commitment).expect("public");
+        changed_stage.proof_native_parameter_commitment = proof_native_parameter_commitment(
+            &changed_stage.statement_commitment,
+            changed_stage.adapter_mode,
+        )
+        .expect("native params");
+        assert!(validate_single_input(&changed_stage).is_err());
+    }
+
+    #[test]
+    fn rmsnorm_input_adjacent_label_probe_statement_only_attempt_profile_validates() {
+        let full = fixture_input_with_mode(
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeB,
+        );
+        let statement_only = fixture_input_with_mode_and_attempt_profile(
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeB,
+            ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile::StatementOnlyTranscriptV1,
+        );
+        let policy = statement_only
+            .attempt_policy
+            .as_ref()
+            .expect("statement-only attempt policy");
+        assert_eq!(
+            policy.policy_version,
+            ATTEMPT_POLICY_STATEMENT_ONLY_TRANSCRIPT_VERSION
+        );
+        assert_eq!(
+            policy.policy_stage,
+            ATTEMPT_POLICY_STATEMENT_ONLY_TRANSCRIPT_STAGE
+        );
+        assert_eq!(policy.selected_attempt_id, "adjacent_label_probe_b");
+        assert_eq!(policy.selected_attempt_index, 1);
+        assert_ne!(
+            statement_only.statement_commitment,
+            full.statement_commitment
+        );
+        validate_single_input(&statement_only).expect("statement-only attempt profile validates");
     }
 
     #[test]

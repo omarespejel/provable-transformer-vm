@@ -144,8 +144,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 138. `docs/engineering/zkai-stwo-query-grinding-budget-2026-05-19.md`
 139. `docs/engineering/zkai-stwo-attempt-domain-binding-2026-05-19.md`
 140. `docs/engineering/zkai-stwo-inner-attempt-domain-statement-2026-05-19.md`
-141. `docs/engineering/reproducibility.md`
-142. `git status --short --branch`
+141. `docs/engineering/zkai-stwo-statement-only-attempt-transcript-2026-05-20.md`
+142. `docs/engineering/reproducibility.md`
+143. `git status --short --branch`
 
 ## What this repository is now
 

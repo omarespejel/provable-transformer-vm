@@ -2916,6 +2916,56 @@ Stwo inner attempt-domain statement reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
+Latest Stwo statement-only attempt transcript gate: issue `#680` now has a
+checked regenerated proof-size improvement over the inner policy-bound row. The
+attempt policy remains inside the statement commitment, and the statement
+commitment remains mixed into Fiat-Shamir, but the new
+`StatementOnlyTranscriptV1` profile removes the redundant direct policy-field
+mix. The selected `statement_only_probe_b` row verifies at `39,516` typed bytes
+and `113,388` JSON proof bytes. This saves `1,376` typed bytes versus the
+full policy-field mix row at `40,892`, saves `2,552` typed bytes versus the
+old `42,068` single-proof champion, and saves `7,672` typed bytes versus the
+matched `47,188` typed-byte two-proof frontier. It is still `1,984` typed bytes
+heavier than the legacy wrapper-only `37,532` row, so the new claim is the
+current inner-policy-bound local frontier, not a legacy wrapper frontier and
+not a NANOZK comparison. See
+`docs/engineering/zkai-stwo-statement-only-attempt-transcript-2026-05-20.md`.
+
+Stwo statement-only attempt transcript reproducibility metadata:
+
+- Gate schema: `zkai-stwo-statement-only-attempt-transcript-gate-v1`.
+- Decision:
+  `GO_STATEMENT_ONLY_ATTEMPT_POLICY_TRANSCRIPT_REDUCES_REGENERATED_STWO_PROOF_BYTES`.
+- Result:
+  `STATEMENT_ONLY_PROBE_B_VERIFIES_AT_39516_TYPED_BYTES_SAVING_1376_VS_FULL_POLICY_MIX`.
+- Timing mode: proof-size/accounting correctness only; no timing claim, no
+  external benchmark claim, no NANOZK comparison, and no full transformer block
+  proof.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-stwo-statement-only-attempt-transcript-gate-2026-05.json`
+  and
+  `docs/engineering/evidence/zkai-stwo-statement-only-attempt-transcript-gate-2026-05.tsv`.
+- Gate JSON SHA-256:
+  `984e2dcdf295d1f863d2604320ec7323736861e80bab1f310f4b3eadcb48329b`.
+- Gate TSV SHA-256:
+  `f988cad6f50bd98fb689e85cf697d2165fd5dab55ba0b3946df0d2a186f39b04`.
+- Statement-only accounting SHA-256:
+  `4ca7429d9e97e9fe54526618f36027757ca67a6184478dcfc06045396f765f2c`.
+- Transcript profile accounting SHA-256:
+  `92d99a4aeb0169ac50e6380f67ad412f11d4985e1e55eb163c4262d965ad8072`.
+- Payload commitment:
+  `blake2b-256:394f91b80bfffc57a25577a225c371d638402f9db76abea28e4ff52a97c75dfc`.
+- Step counts: `20` Python mutation cases and `7` Python unit tests.
+- Local validation commands:
+  `python3.10 scripts/zkai_stwo_statement_only_attempt_transcript_gate.py --write-json docs/engineering/evidence/zkai-stwo-statement-only-attempt-transcript-gate-2026-05.json --write-tsv docs/engineering/evidence/zkai-stwo-statement-only-attempt-transcript-gate-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_stwo_statement_only_attempt_transcript_gate.py scripts/tests/test_zkai_stwo_statement_only_attempt_transcript_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_stwo_statement_only_attempt_transcript_gate`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend rmsnorm_input_adjacent_label_probe_statement_only_attempt_profile_validates --lib`;
+  `cargo +nightly-2025-07-14 test --locked --features stwo-backend native_seq32_attention_mlp_single_proof --lib`;
+  `git diff --check`;
+  `just gate-fast`;
+  `just gate`.
+
 1. Treat `rmsnorm_mlp_fused` as the current positive MLP-side fusion result:
    the native fused proof saves `32,144` local typed bytes (`56.4167%`) versus
    separate RMSNorm, bridge, gate/value, activation, down-projection, and

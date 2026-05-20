@@ -17,6 +17,7 @@ use std::path::{Path, PathBuf};
 use llm_provable_computer::stwo_backend::{
     build_zkai_native_seq32_attention_mlp_single_proof_input,
     build_zkai_native_seq32_attention_mlp_single_proof_input_with_adapter_mode,
+    build_zkai_native_seq32_attention_mlp_single_proof_input_with_adapter_mode_and_attempt_profile,
     prove_zkai_native_seq32_attention_mlp_single_proof_envelope,
     sample_zkai_native_seq32_attention_mlp_openings,
     verify_zkai_native_seq32_attention_mlp_single_proof_envelope,
@@ -24,7 +25,7 @@ use llm_provable_computer::stwo_backend::{
     zkai_d128_rmsnorm_mlp_fused_input_from_json_str,
     zkai_native_seq32_attention_mlp_single_proof_envelope_from_json_slice,
     zkai_native_seq32_attention_mlp_single_proof_input_from_json_str,
-    ZkAiNativeSeq32AttentionMlpAdapterMode,
+    ZkAiNativeSeq32AttentionMlpAdapterMode, ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile,
     ZKAI_ATTENTION_KV_NATIVE_TWO_HEAD_SEQ32_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES,
     ZKAI_D128_RMSNORM_MLP_FUSED_MAX_JSON_BYTES,
     ZKAI_NATIVE_SEQ32_ATTENTION_MLP_OPENING_SAMPLER_MAX_JSON_BYTES,
@@ -70,8 +71,15 @@ where
         return Err(usage());
     }
     let mode = args.remove(0).to_string_lossy().to_string();
+    if let Some((adapter_mode, attempt_profile)) = build_input_attempt_profile_mode(mode.as_str()) {
+        return build_input_with_adapter_mode_and_attempt_profile(
+            args,
+            adapter_mode,
+            Some(attempt_profile),
+        );
+    }
     if let Some(adapter_mode) = build_input_adapter_mode(mode.as_str()) {
-        return build_input_with_adapter_mode(args, adapter_mode);
+        return build_input_with_adapter_mode_and_attempt_profile(args, adapter_mode, None);
     }
     match mode.as_str() {
         "prove" => {
@@ -188,6 +196,34 @@ where
 }
 
 #[cfg(feature = "stwo-backend")]
+fn build_input_attempt_profile_mode(
+    mode: &str,
+) -> Option<(
+    ZkAiNativeSeq32AttentionMlpAdapterMode,
+    ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile,
+)> {
+    match mode {
+        "build-input-rmsnorm-fused-adjacent-label-probe-a-compact-transcript" => Some((
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeA,
+            ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile::CompactTranscriptV1,
+        )),
+        "build-input-rmsnorm-fused-adjacent-label-probe-b-compact-transcript" => Some((
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeB,
+            ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile::CompactTranscriptV1,
+        )),
+        "build-input-rmsnorm-fused-adjacent-label-probe-a-statement-only-transcript" => Some((
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeA,
+            ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile::StatementOnlyTranscriptV1,
+        )),
+        "build-input-rmsnorm-fused-adjacent-label-probe-b-statement-only-transcript" => Some((
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeB,
+            ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile::StatementOnlyTranscriptV1,
+        )),
+        _ => None,
+    }
+}
+
+#[cfg(feature = "stwo-backend")]
 fn build_input_adapter_mode(mode: &str) -> Option<ZkAiNativeSeq32AttentionMlpAdapterMode> {
     match mode {
         "build-input" => Some(ZkAiNativeSeq32AttentionMlpAdapterMode::DuplicateBasePreprocessed),
@@ -247,9 +283,10 @@ fn build_input_adapter_mode(mode: &str) -> Option<ZkAiNativeSeq32AttentionMlpAda
 }
 
 #[cfg(feature = "stwo-backend")]
-fn build_input_with_adapter_mode(
+fn build_input_with_adapter_mode_and_attempt_profile(
     args: Vec<std::ffi::OsString>,
     adapter_mode: ZkAiNativeSeq32AttentionMlpAdapterMode,
+    attempt_profile: Option<ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile>,
 ) -> Result<String, String> {
     if args.len() != 3 {
         return Err(usage());
@@ -275,9 +312,18 @@ fn build_input_with_adapter_mode(
     let mlp = zkai_d128_rmsnorm_mlp_fused_input_from_json_str(&mlp_raw)
         .map_err(|error| error.to_string())?;
     let input = if adapter_mode == ZkAiNativeSeq32AttentionMlpAdapterMode::DuplicateBasePreprocessed
+        && attempt_profile.is_none()
     {
         build_zkai_native_seq32_attention_mlp_single_proof_input(attention, mlp)
             .map_err(|error| error.to_string())?
+    } else if let Some(attempt_profile) = attempt_profile {
+        build_zkai_native_seq32_attention_mlp_single_proof_input_with_adapter_mode_and_attempt_profile(
+            attention,
+            mlp,
+            adapter_mode,
+            attempt_profile,
+        )
+        .map_err(|error| error.to_string())?
     } else {
         build_zkai_native_seq32_attention_mlp_single_proof_input_with_adapter_mode(
             attention,
@@ -311,7 +357,7 @@ fn build_input_with_adapter_mode(
 #[cfg(feature = "stwo-backend")]
 fn usage() -> String {
     "usage: zkai_native_seq32_attention_mlp_single_proof \
-build-input|build-input-compact|build-input-preprocessed-anchor|build-input-rmsnorm-fused|build-input-rmsnorm-fused-label-probe-a|build-input-rmsnorm-fused-label-probe-b|build-input-rmsnorm-fused-adjacent|build-input-rmsnorm-fused-adjacent-label-probe-a|build-input-rmsnorm-fused-adjacent-label-probe-b|build-input-rmsnorm-fused-adjacent-seed-00|build-input-rmsnorm-fused-adjacent-seed-01|build-input-rmsnorm-fused-adjacent-seed-02|build-input-rmsnorm-fused-adjacent-seed-03|build-input-rmsnorm-fused-adjacent-seed-04|build-input-rmsnorm-fused-adjacent-seed-05|build-input-rmsnorm-fused-post-tail|build-input-rmsnorm-fused-post-tail-label-probe-a|build-input-rmsnorm-fused-post-tail-label-probe-b \
+build-input|build-input-compact|build-input-preprocessed-anchor|build-input-rmsnorm-fused|build-input-rmsnorm-fused-label-probe-a|build-input-rmsnorm-fused-label-probe-b|build-input-rmsnorm-fused-adjacent|build-input-rmsnorm-fused-adjacent-label-probe-a|build-input-rmsnorm-fused-adjacent-label-probe-b|build-input-rmsnorm-fused-adjacent-label-probe-a-compact-transcript|build-input-rmsnorm-fused-adjacent-label-probe-b-compact-transcript|build-input-rmsnorm-fused-adjacent-label-probe-a-statement-only-transcript|build-input-rmsnorm-fused-adjacent-label-probe-b-statement-only-transcript|build-input-rmsnorm-fused-adjacent-seed-00|build-input-rmsnorm-fused-adjacent-seed-01|build-input-rmsnorm-fused-adjacent-seed-02|build-input-rmsnorm-fused-adjacent-seed-03|build-input-rmsnorm-fused-adjacent-seed-04|build-input-rmsnorm-fused-adjacent-seed-05|build-input-rmsnorm-fused-post-tail|build-input-rmsnorm-fused-post-tail-label-probe-a|build-input-rmsnorm-fused-post-tail-label-probe-b \
 <attention-source.json> <mlp-input.json> <single-input.json> | prove <single-input.json> <envelope.json> | verify <envelope.json> | sample-openings <single-input.json> <sampler.json>"
         .to_string()
 }
