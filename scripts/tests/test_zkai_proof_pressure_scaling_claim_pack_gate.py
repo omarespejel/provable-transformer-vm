@@ -45,6 +45,11 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         self.assertEqual(signal["axes_checked"]["steps_per_head"], [8, 16, 32])
         self.assertIn("d64/d128/d256", signal["missing_axes"][0])
         self.assertEqual(signal["explicit_no_go_grid_rows"], list(gate.EXPLICIT_NO_GO_GRID_ROWS))
+        signal["explicit_no_go_grid_rows"][0]["status"] = "MUTATED_IN_TEST"
+        self.assertEqual(
+            gate.EXPLICIT_NO_GO_GRID_ROWS[0]["status"],
+            "NO_GO_NOT_SOURCE_BACKED_NATIVE_FUSED_ATTENTION_ROW",
+        )
         self.assertEqual(summary["proof_size_comparable_external_rows"], 0)
         self.assertEqual(summary["open_followup_count"], 3)
         self.assertEqual(summary["fuller_grid_cell_count"], 45)
@@ -73,7 +78,8 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         self.assertIsNone(d32["fused_binary_raw_proof_bytes"])
         self.assertEqual(d32["fused_binary_raw_status"], gate.FULLER_ROUTE_FUSED_BINARY_RAW_STATUS)
         self.assertEqual(d32["source_plus_sidecar_raw_proof_bytes"], 116682)
-        self.assertEqual(d32["fused_to_source_plus_sidecar_ratio"], 0.919259)
+        self.assertIsNone(d32["fused_to_source_plus_sidecar_ratio"])
+        self.assertEqual(d32["fused_to_source_plus_sidecar_ratio_status"], gate.FULLER_ROUTE_MIXED_RATIO_STATUS)
 
     def test_binds_lookup_growth_and_bytes_per_lookup_signal(self) -> None:
         seq32 = self.payload["scale_signal"]["seq32_vs_d8_single_head"]
@@ -174,6 +180,12 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
             "fused_binary_raw_status"
         ] = "STABLE_UPSTREAM_STWO_BINARY_SERIALIZATION"
         self.assert_rejects(payload, "d32 fused raw status drift")
+
+        payload = self.strip_mutation_summary(self.payload)
+        payload["scale_signal"]["fuller_crossing_grid"]["d32_single_head_seq8"][
+            "fused_to_source_plus_sidecar_ratio"
+        ] = 0.919259
+        self.assert_rejects(payload, "d32 ratio overclaim")
 
         payload = self.strip_mutation_summary(self.payload)
         payload["scale_signal"]["explicit_no_go_grid_rows"][0]["status"] = (

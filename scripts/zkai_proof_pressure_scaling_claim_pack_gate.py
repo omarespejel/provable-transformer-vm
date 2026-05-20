@@ -142,6 +142,7 @@ MUTATION_NAMES = (
     "fuller_grid_coverage_drift",
     "fuller_grid_d32_metric_drift",
     "fuller_grid_d32_raw_status_overclaim",
+    "fuller_grid_d32_ratio_overclaim",
     "explicit_no_go_grid_row_promoted",
     "attention_grid_row_loses_saving",
     "native_single_saving_drift",
@@ -175,6 +176,7 @@ TSV_COLUMNS = (
 
 ATTENTION_BINARY_RAW_STATUS = "NOT_AVAILABLE_IN_CONTROLLED_COMPONENT_GRID_ROW"
 FULLER_ROUTE_FUSED_BINARY_RAW_STATUS = "NOT_AVAILABLE_IN_FULLER_CROSSING_GRID_ROUTE_ROW"
+FULLER_ROUTE_MIXED_RATIO_STATUS = "NO_GO_MIXED_JSON_VS_RAW_BYTE_DOMAINS"
 LOCAL_RECORD_STREAM_STATUS = "LOCAL_RECORD_STREAM_ACCOUNTING_NOT_UPSTREAM_STWO_SERIALIZATION"
 
 EXPLICIT_NO_GO_GRID_ROWS = (
@@ -553,7 +555,7 @@ def build_scale_signal(controlled_payload: dict[str, Any], fuller_payload: dict[
             "seq64 attention row is not present in this checked grid",
             "full factorial width/head/sequence crossing is not present",
         ],
-        "explicit_no_go_grid_rows": list(EXPLICIT_NO_GO_GRID_ROWS),
+        "explicit_no_go_grid_rows": copy.deepcopy(list(EXPLICIT_NO_GO_GRID_ROWS)),
         "all_checked_attention_rows_save_typed_bytes": all_rows_save,
         "typed_savings_bytes_total": int_field(
             aggregate.get("typed_savings_bytes_total"), "aggregate typed savings"
@@ -616,7 +618,8 @@ def build_scale_signal(controlled_payload: dict[str, Any], fuller_payload: dict[
                 "source_plus_sidecar_raw_proof_bytes": int_field(
                     d32_single_head.get("source_plus_sidecar_raw_proof_bytes"), "d32 source plus sidecar bytes"
                 ),
-                "fused_to_source_plus_sidecar_ratio": d32_single_head.get("fused_to_source_plus_sidecar_ratio"),
+                "fused_to_source_plus_sidecar_ratio": None,
+                "fused_to_source_plus_sidecar_ratio_status": FULLER_ROUTE_MIXED_RATIO_STATUS,
             },
         },
     }
@@ -940,6 +943,11 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
             "fused_binary_raw_status"
         ] = "STABLE_UPSTREAM_STWO_BINARY_SERIALIZATION"
 
+    def mutate_fuller_grid_d32_ratio(item: dict[str, Any]) -> None:
+        item["scale_signal"]["fuller_crossing_grid"]["d32_single_head_seq8"][
+            "fused_to_source_plus_sidecar_ratio"
+        ] = 0.919259
+
     def mutate_explicit_no_go_grid_row(item: dict[str, Any]) -> None:
         item["scale_signal"]["explicit_no_go_grid_rows"][1]["status"] = "GO_SOURCE_BACKED_NATIVE_FUSED_ATTENTION_ROW"
 
@@ -990,6 +998,7 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
         ("fuller_grid_coverage_drift", mutate_fuller_grid_coverage),
         ("fuller_grid_d32_metric_drift", mutate_fuller_grid_d32_metric),
         ("fuller_grid_d32_raw_status_overclaim", mutate_fuller_grid_d32_raw_status),
+        ("fuller_grid_d32_ratio_overclaim", mutate_fuller_grid_d32_ratio),
         ("explicit_no_go_grid_row_promoted", mutate_explicit_no_go_grid_row),
         ("attention_grid_row_loses_saving", mutate_attention_saving),
         ("native_single_saving_drift", mutate_native_saving),
@@ -1151,8 +1160,10 @@ def validate_scale_signal(payload: dict[str, Any]) -> None:
         raise ProofPressureScalingClaimPackError("d32 fused raw status drift")
     if d32.get("source_plus_sidecar_raw_proof_bytes") != 116_682:
         raise ProofPressureScalingClaimPackError("d32 comparator metric drift")
-    if d32.get("fused_to_source_plus_sidecar_ratio") != 0.919259:
-        raise ProofPressureScalingClaimPackError("d32 ratio drift")
+    if d32.get("fused_to_source_plus_sidecar_ratio") is not None:
+        raise ProofPressureScalingClaimPackError("d32 ratio overclaim")
+    if d32.get("fused_to_source_plus_sidecar_ratio_status") != FULLER_ROUTE_MIXED_RATIO_STATUS:
+        raise ProofPressureScalingClaimPackError("d32 ratio status drift")
 
 
 def validate_external_status(payload: dict[str, Any]) -> None:

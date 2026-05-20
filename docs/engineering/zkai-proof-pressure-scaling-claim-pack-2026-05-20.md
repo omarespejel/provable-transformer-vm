@@ -45,7 +45,7 @@ The stricter route-status grid adds a fuller shape map:
 | d32 single-head seq8 fused bytes | `107,261` |
 | d32 single-head seq8 fused raw bytes | `not available in current route row` |
 | d32 single-head seq8 source+sidecar bytes | `116,682` |
-| d32 fused/source+sidecar ratio | `0.919259x` |
+| d32 fused/source+sidecar ratio | `not claimed: fused JSON bytes vs source+sidecar raw bytes` |
 
 The current seq32+d128 boundary rows are:
 
@@ -62,7 +62,9 @@ local record-stream accounting (`1,084` bytes each), but that is not stable
 upstream Stwo wire serialization. The attention-grid rows still have no per-row
 binary/raw byte field, and the d32 fuller-grid fused row records
 `NOT_AVAILABLE_IN_FULLER_CROSSING_GRID_ROUTE_ROW` for fused raw bytes, so the
-claim remains typed/JSON-accounting bounded.
+claim remains typed/JSON-accounting bounded. The d32 route row also records
+`NO_GO_MIXED_JSON_VS_RAW_BYTE_DOMAINS` instead of publishing a fused/source
+ratio across mixed byte domains.
 
 ## Provenance
 
@@ -136,14 +138,14 @@ The claim pack keeps three open follow-ups explicit:
 - Gate tests:
   `scripts/tests/test_zkai_proof_pressure_scaling_claim_pack_gate.py`
 
-The gate rejects `18 / 18` mutation cases covering lookup-growth drift,
+The gate rejects `19 / 19` mutation cases covering lookup-growth drift,
 typed-growth drift, fuller-grid coverage drift, d32 route metric drift,
-d32 fused raw-status overclaim, explicit no-go row promotion, attention saving
-drift, native-boundary saving drift, statement-only saving drift, external
-comparability overclaim, d64/d128/d256 completion overclaim, stable binary
-serialization overclaim, public benchmark overclaim, non-claim removal,
-source-artifact digest/path/manifest drift, validation-command drift, and
-payload-commitment drift.
+d32 fused raw-status overclaim, d32 mixed-domain ratio overclaim, explicit
+no-go row promotion, attention saving drift, native-boundary saving drift,
+statement-only saving drift, external comparability overclaim, d64/d128/d256
+completion overclaim, stable binary serialization overclaim, public benchmark
+overclaim, non-claim removal, source-artifact digest/path/manifest drift,
+validation-command drift, and payload-commitment drift.
 
 ## Validation
 

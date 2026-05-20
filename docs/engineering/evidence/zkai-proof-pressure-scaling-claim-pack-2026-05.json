@@ -291,6 +291,11 @@
       "rejected": true
     },
     {
+      "error": "d32 ratio overclaim",
+      "name": "fuller_grid_d32_ratio_overclaim",
+      "rejected": true
+    },
+    {
       "error": "explicit no-go grid row drift",
       "name": "explicit_no_go_grid_row_promoted",
       "rejected": true
@@ -356,8 +361,8 @@
       "rejected": true
     }
   ],
-  "mutations_checked": 18,
-  "mutations_rejected": 18,
+  "mutations_checked": 19,
+  "mutations_rejected": 19,
   "non_claims": [
     "not a d64/d128/d256 attention grid",
     "not a seq64 proof row",
@@ -390,7 +395,7 @@
       "status": "OPEN_NEEDED"
     }
   ],
-  "payload_commitment": "blake2b-256:89fdf4e792171e8cfa56ad28d3d8a584515057b2280596fffc959ca861b6b065",
+  "payload_commitment": "blake2b-256:ce7bf24da04595ae580130a0e5f0f2abf2c876b41d4cff5e01a20c582f78c437",
   "result": "TEN_TYPED_ATTENTION_ROWS_AND_ELEVEN_ROUTE_ROWS_SCALE_PROOF_PRESSURE_WITH_SEQ32_D128_SAVING_7672",
   "scale_signal": {
     "all_checked_attention_rows_save_typed_bytes": true,
@@ -465,7 +470,8 @@
         "fused_binary_raw_proof_bytes": null,
         "fused_binary_raw_status": "NOT_AVAILABLE_IN_FULLER_CROSSING_GRID_ROUTE_ROW",
         "fused_json_proof_size_bytes": 107261,
-        "fused_to_source_plus_sidecar_ratio": 0.919259,
+        "fused_to_source_plus_sidecar_ratio": null,
+        "fused_to_source_plus_sidecar_ratio_status": "NO_GO_MIXED_JSON_VS_RAW_BYTE_DOMAINS",
         "lookup_claims": 52,
         "profile_id": "d32_single_head_seq8",
         "source_plus_sidecar_raw_proof_bytes": 116682
