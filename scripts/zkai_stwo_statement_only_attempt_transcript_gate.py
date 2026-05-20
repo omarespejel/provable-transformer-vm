@@ -43,12 +43,12 @@ CLAIM_BOUNDARY = (
 ISSUE_HINT = "https://github.com/omarespejel/provable-transformer-vm/issues/680"
 PAYLOAD_DOMAIN = "ptvm:zkai:stwo-statement-only-attempt-transcript:v1"
 
-EXPECTED_RUST_SOURCE_SHA256 = "889cc36b097d88c162925bda46cd3b747d28fc4a9b31dc1e7fd27016ee7a7df4"
+EXPECTED_RUST_SOURCE_SHA256 = "561ed1353365aa22b2b511ed3e7411d9249457ac8a0c11a28b0c4bb1ec866bfd"
 EXPECTED_CLI_SOURCE_SHA256 = "9e587a40537e214b24684c50ad488f5732838307669ae86906266d75c597b418"
 EXPECTED_INNER_ATTEMPT_ACCOUNTING_SHA256 = "72cad6f598af282215f6579a716816a52e259248a420e27c5759d45482055978"
 EXPECTED_STATEMENT_ONLY_ACCOUNTING_SHA256 = "4ca7429d9e97e9fe54526618f36027757ca67a6184478dcfc06045396f765f2c"
 EXPECTED_PROFILE_ACCOUNTING_SHA256 = "92d99a4aeb0169ac50e6380f67ad412f11d4985e1e55eb163c4262d965ad8072"
-EXPECTED_PAYLOAD_COMMITMENT = "blake2b-256:394f91b80bfffc57a25577a225c371d638402f9db76abea28e4ff52a97c75dfc"
+EXPECTED_PAYLOAD_COMMITMENT = "blake2b-256:a60425f6b2fbb4c4b791aab941a41d8a4b0dbeb8a0951252bd33e02f90b9f76d"
 
 SOURCE_ARTIFACT_SPECS = (
     ("rust_native_seq32_attention_mlp_single_proof", RUST_SOURCE_PATH, EXPECTED_RUST_SOURCE_SHA256),
@@ -491,7 +491,17 @@ def profile_row(spec: dict[str, Any]) -> dict[str, Any]:
             raise StatementOnlyAttemptTranscriptGateError(f"profile row drift: {spec['profile_id']} {key}")
     if input_data.get("adapter_mode") != spec["adapter_mode"]:
         raise StatementOnlyAttemptTranscriptGateError(f"profile row drift: {spec['profile_id']} adapter mode")
-    locations = [_int(value, f"{spec['profile_id']} query location") for value in _list(sampler.get("sorted_unique_query_locations"), f"{spec['profile_id']} query locations")]
+    locations = [
+        _int(value, f"{spec['profile_id']} query location")
+        for value in _list(
+            sampler.get("sorted_unique_query_locations"),
+            f"{spec['profile_id']} query locations",
+        )
+    ]
+    if not locations:
+        raise StatementOnlyAttemptTranscriptGateError(
+            f"profile row drift: {spec['profile_id']} query locations"
+        )
     grouped = _dict(local_accounting.get("grouped_reconstruction"), f"{spec['profile_id']} grouped reconstruction")
     return {
         "profile_id": spec["profile_id"],
@@ -681,6 +691,9 @@ def validate_payload(payload: dict[str, Any], *, check_commitment: bool = True, 
         outcomes = _dict(mutation.get("outcomes"), "mutation outcomes")
         if set(outcomes) != set(MUTATION_NAMES):
             raise StatementOnlyAttemptTranscriptGateError("mutation outcome drift")
+        for name in MUTATION_NAMES:
+            if outcomes[name] != "rejected":
+                raise StatementOnlyAttemptTranscriptGateError("mutation outcome drift")
     if check_commitment:
         if EXPECTED_PAYLOAD_COMMITMENT != "__TO_FILL__" and payload.get("payload_commitment") != EXPECTED_PAYLOAD_COMMITMENT:
             raise StatementOnlyAttemptTranscriptGateError("payload commitment drift")
@@ -772,7 +785,7 @@ def write_tsv(path: pathlib.Path, payload: dict[str, Any]) -> None:
         "mutation_outcomes": mutation_outcomes,
     }
     buffer = io.StringIO()
-    writer = csv.DictWriter(buffer, fieldnames=TSV_COLUMNS, dialect="excel-tab")
+    writer = csv.DictWriter(buffer, fieldnames=TSV_COLUMNS, dialect="excel-tab", lineterminator="\n")
     writer.writeheader()
     writer.writerow(row)
     atomic_write_text(path, buffer.getvalue())

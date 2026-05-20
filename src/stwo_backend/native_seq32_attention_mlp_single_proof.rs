@@ -3195,6 +3195,34 @@ mod tests {
     }
 
     #[test]
+    fn rmsnorm_input_adjacent_label_probe_compact_transcript_round_trip_verifies() {
+        let input = fixture_input_with_mode_and_attempt_profile(
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeB,
+            ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile::CompactTranscriptV1,
+        );
+        let envelope = prove_zkai_native_seq32_attention_mlp_single_proof_envelope(&input)
+            .expect("compact transcript prove");
+        assert!(
+            verify_zkai_native_seq32_attention_mlp_single_proof_envelope(&envelope)
+                .expect("compact transcript verify")
+        );
+    }
+
+    #[test]
+    fn rmsnorm_input_adjacent_label_probe_statement_only_transcript_round_trip_verifies() {
+        let input = fixture_input_with_mode_and_attempt_profile(
+            ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentLabelProbeB,
+            ZkAiNativeSeq32AttentionMlpAttemptPolicyProfile::StatementOnlyTranscriptV1,
+        );
+        let envelope = prove_zkai_native_seq32_attention_mlp_single_proof_envelope(&input)
+            .expect("statement-only transcript prove");
+        assert!(
+            verify_zkai_native_seq32_attention_mlp_single_proof_envelope(&envelope)
+                .expect("statement-only transcript verify")
+        );
+    }
+
+    #[test]
     fn rmsnorm_input_adjacent_seed_sweep_preserves_constraints_but_changes_statement() {
         let canonical = fixture_input_with_mode(
             ZkAiNativeSeq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentFixed,
