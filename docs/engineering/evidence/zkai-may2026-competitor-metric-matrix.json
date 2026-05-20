@@ -1,6 +1,6 @@
 {
-  "claim_boundary": "SOURCE_BACKED_MAY2026_ZKML_COMPETITOR_MATRIX_WITH_LOCAL_STWO_ATTENTION_FUSION_AND_TRANSFORMER_BLOCK_TARGET_CONTEXT_NOT_A_MATCHED_PUBLIC_BENCHMARK_NOT_FULL_INFERENCE",
-  "decision": "GO_SOURCE_BACKED_COMPETITOR_MATRIX_NO_GO_MATCHED_BENCHMARK_CLAIMS",
+  "claim_boundary": "SOURCE_BACKED_MAY2026_ZKML_COMPETITOR_MATRIX_WITH_LOCAL_STWO_ATTENTION_FUSION_AND_SEQ32_D128_STATEMENT_ONLY_FRONTIER_NOT_A_MATCHED_PUBLIC_BENCHMARK_NOT_FULL_INFERENCE",
+  "decision": "GO_SOURCE_BACKED_COMPETITOR_MATRIX_WITH_STATEMENT_ONLY_FRONTIER_NO_GO_MATCHED_BENCHMARK_CLAIMS",
   "external_rows": [
     {
       "backend_family": "Halo2 IPA SNARK + lookups",
@@ -80,10 +80,11 @@
   ],
   "interpretation": [
     "NANOZK and Jolt Atlas are the relevant layerwise/end-to-end competitors for headline zkML metrics.",
-    "The local repo does not yet have a d128 layer proof to compare on proof size or verifier time.",
+    "The local repo now has a checked seq32+d128 inner-policy-bound Stwo proof object, but it is not a matched external layer proof benchmark.",
     "The local competitive claim is architectural: STARK-native fusion saves duplicated opening/decommitment plumbing.",
+    "The current checked local frontier is 39,516 typed proof bytes for the statement-only seq32+d128 proof object, saving 7,672 typed bytes versus the matched local two-proof frontier.",
     "The executable package-accounting rows show a smaller verifier-facing package than the source statement chain, but they are external receipt accounting rather than native layer proof evidence.",
-    "The next real block milestone is a parameterized d64 then d128 RMSNorm/SwiGLU/residual proof surface with the same statement bindings."
+    "The next real comparison milestone is object-class matching: full transformer-block surface, stable binary accounting, and timing policy before any NANOZK/Jolt/DeepProve comparison."
   ],
   "local_rows": [
     {
@@ -117,6 +118,16 @@
       "value": 196608
     },
     {
+      "comparison_status": "LOCAL_INNER_POLICY_BOUND_PROOF_OBJECT_NOT_EXTERNAL_LAYER_BENCHMARK",
+      "local_status": "GO_STWO_SEQ32_D128_INNER_POLICY_BOUND_FRONTIER",
+      "metric": "typed proof bytes",
+      "support": "113388 JSON proof bytes; saves 7672 typed bytes vs matched local two-proof frontier; saves 2552 typed bytes vs previous single-proof champion; 20 / 20 mutations rejected; 0 NANOZK-comparable rows; still 1984 typed bytes above legacy wrapper-only context",
+      "surface": "seq32+d128 statement-only native proof object",
+      "system": "provable-transformer-vm",
+      "unit": "bytes",
+      "value": 39516
+    },
+    {
       "comparison_status": "LOCAL_EXECUTABLE_PACKAGE_ACCOUNTING_NOT_MATCHED_LAYER_PROOF_BENCHMARK",
       "local_status": "GO_EXTERNAL_RECEIPT_PACKAGE_ACCOUNTING_NO_GO_NATIVE_LAYER_PROOF",
       "metric": "compressed artifact plus proof plus public signals",
@@ -139,15 +150,15 @@
   ],
   "non_claims": [
     "not a matched benchmark against NANOZK, Jolt Atlas, EZKL, DeepProve-1, or RISC Zero",
-    "not a local d128 proof result",
-    "not proof-size or verifier-time evidence for a local d128 transformer block",
+    "not a proof-size or verifier-time comparison against any external zkML system",
+    "not a full d128 transformer block proof",
     "not native proof-size evidence from the external package-accounting rows",
     "not full transformer inference",
     "not exact real-valued Softmax",
     "not production-ready"
   ],
-  "payload_commitment": "sha256:1f3102fded6ee40d98a4c7ba2759c8938786fe36845edf91e24d628bf27a3fb4",
-  "schema": "zkai-may2026-competitor-metric-matrix-v1",
+  "payload_commitment": "sha256:f5f34fc2f4339e077371da4dda02a3b96c51edf5570023b2c6808542d38fbfc4",
+  "schema": "zkai-may2026-competitor-metric-matrix-v2",
   "source_artifacts": [
     {
       "kind": "published_zkml_numbers_tsv",
@@ -173,11 +184,16 @@
       "kind": "local_one_block_package_accounting_json",
       "path": "docs/engineering/evidence/zkai-one-block-executable-package-accounting-2026-05.json",
       "sha256": "c7eae55c04fac6e1412752c07bfdf32deeb4e2059a51c3b279037905ce703277"
+    },
+    {
+      "kind": "local_seq32_d128_statement_only_attempt_gate_json",
+      "path": "docs/engineering/evidence/zkai-stwo-statement-only-attempt-transcript-gate-2026-05.json",
+      "sha256": "d6e8d8ebe36fc438b61ba879cc9d6979cf437a76fe2beda98477138e0e341881"
     }
   ],
   "validation_commands": [
-    "python3 scripts/zkai_may2026_competitor_metric_matrix_gate.py --write-json docs/engineering/evidence/zkai-may2026-competitor-metric-matrix.json --write-tsv docs/engineering/evidence/zkai-may2026-competitor-metric-matrix.tsv",
-    "python3 -m unittest scripts.tests.test_zkai_may2026_competitor_metric_matrix_gate",
+    "python3.10 scripts/zkai_may2026_competitor_metric_matrix_gate.py --write-json docs/engineering/evidence/zkai-may2026-competitor-metric-matrix.json --write-tsv docs/engineering/evidence/zkai-may2026-competitor-metric-matrix.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_may2026_competitor_metric_matrix_gate",
     "git diff --check",
     "just gate-fast",
     "just gate"

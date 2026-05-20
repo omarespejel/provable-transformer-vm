@@ -112,6 +112,17 @@ before opening or executing frontier issues. The north star is STARK-native
 proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
 
+Latest May 2026 competitor metric matrix: issue `#682` is now updated around
+the checked statement-only seq32+d128 proof object, not the obsolete `42,068`
+typed-byte row. The local comparison row is `39,516` typed proof bytes /
+`113,388` JSON proof bytes, saving `7,672` typed bytes versus the matched
+local two-proof frontier and `2,552` typed bytes versus the previous
+single-proof champion. The gate still records `0` NANOZK-comparable external
+rows and keeps NANOZK/Jolt/DeepProve/EZKL rows source-backed context only. This
+is a local inner-policy-bound frontier, not a full transformer block proof,
+not a timing result, and not an external zkML benchmark. See
+`docs/engineering/zkai-may2026-competitor-metric-matrix-2026-05-13.md`.
+
 Latest seq32-derived d128 native MLP surface: issue `#674` fixes the
 source-value mismatch discovered by issue `#673`. The selected two-head seq32
 attention surface now feeds a regenerated d128 RMSNorm/MLP input with `0 / 128`

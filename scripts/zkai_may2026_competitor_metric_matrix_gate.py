@@ -26,20 +26,21 @@ FUSION_MECHANISM = ENGINEERING_EVIDENCE / "zkai-attention-kv-stwo-fusion-mechani
 D64_BLOCK_RECEIPT = ENGINEERING_EVIDENCE / "zkai-d64-block-receipt-composition-gate-2026-05.json"
 D128_TARGET = ENGINEERING_EVIDENCE / "zkai-d128-layerwise-comparator-target-2026-05.json"
 PACKAGE_ACCOUNTING = ENGINEERING_EVIDENCE / "zkai-one-block-executable-package-accounting-2026-05.json"
+STATEMENT_ONLY_ATTEMPT_GATE = ENGINEERING_EVIDENCE / "zkai-stwo-statement-only-attempt-transcript-gate-2026-05.json"
 JSON_OUT = ENGINEERING_EVIDENCE / "zkai-may2026-competitor-metric-matrix.json"
 TSV_OUT = ENGINEERING_EVIDENCE / "zkai-may2026-competitor-metric-matrix.tsv"
 
-SCHEMA = "zkai-may2026-competitor-metric-matrix-v1"
-DECISION = "GO_SOURCE_BACKED_COMPETITOR_MATRIX_NO_GO_MATCHED_BENCHMARK_CLAIMS"
+SCHEMA = "zkai-may2026-competitor-metric-matrix-v2"
+DECISION = "GO_SOURCE_BACKED_COMPETITOR_MATRIX_WITH_STATEMENT_ONLY_FRONTIER_NO_GO_MATCHED_BENCHMARK_CLAIMS"
 CLAIM_BOUNDARY = (
     "SOURCE_BACKED_MAY2026_ZKML_COMPETITOR_MATRIX_WITH_LOCAL_STWO_ATTENTION_FUSION_AND_"
-    "TRANSFORMER_BLOCK_TARGET_CONTEXT_NOT_A_MATCHED_PUBLIC_BENCHMARK_NOT_FULL_INFERENCE"
+    "SEQ32_D128_STATEMENT_ONLY_FRONTIER_NOT_A_MATCHED_PUBLIC_BENCHMARK_NOT_FULL_INFERENCE"
 )
 MAX_SOURCE_BYTES = 16 * 1024 * 1024
 
 VALIDATION_COMMANDS = [
-    "python3 scripts/zkai_may2026_competitor_metric_matrix_gate.py --write-json docs/engineering/evidence/zkai-may2026-competitor-metric-matrix.json --write-tsv docs/engineering/evidence/zkai-may2026-competitor-metric-matrix.tsv",
-    "python3 -m unittest scripts.tests.test_zkai_may2026_competitor_metric_matrix_gate",
+    "python3.10 scripts/zkai_may2026_competitor_metric_matrix_gate.py --write-json docs/engineering/evidence/zkai-may2026-competitor-metric-matrix.json --write-tsv docs/engineering/evidence/zkai-may2026-competitor-metric-matrix.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_may2026_competitor_metric_matrix_gate",
     "git diff --check",
     "just gate-fast",
     "just gate",
@@ -47,8 +48,8 @@ VALIDATION_COMMANDS = [
 
 NON_CLAIMS = [
     "not a matched benchmark against NANOZK, Jolt Atlas, EZKL, DeepProve-1, or RISC Zero",
-    "not a local d128 proof result",
-    "not proof-size or verifier-time evidence for a local d128 transformer block",
+    "not a proof-size or verifier-time comparison against any external zkML system",
+    "not a full d128 transformer block proof",
     "not native proof-size evidence from the external package-accounting rows",
     "not full transformer inference",
     "not exact real-valued Softmax",
@@ -65,6 +66,18 @@ EXPECTED_PACKAGE_WITH_VK_SAVING_BYTES = 4_016
 EXPECTED_PACKAGE_MUTATIONS = 12
 EXPECTED_PACKAGE_RECEIPT_MUTATIONS = 40
 EXPECTED_PACKAGE_PUBLIC_SIGNAL_COUNT = 17
+EXPECTED_STATEMENT_ONLY_SCHEMA = "zkai-stwo-statement-only-attempt-transcript-gate-v1"
+EXPECTED_STATEMENT_ONLY_DECISION = "GO_STATEMENT_ONLY_ATTEMPT_POLICY_TRANSCRIPT_REDUCES_REGENERATED_STWO_PROOF_BYTES"
+EXPECTED_STATEMENT_ONLY_RESULT = "STATEMENT_ONLY_PROBE_B_VERIFIES_AT_39516_TYPED_BYTES_SAVING_1376_VS_FULL_POLICY_MIX"
+EXPECTED_STATEMENT_ONLY_PROFILE_ID = "statement_only_probe_b"
+EXPECTED_STATEMENT_ONLY_TYPED_BYTES = 39_516
+EXPECTED_STATEMENT_ONLY_JSON_BYTES = 113_388
+EXPECTED_STATEMENT_ONLY_TYPED_SAVING_VS_MATCHED_FRONTIER = 7_672
+EXPECTED_STATEMENT_ONLY_JSON_SAVING_VS_MATCHED_FRONTIER = 27_450
+EXPECTED_STATEMENT_ONLY_TYPED_SAVING_VS_PREVIOUS_CHAMPION = 2_552
+EXPECTED_STATEMENT_ONLY_TYPED_COST_VS_LEGACY_WRAPPER = 1_984
+EXPECTED_STATEMENT_ONLY_MUTATIONS = 20
+EXPECTED_STATEMENT_ONLY_NANOZK_COMPARABLE_ROWS = 0
 
 EXPECTED_EXTERNAL_ROWS = {
     ("NANOZK", "Transformer block proof", "Per-layer block proof"): {
@@ -358,6 +371,7 @@ def _local_rows(
     d64: dict[str, Any],
     d128: dict[str, Any],
     package: dict[str, Any],
+    statement_only: dict[str, Any],
 ) -> list[dict[str, Any]]:
     if _string_source_field(fusion, ("decision",), "fusion decision") != (
         "GO_STARK_NATIVE_FUSION_MECHANISM_ABLATION_FOR_PAPER_ARCHITECTURE_CLAIM"
@@ -384,6 +398,15 @@ def _local_rows(
         raise CompetitorMetricMatrixError("package accounting result drift")
     if not _bool_source_field(package, ("all_mutations_rejected",), "package accounting all mutations rejected"):
         raise CompetitorMetricMatrixError("package accounting mutations must all reject")
+    if _string_source_field(statement_only, ("schema",), "statement-only schema") != EXPECTED_STATEMENT_ONLY_SCHEMA:
+        raise CompetitorMetricMatrixError("statement-only schema drift")
+    if (
+        _string_source_field(statement_only, ("decision",), "statement-only decision")
+        != EXPECTED_STATEMENT_ONLY_DECISION
+    ):
+        raise CompetitorMetricMatrixError("statement-only decision drift")
+    if _string_source_field(statement_only, ("result",), "statement-only result") != EXPECTED_STATEMENT_ONLY_RESULT:
+        raise CompetitorMetricMatrixError("statement-only result drift")
 
     fused_savings = _integer_source_field(fusion, ("route_matrix", "fused_savings_bytes_total"), "fusion savings")
     matched_profiles = _integer_source_field(
@@ -426,6 +449,52 @@ def _local_rows(
     package_public_signals = _integer_source_field(
         package, ("summary", "receipt_public_signal_count"), "package public signals"
     )
+    statement_binding = _source_field(statement_only, ("binding_summary",), "statement-only binding summary")
+    if not isinstance(statement_binding, dict):
+        raise CompetitorMetricMatrixError("statement-only binding summary malformed")
+    statement_mutation = _source_field(statement_only, ("mutation_result",), "statement-only mutation result")
+    if not isinstance(statement_mutation, dict):
+        raise CompetitorMetricMatrixError("statement-only mutation result malformed")
+    statement_profile_id = _string_source_field(
+        statement_only, ("binding_summary", "best_profile_id"), "statement-only best profile"
+    )
+    statement_typed_bytes = _integer_source_field(
+        statement_only, ("binding_summary", "best_typed_bytes"), "statement-only typed bytes"
+    )
+    statement_json_bytes = _integer_source_field(
+        statement_only, ("binding_summary", "best_json_bytes"), "statement-only JSON bytes"
+    )
+    statement_typed_saving_vs_matched = _integer_source_field(
+        statement_only,
+        ("binding_summary", "best_typed_saving_vs_matched_two_proof_frontier"),
+        "statement-only typed saving vs matched frontier",
+    )
+    statement_json_saving_vs_matched = _integer_source_field(
+        statement_only,
+        ("binding_summary", "best_json_saving_vs_matched_two_proof_frontier"),
+        "statement-only JSON saving vs matched frontier",
+    )
+    statement_typed_saving_vs_previous = _integer_source_field(
+        statement_only,
+        ("binding_summary", "best_typed_saving_vs_previous_single_proof_champion"),
+        "statement-only typed saving vs previous champion",
+    )
+    statement_typed_cost_vs_legacy = _integer_source_field(
+        statement_only,
+        ("binding_summary", "best_typed_cost_vs_legacy_wrapper_b"),
+        "statement-only typed cost vs legacy wrapper",
+    )
+    statement_nanozk_rows = _integer_source_field(
+        statement_only,
+        ("binding_summary", "nanozk_comparable_external_rows"),
+        "statement-only NANOZK comparable rows",
+    )
+    statement_rejected = _integer_source_field(
+        statement_only, ("mutation_result", "rejected"), "statement-only rejected mutations"
+    )
+    statement_accepted = _integer_source_field(
+        statement_only, ("mutation_result", "accepted"), "statement-only accepted mutations"
+    )
     if fused_savings <= 0:
         raise CompetitorMetricMatrixError("fusion savings must be positive")
     if matched_profiles <= 0:
@@ -451,6 +520,36 @@ def _local_rows(
         "package public signals": (package_public_signals, EXPECTED_PACKAGE_PUBLIC_SIGNAL_COUNT),
     }
     for label, (actual, expected) in expected_package_values.items():
+        if actual != expected:
+            raise CompetitorMetricMatrixError(f"{label} drift")
+    expected_statement_values = {
+        "statement-only profile id": (statement_profile_id, EXPECTED_STATEMENT_ONLY_PROFILE_ID),
+        "statement-only typed bytes": (statement_typed_bytes, EXPECTED_STATEMENT_ONLY_TYPED_BYTES),
+        "statement-only JSON bytes": (statement_json_bytes, EXPECTED_STATEMENT_ONLY_JSON_BYTES),
+        "statement-only typed saving vs matched frontier": (
+            statement_typed_saving_vs_matched,
+            EXPECTED_STATEMENT_ONLY_TYPED_SAVING_VS_MATCHED_FRONTIER,
+        ),
+        "statement-only JSON saving vs matched frontier": (
+            statement_json_saving_vs_matched,
+            EXPECTED_STATEMENT_ONLY_JSON_SAVING_VS_MATCHED_FRONTIER,
+        ),
+        "statement-only typed saving vs previous champion": (
+            statement_typed_saving_vs_previous,
+            EXPECTED_STATEMENT_ONLY_TYPED_SAVING_VS_PREVIOUS_CHAMPION,
+        ),
+        "statement-only typed cost vs legacy wrapper": (
+            statement_typed_cost_vs_legacy,
+            EXPECTED_STATEMENT_ONLY_TYPED_COST_VS_LEGACY_WRAPPER,
+        ),
+        "statement-only NANOZK comparable rows": (
+            statement_nanozk_rows,
+            EXPECTED_STATEMENT_ONLY_NANOZK_COMPARABLE_ROWS,
+        ),
+        "statement-only rejected mutations": (statement_rejected, EXPECTED_STATEMENT_ONLY_MUTATIONS),
+        "statement-only accepted mutations": (statement_accepted, 0),
+    }
+    for label, (actual, expected) in expected_statement_values.items():
         if actual != expected:
             raise CompetitorMetricMatrixError(f"{label} drift")
 
@@ -484,6 +583,23 @@ def _local_rows(
             "unit": "linear_muls",
             "support": first_blocker,
             "comparison_status": "TARGET_SPEC_ONLY_NOT_LOCAL_PROOF_RESULT",
+        },
+        {
+            "system": "provable-transformer-vm",
+            "surface": "seq32+d128 statement-only native proof object",
+            "local_status": "GO_STWO_SEQ32_D128_INNER_POLICY_BOUND_FRONTIER",
+            "metric": "typed proof bytes",
+            "value": statement_typed_bytes,
+            "unit": "bytes",
+            "support": (
+                f"{statement_json_bytes} JSON proof bytes; saves {statement_typed_saving_vs_matched} "
+                "typed bytes vs matched local two-proof frontier; saves "
+                f"{statement_typed_saving_vs_previous} typed bytes vs previous single-proof champion; "
+                f"{statement_rejected} / {EXPECTED_STATEMENT_ONLY_MUTATIONS} mutations rejected; "
+                f"{statement_nanozk_rows} NANOZK-comparable rows; still {statement_typed_cost_vs_legacy} "
+                "typed bytes above legacy wrapper-only context"
+            ),
+            "comparison_status": "LOCAL_INNER_POLICY_BOUND_PROOF_OBJECT_NOT_EXTERNAL_LAYER_BENCHMARK",
         },
         {
             "system": "provable-transformer-vm",
@@ -550,11 +666,13 @@ def build_payload_uncommitted() -> dict[str, Any]:
     d64_raw = read_source_bytes(D64_BLOCK_RECEIPT, "d64 block receipt JSON")
     d128_raw = read_source_bytes(D128_TARGET, "d128 target JSON")
     package_raw = read_source_bytes(PACKAGE_ACCOUNTING, "one-block package accounting JSON")
+    statement_only_raw = read_source_bytes(STATEMENT_ONLY_ATTEMPT_GATE, "statement-only attempt gate JSON")
     published = _parse_tsv_bytes(PUBLISHED_ZKML_NUMBERS, published_raw)
     fusion = _parse_json_bytes(FUSION_MECHANISM, fusion_raw)
     d64 = _parse_json_bytes(D64_BLOCK_RECEIPT, d64_raw)
     d128 = _parse_json_bytes(D128_TARGET, d128_raw)
     package = _parse_json_bytes(PACKAGE_ACCOUNTING, package_raw)
+    statement_only = _parse_json_bytes(STATEMENT_ONLY_ATTEMPT_GATE, statement_only_raw)
     return {
         "schema": SCHEMA,
         "decision": DECISION,
@@ -565,15 +683,21 @@ def build_payload_uncommitted() -> dict[str, Any]:
             _source_from_bytes(D64_BLOCK_RECEIPT, "local_d64_block_receipt_json", d64_raw),
             _source_from_bytes(D128_TARGET, "local_d128_target_json", d128_raw),
             _source_from_bytes(PACKAGE_ACCOUNTING, "local_one_block_package_accounting_json", package_raw),
+            _source_from_bytes(
+                STATEMENT_ONLY_ATTEMPT_GATE,
+                "local_seq32_d128_statement_only_attempt_gate_json",
+                statement_only_raw,
+            ),
         ],
         "external_rows": _external_rows(published),
-        "local_rows": _local_rows(fusion, d64, d128, package),
+        "local_rows": _local_rows(fusion, d64, d128, package, statement_only),
         "interpretation": [
             "NANOZK and Jolt Atlas are the relevant layerwise/end-to-end competitors for headline zkML metrics.",
-            "The local repo does not yet have a d128 layer proof to compare on proof size or verifier time.",
+            "The local repo now has a checked seq32+d128 inner-policy-bound Stwo proof object, but it is not a matched external layer proof benchmark.",
             "The local competitive claim is architectural: STARK-native fusion saves duplicated opening/decommitment plumbing.",
+            "The current checked local frontier is 39,516 typed proof bytes for the statement-only seq32+d128 proof object, saving 7,672 typed bytes versus the matched local two-proof frontier.",
             "The executable package-accounting rows show a smaller verifier-facing package than the source statement chain, but they are external receipt accounting rather than native layer proof evidence.",
-            "The next real block milestone is a parameterized d64 then d128 RMSNorm/SwiGLU/residual proof surface with the same statement bindings.",
+            "The next real comparison milestone is object-class matching: full transformer-block surface, stable binary accounting, and timing policy before any NANOZK/Jolt/DeepProve comparison.",
         ],
         "non_claims": NON_CLAIMS,
         "validation_commands": VALIDATION_COMMANDS,
