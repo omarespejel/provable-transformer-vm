@@ -33,6 +33,16 @@ low-risk rows are `d16_two_head_seq32` and `d32_two_head_seq16`. This is not
 exact Softmax, not full inference, not a NANOZK comparison, and not timing
 evidence. See
 `docs/engineering/zkai-attention-kv-stwo-native-d32-two-head-fused-softmax-table-gate-2026-05-20.md`.
+Reproducibility metadata: backend
+`stwo-attention-kv-d32-two-head-fused-bounded-softmax-table-logup-v1`, proof
+version `stwo-attention-kv-d32-two-head-fused-bounded-softmax-table-logup-proof-v1`,
+statement version
+`zkai-attention-kv-stwo-native-d32-two-head-fused-softmax-table-logup-statement-v1`,
+timing mode `proof_existence_and_byte_accounting_only_not_public_benchmark`.
+Evidence paths are the bounded source, LogUp sidecar, fused proof-envelope, and
+fused gate JSON listed in the gate note. Reproduce with the three-command
+validation block in that note plus the route-matrix gate in
+`docs/engineering/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05-09.md`.
 
 Latest May 2026 competitor metric matrix: issue `#682` is now updated around
 the checked statement-only seq32+d128 proof object, not the obsolete `42,068`

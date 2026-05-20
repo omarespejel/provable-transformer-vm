@@ -3,13 +3,14 @@ use serde::{Deserialize, Serialize};
 use stwo::core::air::Component;
 use stwo::core::channel::{Blake2sM31Channel, Channel};
 use stwo::core::fields::m31::BaseField;
-use stwo::core::fields::qm31::SecureField;
+use stwo::core::fields::qm31::{SecureField, SECURE_EXTENSION_DEGREE};
 use stwo::core::pcs::{CommitmentSchemeVerifier, PcsConfig};
 use stwo::core::poly::circle::CanonicCoset;
 use stwo::core::proof::StarkProof;
 use stwo::core::vcs_lifted::blake2_merkle::{Blake2sM31MerkleChannel, Blake2sM31MerkleHasher};
 use stwo::core::verifier::verify;
 use stwo::core::ColumnVec;
+use stwo::core::Fraction;
 use stwo::prover::backend::simd::column::BaseColumn;
 use stwo::prover::backend::simd::m31::LOG_N_LANES;
 use stwo::prover::backend::simd::qm31::PackedSecureField;
@@ -20,7 +21,7 @@ use stwo::prover::{prove, CommitmentSchemeProver};
 use stwo_constraint_framework::preprocessed_columns::PreProcessedColumnId;
 use stwo_constraint_framework::{
     relation, EvalAtRow, FrameworkComponent, FrameworkEval, LogupTraceGenerator, Relation,
-    RelationEntry, TraceLocationAllocator,
+    RelationEntry, TraceLocationAllocator, ORIGINAL_TRACE_IDX, PREPROCESSED_TRACE_IDX,
 };
 
 use super::attention_kv_native_d32_two_head_bounded_softmax_table_proof::{
@@ -100,6 +101,44 @@ relation!(AttentionKvD32TwoHeadFusedSoftmaxTableRelation, 2);
 #[derive(Debug, Clone)]
 struct AttentionKvNativeD32TwoHeadFusedSoftmaxTableEval {
     lookup_elements: AttentionKvD32TwoHeadFusedSoftmaxTableRelation,
+}
+
+#[derive(Default)]
+struct AttentionKvD32TwoHeadFusedSoftmaxTableLayoutCounter {
+    trace_masks: usize,
+    preprocessed_masks: usize,
+}
+
+impl EvalAtRow for AttentionKvD32TwoHeadFusedSoftmaxTableLayoutCounter {
+    type F = BaseField;
+    type EF = SecureField;
+
+    fn next_interaction_mask<const N: usize>(
+        &mut self,
+        interaction: usize,
+        _offsets: [isize; N],
+    ) -> [Self::F; N] {
+        match interaction {
+            ORIGINAL_TRACE_IDX => self.trace_masks += N,
+            PREPROCESSED_TRACE_IDX => self.preprocessed_masks += N,
+            _ => {}
+        }
+        std::array::from_fn(|_| BaseField::zero())
+    }
+
+    fn add_constraint<G>(&mut self, _constraint: G)
+    where
+        Self::EF: std::ops::Mul<G, Output = Self::EF> + From<G>,
+    {
+    }
+
+    fn write_logup_frac(&mut self, _fraction: Fraction<Self::EF, Self::EF>) {}
+
+    fn finalize_logup_in_pairs(&mut self) {}
+
+    fn combine_ef(_values: [Self::F; SECURE_EXTENSION_DEGREE]) -> Self::EF {
+        SecureField::zero()
+    }
 }
 
 impl FrameworkEval for AttentionKvNativeD32TwoHeadFusedSoftmaxTableEval {
@@ -224,7 +263,7 @@ impl FrameworkEval for AttentionKvNativeD32TwoHeadFusedSoftmaxTableEval {
         }
 
         let row_column_ids = fused_row_column_ids();
-        assert_eq!(
+        debug_assert_eq!(
             row_column_ids.len(),
             trace_values.len(),
             "fused softmax-table AIR column/value count drift",
@@ -564,6 +603,7 @@ fn build_fused_bundle(
     input: &ZkAiAttentionKvNativeD32TwoHeadBoundedSoftmaxTableProofInput,
 ) -> Result<FusedBundle> {
     validate_source_input(input)?;
+    validate_static_fused_air_layout()?;
     let summary = fused_summary(input)?;
     if TRACE_ROW_COUNT != 1usize << LOG_SIZE {
         return Err(fused_error("internal fused trace row/log size drift"));
@@ -807,6 +847,7 @@ fn verify_fused(
     proof: &[u8],
 ) -> Result<bool> {
     validate_source_input(source_input)?;
+    validate_static_fused_air_layout()?;
     if proof.is_empty()
         || proof.len() > ZKAI_ATTENTION_KV_NATIVE_D32_TWO_HEAD_FUSED_SOFTMAX_TABLE_MAX_PROOF_BYTES
     {
@@ -1083,6 +1124,29 @@ fn fused_preprocessed_column_ids() -> Vec<PreProcessedColumnId> {
     ids.push(preprocessed_column_id(PREPROCESSED_TABLE_WEIGHT));
     ids.push(preprocessed_column_id(PREPROCESSED_TABLE_MULTIPLICITY));
     ids
+}
+
+fn validate_static_fused_air_layout() -> Result<()> {
+    let row_column_count = fused_row_column_ids().len();
+    let preprocessed_column_count = fused_preprocessed_column_ids().len();
+    let counter = AttentionKvNativeD32TwoHeadFusedSoftmaxTableEval {
+        lookup_elements: AttentionKvD32TwoHeadFusedSoftmaxTableRelation::dummy(),
+    }
+    .evaluate(AttentionKvD32TwoHeadFusedSoftmaxTableLayoutCounter::default());
+    if counter.trace_masks != row_column_count {
+        return Err(fused_error(format!(
+            "fused Softmax-table AIR trace layout drift: got {} trace masks, expected {} row columns",
+            counter.trace_masks, row_column_count
+        )));
+    }
+    if counter.preprocessed_masks != preprocessed_column_count {
+        return Err(fused_error(format!(
+            "fused Softmax-table AIR preprocessed layout drift: got {} masks, expected {} columns",
+            counter.preprocessed_masks, preprocessed_column_count
+        )));
+    }
+    fused_trace_column_indices()?;
+    Ok(())
 }
 
 fn preprocessed_column_id(id: &str) -> PreProcessedColumnId {

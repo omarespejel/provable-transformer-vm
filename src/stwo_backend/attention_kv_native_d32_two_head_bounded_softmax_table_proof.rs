@@ -6,7 +6,7 @@ use sha2::{Digest as ShaDigest, Sha256};
 use stwo::core::air::Component;
 use stwo::core::channel::Blake2sM31Channel;
 use stwo::core::fields::m31::BaseField;
-use stwo::core::fields::qm31::SecureField;
+use stwo::core::fields::qm31::{SecureField, SECURE_EXTENSION_DEGREE};
 use stwo::core::pcs::{CommitmentSchemeVerifier, PcsConfig};
 use stwo::core::poly::circle::CanonicCoset;
 use stwo::core::proof::StarkProof;
@@ -20,7 +20,8 @@ use stwo::prover::poly::{BitReversedOrder, NaturalOrder};
 use stwo::prover::{prove, CommitmentSchemeProver};
 use stwo_constraint_framework::preprocessed_columns::PreProcessedColumnId;
 use stwo_constraint_framework::{
-    EvalAtRow, FrameworkComponent, FrameworkEval, TraceLocationAllocator,
+    EvalAtRow, FrameworkComponent, FrameworkEval, TraceLocationAllocator, ORIGINAL_TRACE_IDX,
+    PREPROCESSED_TRACE_IDX,
 };
 
 use crate::error::{Result, VmError};
@@ -152,6 +153,40 @@ const EXPECTED_VALIDATION_COMMANDS: &[&str] = &[
 #[derive(Debug, Clone)]
 struct AttentionKvNativeD32TwoHeadBoundedSoftmaxTableEval;
 
+#[derive(Default)]
+struct AttentionKvD32TwoHeadBoundedSoftmaxTableLayoutCounter {
+    trace_masks: usize,
+    preprocessed_masks: usize,
+}
+
+impl EvalAtRow for AttentionKvD32TwoHeadBoundedSoftmaxTableLayoutCounter {
+    type F = BaseField;
+    type EF = SecureField;
+
+    fn next_interaction_mask<const N: usize>(
+        &mut self,
+        interaction: usize,
+        _offsets: [isize; N],
+    ) -> [Self::F; N] {
+        match interaction {
+            ORIGINAL_TRACE_IDX => self.trace_masks += N,
+            PREPROCESSED_TRACE_IDX => self.preprocessed_masks += N,
+            _ => {}
+        }
+        std::array::from_fn(|_| BaseField::zero())
+    }
+
+    fn add_constraint<G>(&mut self, _constraint: G)
+    where
+        Self::EF: std::ops::Mul<G, Output = Self::EF> + From<G>,
+    {
+    }
+
+    fn combine_ef(_values: [Self::F; SECURE_EXTENSION_DEGREE]) -> Self::EF {
+        SecureField::zero()
+    }
+}
+
 impl FrameworkEval for AttentionKvNativeD32TwoHeadBoundedSoftmaxTableEval {
     fn log_size(&self) -> u32 {
         LOG_SIZE
@@ -272,7 +307,7 @@ impl FrameworkEval for AttentionKvNativeD32TwoHeadBoundedSoftmaxTableEval {
         }
 
         let column_ids = column_ids();
-        assert_eq!(
+        debug_assert_eq!(
             column_ids.len(),
             trace_values.len(),
             "bounded softmax-table AIR column/value count drift",
@@ -1017,6 +1052,7 @@ fn prove_rows(
     input: &ZkAiAttentionKvNativeD32TwoHeadBoundedSoftmaxTableProofInput,
 ) -> Result<Vec<u8>> {
     validate_input(input)?;
+    validate_static_air_layout()?;
     let component = attention_component();
     let config = attention_pcs_config();
     let twiddles = SimdBackend::precompute_twiddles(
@@ -1031,7 +1067,7 @@ fn prove_rows(
         CommitmentSchemeProver::<SimdBackend, Blake2sM31MerkleChannel>::new(config, &twiddles);
     commitment_scheme.set_store_polynomials_coefficients();
 
-    let trace = attention_trace(input);
+    let trace = attention_trace(input)?;
     let mut tree_builder = commitment_scheme.tree_builder();
     tree_builder.extend_evals(trace.clone());
     tree_builder.commit(channel);
@@ -1056,6 +1092,7 @@ fn verify_rows(
     proof: &[u8],
 ) -> Result<bool> {
     validate_input(input)?;
+    validate_static_air_layout()?;
     let payload: AttentionKvNativeD32TwoHeadBoundedSoftmaxTableProofPayload =
         serde_json::from_slice(proof).map_err(|error| VmError::Serialization(error.to_string()))?;
     let stark_proof = payload.stark_proof;
@@ -1076,7 +1113,7 @@ fn verify_rows(
             EXPECTED_PROOF_COMMITMENTS
         )));
     }
-    let expected_roots = attention_commitment_roots(input, config);
+    let expected_roots = attention_commitment_roots(input, config)?;
     if stark_proof.commitments[0] != expected_roots[0] {
         return Err(weighted_error(
             "preprocessed row commitment does not match checked bounded Softmax-table rows",
@@ -1116,9 +1153,12 @@ fn attention_pcs_config() -> PcsConfig {
 fn attention_commitment_roots(
     input: &ZkAiAttentionKvNativeD32TwoHeadBoundedSoftmaxTableProofInput,
     config: PcsConfig,
-) -> stwo::core::pcs::TreeVec<
-    <Blake2sM31MerkleHasher as stwo::core::vcs_lifted::merkle_hasher::MerkleHasherLifted>::Hash,
+) -> Result<
+    stwo::core::pcs::TreeVec<
+        <Blake2sM31MerkleHasher as stwo::core::vcs_lifted::merkle_hasher::MerkleHasherLifted>::Hash,
+    >,
 > {
+    validate_static_air_layout()?;
     let component = attention_component();
     let twiddles = SimdBackend::precompute_twiddles(
         CanonicCoset::new(
@@ -1132,7 +1172,7 @@ fn attention_commitment_roots(
         CommitmentSchemeProver::<SimdBackend, Blake2sM31MerkleChannel>::new(config, &twiddles);
     commitment_scheme.set_store_polynomials_coefficients();
 
-    let trace = attention_trace(input);
+    let trace = attention_trace(input)?;
     let mut tree_builder = commitment_scheme.tree_builder();
     tree_builder.extend_evals(trace.clone());
     tree_builder.commit(channel);
@@ -1141,7 +1181,7 @@ fn attention_commitment_roots(
     tree_builder.extend_evals(trace);
     tree_builder.commit(channel);
 
-    commitment_scheme.roots()
+    Ok(commitment_scheme.roots())
 }
 
 fn attention_component() -> FrameworkComponent<AttentionKvNativeD32TwoHeadBoundedSoftmaxTableEval> {
@@ -1154,7 +1194,7 @@ fn attention_component() -> FrameworkComponent<AttentionKvNativeD32TwoHeadBounde
 
 fn attention_trace(
     input: &ZkAiAttentionKvNativeD32TwoHeadBoundedSoftmaxTableProofInput,
-) -> ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>> {
+) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
     let domain = CanonicCoset::new(LOG_SIZE).circle_domain();
     let mut rows = input.score_rows.clone();
     while rows.len() < TRACE_ROW_COUNT {
@@ -1224,16 +1264,16 @@ fn attention_trace(
                 .map(field_usize),
             );
         }
-        assert_eq!(
-            values.len(),
-            columns.len(),
-            "bounded softmax-table trace column/value count drift",
-        );
+        if values.len() != columns.len() {
+            return Err(weighted_error(
+                "bounded softmax-table trace column/value count drift",
+            ));
+        }
         for (column, value) in columns.iter_mut().zip(values) {
             column.push(value);
         }
     }
-    columns
+    Ok(columns
         .into_iter()
         .map(|column| {
             CircleEvaluation::<SimdBackend, BaseField, NaturalOrder>::new(
@@ -1242,7 +1282,27 @@ fn attention_trace(
             )
             .bit_reverse()
         })
-        .collect()
+        .collect())
+}
+
+fn validate_static_air_layout() -> Result<()> {
+    let column_count = column_ids().len();
+    let preprocessed_column_count = preprocessed_column_ids().len();
+    let counter = AttentionKvNativeD32TwoHeadBoundedSoftmaxTableEval
+        .evaluate(AttentionKvD32TwoHeadBoundedSoftmaxTableLayoutCounter::default());
+    if counter.trace_masks != column_count {
+        return Err(weighted_error(format!(
+            "bounded Softmax-table AIR trace layout drift: got {} trace masks, expected {} columns",
+            counter.trace_masks, column_count
+        )));
+    }
+    if counter.preprocessed_masks != preprocessed_column_count {
+        return Err(weighted_error(format!(
+            "bounded Softmax-table AIR preprocessed layout drift: got {} masks, expected {} columns",
+            counter.preprocessed_masks, preprocessed_column_count
+        )));
+    }
+    Ok(())
 }
 
 fn padding_row(row_index: usize) -> AttentionKvD32TwoHeadBoundedSoftmaxTableScoreRow {
