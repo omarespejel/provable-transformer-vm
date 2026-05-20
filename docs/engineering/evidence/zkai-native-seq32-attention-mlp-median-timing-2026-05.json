@@ -83,6 +83,11 @@
         "name": "host_metadata_promoted"
       },
       {
+        "error": "raw host metadata keys mismatch: missing=[] extra=['hostname']",
+        "layer": "timing_metrics",
+        "name": "host_metadata_extra_key"
+      },
+      {
         "error": "missing non-claim: not a public benchmark",
         "layer": "claim_boundary",
         "name": "non_claim_removed"
@@ -98,7 +103,7 @@
         "name": "payload_commitment_drift"
       }
     ],
-    "rejected_count": 13,
+    "rejected_count": 14,
     "rejected_mutations": [
       "decision_relabeling",
       "claim_boundary_public_benchmark",
@@ -110,6 +115,7 @@
       "sample_count_relabeling",
       "prove_metric_zeroed",
       "host_metadata_promoted",
+      "host_metadata_extra_key",
       "non_claim_removed",
       "validation_command_removed",
       "payload_commitment_drift"
@@ -124,7 +130,7 @@
     "not GitHub Actions evidence",
     "not a full transformer block benchmark"
   ],
-  "payload_commitment": "blake2b-256:7fef425c3e39297b03aa32d7a2503e2b00fb3ea63518e6cf52e878fc3bdb71be",
+  "payload_commitment": "blake2b-256:7481d96f3c456aba51728eb25ef389b6bbe742f3aa8582238dd8cb31ac45192f",
   "result": "GO_MEDIAN_OF_5_BUILD_PROVE_VERIFY_TIMING_CAPTURED_WITH_NON_BENCHMARK_GUARDRAILS",
   "schema": "zkai-native-seq32-attention-mlp-median-timing-gate-v1",
   "source_artifacts": [
