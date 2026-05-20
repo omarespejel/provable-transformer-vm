@@ -1,6 +1,6 @@
 # HANDOFF
 
-Last refreshed: 2026-05-19
+Last refreshed: 2026-05-20
 Repository: `/Users/espejelomar/StarkNet/provable-transformer-vm`
 Mainline reference at refresh: `c561e350ab85bbf571a9d031c9b61e0ad24f3ef9`
 
@@ -19,6 +19,20 @@ truth under `.codex/research/`. Fresh agents should read
 before opening or executing frontier issues. The north star is STARK-native
 proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
+
+Latest proof-pressure route extension: issue `#715` now has a checked
+`d32_two_head_seq8` native Stwo fused Softmax-table row. The matched split
+frontier is `123,926` source proof bytes plus `18,137` LogUp sidecar bytes
+(`142,063` total). The fused proof is `125,756` bytes, saving `16,307` bytes
+(`0.885213x`). The key signal is that the standalone sidecar costs `18,137`
+bytes, while the fused route adds only `1,830` bytes over the source proof. The
+route matrix is now `12` matched rows, `3,780` lookup claims, `862,483` fused
+proof bytes versus `1,072,887` split proof bytes, and `210,404` aggregate saved
+bytes. The fuller grid is now `12 / 45` proved and `33 / 45` missing; the next
+low-risk rows are `d16_two_head_seq32` and `d32_two_head_seq16`. This is not
+exact Softmax, not full inference, not a NANOZK comparison, and not timing
+evidence. See
+`docs/engineering/zkai-attention-kv-stwo-native-d32-two-head-fused-softmax-table-gate-2026-05-20.md`.
 
 Latest May 2026 competitor metric matrix: issue `#682` is now updated around
 the checked statement-only seq32+d128 proof object, not the obsolete `42,068`

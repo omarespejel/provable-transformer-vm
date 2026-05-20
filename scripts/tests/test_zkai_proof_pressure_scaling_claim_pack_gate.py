@@ -53,8 +53,8 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         self.assertEqual(summary["proof_size_comparable_external_rows"], 0)
         self.assertEqual(summary["open_followup_count"], 3)
         self.assertEqual(summary["fuller_grid_cell_count"], 45)
-        self.assertEqual(summary["fuller_grid_proved_cell_count"], 11)
-        self.assertEqual(summary["fuller_grid_missing_cell_count"], 34)
+        self.assertEqual(summary["fuller_grid_proved_cell_count"], 12)
+        self.assertEqual(summary["fuller_grid_missing_cell_count"], 33)
         self.assertEqual(summary["explicit_no_go_grid_row_count"], 3)
 
     def test_records_fuller_crossing_grid_without_promoting_missing_cells(self) -> None:
@@ -62,15 +62,15 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         d32 = fuller["d32_single_head_seq8"]
 
         self.assertEqual(fuller["grid_cell_count"], 45)
-        self.assertEqual(fuller["proved_cell_count"], 11)
-        self.assertEqual(fuller["missing_cell_count"], 34)
-        self.assertEqual(fuller["coverage_share"], 0.244444)
-        self.assertEqual(fuller["proved_crossing_cell_count"], 4)
+        self.assertEqual(fuller["proved_cell_count"], 12)
+        self.assertEqual(fuller["missing_cell_count"], 33)
+        self.assertEqual(fuller["coverage_share"], 0.266667)
+        self.assertEqual(fuller["proved_crossing_cell_count"], 5)
         self.assertEqual(fuller["proved_all_axis_cell_count"], 1)
         self.assertEqual(fuller["highest_proved_width"], 32)
         self.assertEqual(
             fuller["next_low_risk_profile_ids"],
-            ["d32_two_head_seq8", "d16_two_head_seq32", "d32_two_head_seq16"],
+            ["d16_two_head_seq32", "d32_two_head_seq16"],
         )
         self.assertEqual(d32["profile_id"], "d32_single_head_seq8")
         self.assertEqual(d32["lookup_claims"], 52)

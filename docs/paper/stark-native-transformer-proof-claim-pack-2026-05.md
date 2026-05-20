@@ -18,7 +18,7 @@ or Starknet deployment.
 
 1. Native Stwo evidence now checks source arithmetic, LogUp sidecar, and fused
    proof objects for a controlled Softmax-table route family.
-2. The checked route matrix has eleven matched rows across width, head-count,
+2. The checked route matrix has twelve matched rows across width, head-count,
    sequence-length, and combined-axis profiles, with fused proof bytes smaller
    than source-plus-sidecar proof bytes in each row.
 3. The section-delta and typed-size evidence agree on the mechanism: the fused
@@ -53,9 +53,9 @@ or Starknet deployment.
 
 ## Quantitative Core
 
-The route matrix records eleven checked matched profiles. Across those rows,
-the fused proof bytes total `736,727` versus `930,824` bytes for the matched
-source-plus-sidecar controls, a `194,097` byte aggregate saving. Matched fused
+The route matrix records twelve checked matched profiles. Across those rows,
+the fused proof bytes total `862,483` versus `1,072,887` bytes for the matched
+source-plus-sidecar controls, a `210,404` byte aggregate saving. Matched fused
 ratios range from `0.676723` to `0.919259`.
 
 The controlled component grid records ten checked fine-grained typed-component

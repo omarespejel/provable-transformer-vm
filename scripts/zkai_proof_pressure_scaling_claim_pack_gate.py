@@ -69,7 +69,7 @@ MEDIAN_TIMING_PATH = EVIDENCE_DIR / "zkai-native-seq32-attention-mlp-median-timi
 SCHEMA = "zkai-proof-pressure-scaling-claim-pack-v1"
 ISSUE = "https://github.com/omarespejel/provable-transformer-vm/issues/715"
 DECISION = "GO_BOUNDED_SCALE_SIGNAL_SYNTHESIS_KEEP_ISSUE_OPEN_FOR_FULL_GRID"
-RESULT = "TEN_TYPED_ATTENTION_ROWS_AND_ELEVEN_ROUTE_ROWS_SCALE_PROOF_PRESSURE_WITH_SEQ32_D128_SAVING_7672"
+RESULT = "TEN_TYPED_ATTENTION_ROWS_AND_TWELVE_ROUTE_ROWS_SCALE_PROOF_PRESSURE_WITH_SEQ32_D128_SAVING_7672"
 PAYLOAD_DOMAIN = "ptvm:zkai:proof-pressure-scaling-claim-pack:v1"
 CLAIM_BOUNDARY = (
     "BOUNDED_SCALE_SYNTHESIS_FOR_STARK_NATIVE_TRANSFORMER_PROOF_PRESSURE;"
@@ -589,7 +589,7 @@ def build_scale_signal(controlled_payload: dict[str, Any], fuller_payload: dict[
             "typed_saving_share": d16_two_head_seq16.get("typed_saving_share"),
         },
         "fuller_crossing_grid": {
-            "status": "GO_45_CELL_D8_D16_D32_ROUTE_GRID_WITH_11_PROVED_CELLS",
+            "status": "GO_45_CELL_D8_D16_D32_ROUTE_GRID_WITH_12_PROVED_CELLS",
             "grid_cell_count": int_field(fuller_summary.get("grid_cell_count"), "fuller grid cells"),
             "proved_cell_count": int_field(fuller_summary.get("proved_cell_count"), "fuller proved cells"),
             "missing_cell_count": int_field(fuller_summary.get("missing_cell_count"), "fuller missing cells"),
@@ -1133,18 +1133,17 @@ def validate_scale_signal(payload: dict[str, Any]) -> None:
     if seq32.get("seq32_typed_bytes_per_lookup_claim") != "19.354730":
         raise ProofPressureScalingClaimPackError("seq32 bytes per lookup drift")
     fuller = require_dict(signal.get("fuller_crossing_grid"), "fuller crossing grid")
-    if fuller.get("status") != "GO_45_CELL_D8_D16_D32_ROUTE_GRID_WITH_11_PROVED_CELLS":
+    if fuller.get("status") != "GO_45_CELL_D8_D16_D32_ROUTE_GRID_WITH_12_PROVED_CELLS":
         raise ProofPressureScalingClaimPackError("fuller grid status drift")
-    if fuller.get("grid_cell_count") != 45 or fuller.get("proved_cell_count") != 11:
+    if fuller.get("grid_cell_count") != 45 or fuller.get("proved_cell_count") != 12:
         raise ProofPressureScalingClaimPackError("fuller grid coverage drift")
-    if fuller.get("missing_cell_count") != 34 or fuller.get("coverage_share") != 0.244444:
+    if fuller.get("missing_cell_count") != 33 or fuller.get("coverage_share") != 0.266667:
         raise ProofPressureScalingClaimPackError("fuller grid missing coverage drift")
-    if fuller.get("proved_crossing_cell_count") != 4 or fuller.get("proved_all_axis_cell_count") != 1:
+    if fuller.get("proved_crossing_cell_count") != 5 or fuller.get("proved_all_axis_cell_count") != 1:
         raise ProofPressureScalingClaimPackError("fuller grid crossing count drift")
     if fuller.get("highest_proved_width") != 32:
         raise ProofPressureScalingClaimPackError("fuller grid width drift")
     if fuller.get("next_low_risk_profile_ids") != [
-        "d32_two_head_seq8",
         "d16_two_head_seq32",
         "d32_two_head_seq16",
     ]:
@@ -1231,7 +1230,7 @@ def validate_payload(payload: dict[str, Any], *, check_mutations: bool = True) -
         raise ProofPressureScalingClaimPackError("proof-size comparable external row drift")
     if summary.get("current_best_inner_policy_bound_typed_bytes") != 39_516:
         raise ProofPressureScalingClaimPackError("best boundary summary drift")
-    if summary.get("fuller_grid_proved_cell_count") != 11 or summary.get("fuller_grid_missing_cell_count") != 34:
+    if summary.get("fuller_grid_proved_cell_count") != 12 or summary.get("fuller_grid_missing_cell_count") != 33:
         raise ProofPressureScalingClaimPackError("fuller grid summary drift")
     if summary.get("explicit_no_go_grid_row_count") != len(EXPLICIT_NO_GO_GRID_ROWS):
         raise ProofPressureScalingClaimPackError("explicit no-go summary drift")
