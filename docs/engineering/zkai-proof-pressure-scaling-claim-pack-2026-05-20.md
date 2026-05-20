@@ -9,8 +9,9 @@ Issue: <https://github.com/omarespejel/provable-transformer-vm/issues/715>
 This note pins the current bounded evidence for the next paper path. It is a
 claim pack over checked artifacts, not a new proof-generation route.
 
-Issue #715 stays open after this claim-pack slice. The full d64/d128/d256 grid,
-seq64 row, and one matched external baseline are still follow-up work.
+Issue #715 stays open after this claim-pack slice. The checked route grid now
+reaches `d32`, but the full d64/d128/d256 grid, seq64 row, and one matched
+external baseline are still follow-up work.
 
 ## Result
 
@@ -27,6 +28,21 @@ The checked attention grid still gives the strongest scaling signal:
 | fused typed-byte growth | `1.264401x` |
 | d8 single-head typed bytes per lookup claim | `348.538462` |
 | d8 two-head seq32 typed bytes per lookup claim | `19.354730` |
+
+The stricter route-status grid adds a fuller shape map:
+
+| metric | value |
+|---|---:|
+| width/head/sequence cells | `45` |
+| checked native fused cells | `11` |
+| missing native fused cells | `34` |
+| coverage share | `0.244444` |
+| proved crossing cells | `4` |
+| proved all-axis cells | `1` |
+| highest checked attention width | `d32` |
+| d32 single-head seq8 fused bytes | `107,261` |
+| d32 single-head seq8 source+sidecar bytes | `116,682` |
+| d32 fused/source+sidecar ratio | `0.919259x` |
 
 The current seq32+d128 boundary rows are:
 
@@ -48,6 +64,7 @@ binary/raw byte field, so the claim remains typed/JSON-accounting bounded.
 | object | evidence | context |
 |---|---|---|
 | attention grid | `docs/engineering/evidence/zkai-attention-kv-stwo-controlled-component-grid-2026-05.json` | `10` local checked Stwo attention/table profiles; proof-size accounting only |
+| fuller crossing grid | `docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json` | `45` width/head/sequence cells; `11` proved and `34` explicitly missing; status grid only |
 | native seq32+d128 single proof | `docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.json` and `.envelope.json` | backend `stwo`, version `stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-v1` |
 | statement-only probe B | `docs/engineering/evidence/zkai-stwo-statement-only-attempt-transcript-gate-2026-05.json` and `zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-statement-only-transcript-2026-05.envelope.json` | backend `stwo`, version `stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1`; attempt policy stays statement-bound |
 | local binary accounting | `docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-binary-accounting-2026-05.json`, `zkai-native-seq32-attention-mlp-statement-only-attempt-accounting-2026-05.json`, `zkai-attention-kv-stwo-binary-typed-proof-accounting-2026-05.json`, `zkai-seq32-derived-d128-rmsnorm-mlp-fused-binary-accounting-2026-05.json` | local typed and record-stream accounting; no upstream Stwo serialization claim |
@@ -55,10 +72,12 @@ binary/raw byte field, so the claim remains typed/JSON-accounting bounded.
 
 ## Interpretation
 
-The interesting signal is still the same, but now it is packaged in a stricter
-way: the lookup/table work can grow much faster than the proof-byte accounting,
-and the current seq32+d128 native boundary beats the matched local two-proof
-frontier after statement binding is kept inside the proof-facing object.
+The interesting signal is still the same, but now it is packaged against a
+larger shape map. The lookup/table work can grow much faster than the proof-byte
+accounting, the current seq32+d128 native boundary beats the matched local
+two-proof frontier after statement binding is kept inside the proof-facing
+object, and the fuller grid shows exactly where the evidence stops instead of
+pretending the missing cells are already proved.
 
 This supports a bounded paper claim:
 
@@ -101,12 +120,13 @@ The claim pack keeps three open follow-ups explicit:
 - Gate tests:
   `scripts/tests/test_zkai_proof_pressure_scaling_claim_pack_gate.py`
 
-The gate rejects `14 / 14` mutation cases covering lookup-growth drift,
-typed-growth drift, attention saving drift, native-boundary saving drift,
-statement-only saving drift, external comparability overclaim, d64/d128/d256
-completion overclaim, stable binary serialization overclaim, public benchmark
-overclaim, non-claim removal, source-artifact digest/path/manifest drift,
-validation-command drift, and payload-commitment drift.
+The gate rejects `16 / 16` mutation cases covering lookup-growth drift,
+typed-growth drift, fuller-grid coverage drift, d32 route metric drift,
+attention saving drift, native-boundary saving drift, statement-only saving
+drift, external comparability overclaim, d64/d128/d256 completion overclaim,
+stable binary serialization overclaim, public benchmark overclaim, non-claim
+removal, source-artifact digest/path/manifest drift, validation-command drift,
+and payload-commitment drift.
 
 ## Validation
 
@@ -114,6 +134,8 @@ validation-command drift, and payload-commitment drift.
 python3.10 scripts/zkai_proof_pressure_scaling_claim_pack_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-scaling-claim-pack-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-scaling-claim-pack-2026-05.tsv
 python3.10 -m py_compile scripts/zkai_proof_pressure_scaling_claim_pack_gate.py scripts/tests/test_zkai_proof_pressure_scaling_claim_pack_gate.py
 python3.10 -m unittest scripts.tests.test_zkai_proof_pressure_scaling_claim_pack_gate
+python3.10 scripts/zkai_attention_kv_fuller_crossing_grid_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.tsv
+python3.10 -m unittest scripts.tests.test_zkai_attention_kv_fuller_crossing_grid_gate
 python3.10 -m unittest scripts.tests.test_zkai_attention_kv_stwo_controlled_component_grid_gate
 python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_single_proof_gate
 python3.10 -m unittest scripts.tests.test_zkai_stwo_statement_only_attempt_transcript_gate

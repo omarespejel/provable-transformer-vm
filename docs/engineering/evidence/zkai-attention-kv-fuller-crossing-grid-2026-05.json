@@ -1249,9 +1249,9 @@
     "schema": "zkai-attention-kv-fused-softmax-table-route-matrix-v1"
   },
   "validation_commands": [
-    "python3 scripts/zkai_attention_kv_fuller_crossing_grid_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.tsv",
-    "python3 -m unittest scripts.tests.test_zkai_attention_kv_fuller_crossing_grid_gate",
-    "python3 scripts/zkai_attention_kv_fused_softmax_table_route_matrix_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.tsv",
-    "python3 -m unittest scripts.tests.test_zkai_attention_kv_fused_softmax_table_route_matrix_gate"
+    "python3.10 scripts/zkai_attention_kv_fuller_crossing_grid_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_fuller_crossing_grid_gate",
+    "python3.10 scripts/zkai_attention_kv_fused_softmax_table_route_matrix_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_fused_softmax_table_route_matrix_gate"
   ]
 }

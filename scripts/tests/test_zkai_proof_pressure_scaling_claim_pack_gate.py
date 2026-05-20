@@ -46,6 +46,30 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         self.assertIn("d64/d128/d256", signal["missing_axes"][0])
         self.assertEqual(summary["proof_size_comparable_external_rows"], 0)
         self.assertEqual(summary["open_followup_count"], 3)
+        self.assertEqual(summary["fuller_grid_cell_count"], 45)
+        self.assertEqual(summary["fuller_grid_proved_cell_count"], 11)
+        self.assertEqual(summary["fuller_grid_missing_cell_count"], 34)
+
+    def test_records_fuller_crossing_grid_without_promoting_missing_cells(self) -> None:
+        fuller = self.payload["scale_signal"]["fuller_crossing_grid"]
+        d32 = fuller["d32_single_head_seq8"]
+
+        self.assertEqual(fuller["grid_cell_count"], 45)
+        self.assertEqual(fuller["proved_cell_count"], 11)
+        self.assertEqual(fuller["missing_cell_count"], 34)
+        self.assertEqual(fuller["coverage_share"], 0.244444)
+        self.assertEqual(fuller["proved_crossing_cell_count"], 4)
+        self.assertEqual(fuller["proved_all_axis_cell_count"], 1)
+        self.assertEqual(fuller["highest_proved_width"], 32)
+        self.assertEqual(
+            fuller["next_low_risk_profile_ids"],
+            ["d32_two_head_seq8", "d16_two_head_seq32", "d32_two_head_seq16"],
+        )
+        self.assertEqual(d32["profile_id"], "d32_single_head_seq8")
+        self.assertEqual(d32["lookup_claims"], 52)
+        self.assertEqual(d32["fused_json_proof_size_bytes"], 107261)
+        self.assertEqual(d32["source_plus_sidecar_raw_proof_bytes"], 116682)
+        self.assertEqual(d32["fused_to_source_plus_sidecar_ratio"], 0.919259)
 
     def test_binds_lookup_growth_and_bytes_per_lookup_signal(self) -> None:
         seq32 = self.payload["scale_signal"]["seq32_vs_d8_single_head"]
@@ -126,6 +150,20 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         payload = self.strip_mutation_summary(self.payload)
         payload["scale_signal"]["seq32_vs_d8_single_head"]["lookup_claim_growth"] = "1.000000"
         self.assert_rejects(payload, "lookup growth drift")
+
+        payload = self.strip_mutation_summary(self.payload)
+        payload["scale_signal"]["seq32_vs_d8_single_head"]["typed_byte_growth"] = "22.769231"
+        self.assert_rejects(payload, "typed growth drift")
+
+        payload = self.strip_mutation_summary(self.payload)
+        payload["scale_signal"]["fuller_crossing_grid"]["proved_cell_count"] = 45
+        self.assert_rejects(payload, "fuller grid coverage drift")
+
+        payload = self.strip_mutation_summary(self.payload)
+        payload["scale_signal"]["fuller_crossing_grid"]["d32_single_head_seq8"][
+            "fused_json_proof_size_bytes"
+        ] = 1
+        self.assert_rejects(payload, "d32 metric drift")
 
         payload = self.strip_mutation_summary(self.payload)
         payload["fused_vs_split_rows"][0]["typed_saving_bytes"] = 0
