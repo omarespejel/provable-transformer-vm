@@ -131,11 +131,19 @@ Reproducibility metadata: backend
 version `stwo-attention-kv-d32-two-head-fused-bounded-softmax-table-logup-proof-v1`,
 statement version
 `zkai-attention-kv-stwo-native-d32-two-head-fused-softmax-table-logup-statement-v1`,
-timing mode `proof_existence_and_byte_accounting_only_not_public_benchmark`.
-Evidence paths are the bounded source, LogUp sidecar, fused proof-envelope, and
-fused gate JSON listed in the gate note. Reproduce with the three-command
-validation block in that note plus the route-matrix gate in
-`docs/engineering/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05-09.md`.
+timing mode `proof_existence_and_byte_accounting_only_not_public_benchmark`,
+`104` lookup claims, and `128` trace rows. Evidence paths:
+`docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-bounded-softmax-table-proof-2026-05.json`,
+`docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-bounded-softmax-table-proof-2026-05.envelope.json`,
+`docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-softmax-table-logup-sidecar-proof-2026-05.envelope.json`,
+`docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-fused-softmax-table-proof-2026-05.envelope.json`,
+`docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-fused-softmax-table-gate-2026-05.json`,
+`docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json`,
+and `docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.tsv`.
+Reproduce with `python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d32_two_head_bounded_softmax_table_native_gate scripts.tests.test_zkai_attention_kv_d32_two_head_air_private_softmax_table_lookup_gate scripts.tests.test_zkai_attention_kv_d32_two_head_fused_softmax_table_native_gate`,
+`cargo +nightly-2025-07-14 test --locked attention_kv_d32_two_head_fused_softmax_table --lib --features stwo-backend`,
+`cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d32_two_head_fused_softmax_table_proof -- verify docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-fused-softmax-table-proof-2026-05.envelope.json`,
+and `python3 scripts/zkai_attention_kv_fused_softmax_table_route_matrix_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.tsv`.
 
 Latest May 2026 competitor metric matrix: issue `#682` is now updated around
 the checked statement-only seq32+d128 proof object, not the obsolete `42,068`
