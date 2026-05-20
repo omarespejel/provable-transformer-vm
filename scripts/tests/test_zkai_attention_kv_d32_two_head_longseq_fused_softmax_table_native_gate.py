@@ -259,10 +259,10 @@ class AttentionKvD32TwoHeadLongseqFusedSoftmaxTableNativeGateTests(unittest.Test
                 gate.expect_artifact_size(raw + b" ", expected_size, label)
 
     def test_write_json_and_tsv_round_trip(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            tmp = gate.pathlib.Path(tmp)
-            json_path = tmp / "gate.json"
-            tsv_path = tmp / "gate.tsv"
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = gate.pathlib.Path(tmp_dir)
+            json_path = tmp_path / "gate.json"
+            tsv_path = tmp_path / "gate.tsv"
             gate.write_json(json_path, self.payload)
             gate.write_tsv(tsv_path, self.payload)
             self.assertEqual(json.loads(json_path.read_text(encoding="utf-8"))["decision"], gate.DECISION)

@@ -229,7 +229,7 @@
     },
     {
       "error": "lookup_receipt drift",
-      "name": "source_input_split_brain",
+      "name": "source_score_row_commitment_alternative_drift",
       "rejected": true
     },
     {
