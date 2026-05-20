@@ -146,7 +146,7 @@ EXPECTED_MUTATION_NAMES = (
     "table_multiplicity_drift",
     "non_claim_removed",
     "next_backend_step_removed",
-    "source_input_split_brain",
+    "source_score_row_commitment_alternative_drift",
     "unknown_field_injection",
     "lookup_receipt_unknown_field_injection",
 )
@@ -607,7 +607,7 @@ def mutate_payload(payload: dict[str, Any], name: str) -> dict[str, Any]:
         mutated["non_claims"] = mutated["non_claims"][1:]
     elif name == "next_backend_step_removed":
         mutated["next_backend_step"] = ""
-    elif name == "source_input_split_brain":
+    elif name == "source_score_row_commitment_alternative_drift":
         receipt["source_score_row_commitment"] = "blake2b-256:" + "33" * 32
     elif name == "unknown_field_injection":
         mutated["unexpected"] = True
