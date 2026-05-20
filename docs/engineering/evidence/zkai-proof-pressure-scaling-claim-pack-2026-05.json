@@ -9,7 +9,7 @@
   },
   "all_mutations_rejected": true,
   "claim_boundary": "BOUNDED_SCALE_SYNTHESIS_FOR_STARK_NATIVE_TRANSFORMER_PROOF_PRESSURE;USES_CHECKED_LOCAL_ARTIFACTS;NOT_D64_D128_D256_FULL_GRID_NOT_FULL_BLOCK_NOT_NANOZK_WIN_NOT_EXTERNAL_BENCHMARK",
-  "decision": "GO_BOUNDED_SCALE_SIGNAL_SYNTHESIS_NO_GO_FULL_BLOCK_OR_EXTERNAL_WIN",
+  "decision": "GO_BOUNDED_SCALE_SIGNAL_SYNTHESIS_KEEP_ISSUE_OPEN_FOR_FULL_GRID",
   "external_baseline_status": [
     {
       "comparison_status": "NOT_PROOF_SIZE_COMPARABLE",
@@ -44,6 +44,8 @@
   "fused_vs_split_rows": [
     {
       "axis_role": "baseline",
+      "binary_raw_bytes": null,
+      "binary_raw_status": "NOT_AVAILABLE_IN_CONTROLLED_COMPONENT_GRID_ROW",
       "category": "attention_fused_vs_split",
       "comparison_status": "LOCAL_MATCHED_ATTENTION_SOURCE_PLUS_SIDECAR",
       "heads": 1,
@@ -61,6 +63,8 @@
     },
     {
       "axis_role": "width_axis",
+      "binary_raw_bytes": null,
+      "binary_raw_status": "NOT_AVAILABLE_IN_CONTROLLED_COMPONENT_GRID_ROW",
       "category": "attention_fused_vs_split",
       "comparison_status": "LOCAL_MATCHED_ATTENTION_SOURCE_PLUS_SIDECAR",
       "heads": 1,
@@ -78,6 +82,8 @@
     },
     {
       "axis_role": "head_axis",
+      "binary_raw_bytes": null,
+      "binary_raw_status": "NOT_AVAILABLE_IN_CONTROLLED_COMPONENT_GRID_ROW",
       "category": "attention_fused_vs_split",
       "comparison_status": "LOCAL_MATCHED_ATTENTION_SOURCE_PLUS_SIDECAR",
       "heads": 2,
@@ -95,6 +101,8 @@
     },
     {
       "axis_role": "head_axis_extension",
+      "binary_raw_bytes": null,
+      "binary_raw_status": "NOT_AVAILABLE_IN_CONTROLLED_COMPONENT_GRID_ROW",
       "category": "attention_fused_vs_split",
       "comparison_status": "LOCAL_MATCHED_ATTENTION_SOURCE_PLUS_SIDECAR",
       "heads": 4,
@@ -112,6 +120,8 @@
     },
     {
       "axis_role": "head_axis_extension",
+      "binary_raw_bytes": null,
+      "binary_raw_status": "NOT_AVAILABLE_IN_CONTROLLED_COMPONENT_GRID_ROW",
       "category": "attention_fused_vs_split",
       "comparison_status": "LOCAL_MATCHED_ATTENTION_SOURCE_PLUS_SIDECAR",
       "heads": 8,
@@ -129,6 +139,8 @@
     },
     {
       "axis_role": "head_axis_extension",
+      "binary_raw_bytes": null,
+      "binary_raw_status": "NOT_AVAILABLE_IN_CONTROLLED_COMPONENT_GRID_ROW",
       "category": "attention_fused_vs_split",
       "comparison_status": "LOCAL_MATCHED_ATTENTION_SOURCE_PLUS_SIDECAR",
       "heads": 16,
@@ -146,6 +158,8 @@
     },
     {
       "axis_role": "sequence_axis",
+      "binary_raw_bytes": null,
+      "binary_raw_status": "NOT_AVAILABLE_IN_CONTROLLED_COMPONENT_GRID_ROW",
       "category": "attention_fused_vs_split",
       "comparison_status": "LOCAL_MATCHED_ATTENTION_SOURCE_PLUS_SIDECAR",
       "heads": 2,
@@ -163,6 +177,8 @@
     },
     {
       "axis_role": "sequence_axis_extension",
+      "binary_raw_bytes": null,
+      "binary_raw_status": "NOT_AVAILABLE_IN_CONTROLLED_COMPONENT_GRID_ROW",
       "category": "attention_fused_vs_split",
       "comparison_status": "LOCAL_MATCHED_ATTENTION_SOURCE_PLUS_SIDECAR",
       "heads": 2,
@@ -180,6 +196,8 @@
     },
     {
       "axis_role": "combined_width_head_axis",
+      "binary_raw_bytes": null,
+      "binary_raw_status": "NOT_AVAILABLE_IN_CONTROLLED_COMPONENT_GRID_ROW",
       "category": "attention_fused_vs_split",
       "comparison_status": "LOCAL_MATCHED_ATTENTION_SOURCE_PLUS_SIDECAR",
       "heads": 2,
@@ -197,6 +215,8 @@
     },
     {
       "axis_role": "combined_width_head_sequence_axis",
+      "binary_raw_bytes": null,
+      "binary_raw_status": "NOT_AVAILABLE_IN_CONTROLLED_COMPONENT_GRID_ROW",
       "category": "attention_fused_vs_split",
       "comparison_status": "LOCAL_MATCHED_ATTENTION_SOURCE_PLUS_SIDECAR",
       "heads": 2,
@@ -213,6 +233,8 @@
       "width": 16
     },
     {
+      "binary_raw_bytes": 1084,
+      "binary_raw_status": "LOCAL_RECORD_STREAM_ACCOUNTING_NOT_UPSTREAM_STWO_SERIALIZATION",
       "category": "native_attention_plus_mlp_boundary",
       "comparison_status": "LOCAL_MATCHED_SEQ32_D128_TWO_PROOF_FRONTIER",
       "json_bytes": 121996,
@@ -226,6 +248,8 @@
       "typed_saving_share": "0.108502"
     },
     {
+      "binary_raw_bytes": 1084,
+      "binary_raw_status": "LOCAL_RECORD_STREAM_ACCOUNTING_NOT_UPSTREAM_STWO_SERIALIZATION",
       "category": "statement_bound_native_attention_plus_mlp_boundary",
       "comparison_status": "LOCAL_MATCHED_SEQ32_D128_TWO_PROOF_FRONTIER",
       "json_bytes": 113388,
@@ -346,7 +370,7 @@
       "status": "OPEN_NEEDED"
     }
   ],
-  "payload_commitment": "blake2b-256:14ad43457b011953757b0c53e2ef9e78427f023767a83d384ad7d750f25ba59a",
+  "payload_commitment": "blake2b-256:907ffc1003e11110c4d5ab53f0d018a6a97e71a9c1f676a7a000d8e0a1122e34",
   "result": "TEN_ATTENTION_ROWS_SCALE_LOOKUP_PRESSURE_AND_SEQ32_D128_BOUNDARY_SAVES_7672_TYPED_BYTES",
   "scale_signal": {
     "all_checked_attention_rows_save_typed_bytes": true,

@@ -70,17 +70,23 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         self.assertEqual(seq32["matched_frontier_typed_bytes"], 31712)
         self.assertEqual(seq32["typed_bytes"], 22916)
         self.assertEqual(seq32["typed_saving_bytes"], 8796)
+        self.assertIsNone(seq32["binary_raw_bytes"])
+        self.assertEqual(seq32["binary_raw_status"], gate.ATTENTION_BINARY_RAW_STATUS)
         self.assertEqual(seq32["comparison_status"], "LOCAL_MATCHED_ATTENTION_SOURCE_PLUS_SIDECAR")
 
         native = rows["seq32_d128_native_single_proof"]
         self.assertEqual(native["typed_bytes"], 42068)
         self.assertEqual(native["matched_frontier_typed_bytes"], 47188)
         self.assertEqual(native["typed_saving_bytes"], 5120)
+        self.assertEqual(native["binary_raw_bytes"], 1084)
+        self.assertEqual(native["binary_raw_status"], gate.LOCAL_RECORD_STREAM_STATUS)
 
         statement = rows["seq32_d128_statement_only_probe_b"]
         self.assertEqual(statement["typed_bytes"], 39516)
         self.assertEqual(statement["matched_frontier_typed_bytes"], 47188)
         self.assertEqual(statement["typed_saving_bytes"], 7672)
+        self.assertEqual(statement["binary_raw_bytes"], 1084)
+        self.assertEqual(statement["binary_raw_status"], gate.LOCAL_RECORD_STREAM_STATUS)
 
     def test_external_rows_are_not_proof_size_comparable(self) -> None:
         rows = {row["system"]: row for row in self.payload["external_baseline_status"]}
@@ -139,7 +145,7 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
 
     def test_source_artifacts_are_bound_by_path_digest_and_size(self) -> None:
         artifacts = self.payload["source_artifacts"]
-        self.assertGreaterEqual(len(artifacts), 12)
+        self.assertEqual(tuple(artifact["id"] for artifact in artifacts), gate.EXPECTED_SOURCE_ARTIFACT_IDS)
         for artifact in artifacts:
             path = gate.ROOT / artifact["path"]
             self.assertTrue(path.is_file(), path)
@@ -151,6 +157,15 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         payload["source_artifacts"][0]["sha256"] = "0" * 64
         self.assert_rejects(payload, "source digest drift")
 
+        payload = self.strip_mutation_summary(self.payload)
+        payload["source_artifacts"] = payload["source_artifacts"][1:]
+        self.assert_rejects(payload, "source artifact id drift")
+
+        payload = self.strip_mutation_summary(self.payload)
+        payload["source_artifacts"].append(copy.deepcopy(payload["source_artifacts"][0]))
+        payload["source_artifacts"][-1]["id"] = "unexpected_extra_artifact"
+        self.assert_rejects(payload, "source artifact id drift")
+
     def test_write_outputs_round_trip(self) -> None:
         gate.validate_payload(self.payload)
         with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR) as tmp:
@@ -161,14 +176,26 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
             with self.assertRaisesRegex(gate.ProofPressureScalingClaimPackError, "output path must be"):
                 gate.write_outputs(self.payload, json_path.relative_to(gate.ROOT), tsv_path.relative_to(gate.ROOT))
 
-        gate.write_outputs(
-            self.payload,
-            gate.JSON_OUT.relative_to(gate.ROOT),
-            gate.TSV_OUT.relative_to(gate.ROOT),
-        )
-        loaded = json.loads(gate.JSON_OUT.read_text(encoding="utf-8"))
-        self.assertEqual(loaded, self.payload)
-        self.assertIn("seq32_d128_statement_only_probe_b", gate.TSV_OUT.read_text(encoding="utf-8"))
+        original_json = gate.JSON_OUT.read_bytes() if gate.JSON_OUT.exists() else None
+        original_tsv = gate.TSV_OUT.read_bytes() if gate.TSV_OUT.exists() else None
+        try:
+            gate.write_outputs(
+                self.payload,
+                gate.JSON_OUT.relative_to(gate.ROOT),
+                gate.TSV_OUT.relative_to(gate.ROOT),
+            )
+            loaded = json.loads(gate.JSON_OUT.read_text(encoding="utf-8"))
+            self.assertEqual(loaded, self.payload)
+            self.assertIn("seq32_d128_statement_only_probe_b", gate.TSV_OUT.read_text(encoding="utf-8"))
+        finally:
+            if original_json is None:
+                gate.JSON_OUT.unlink(missing_ok=True)
+            else:
+                gate.JSON_OUT.write_bytes(original_json)
+            if original_tsv is None:
+                gate.TSV_OUT.unlink(missing_ok=True)
+            else:
+                gate.TSV_OUT.write_bytes(original_tsv)
 
     def test_output_path_rejects_absolute_and_symlink_targets(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -187,6 +214,21 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
                     self.skipTest(f"symlink creation is unavailable: {err}")
                 with self.assertRaisesRegex(gate.ProofPressureScalingClaimPackError, "output path must be"):
                     gate.write_outputs(self.payload, link.relative_to(gate.ROOT), gate.TSV_OUT.relative_to(gate.ROOT))
+            finally:
+                link.unlink(missing_ok=True)
+
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR) as tmp:
+            target_dir = pathlib.Path(tmp) / "outside"
+            target_dir.mkdir()
+            link = gate.EVIDENCE_DIR / "claim-pack-parent-link-test"
+            link.unlink(missing_ok=True)
+            try:
+                try:
+                    link.symlink_to(target_dir, target_is_directory=True)
+                except OSError as err:
+                    self.skipTest(f"directory symlink creation is unavailable: {err}")
+                with self.assertRaisesRegex(gate.ProofPressureScalingClaimPackError, "symlink components"):
+                    gate._assert_no_symlink_components_for_output(link / "out.json", "output path")
             finally:
                 link.unlink(missing_ok=True)
 
