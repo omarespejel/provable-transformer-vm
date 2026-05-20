@@ -276,6 +276,16 @@
       "rejected": true
     },
     {
+      "error": "fuller grid coverage drift",
+      "name": "fuller_grid_coverage_drift",
+      "rejected": true
+    },
+    {
+      "error": "d32 metric drift",
+      "name": "fuller_grid_d32_metric_drift",
+      "rejected": true
+    },
+    {
       "error": "row typed saving arithmetic drift",
       "name": "attention_grid_row_loses_saving",
       "rejected": true
@@ -336,8 +346,8 @@
       "rejected": true
     }
   ],
-  "mutations_checked": 14,
-  "mutations_rejected": 14,
+  "mutations_checked": 16,
+  "mutations_rejected": 16,
   "non_claims": [
     "not a d64/d128/d256 attention grid",
     "not a seq64 proof row",
@@ -354,7 +364,7 @@
     {
       "go_gate": "add source-backed d64/d128/d256 or explicit no-go rows without changing the claim boundary",
       "id": "d64_d128_d256_grid",
-      "reason": "Issue #715 asked for d64/d128/d256 where feasible, but the checked attention grid currently covers d8/d16 width plus d128 MLP-side surfaces.",
+      "reason": "Issue #715 asked for d64/d128/d256 where feasible, but the checked attention route grid currently covers d8/d16/d32 plus d64/d128 MLP-side surfaces.",
       "status": "OPEN_NEEDED"
     },
     {
@@ -370,8 +380,8 @@
       "status": "OPEN_NEEDED"
     }
   ],
-  "payload_commitment": "blake2b-256:907ffc1003e11110c4d5ab53f0d018a6a97e71a9c1f676a7a000d8e0a1122e34",
-  "result": "TEN_ATTENTION_ROWS_SCALE_LOOKUP_PRESSURE_AND_SEQ32_D128_BOUNDARY_SAVES_7672_TYPED_BYTES",
+  "payload_commitment": "blake2b-256:3c32742b22db0ec19c76c2a895e48592ad9e21e4ca24938a56061aeb31ee9aff",
+  "result": "TEN_TYPED_ATTENTION_ROWS_AND_ELEVEN_ROUTE_ROWS_SCALE_PROOF_PRESSURE_WITH_SEQ32_D128_SAVING_7672",
   "scale_signal": {
     "all_checked_attention_rows_save_typed_bytes": true,
     "axes_checked": {
@@ -391,6 +401,28 @@
         8,
         16
       ]
+    },
+    "fuller_crossing_grid": {
+      "coverage_share": 0.244444,
+      "d32_single_head_seq8": {
+        "fused_json_proof_size_bytes": 107261,
+        "fused_to_source_plus_sidecar_ratio": 0.919259,
+        "lookup_claims": 52,
+        "profile_id": "d32_single_head_seq8",
+        "source_plus_sidecar_raw_proof_bytes": 116682
+      },
+      "grid_cell_count": 45,
+      "highest_proved_width": 32,
+      "missing_cell_count": 34,
+      "next_low_risk_profile_ids": [
+        "d32_two_head_seq8",
+        "d16_two_head_seq32",
+        "d32_two_head_seq16"
+      ],
+      "proved_all_axis_cell_count": 1,
+      "proved_cell_count": 11,
+      "proved_crossing_cell_count": 4,
+      "status": "GO_45_CELL_D8_D16_D32_ROUTE_GRID_WITH_11_PROVED_CELLS"
     },
     "largest_checked_combined_row": {
       "fused_typed_bytes": 31508,
@@ -432,6 +464,12 @@
       "path": "docs/engineering/evidence/zkai-attention-kv-stwo-controlled-component-grid-2026-05.json",
       "sha256": "f39d68a84070f0fc848d465fd260b711b42cacb2b6915e8da59181d355311f67",
       "size_bytes": 20770
+    },
+    {
+      "id": "fuller_crossing_grid",
+      "path": "docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json",
+      "sha256": "59247366b05eb781ff0aa3184e17f2a73b1d9ae8abb8b0888ab771f201139b14",
+      "size_bytes": 41021
     },
     {
       "id": "native_seq32_d128_single_proof",
@@ -507,6 +545,9 @@
     "current_best_inner_policy_bound_row": "seq32_d128_statement_only_probe_b",
     "current_best_inner_policy_bound_typed_bytes": 39516,
     "current_best_saving_vs_47188_frontier_bytes": 7672,
+    "fuller_grid_cell_count": 45,
+    "fuller_grid_missing_cell_count": 34,
+    "fuller_grid_proved_cell_count": 11,
     "open_followup_count": 3,
     "proof_size_comparable_external_rows": 0,
     "seq32_attention_typed_growth_vs_d8_single_head": "1.264401",
@@ -516,6 +557,8 @@
     "python3.10 scripts/zkai_proof_pressure_scaling_claim_pack_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-scaling-claim-pack-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-scaling-claim-pack-2026-05.tsv",
     "python3.10 -m py_compile scripts/zkai_proof_pressure_scaling_claim_pack_gate.py scripts/tests/test_zkai_proof_pressure_scaling_claim_pack_gate.py",
     "python3.10 -m unittest scripts.tests.test_zkai_proof_pressure_scaling_claim_pack_gate",
+    "python3.10 scripts/zkai_attention_kv_fuller_crossing_grid_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_fuller_crossing_grid_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_stwo_controlled_component_grid_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_single_proof_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_stwo_statement_only_attempt_transcript_gate",

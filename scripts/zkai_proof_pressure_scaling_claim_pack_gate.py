@@ -34,6 +34,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts import zkai_attention_kv_stwo_controlled_component_grid_gate as controlled_grid
+from scripts import zkai_attention_kv_fuller_crossing_grid_gate as fuller_grid
 from scripts import zkai_claim_audit_comparison_artifacts_gate as claim_audit
 from scripts import zkai_d64_external_adapter_surface_probe as d64_external
 from scripts import zkai_jolt_atlas_lookup_tensor_comparison_gate as jolt_comparison
@@ -46,6 +47,7 @@ JSON_OUT = EVIDENCE_DIR / "zkai-proof-pressure-scaling-claim-pack-2026-05.json"
 TSV_OUT = EVIDENCE_DIR / "zkai-proof-pressure-scaling-claim-pack-2026-05.tsv"
 
 CONTROLLED_GRID_PATH = EVIDENCE_DIR / "zkai-attention-kv-stwo-controlled-component-grid-2026-05.json"
+FULLER_CROSSING_GRID_PATH = EVIDENCE_DIR / "zkai-attention-kv-fuller-crossing-grid-2026-05.json"
 NATIVE_SINGLE_PATH = EVIDENCE_DIR / "zkai-native-seq32-attention-mlp-single-proof-2026-05.json"
 STATEMENT_ONLY_PATH = EVIDENCE_DIR / "zkai-stwo-statement-only-attempt-transcript-gate-2026-05.json"
 NATIVE_SINGLE_ACCOUNTING_PATH = (
@@ -67,7 +69,7 @@ MEDIAN_TIMING_PATH = EVIDENCE_DIR / "zkai-native-seq32-attention-mlp-median-timi
 SCHEMA = "zkai-proof-pressure-scaling-claim-pack-v1"
 ISSUE = "https://github.com/omarespejel/provable-transformer-vm/issues/715"
 DECISION = "GO_BOUNDED_SCALE_SIGNAL_SYNTHESIS_KEEP_ISSUE_OPEN_FOR_FULL_GRID"
-RESULT = "TEN_ATTENTION_ROWS_SCALE_LOOKUP_PRESSURE_AND_SEQ32_D128_BOUNDARY_SAVES_7672_TYPED_BYTES"
+RESULT = "TEN_TYPED_ATTENTION_ROWS_AND_ELEVEN_ROUTE_ROWS_SCALE_PROOF_PRESSURE_WITH_SEQ32_D128_SAVING_7672"
 PAYLOAD_DOMAIN = "ptvm:zkai:proof-pressure-scaling-claim-pack:v1"
 CLAIM_BOUNDARY = (
     "BOUNDED_SCALE_SYNTHESIS_FOR_STARK_NATIVE_TRANSFORMER_PROOF_PRESSURE;"
@@ -79,6 +81,8 @@ VALIDATION_COMMANDS = (
     "python3.10 scripts/zkai_proof_pressure_scaling_claim_pack_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-scaling-claim-pack-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-scaling-claim-pack-2026-05.tsv",
     "python3.10 -m py_compile scripts/zkai_proof_pressure_scaling_claim_pack_gate.py scripts/tests/test_zkai_proof_pressure_scaling_claim_pack_gate.py",
     "python3.10 -m unittest scripts.tests.test_zkai_proof_pressure_scaling_claim_pack_gate",
+    "python3.10 scripts/zkai_attention_kv_fuller_crossing_grid_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_fuller_crossing_grid_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_stwo_controlled_component_grid_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_single_proof_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_stwo_statement_only_attempt_transcript_gate",
@@ -105,7 +109,7 @@ OPEN_FOLLOWUPS = (
     {
         "id": "d64_d128_d256_grid",
         "status": "OPEN_NEEDED",
-        "reason": "Issue #715 asked for d64/d128/d256 where feasible, but the checked attention grid currently covers d8/d16 width plus d128 MLP-side surfaces.",
+        "reason": "Issue #715 asked for d64/d128/d256 where feasible, but the checked attention route grid currently covers d8/d16/d32 plus d64/d128 MLP-side surfaces.",
         "go_gate": "add source-backed d64/d128/d256 or explicit no-go rows without changing the claim boundary",
     },
     {
@@ -135,6 +139,8 @@ FORBIDDEN_CLAIM_PATTERNS = (
 MUTATION_NAMES = (
     "lookup_growth_drift",
     "typed_growth_drift",
+    "fuller_grid_coverage_drift",
+    "fuller_grid_d32_metric_drift",
     "attention_grid_row_loses_saving",
     "native_single_saving_drift",
     "statement_only_saving_drift",
@@ -170,6 +176,7 @@ LOCAL_RECORD_STREAM_STATUS = "LOCAL_RECORD_STREAM_ACCOUNTING_NOT_UPSTREAM_STWO_S
 
 EXPECTED_SOURCE_ARTIFACT_IDS = (
     "controlled_component_grid",
+    "fuller_crossing_grid",
     "native_seq32_d128_single_proof",
     "statement_only_attempt_transcript",
     "native_single_binary_accounting",
@@ -361,6 +368,10 @@ def load_checked_payloads() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     controlled_grid.validate_payload(controlled_payload)
     sources[source["id"]] = source
 
+    fuller_payload, source = read_json_source(FULLER_CROSSING_GRID_PATH, "fuller_crossing_grid")
+    fuller_grid.validate_result(fuller_payload)
+    sources[source["id"]] = source
+
     native_payload, source = read_json_source(NATIVE_SINGLE_PATH, "native_seq32_d128_single_proof")
     native_single.validate_payload(native_payload)
     sources[source["id"]] = source
@@ -407,6 +418,7 @@ def load_checked_payloads() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
 
     payloads = {
         "controlled": controlled_payload,
+        "fuller": fuller_payload,
         "native": native_payload,
         "statement": statement_payload,
         "native_accounting": native_accounting,
@@ -465,7 +477,7 @@ def _row_by_id(rows: Iterable[dict[str, Any]], profile_id: str) -> dict[str, Any
     raise ProofPressureScalingClaimPackError(f"missing profile row: {profile_id}")
 
 
-def build_scale_signal(controlled_payload: dict[str, Any]) -> dict[str, Any]:
+def build_scale_signal(controlled_payload: dict[str, Any], fuller_payload: dict[str, Any]) -> dict[str, Any]:
     rows = require_list(controlled_payload.get("grid_rows"), "controlled grid rows")
     typed_rows = [require_dict(row, f"grid_rows[{index}]") for index, row in enumerate(rows)]
     baseline = _row_by_id(typed_rows, "d8_single_head_seq8")
@@ -486,6 +498,11 @@ def build_scale_signal(controlled_payload: dict[str, Any]) -> dict[str, Any]:
         raise ProofPressureScalingClaimPackError("controlled grid contains non-positive fused saving")
 
     aggregate = require_dict(controlled_payload.get("aggregate"), "controlled aggregate")
+    fuller_summary = require_dict(fuller_payload.get("summary"), "fuller grid summary")
+    fuller_rows = [require_dict(row, "fuller grid row") for row in require_list(fuller_payload.get("grid_rows"), "fuller grid rows")]
+    d32_single_head = next((row for row in fuller_rows if row.get("cell_id") == "d32_h1_seq8"), None)
+    if d32_single_head is None:
+        raise ProofPressureScalingClaimPackError("fuller grid d32 single-head row missing")
     return {
         "status": "GO_SCALE_SIGNAL_FROM_CHECKED_D8_D16_ATTENTION_GRID",
         "profiles_checked": int_field(aggregate.get("profiles_checked"), "profiles checked"),
@@ -534,6 +551,37 @@ def build_scale_signal(controlled_payload: dict[str, Any]) -> dict[str, Any]:
             ),
             "typed_saving_bytes": int_field(d16_two_head_seq16.get("typed_savings_bytes"), "d16 seq16 saving"),
             "typed_saving_share": d16_two_head_seq16.get("typed_saving_share"),
+        },
+        "fuller_crossing_grid": {
+            "status": "GO_45_CELL_D8_D16_D32_ROUTE_GRID_WITH_11_PROVED_CELLS",
+            "grid_cell_count": int_field(fuller_summary.get("grid_cell_count"), "fuller grid cells"),
+            "proved_cell_count": int_field(fuller_summary.get("proved_cell_count"), "fuller proved cells"),
+            "missing_cell_count": int_field(fuller_summary.get("missing_cell_count"), "fuller missing cells"),
+            "coverage_share": fuller_summary.get("coverage_share"),
+            "proved_crossing_cell_count": int_field(
+                fuller_summary.get("proved_crossing_cell_count"), "fuller proved crossing cells"
+            ),
+            "proved_all_axis_cell_count": int_field(
+                fuller_summary.get("proved_all_axis_cell_count"), "fuller proved all-axis cells"
+            ),
+            "highest_proved_width": max(
+                int(key) for key in require_dict(fuller_summary.get("proved_counts_by_width"), "fuller width counts")
+            ),
+            "next_low_risk_profile_ids": [
+                string_field(row.get("profile_id"), "next low-risk profile")
+                for row in require_list(fuller_payload.get("next_low_risk_profiles"), "fuller next profiles")
+            ],
+            "d32_single_head_seq8": {
+                "profile_id": string_field(d32_single_head.get("profile_id"), "d32 profile id"),
+                "lookup_claims": int_field(d32_single_head.get("lookup_claims"), "d32 lookup claims"),
+                "fused_json_proof_size_bytes": int_field(
+                    d32_single_head.get("fused_proof_size_bytes"), "d32 fused proof bytes"
+                ),
+                "source_plus_sidecar_raw_proof_bytes": int_field(
+                    d32_single_head.get("source_plus_sidecar_raw_proof_bytes"), "d32 source plus sidecar bytes"
+                ),
+                "fused_to_source_plus_sidecar_ratio": d32_single_head.get("fused_to_source_plus_sidecar_ratio"),
+            },
         },
     }
 
@@ -748,6 +796,15 @@ def build_summary(rows: list[dict[str, Any]], scale_signal: dict[str, Any]) -> d
         "seq32_attention_typed_growth_vs_d8_single_head": require_dict(
             scale_signal.get("seq32_vs_d8_single_head"), "seq32 signal"
         )["typed_byte_growth"],
+        "fuller_grid_cell_count": require_dict(scale_signal.get("fuller_crossing_grid"), "fuller grid")[
+            "grid_cell_count"
+        ],
+        "fuller_grid_proved_cell_count": require_dict(scale_signal.get("fuller_crossing_grid"), "fuller grid")[
+            "proved_cell_count"
+        ],
+        "fuller_grid_missing_cell_count": require_dict(scale_signal.get("fuller_crossing_grid"), "fuller grid")[
+            "missing_cell_count"
+        ],
         "current_best_inner_policy_bound_row": best_boundary["row_id"],
         "current_best_inner_policy_bound_typed_bytes": best_boundary["typed_bytes"],
         "current_best_saving_vs_47188_frontier_bytes": best_boundary["typed_saving_bytes"],
@@ -785,7 +842,7 @@ def assert_no_forbidden_positive_claims(payload: dict[str, Any]) -> None:
 
 def build_payload(*, include_mutations: bool = True) -> dict[str, Any]:
     payloads, sources = load_checked_payloads()
-    scale_signal = build_scale_signal(payloads["controlled"])
+    scale_signal = build_scale_signal(payloads["controlled"], payloads["fuller"])
     rows = build_attention_rows(payloads["controlled"])
     rows.extend(
         build_boundary_rows(
@@ -833,6 +890,12 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
     def mutate_typed_growth(item: dict[str, Any]) -> None:
         item["scale_signal"]["seq32_vs_d8_single_head"]["typed_byte_growth"] = "22.769231"
 
+    def mutate_fuller_grid_coverage(item: dict[str, Any]) -> None:
+        item["scale_signal"]["fuller_crossing_grid"]["proved_cell_count"] = 45
+
+    def mutate_fuller_grid_d32_metric(item: dict[str, Any]) -> None:
+        item["scale_signal"]["fuller_crossing_grid"]["d32_single_head_seq8"]["fused_json_proof_size_bytes"] = 1
+
     def mutate_attention_saving(item: dict[str, Any]) -> None:
         row = next(row for row in item["fused_vs_split_rows"] if row["row_id"] == "d8_two_head_seq32")
         row["typed_saving_bytes"] = 0
@@ -877,6 +940,8 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
     mutations: tuple[tuple[str, Callable[[dict[str, Any]], None]], ...] = (
         ("lookup_growth_drift", mutate_lookup_growth),
         ("typed_growth_drift", mutate_typed_growth),
+        ("fuller_grid_coverage_drift", mutate_fuller_grid_coverage),
+        ("fuller_grid_d32_metric_drift", mutate_fuller_grid_d32_metric),
         ("attention_grid_row_loses_saving", mutate_attention_saving),
         ("native_single_saving_drift", mutate_native_saving),
         ("statement_only_saving_drift", mutate_statement_saving),
@@ -1006,6 +1071,32 @@ def validate_scale_signal(payload: dict[str, Any]) -> None:
         raise ProofPressureScalingClaimPackError("baseline bytes per lookup drift")
     if seq32.get("seq32_typed_bytes_per_lookup_claim") != "19.354730":
         raise ProofPressureScalingClaimPackError("seq32 bytes per lookup drift")
+    fuller = require_dict(signal.get("fuller_crossing_grid"), "fuller crossing grid")
+    if fuller.get("status") != "GO_45_CELL_D8_D16_D32_ROUTE_GRID_WITH_11_PROVED_CELLS":
+        raise ProofPressureScalingClaimPackError("fuller grid status drift")
+    if fuller.get("grid_cell_count") != 45 or fuller.get("proved_cell_count") != 11:
+        raise ProofPressureScalingClaimPackError("fuller grid coverage drift")
+    if fuller.get("missing_cell_count") != 34 or fuller.get("coverage_share") != 0.244444:
+        raise ProofPressureScalingClaimPackError("fuller grid missing coverage drift")
+    if fuller.get("proved_crossing_cell_count") != 4 or fuller.get("proved_all_axis_cell_count") != 1:
+        raise ProofPressureScalingClaimPackError("fuller grid crossing count drift")
+    if fuller.get("highest_proved_width") != 32:
+        raise ProofPressureScalingClaimPackError("fuller grid width drift")
+    if fuller.get("next_low_risk_profile_ids") != [
+        "d32_two_head_seq8",
+        "d16_two_head_seq32",
+        "d32_two_head_seq16",
+    ]:
+        raise ProofPressureScalingClaimPackError("fuller next profile drift")
+    d32 = require_dict(fuller.get("d32_single_head_seq8"), "d32 single-head row")
+    if d32.get("profile_id") != "d32_single_head_seq8":
+        raise ProofPressureScalingClaimPackError("d32 profile drift")
+    if d32.get("lookup_claims") != 52 or d32.get("fused_json_proof_size_bytes") != 107_261:
+        raise ProofPressureScalingClaimPackError("d32 metric drift")
+    if d32.get("source_plus_sidecar_raw_proof_bytes") != 116_682:
+        raise ProofPressureScalingClaimPackError("d32 comparator metric drift")
+    if d32.get("fused_to_source_plus_sidecar_ratio") != 0.919259:
+        raise ProofPressureScalingClaimPackError("d32 ratio drift")
 
 
 def validate_external_status(payload: dict[str, Any]) -> None:
@@ -1073,6 +1164,8 @@ def validate_payload(payload: dict[str, Any], *, check_mutations: bool = True) -
         raise ProofPressureScalingClaimPackError("proof-size comparable external row drift")
     if summary.get("current_best_inner_policy_bound_typed_bytes") != 39_516:
         raise ProofPressureScalingClaimPackError("best boundary summary drift")
+    if summary.get("fuller_grid_proved_cell_count") != 11 or summary.get("fuller_grid_missing_cell_count") != 34:
+        raise ProofPressureScalingClaimPackError("fuller grid summary drift")
     validate_source_artifacts(payload)
     if payload.get("payload_commitment") != payload_commitment(payload):
         raise ProofPressureScalingClaimPackError("payload commitment drift")

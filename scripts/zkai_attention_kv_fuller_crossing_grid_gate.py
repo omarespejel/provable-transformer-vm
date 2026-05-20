@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.10
 """Fuller width/head/sequence crossing grid for fused Softmax-table routes.
 
 This gate is intentionally derived from the checked route matrix. It does not
@@ -18,6 +18,9 @@ import sys
 import tempfile
 from itertools import product
 from typing import Any
+
+if sys.version_info < (3, 10):
+    raise RuntimeError("zkai_attention_kv_fuller_crossing_grid_gate requires Python 3.10+")
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -75,10 +78,10 @@ EXPECTED_PROVED_PROFILE_IDS = (
     "d16_two_head_seq16",
 )
 VALIDATION_COMMANDS = (
-    "python3 scripts/zkai_attention_kv_fuller_crossing_grid_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.tsv",
-    "python3 -m unittest scripts.tests.test_zkai_attention_kv_fuller_crossing_grid_gate",
-    "python3 scripts/zkai_attention_kv_fused_softmax_table_route_matrix_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.tsv",
-    "python3 -m unittest scripts.tests.test_zkai_attention_kv_fused_softmax_table_route_matrix_gate",
+    "python3.10 scripts/zkai_attention_kv_fuller_crossing_grid_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_fuller_crossing_grid_gate",
+    "python3.10 scripts/zkai_attention_kv_fused_softmax_table_route_matrix_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_fused_softmax_table_route_matrix_gate",
 )
 GO_CRITERIA = (
     "the upstream fused Softmax-table route matrix validates locally",
