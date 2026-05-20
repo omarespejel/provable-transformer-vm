@@ -2934,11 +2934,13 @@ not a NANOZK comparison. See
 Stwo statement-only attempt transcript reproducibility metadata:
 
 - Gate schema: `zkai-stwo-statement-only-attempt-transcript-gate-v1`.
+- Backend version:
+  `stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-v1`.
 - Decision:
   `GO_STATEMENT_ONLY_ATTEMPT_POLICY_TRANSCRIPT_REDUCES_REGENERATED_STWO_PROOF_BYTES`.
 - Result:
   `STATEMENT_ONLY_PROBE_B_VERIFIES_AT_39516_TYPED_BYTES_SAVING_1376_VS_FULL_POLICY_MIX`.
-- Timing mode: proof-size/accounting correctness only; no timing claim, no
+- Timing mode: `none; proof-size/accounting correctness gate only`; no timing claim, no
   external benchmark claim, no NANOZK comparison, and no full transformer block
   proof.
 - Evidence paths:
@@ -2946,16 +2948,16 @@ Stwo statement-only attempt transcript reproducibility metadata:
   and
   `docs/engineering/evidence/zkai-stwo-statement-only-attempt-transcript-gate-2026-05.tsv`.
 - Gate JSON SHA-256:
-  `984e2dcdf295d1f863d2604320ec7323736861e80bab1f310f4b3eadcb48329b`.
+  `d6e8d8ebe36fc438b61ba879cc9d6979cf437a76fe2beda98477138e0e341881`.
 - Gate TSV SHA-256:
-  `f988cad6f50bd98fb689e85cf697d2165fd5dab55ba0b3946df0d2a186f39b04`.
+  `fcfe6d3d1c849a7e2ab2b1f7c7e20590815e3c35f599672f2dd65194f19f7b6e`.
 - Statement-only accounting SHA-256:
   `4ca7429d9e97e9fe54526618f36027757ca67a6184478dcfc06045396f765f2c`.
 - Transcript profile accounting SHA-256:
   `92d99a4aeb0169ac50e6380f67ad412f11d4985e1e55eb163c4262d965ad8072`.
 - Payload commitment:
-  `blake2b-256:394f91b80bfffc57a25577a225c371d638402f9db76abea28e4ff52a97c75dfc`.
-- Step counts: `20` Python mutation cases and `7` Python unit tests.
+  `blake2b-256:a60425f6b2fbb4c4b791aab941a41d8a4b0dbeb8a0951252bd33e02f90b9f76d`.
+- Step counts: `20` Python mutation cases and `8` Python unit tests.
 - Local validation commands:
   `python3.10 scripts/zkai_stwo_statement_only_attempt_transcript_gate.py --write-json docs/engineering/evidence/zkai-stwo-statement-only-attempt-transcript-gate-2026-05.json --write-tsv docs/engineering/evidence/zkai-stwo-statement-only-attempt-transcript-gate-2026-05.tsv`;
   `python3.10 -m py_compile scripts/zkai_stwo_statement_only_attempt_transcript_gate.py scripts/tests/test_zkai_stwo_statement_only_attempt_transcript_gate.py`;

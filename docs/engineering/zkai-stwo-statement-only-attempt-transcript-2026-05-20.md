@@ -116,11 +116,17 @@ Accounting and gate outputs:
 Gate schema:
 `zkai-stwo-statement-only-attempt-transcript-gate-v1`
 
+Backend version:
+`stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-v1`
+
+Timing mode:
+`none; proof-size/accounting correctness gate only`
+
 Gate JSON SHA-256:
-`984e2dcdf295d1f863d2604320ec7323736861e80bab1f310f4b3eadcb48329b`
+`d6e8d8ebe36fc438b61ba879cc9d6979cf437a76fe2beda98477138e0e341881`
 
 Gate TSV SHA-256:
-`f988cad6f50bd98fb689e85cf697d2165fd5dab55ba0b3946df0d2a186f39b04`
+`fcfe6d3d1c849a7e2ab2b1f7c7e20590815e3c35f599672f2dd65194f19f7b6e`
 
 Statement-only accounting SHA-256:
 `4ca7429d9e97e9fe54526618f36027757ca67a6184478dcfc06045396f765f2c`
@@ -129,12 +135,12 @@ Transcript profile accounting SHA-256:
 `92d99a4aeb0169ac50e6380f67ad412f11d4985e1e55eb163c4262d965ad8072`
 
 Payload commitment:
-`blake2b-256:394f91b80bfffc57a25577a225c371d638402f9db76abea28e4ff52a97c75dfc`
+`blake2b-256:a60425f6b2fbb4c4b791aab941a41d8a4b0dbeb8a0951252bd33e02f90b9f76d`
 
 Mutation coverage:
 
 - Python gate mutations: `20 / 20` rejected.
-- Python unit tests: `7`.
+- Python unit tests: `8`.
 
 Commands:
 

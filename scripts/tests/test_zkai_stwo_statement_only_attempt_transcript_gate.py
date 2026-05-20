@@ -75,6 +75,13 @@ class StwoStatementOnlyAttemptTranscriptGateTest(unittest.TestCase):
         self.assertEqual(set(mutation["outcomes"]), set(self.gate.MUTATION_NAMES))
         self.assertTrue(all(value == "rejected" for value in mutation["outcomes"].values()))
 
+    def test_mutation_outcome_drift_rejected(self) -> None:
+        payload = copy.deepcopy(self.__class__.payload)
+        first_name = self.gate.MUTATION_NAMES[0]
+        payload["mutation_result"]["outcomes"][first_name] = "accepted"
+        with self.assertRaisesRegex(self.gate.StatementOnlyAttemptTranscriptGateError, "mutation outcome drift"):
+            self.gate.validate_payload(payload, check_commitment=False)
+
     def test_rejects_claim_and_artifact_drift(self) -> None:
         cases = [
             (
