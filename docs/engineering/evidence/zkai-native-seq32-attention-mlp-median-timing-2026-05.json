@@ -63,7 +63,7 @@
         "name": "target_json_bytes_drift"
       },
       {
-        "error": "source digest raw_timing_json mismatch: got '0000000000000000000000000000000000000000000000000000000000000000', expected '9d628ac58eda9a25e976321a934f91f6313639c955d8a86496065740e3738cb9'",
+        "error": "source digest raw_timing_json mismatch: got '0000000000000000000000000000000000000000000000000000000000000000', expected '633c08af202dad3c108e967c017925c134dd94c841f2233b4535bfa93fac6ce6'",
         "layer": "artifact_binding",
         "name": "source_digest_relabeling"
       },
@@ -73,7 +73,7 @@
         "name": "sample_count_relabeling"
       },
       {
-        "error": "payload commitment mismatch: got 'blake2b-256:a46f2a1eac7bd1ad0589ad40198d6dfc1a77a1a5550c98fea453f6330314c95e', expected 'blake2b-256:0351a6910a652528a4e5a897f07053d111d5827076b9840aa950e2e448f5f847'",
+        "error": "payload commitment mismatch: got 'blake2b-256:c048d39b33bbdd6ca88cd1b5a5cf44eec4972df3df12020fb244a3ccd17e4b59', expected 'blake2b-256:75279e0c1038ccaf1d0061a3ec68e49ef006c7e3e3f081847b5be1c938cb7521'",
         "layer": "parser_or_schema",
         "name": "prove_metric_zeroed"
       },
@@ -93,7 +93,7 @@
         "name": "validation_command_removed"
       },
       {
-        "error": "payload commitment mismatch: got 'blake2b-256:0000000000000000000000000000000000000000000000000000000000000000', expected 'blake2b-256:a46f2a1eac7bd1ad0589ad40198d6dfc1a77a1a5550c98fea453f6330314c95e'",
+        "error": "payload commitment mismatch: got 'blake2b-256:0000000000000000000000000000000000000000000000000000000000000000', expected 'blake2b-256:c048d39b33bbdd6ca88cd1b5a5cf44eec4972df3df12020fb244a3ccd17e4b59'",
         "layer": "parser_or_schema",
         "name": "payload_commitment_drift"
       }
@@ -124,16 +124,16 @@
     "not GitHub Actions evidence",
     "not a full transformer block benchmark"
   ],
-  "payload_commitment": "blake2b-256:76ab32e8db66f6024e7668b5c400f9cac2f3e22770a0b2d334cf3ceabaf6e2aa",
+  "payload_commitment": "blake2b-256:7fef425c3e39297b03aa32d7a2503e2b00fb3ea63518e6cf52e878fc3bdb71be",
   "result": "GO_MEDIAN_OF_5_BUILD_PROVE_VERIFY_TIMING_CAPTURED_WITH_NON_BENCHMARK_GUARDRAILS",
   "schema": "zkai-native-seq32-attention-mlp-median-timing-gate-v1",
   "source_artifacts": [
     {
-      "bytes": 5021,
+      "bytes": 5010,
       "id": "raw_timing_json",
       "kind": "raw_timing_json",
       "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-median-timing-raw-2026-05.json",
-      "sha256": "9d628ac58eda9a25e976321a934f91f6313639c955d8a86496065740e3738cb9"
+      "sha256": "633c08af202dad3c108e967c017925c134dd94c841f2233b4535bfa93fac6ce6"
     },
     {
       "bytes": 19126,
@@ -143,11 +143,11 @@
       "sha256": "d6e8d8ebe36fc438b61ba879cc9d6979cf437a76fe2beda98477138e0e341881"
     },
     {
-      "bytes": 20956,
+      "bytes": 21926,
       "id": "timing_rust_source",
       "kind": "rust_source",
       "path": "src/bin/zkai_native_seq32_attention_mlp_median_timing.rs",
-      "sha256": "62862a74acd916dbec04f9e3cfdb09aa1574662eca6b2cded4409c131daf0716"
+      "sha256": "907060ea01f874129bd232183a1c88f34e449fb69cc7e400b0bc52ad70ae3d99"
     },
     {
       "bytes": 168715,
@@ -170,48 +170,48 @@
   "timing_policy": "median_of_5_in_process_std_time_instant_microsecond_capture_engineering_only",
   "timing_rows": [
     {
-      "max_us": 1197446,
-      "median_us": 845225,
+      "max_us": 793783,
+      "median_us": 778465,
       "metric": "build_input_from_source_json_us",
-      "min_us": 766867,
+      "min_us": 760109,
       "runs_us": [
-        838561,
-        845225,
-        766867,
-        1197446,
-        1094362
+        778465,
+        793783,
+        760109,
+        773608,
+        788832
       ]
     },
     {
-      "max_us": 1621501,
-      "median_us": 1505001,
+      "max_us": 1310328,
+      "median_us": 1292909,
       "metric": "prove_existing_input_us",
-      "min_us": 1422555,
+      "min_us": 1233365,
       "runs_us": [
-        1621501,
-        1434847,
-        1505001,
-        1535203,
-        1422555
+        1292909,
+        1310328,
+        1298799,
+        1247655,
+        1233365
       ]
     },
     {
-      "max_us": 1145679,
-      "median_us": 1011613,
+      "max_us": 922254,
+      "median_us": 898432,
       "metric": "verify_existing_envelope_us",
-      "min_us": 1006541,
+      "min_us": 889941,
       "runs_us": [
-        1075991,
-        1006541,
-        1145679,
-        1010662,
-        1011613
+        898432,
+        922254,
+        900604,
+        889941,
+        896172
       ]
     }
   ],
   "timing_scope": "build_input_from_source_json_plus_existing_input_prove_plus_existing_envelope_verify",
   "timing_summary": {
-    "build_input_median_us": 845225,
+    "build_input_median_us": 778465,
     "generated_proof_json_bytes_all": [
       113388,
       113388,
@@ -219,10 +219,10 @@
       113388,
       113388
     ],
-    "prove_median_us": 1505001,
-    "prove_to_verify_median_ratio": 1.487724,
+    "prove_median_us": 1292909,
+    "prove_to_verify_median_ratio": 1.439073,
     "sample_count": 5,
-    "verify_median_us": 1011613
+    "verify_median_us": 898432
   },
   "validation_commands": [
     "cargo +nightly-2025-07-14 run --locked --release --features stwo-backend --bin zkai_native_seq32_attention_mlp_median_timing -- --evidence-dir docs/engineering/evidence --runs 5 > docs/engineering/evidence/zkai-native-seq32-attention-mlp-median-timing-raw-2026-05.json",

@@ -59,6 +59,15 @@ const EXPECTED_STATEMENT_POLICY_STAGE: &str = "inner_statement_digest_only_trans
 #[cfg(feature = "stwo-backend")]
 const EXPECTED_SELECTED_ATTEMPT_ID: &str = "adjacent_label_probe_b";
 #[cfg(feature = "stwo-backend")]
+const EXPECTED_STATEMENT_COMMITMENT: &str =
+    "blake2b-256:6a14c2912df3b2dcd3ce298d8bde566317468be53d084a42104249d7304cf712";
+#[cfg(feature = "stwo-backend")]
+const EXPECTED_PUBLIC_INSTANCE_COMMITMENT: &str =
+    "blake2b-256:dda271e9eeae84b8ade4020dd7146be75e1160e00368948173bd4796dcdff954";
+#[cfg(feature = "stwo-backend")]
+const EXPECTED_PROOF_NATIVE_PARAMETER_COMMITMENT: &str =
+    "blake2b-256:ed60a38df328e49773410b2335fed805704478ce07712147f3b855be9924b1d2";
+#[cfg(feature = "stwo-backend")]
 const DEFAULT_ATTENTION_SOURCE: &str =
     "zkai-attention-kv-stwo-native-two-head-seq32-bounded-softmax-table-proof-2026-05.json";
 #[cfg(feature = "stwo-backend")]
@@ -352,6 +361,15 @@ fn validate_statement_only_target(
     }
     if input.current_two_proof_frontier_typed_bytes != EXPECTED_TWO_PROOF_FRONTIER_TYPED_BYTES {
         return Err("two-proof frontier drift".to_string());
+    }
+    if input.statement_commitment != EXPECTED_STATEMENT_COMMITMENT {
+        return Err("statement commitment drift".to_string());
+    }
+    if input.public_instance_commitment != EXPECTED_PUBLIC_INSTANCE_COMMITMENT {
+        return Err("public-instance commitment drift".to_string());
+    }
+    if input.proof_native_parameter_commitment != EXPECTED_PROOF_NATIVE_PARAMETER_COMMITMENT {
+        return Err("proof native parameter commitment drift".to_string());
     }
     if proof_json_bytes != EXPECTED_JSON_PROOF_BYTES {
         return Err(format!(
