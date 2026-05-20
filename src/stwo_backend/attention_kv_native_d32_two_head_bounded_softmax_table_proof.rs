@@ -307,14 +307,16 @@ impl FrameworkEval for AttentionKvNativeD32TwoHeadBoundedSoftmaxTableEval {
         }
 
         let column_ids = column_ids();
-        debug_assert_eq!(
-            column_ids.len(),
-            trace_values.len(),
-            "bounded softmax-table AIR column/value count drift",
-        );
-        for (column_id, trace_value) in column_ids.iter().zip(trace_values) {
-            let public_value = eval.get_preprocessed_column(preprocessed_column_id(column_id));
-            eval.add_constraint(trace_value - public_value);
+        if column_ids.len() == trace_values.len() {
+            for index in 0..column_ids.len() {
+                let public_value =
+                    eval.get_preprocessed_column(preprocessed_column_id(&column_ids[index]));
+                eval.add_constraint(trace_values[index].clone() - public_value);
+            }
+        } else {
+            // FrameworkEval cannot return Result; make layout drift unsatisfiable
+            // in optimized builds instead of silently truncating bindings.
+            eval.add_constraint(E::F::from(BaseField::from(1u32)));
         }
 
         eval.add_constraint(enabled.clone() * (enabled.clone() - one.clone()));

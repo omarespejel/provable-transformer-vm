@@ -263,14 +263,16 @@ impl FrameworkEval for AttentionKvNativeD32TwoHeadFusedSoftmaxTableEval {
         }
 
         let row_column_ids = fused_row_column_ids();
-        debug_assert_eq!(
-            row_column_ids.len(),
-            trace_values.len(),
-            "fused softmax-table AIR column/value count drift",
-        );
-        for (column_id, trace_value) in row_column_ids.iter().zip(trace_values) {
-            let public_value = eval.get_preprocessed_column(preprocessed_column_id(column_id));
-            eval.add_constraint(trace_value - public_value);
+        if row_column_ids.len() == trace_values.len() {
+            for index in 0..row_column_ids.len() {
+                let public_value =
+                    eval.get_preprocessed_column(preprocessed_column_id(&row_column_ids[index]));
+                eval.add_constraint(trace_values[index].clone() - public_value);
+            }
+        } else {
+            // FrameworkEval cannot return Result; make layout drift unsatisfiable
+            // in optimized builds instead of silently truncating bindings.
+            eval.add_constraint(E::F::from(BaseField::from(1u32)));
         }
 
         let table_gap =
