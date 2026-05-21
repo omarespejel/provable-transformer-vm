@@ -298,7 +298,10 @@ def verify_lookup_envelope_bytes_with_native_cli(envelope_bytes: bytes, label: s
             os.fsync(tmp.fileno())
     except Exception:
         if tmp_path is not None:
-            tmp_path.unlink(missing_ok=True)
+            try:
+                tmp_path.unlink(missing_ok=True)
+            except OSError:
+                pass
         raise
     command = [
         "cargo",
@@ -809,12 +812,23 @@ def to_tsv(payload: dict[str, Any]) -> str:
 
 
 def fsync_parent_dir(path: pathlib.Path) -> None:
-    try:
-        fd = os.open(path.parent, os.O_RDONLY)
-    except OSError:
+    if os.name == "nt":
         return
+    flags = os.O_RDONLY
+    if hasattr(os, "O_DIRECTORY"):
+        flags |= os.O_DIRECTORY
+    try:
+        fd = os.open(path.parent, flags)
+    except OSError as err:
+        raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+            f"failed to open artifact parent directory for fsync {path.parent}: {err}"
+        ) from err
     try:
         os.fsync(fd)
+    except OSError as err:
+        raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+            f"failed to fsync artifact parent directory {path.parent}: {err}"
+        ) from err
     finally:
         os.close(fd)
 
@@ -843,7 +857,10 @@ def safe_write_text(path: pathlib.Path, content: str, label: str) -> None:
         fsync_parent_dir(path)
     except Exception:
         if tmp_path is not None:
-            tmp_path.unlink(missing_ok=True)
+            try:
+                tmp_path.unlink(missing_ok=True)
+            except OSError:
+                pass
         raise
 
 
