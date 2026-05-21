@@ -32,6 +32,7 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
     def test_records_current_scale_signal_without_full_grid_overclaim(self) -> None:
         gate.validate_payload(self.payload)
         signal = self.payload["scale_signal"]
+        route_signal = self.payload["route_matrix_signal"]
         summary = self.payload["summary"]
 
         self.assertEqual(self.payload["schema"], gate.SCHEMA)
@@ -44,42 +45,15 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         self.assertEqual(signal["axes_checked"]["head_counts"], [1, 2, 4, 8, 16])
         self.assertEqual(signal["axes_checked"]["steps_per_head"], [8, 16, 32])
         self.assertIn("d64/d128/d256", signal["missing_axes"][0])
-        self.assertEqual(signal["explicit_no_go_grid_rows"], list(gate.EXPLICIT_NO_GO_GRID_ROWS))
-        signal["explicit_no_go_grid_rows"][0]["status"] = "MUTATED_IN_TEST"
-        self.assertEqual(
-            gate.EXPLICIT_NO_GO_GRID_ROWS[0]["status"],
-            "NO_GO_NOT_SOURCE_BACKED_NATIVE_FUSED_ATTENTION_ROW",
-        )
+        self.assertEqual(route_signal["profiles_checked"], 14)
+        self.assertEqual(route_signal["matched_comparator_profiles"], 14)
+        self.assertEqual(route_signal["widths"], [8, 16, 32])
+        self.assertEqual(route_signal["raw_proof_savings_bytes_total"], 266325)
+        self.assertEqual(route_signal["d32_two_head_sequence_ladder"]["seq32_raw_saving_bytes"], 26326)
         self.assertEqual(summary["proof_size_comparable_external_rows"], 0)
+        self.assertEqual(summary["attention_route_rows_checked"], 14)
+        self.assertEqual(summary["attention_raw_proof_savings_bytes_total"], 266325)
         self.assertEqual(summary["open_followup_count"], 3)
-        self.assertEqual(summary["fuller_grid_cell_count"], 45)
-        self.assertEqual(summary["fuller_grid_proved_cell_count"], 12)
-        self.assertEqual(summary["fuller_grid_missing_cell_count"], 33)
-        self.assertEqual(summary["explicit_no_go_grid_row_count"], 3)
-
-    def test_records_fuller_crossing_grid_without_promoting_missing_cells(self) -> None:
-        fuller = self.payload["scale_signal"]["fuller_crossing_grid"]
-        d32 = fuller["d32_single_head_seq8"]
-
-        self.assertEqual(fuller["grid_cell_count"], 45)
-        self.assertEqual(fuller["proved_cell_count"], 12)
-        self.assertEqual(fuller["missing_cell_count"], 33)
-        self.assertEqual(fuller["coverage_share"], 0.266667)
-        self.assertEqual(fuller["proved_crossing_cell_count"], 5)
-        self.assertEqual(fuller["proved_all_axis_cell_count"], 1)
-        self.assertEqual(fuller["highest_proved_width"], 32)
-        self.assertEqual(
-            fuller["next_low_risk_profile_ids"],
-            ["d16_two_head_seq32", "d32_two_head_seq16"],
-        )
-        self.assertEqual(d32["profile_id"], "d32_single_head_seq8")
-        self.assertEqual(d32["lookup_claims"], 52)
-        self.assertEqual(d32["fused_json_proof_size_bytes"], 107261)
-        self.assertIsNone(d32["fused_binary_raw_proof_bytes"])
-        self.assertEqual(d32["fused_binary_raw_status"], gate.FULLER_ROUTE_FUSED_BINARY_RAW_STATUS)
-        self.assertEqual(d32["source_plus_sidecar_raw_proof_bytes"], 116682)
-        self.assertIsNone(d32["fused_to_source_plus_sidecar_ratio"])
-        self.assertEqual(d32["fused_to_source_plus_sidecar_ratio_status"], gate.FULLER_ROUTE_MIXED_RATIO_STATUS)
 
     def test_binds_lookup_growth_and_bytes_per_lookup_signal(self) -> None:
         seq32 = self.payload["scale_signal"]["seq32_vs_d8_single_head"]
@@ -92,6 +66,25 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         self.assertEqual(seq32["seq32_fused_typed_bytes"], 22916)
         self.assertEqual(seq32["seq32_split_typed_bytes"], 31712)
         self.assertEqual(seq32["seq32_fused_saving_bytes"], 8796)
+
+    def test_binds_14_row_route_matrix_and_d32_seq32_raw_signal(self) -> None:
+        route_signal = self.payload["route_matrix_signal"]
+        ladder = route_signal["d32_two_head_sequence_ladder"]
+
+        self.assertEqual(route_signal["total_lookup_claims"], 5300)
+        self.assertEqual(route_signal["total_trace_rows"], 8000)
+        self.assertEqual(route_signal["fused_raw_proof_bytes_total"], 1145173)
+        self.assertEqual(route_signal["source_plus_sidecar_raw_proof_bytes_total"], 1411498)
+        self.assertEqual(ladder["profile_ids"], ["d32_two_head_seq8", "d32_two_head_seq16", "d32_two_head_seq32"])
+        self.assertEqual(ladder["seq32_lookup_claims"], 1184)
+        self.assertEqual(ladder["seq32_fused_raw_proof_bytes"], 150147)
+        self.assertEqual(ladder["seq32_source_plus_sidecar_raw_proof_bytes"], 176473)
+        self.assertEqual(ladder["seq8_to_seq32_lookup_claim_growth"], "11.384615")
+        self.assertEqual(ladder["seq8_to_seq32_trace_row_growth"], "16.000000")
+        self.assertEqual(ladder["seq8_to_seq32_fused_raw_proof_growth"], "1.193955")
+        self.assertEqual(ladder["seq16_to_seq32_lookup_claim_growth"], "3.523810")
+        self.assertEqual(ladder["seq16_to_seq32_trace_row_growth"], "4.000000")
+        self.assertEqual(ladder["seq16_to_seq32_fused_raw_proof_growth"], "1.132817")
 
     def test_fused_vs_split_rows_are_local_and_positive(self) -> None:
         rows = {row["row_id"]: row for row in self.payload["fused_vs_split_rows"]}
@@ -162,36 +155,12 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         self.assert_rejects(payload, "lookup growth drift")
 
         payload = self.strip_mutation_summary(self.payload)
-        payload["scale_signal"]["seq32_vs_d8_single_head"]["typed_byte_growth"] = "22.769231"
-        self.assert_rejects(payload, "typed growth drift")
+        payload["route_matrix_signal"]["profiles_checked"] = 13
+        self.assert_rejects(payload, "route matrix profile count drift")
 
         payload = self.strip_mutation_summary(self.payload)
-        payload["scale_signal"]["fuller_crossing_grid"]["proved_cell_count"] = 45
-        self.assert_rejects(payload, "fuller grid coverage drift")
-
-        payload = self.strip_mutation_summary(self.payload)
-        payload["scale_signal"]["fuller_crossing_grid"]["d32_single_head_seq8"][
-            "fused_json_proof_size_bytes"
-        ] = 1
-        self.assert_rejects(payload, "d32 metric drift")
-
-        payload = self.strip_mutation_summary(self.payload)
-        payload["scale_signal"]["fuller_crossing_grid"]["d32_single_head_seq8"][
-            "fused_binary_raw_status"
-        ] = "STABLE_UPSTREAM_STWO_BINARY_SERIALIZATION"
-        self.assert_rejects(payload, "d32 fused raw status drift")
-
-        payload = self.strip_mutation_summary(self.payload)
-        payload["scale_signal"]["fuller_crossing_grid"]["d32_single_head_seq8"][
-            "fused_to_source_plus_sidecar_ratio"
-        ] = 0.919259
-        self.assert_rejects(payload, "d32 ratio overclaim")
-
-        payload = self.strip_mutation_summary(self.payload)
-        payload["scale_signal"]["explicit_no_go_grid_rows"][0]["status"] = (
-            "GO_SOURCE_BACKED_NATIVE_FUSED_ATTENTION_ROW"
-        )
-        self.assert_rejects(payload, "explicit no-go grid row drift")
+        payload["route_matrix_signal"]["d32_two_head_sequence_ladder"]["seq32_raw_saving_bytes"] = 26325
+        self.assert_rejects(payload, "d32 seq32 raw saving drift")
 
         payload = self.strip_mutation_summary(self.payload)
         payload["fused_vs_split_rows"][0]["typed_saving_bytes"] = 0

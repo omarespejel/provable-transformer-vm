@@ -9,15 +9,13 @@ Issue: <https://github.com/omarespejel/provable-transformer-vm/issues/715>
 This note pins the current bounded evidence for the next paper path. It is a
 claim pack over checked artifacts, not a new proof-generation route.
 
-Issue #715 stays open after this claim-pack slice. The checked route grid now
-reaches `d32`, but the full d64/d128/d256 grid, seq64 row, and one matched
-external baseline are still follow-up work. The missing d64/d128/d256
-attention rows are now explicit machine-readable no-go rows, not prose-only
-follow-ups.
+Issue #715 stays open after this claim-pack slice. The full d64/d128/d256 grid,
+seq64 row, and one matched external baseline are still follow-up work.
 
 ## Result
 
-The checked attention grid still gives the strongest scaling signal:
+The checked attention evidence now has two bounded views. The older typed
+component grid still gives the strictest typed accounting signal:
 
 | metric | value |
 |---|---:|
@@ -31,24 +29,27 @@ The checked attention grid still gives the strongest scaling signal:
 | d8 single-head typed bytes per lookup claim | `348.538462` |
 | d8 two-head seq32 typed bytes per lookup claim | `19.354730` |
 
-The stricter route-status grid adds a fuller shape map:
+The newer route matrix adds raw proof-byte evidence across `14` matched
+source-plus-sidecar rows:
 
 | metric | value |
 |---|---:|
-| width/head/sequence cells | `45` |
-| checked native fused cells | `12` |
-| missing native fused cells | `33` |
-| coverage share | `0.266667` |
-| proved crossing cells | `5` |
-| proved all-axis cells | `1` |
-| highest checked attention width | `d32` |
-| d32 single-head seq8 fused bytes | `107,261` |
-| d32 single-head seq8 fused raw bytes | `not available in current route row` |
-| d32 single-head seq8 source+sidecar bytes | `116,682` |
-| d32 fused/source+sidecar ratio | `not claimed: fused JSON bytes vs source+sidecar raw bytes` |
-| d32 two-head seq8 fused bytes | `125,756` |
-| d32 two-head seq8 source+sidecar bytes | `142,063` |
-| d32 two-head seq8 fused/source+sidecar ratio | `0.885213` |
+| checked route rows | `14` |
+| total lookup claims | `5,300` |
+| total trace rows | `8,000` |
+| fused raw proof bytes | `1,145,173` |
+| source plus sidecar raw proof bytes | `1,411,498` |
+| aggregate raw proof-byte saving | `266,325` bytes |
+| d32 two-head seq32 fused proof bytes | `150,147` |
+| d32 two-head seq32 source plus sidecar bytes | `176,473` |
+| d32 two-head seq32 raw saving | `26,326` bytes |
+
+The d32 two-head sequence ladder is the new useful signal:
+
+| comparison | lookup growth | trace-row growth | fused raw proof-byte growth |
+|---|---:|---:|---:|
+| seq8 to seq32 | `11.384615x` | `16.000000x` | `1.193955x` |
+| seq16 to seq32 | `3.523810x` | `4.000000x` | `1.132817x` |
 
 The current seq32+d128 boundary rows are:
 
@@ -60,21 +61,18 @@ The current seq32+d128 boundary rows are:
 The `statement_only_probe_b` row is the current best inner-policy-bound local
 row. It is not a NANOZK comparison and not a full block proof.
 
-Binary/raw status is now explicit. The two seq32+d128 boundary rows include
-local record-stream accounting (`1,084` bytes each), but that is not stable
-upstream Stwo wire serialization. The attention-grid rows still have no per-row
-binary/raw byte field, and the d32 fuller-grid fused row records
-`NOT_AVAILABLE_IN_FULLER_CROSSING_GRID_ROUTE_ROW` for fused raw bytes, so the
-claim remains typed/JSON-accounting bounded. The d32 route row also records
-`NO_GO_MIXED_JSON_VS_RAW_BYTE_DOMAINS` instead of publishing a fused/source
-ratio across mixed byte domains.
+Binary/raw status is explicit. The two seq32+d128 boundary rows include local
+record-stream accounting (`1,084` bytes each), but that is not stable upstream
+Stwo wire serialization. The attention route matrix records raw JSON proof
+bytes, not stable upstream binary proof serialization. The typed attention
+claim remains bounded to the controlled component grid.
 
 ## Provenance
 
 | object | evidence | context |
 |---|---|---|
 | attention grid | `docs/engineering/evidence/zkai-attention-kv-stwo-controlled-component-grid-2026-05.json` | `10` local checked Stwo attention/table profiles; proof-size accounting only |
-| fuller crossing grid | `docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json` | `45` width/head/sequence cells; `12` proved and `33` explicitly missing; status grid only |
+| attention route matrix | `docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json` | `14` matched source-plus-sidecar route rows; raw JSON proof bytes only |
 | native seq32+d128 single proof | `docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.json` and `.envelope.json` | backend `stwo`, version `stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-v1` |
 | statement-only probe B | `docs/engineering/evidence/zkai-stwo-statement-only-attempt-transcript-gate-2026-05.json` and `zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-statement-only-transcript-2026-05.envelope.json` | backend `stwo`, version `stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1`; attempt policy stays statement-bound |
 | local binary accounting | `docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-binary-accounting-2026-05.json`, `zkai-native-seq32-attention-mlp-statement-only-attempt-accounting-2026-05.json`, `zkai-attention-kv-stwo-binary-typed-proof-accounting-2026-05.json`, `zkai-seq32-derived-d128-rmsnorm-mlp-fused-binary-accounting-2026-05.json` | local typed and record-stream accounting; no upstream Stwo serialization claim |
@@ -82,12 +80,13 @@ ratio across mixed byte domains.
 
 ## Interpretation
 
-The interesting signal is still the same, but now it is packaged against a
-larger shape map. The lookup/table work can grow much faster than the proof-byte
-accounting, the current seq32+d128 native boundary beats the matched local
-two-proof frontier after statement binding is kept inside the proof-facing
-object, and the fuller grid shows exactly where the evidence stops instead of
-pretending the missing cells are already proved.
+The interesting signal is still the same, but now it is packaged in a stricter
+way. In the typed grid, lookup/table work grows much faster than typed proof
+bytes. In the raw route matrix, the d32 two-head ladder repeats the pattern:
+from seq8 to seq32, lookup claims grow `11.384615x` and trace rows grow
+`16.000000x`, while fused raw proof bytes grow only `1.193955x`. The current
+seq32+d128 native boundary still beats the matched local two-proof frontier
+after statement binding is kept inside the proof-facing object.
 
 This supports a bounded paper claim:
 
@@ -110,17 +109,6 @@ The gate includes external rows only as status labels:
 
 There are still zero proof-size-comparable external rows.
 
-## Explicit No-Go Grid Rows
-
-The issue asked for d64/d128/d256 where feasible. This slice does not pretend
-those proof rows exist. It records three machine-readable no-go rows:
-
-| row | status |
-|---|---|
-| d64 attention grid | `NO_GO_NOT_SOURCE_BACKED_NATIVE_FUSED_ATTENTION_ROW` |
-| d128 attention grid | `NO_GO_NOT_SOURCE_BACKED_NATIVE_FUSED_ATTENTION_ROW` |
-| d256 attention grid | `NO_GO_NOT_SOURCE_BACKED_NATIVE_FUSED_ATTENTION_ROW` |
-
 ## Open Follow-Ups
 
 The claim pack keeps three open follow-ups explicit:
@@ -141,14 +129,13 @@ The claim pack keeps three open follow-ups explicit:
 - Gate tests:
   `scripts/tests/test_zkai_proof_pressure_scaling_claim_pack_gate.py`
 
-The gate rejects `19 / 19` mutation cases covering lookup-growth drift,
-typed-growth drift, fuller-grid coverage drift, d32 route metric drift,
-d32 fused raw-status overclaim, d32 mixed-domain ratio overclaim, explicit
-no-go row promotion, attention saving drift, native-boundary saving drift,
-statement-only saving drift, external comparability overclaim, d64/d128/d256
-completion overclaim, stable binary serialization overclaim, public benchmark
-overclaim, non-claim removal, source-artifact digest/path/manifest drift,
-validation-command drift, and payload-commitment drift.
+The gate rejects `16 / 16` mutation cases covering lookup-growth drift,
+typed-growth drift, route-matrix row-count drift, d32 seq32 raw-saving drift,
+attention saving drift, native-boundary saving drift, statement-only saving
+drift, external comparability overclaim, d64/d128/d256 completion overclaim,
+stable binary serialization overclaim, public benchmark overclaim, non-claim
+removal, source-artifact digest/path/manifest drift, validation-command drift,
+and payload-commitment drift.
 
 ## Validation
 
@@ -156,9 +143,8 @@ validation-command drift, and payload-commitment drift.
 python3.10 scripts/zkai_proof_pressure_scaling_claim_pack_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-scaling-claim-pack-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-scaling-claim-pack-2026-05.tsv
 python3.10 -m py_compile scripts/zkai_proof_pressure_scaling_claim_pack_gate.py scripts/tests/test_zkai_proof_pressure_scaling_claim_pack_gate.py
 python3.10 -m unittest scripts.tests.test_zkai_proof_pressure_scaling_claim_pack_gate
-python3.10 scripts/zkai_attention_kv_fuller_crossing_grid_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.tsv
-python3.10 -m unittest scripts.tests.test_zkai_attention_kv_fuller_crossing_grid_gate
 python3.10 -m unittest scripts.tests.test_zkai_attention_kv_stwo_controlled_component_grid_gate
+python3.10 -m unittest scripts.tests.test_zkai_attention_kv_fused_softmax_table_route_matrix_gate
 python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_single_proof_gate
 python3.10 -m unittest scripts.tests.test_zkai_stwo_statement_only_attempt_transcript_gate
 python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_median_timing_gate
