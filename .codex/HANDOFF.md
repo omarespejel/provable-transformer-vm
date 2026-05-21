@@ -20,27 +20,22 @@ before opening or executing frontier issues. The north star is STARK-native
 proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
 
-Latest proof-pressure route extension: issue `#715` now has the adjacent
-`d64_two_head_seq16` native Stwo fused Softmax-table row. The matched split
-frontier is `230,688` source proof bytes plus `27,037` LogUp sidecar bytes
-(`257,725` total). The fused proof is `238,504` bytes, saving `19,221` bytes
-(`0.925421x`) against the matched split frontier. It is `7,816` bytes larger
+Latest proof-pressure route extension: issue `#715` now has the lower-width
+`d16_two_head_seq32` native Stwo fused Softmax-table row. The matched split
+frontier is `90,754` source proof bytes plus `36,453` LogUp sidecar bytes
+(`127,207` total). The fused proof is `92,363` bytes, saving `34,844` bytes
+(`0.726084x`) against the matched split frontier. It is `1,609` bytes larger
 than the source arithmetic proof alone, so the honest claim is
-source-plus-sidecar fusion saving, not source-only compression. Holding two
-heads and `seq16` fixed against `d32_two_head_seq16`, width doubles while lookup
-claims and trace rows stay fixed (`336` and `512`); source proof bytes grow
-`1.708003x`, matched split bytes grow `1.589541x`, fused proof bytes grow
-`1.799446x`, and fused savings shrink to `0.649468x`. That is the cautionary
-part. Holding d64 and two heads fixed from `seq16` to `seq32`, lookup claims
-grow `3.523810x` and trace rows grow `4.000000x`, while fused proof bytes grow
-only `1.061856x`; fused savings grow `1.656782x`. The route matrix is now `16`
-matched rows, `6,820` lookup claims, `1,636,934` fused proof bytes versus
-`1,954,325` split proof bytes, and `317,391` aggregate saved bytes. The fuller
-grid is now `16 / 60` proved and `44 / 60` missing; the next low-risk row is
-`d16_two_head_seq32`, then `d32_four_head_seq16`. This is not exact Softmax, not
-full inference, not a NANOZK comparison, not timing evidence, and not a
-model-faithful d64 trace. See
-`docs/engineering/zkai-attention-kv-stwo-native-d64-two-head-longseq-fused-softmax-table-gate-2026-05-22.md`.
+source-plus-sidecar fusion saving, not source-only compression. Holding d16 and
+two heads fixed from `seq16` to `seq32`, lookup claims grow `3.523810x` and
+trace rows grow `4.000000x`, while fused proof bytes grow only `1.088314x` and
+fused savings grow `1.496093x`. The route matrix is now `17` matched rows,
+`8,004` lookup claims, `1,729,297` fused proof bytes versus `2,081,532` split
+proof bytes, and `352,235` aggregate saved bytes. The fuller grid is now
+`17 / 60` proved and `43 / 60` missing; the next low-risk row is
+`d32_four_head_seq16`. This is not exact Softmax, not full inference, not a
+NANOZK comparison, not timing evidence, and not a model-faithful d16 trace. See
+`docs/engineering/zkai-attention-kv-stwo-native-d16-two-head-seq32-fused-softmax-table-gate-2026-05-22.md`.
 
 Previous proof-pressure route extension: issue `#720` has a checked
 `d32_two_head_seq32` native Stwo fused Softmax-table row. The matched split
