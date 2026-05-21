@@ -224,7 +224,7 @@
     "not production zkML readiness",
     "does not widen the claim beyond checked d8, d16, and d32 attention rows"
   ],
-  "payload_commitment": "blake2b-256:8bb60b1cef17cd9e85d1155b6b0e05cc947867df599789981345e3d318248689",
+  "payload_commitment": "blake2b-256:704956740739b33714dfc769c1480a9440bc87c1d4204dfb229424a57b9af212",
   "requested_grid_signal": {
     "missing_requested_cell_count": 18,
     "missing_requested_widths": [
@@ -402,11 +402,11 @@
   ],
   "timing_policy": "proof_existence_and_byte_accounting_only_not_public_benchmark",
   "validation_commands": [
-    "just gate-fast",
     "python3.10 scripts/zkai_proof_pressure_wide_grid_selector_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.tsv",
     "python3.10 -m py_compile scripts/zkai_proof_pressure_wide_grid_selector_gate.py scripts/tests/test_zkai_proof_pressure_wide_grid_selector_gate.py",
     "python3.10 -m unittest scripts.tests.test_zkai_proof_pressure_wide_grid_selector_gate",
     "git diff --check",
+    "just gate-fast",
     "just gate"
   ]
 }
