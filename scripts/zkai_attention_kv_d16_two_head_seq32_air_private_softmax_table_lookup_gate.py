@@ -833,12 +833,24 @@ def fsync_parent_dir(path: pathlib.Path) -> None:
         os.close(fd)
 
 
-def safe_write_text(path: pathlib.Path, content: str, label: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
+def reject_symlinked_output_path(path: pathlib.Path, label: str) -> None:
     if path.is_symlink():
         raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
             f"refusing to write {label} through symlink: {path}"
         )
+    candidate = path if path.is_absolute() else pathlib.Path.cwd() / path
+    current = pathlib.Path(candidate.anchor)
+    for part in candidate.parts[1:-1]:
+        current = current / part
+        if current.is_symlink():
+            raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+                f"refusing to write {label} through symlinked parent: {current}"
+            )
+
+
+def safe_write_text(path: pathlib.Path, content: str, label: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    reject_symlinked_output_path(path, label)
     tmp_path: pathlib.Path | None = None
     try:
         with tempfile.NamedTemporaryFile(
