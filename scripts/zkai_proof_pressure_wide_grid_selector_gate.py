@@ -40,12 +40,15 @@ REQUESTED_HEAD_COUNTS = (1, 2)
 REQUESTED_SEQUENCES = (16, 32, 64)
 SUPPORTED_ATTENTION_WIDTHS = (8, 16, 32)
 SUPPORTED_ATTENTION_SEQUENCES = (8, 16, 32)
+EXPECTED_MATCH_STATUS = "GO_MATCHED_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR_RECORDED"
 
 VALIDATION_COMMANDS = (
+    "just gate-fast",
     "python3.10 scripts/zkai_proof_pressure_wide_grid_selector_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.tsv",
     "python3.10 -m py_compile scripts/zkai_proof_pressure_wide_grid_selector_gate.py scripts/tests/test_zkai_proof_pressure_wide_grid_selector_gate.py",
     "python3.10 -m unittest scripts.tests.test_zkai_proof_pressure_wide_grid_selector_gate",
     "git diff --check",
+    "just gate",
 )
 
 NON_CLAIMS = (
@@ -191,17 +194,17 @@ def build_current_signal(route_matrix: dict[str, Any], fuller_grid: dict[str, An
     rows = route_matrix.get("route_rows")
     if not isinstance(rows, list):
         raise ProofPressureWideGridSelectorError("route matrix rows missing")
-    proved = [row for row in rows if row.get("matched_source_sidecar_status")]
+    proved = [row for row in rows if row.get("matched_source_sidecar_status") == EXPECTED_MATCH_STATUS]
     if len(proved) != 14:
         raise ProofPressureWideGridSelectorError("current route row count drift")
     if any(row["fused_saves_vs_source_plus_sidecar_bytes"] <= 0 for row in proved):
         raise ProofPressureWideGridSelectorError("current fused saving sign drift")
 
-    d32_seq8 = row_by_id(rows, "d32_two_head_seq8")
-    d32_seq32 = row_by_id(rows, "d32_two_head_seq32")
-    d8_seq32 = row_by_id(rows, "d8_two_head_seq32")
-    d8_h1 = row_by_id(rows, "d8_single_head_seq8")
-    d32_h1 = row_by_id(rows, "d32_single_head_seq8")
+    d32_seq8 = row_by_id(proved, "d32_two_head_seq8")
+    d32_seq32 = row_by_id(proved, "d32_two_head_seq32")
+    d8_seq32 = row_by_id(proved, "d8_two_head_seq32")
+    d8_h1 = row_by_id(proved, "d8_single_head_seq8")
+    d32_h1 = row_by_id(proved, "d32_single_head_seq8")
 
     fuller_summary = fuller_grid.get("summary")
     if not isinstance(fuller_summary, dict):
@@ -386,8 +389,6 @@ def validate_payload(payload: dict[str, Any]) -> None:
         raise ProofPressureWideGridSelectorError("decision drift")
     if payload.get("claim_boundary") != CLAIM_BOUNDARY:
         raise ProofPressureWideGridSelectorError("claim_boundary drift")
-    if "NO_D64_D128_D256_ATTENTION_PROOF_ROWS_YET" not in payload["claim_boundary"]:
-        raise ProofPressureWideGridSelectorError("claim boundary overclaim")
     if payload.get("source_artifacts") != source_artifacts(load_sources()[1]):
         raise ProofPressureWideGridSelectorError("source artifact drift")
     current = payload.get("current_signal")
