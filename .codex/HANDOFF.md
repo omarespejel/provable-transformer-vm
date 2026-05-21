@@ -3092,7 +3092,12 @@ proof bytes grow `1.193955x`. Width is the stress test: fixed two-head `seq32`
 from `d8` to `d32` keeps lookup claims flat at `1.000000x` while fused raw proof
 bytes grow `2.263739x`. The selected first falsification row is
 `d64_h2_seq32`; `d128_h2_seq32` and `d256_h2_seq32` stay gated behind a `d64`
-GO or a generated/generic backend path. See
+GO or a generated/generic backend path. The selector now carries typed, JSON,
+and binary/raw accounting context from the claim pack separately from the raw
+route-matrix signal: attention controlled rows total `234,296` typed bytes /
+`629,466` JSON bytes with no binary/raw rows, while the statement-only
+seq32+d128 row is `39,516` typed bytes / `113,388` JSON bytes / `1,084`
+binary/raw bytes. See
 `docs/engineering/zkai-proof-pressure-wide-grid-selector-2026-05-21.md`.
 
 Proof-pressure wide-grid selector reproducibility metadata:
@@ -3112,8 +3117,8 @@ Proof-pressure wide-grid selector reproducibility metadata:
   claim pack SHA-256
   `369da58f91fd9575b81c4287d1b2cb8a8bdcc5e1af1a600c23c5d24e65c2cdc1`.
 - Payload commitment:
-  `blake2b-256:158fcaef3211e6ab4d9b7654dcd15fd915bf25636bd211187b64b96069cfbfc5`.
-- Step counts: `12` Python mutation cases and `11` Python unit tests.
+  `blake2b-256:8bb60b1cef17cd9e85d1155b6b0e05cc947867df599789981345e3d318248689`.
+- Step counts: `13` Python mutation cases and `12` Python unit tests.
 - Local validation commands:
   `just gate-fast`;
   `python3.10 scripts/zkai_proof_pressure_wide_grid_selector_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.tsv`;

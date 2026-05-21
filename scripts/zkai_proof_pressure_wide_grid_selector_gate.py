@@ -82,6 +82,7 @@ MUTATION_NAMES = (
     "current_row_count_drift",
     "d32_sequence_signal_drift",
     "width_pressure_signal_drift",
+    "accounting_triplet_drift",
     "candidate_order_drift",
     "validation_command_drift",
     "non_claim_removed",
@@ -262,6 +263,45 @@ def build_current_signal(route_matrix: dict[str, Any], fuller_grid: dict[str, An
     }
 
 
+def build_accounting_triplet_signal(claim_pack: dict[str, Any]) -> dict[str, Any]:
+    rows = claim_pack.get("fused_vs_split_rows")
+    if not isinstance(rows, list):
+        raise ProofPressureWideGridSelectorError("claim pack fused rows missing")
+    attention_rows = [row for row in rows if row.get("category") == "attention_fused_vs_split"]
+    if len(attention_rows) != 10:
+        raise ProofPressureWideGridSelectorError("attention typed row count drift")
+    statement_rows = [row for row in rows if row.get("row_id") == "seq32_d128_statement_only_probe_b"]
+    if len(statement_rows) != 1:
+        raise ProofPressureWideGridSelectorError("statement bound row drift")
+    summary = claim_pack.get("summary")
+    accounting_status = claim_pack.get("accounting_status")
+    if not isinstance(summary, dict) or not isinstance(accounting_status, dict):
+        raise ProofPressureWideGridSelectorError("claim pack accounting summary missing")
+
+    return {
+        "status": (
+            "CARRIES_TYPED_JSON_AND_BINARY_RAW_CONTEXT_FROM_CLAIM_PACK;"
+            "RAW_ROUTE_MATRIX_WIDTH_SELECTOR_REMAINS_SEPARATE"
+        ),
+        "guardrail": accounting_status["guardrail"],
+        "attention_typed_rows": len(attention_rows),
+        "attention_typed_bytes_total": sum(row["typed_bytes"] for row in attention_rows),
+        "attention_json_bytes_total": sum(row["json_bytes"] for row in attention_rows),
+        "attention_typed_savings_bytes_total": summary["attention_typed_savings_bytes_total"],
+        "attention_raw_proof_savings_bytes_total": summary["attention_raw_proof_savings_bytes_total"],
+        "binary_raw_available_rows": sum(1 for row in rows if row.get("binary_raw_bytes") is not None),
+        "binary_raw_missing_rows": sum(1 for row in rows if row.get("binary_raw_bytes") is None),
+        "current_best_inner_policy_bound_row": {
+            "row_id": statement_rows[0]["row_id"],
+            "typed_bytes": statement_rows[0]["typed_bytes"],
+            "json_bytes": statement_rows[0]["json_bytes"],
+            "binary_raw_bytes": statement_rows[0]["binary_raw_bytes"],
+            "matched_frontier_typed_bytes": statement_rows[0]["matched_frontier_typed_bytes"],
+            "typed_saving_bytes": statement_rows[0]["typed_saving_bytes"],
+        },
+    }
+
+
 def build_requested_grid_signal(current_signal: dict[str, Any]) -> dict[str, Any]:
     rows = requested_grid_rows()
     checked_widths = set(current_signal["checked_widths"])
@@ -360,6 +400,7 @@ def build_interpretation() -> dict[str, Any]:
 def build_payload() -> dict[str, Any]:
     sources, raws = load_sources()
     current_signal = build_current_signal(sources["route_matrix"], sources["fuller_grid"])
+    current_signal["accounting_triplet_signal"] = build_accounting_triplet_signal(sources["claim_pack"])
     requested_signal = build_requested_grid_signal(current_signal)
     payload = {
         "schema": SCHEMA,
@@ -408,6 +449,17 @@ def validate_payload(payload: dict[str, Any]) -> None:
     width_pressure = current.get("d8_to_d32_two_head_seq32_width_pressure")
     if not isinstance(width_pressure, dict) or width_pressure.get("fused_raw_proof_growth") != 2.263739:
         raise ProofPressureWideGridSelectorError("width pressure signal drift")
+    accounting = current.get("accounting_triplet_signal")
+    if not isinstance(accounting, dict):
+        raise ProofPressureWideGridSelectorError("accounting triplet missing")
+    if accounting.get("attention_typed_savings_bytes_total") != 51_288:
+        raise ProofPressureWideGridSelectorError("accounting triplet drift")
+    if accounting.get("attention_json_bytes_total") != 629_466:
+        raise ProofPressureWideGridSelectorError("accounting JSON drift")
+    if accounting.get("attention_raw_proof_savings_bytes_total") != 266_325:
+        raise ProofPressureWideGridSelectorError("accounting raw drift")
+    if accounting.get("binary_raw_available_rows") != 2 or accounting.get("binary_raw_missing_rows") != 10:
+        raise ProofPressureWideGridSelectorError("binary raw availability drift")
     requested = payload.get("requested_grid_signal")
     if not isinstance(requested, dict):
         raise ProofPressureWideGridSelectorError("requested grid signal missing")
@@ -458,6 +510,12 @@ def mutation_cases(payload: dict[str, Any]) -> tuple[tuple[str, Any], ...]:
                 "fused_raw_proof_growth", 1.0
             ),
         ),
+        (
+            "accounting_triplet_drift",
+            lambda p: p["current_signal"]["accounting_triplet_signal"].__setitem__(
+                "attention_typed_savings_bytes_total", 0
+            ),
+        ),
         ("candidate_order_drift", lambda p: p["candidate_order"].reverse()),
         ("validation_command_drift", lambda p: p["validation_commands"].append("just gate")),
         ("non_claim_removed", lambda p: p["non_claims"].pop()),
@@ -488,9 +546,16 @@ def run_mutations(payload: dict[str, Any]) -> dict[str, Any]:
 def checked_output_path(path: pathlib.Path) -> pathlib.Path:
     if any(part == ".." for part in path.parts):
         raise ProofPressureWideGridSelectorError(f"output path must stay inside evidence dir: {path}")
+    if EVIDENCE_DIR.is_symlink():
+        raise ProofPressureWideGridSelectorError(f"output path must not contain symlink components: {EVIDENCE_DIR}")
     candidate = path if path.is_absolute() else ROOT / path
+    evidence_root = EVIDENCE_DIR.resolve(strict=True)
     try:
         candidate.relative_to(EVIDENCE_DIR)
+    except ValueError as err:
+        raise ProofPressureWideGridSelectorError(f"output path must stay inside evidence dir: {candidate}") from err
+    try:
+        candidate.resolve(strict=False).relative_to(evidence_root)
     except ValueError as err:
         raise ProofPressureWideGridSelectorError(f"output path must stay inside evidence dir: {candidate}") from err
     if candidate.is_symlink():
