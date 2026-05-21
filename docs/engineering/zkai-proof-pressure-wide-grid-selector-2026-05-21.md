@@ -43,6 +43,15 @@ currently grows proof bytes without adding lookup claims. So `d64`, `d128`, and
 `d256` should not be treated as victory laps. They are the next way to check
 whether the amortization story survives model width.
 
+Accounting guardrail: the selector carries typed, JSON, and binary/raw context
+from the claim pack separately from the raw route-matrix signal.
+
+| Source | Typed bytes | JSON bytes | Binary/raw bytes | Status |
+|---|---:|---:|---:|---|
+| attention controlled grid totals | `234,296` | `629,466` | not available for those rows | typed/JSON only |
+| statement-only seq32+d128 row | `39,516` | `113,388` | `1,084` | local record-stream accounting |
+| route matrix raw saving | not comparable | not comparable | `266,325` saved | raw proof-byte route signal |
+
 ## Selected Attack Order
 
 1. `d64_h2_seq32`
@@ -90,7 +99,7 @@ just gate
 
 ## Correctness Guards
 
-The gate rejects `12 / 12` mutations:
+The gate rejects `13 / 13` mutations:
 
 - decision drift
 - claim-boundary overclaim
@@ -100,6 +109,7 @@ The gate rejects `12 / 12` mutations:
 - current-row-count drift
 - d32 sequence-signal drift
 - width-pressure-signal drift
+- accounting-triplet drift
 - candidate-order drift
 - validation-command drift
 - non-claim removal

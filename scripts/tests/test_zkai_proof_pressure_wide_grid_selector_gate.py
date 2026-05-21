@@ -37,6 +37,13 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         width_pressure = current["d8_to_d32_two_head_seq32_width_pressure"]
         self.assertEqual(width_pressure["lookup_claim_growth"], 1.0)
         self.assertEqual(width_pressure["fused_raw_proof_growth"], 2.263739)
+        accounting = current["accounting_triplet_signal"]
+        self.assertEqual(accounting["attention_typed_savings_bytes_total"], 51288)
+        self.assertEqual(accounting["attention_json_bytes_total"], 629466)
+        self.assertEqual(accounting["attention_raw_proof_savings_bytes_total"], 266325)
+        self.assertEqual(accounting["binary_raw_available_rows"], 2)
+        self.assertEqual(accounting["binary_raw_missing_rows"], 10)
+        self.assertEqual(accounting["current_best_inner_policy_bound_row"]["typed_bytes"], 39516)
 
     def test_selects_d64_two_head_seq32_first(self):
         candidates = self.payload["candidate_order"]
@@ -53,11 +60,11 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
 
     def test_all_declared_mutations_reject(self):
         mutation = self.payload["mutation_result"]
-        self.assertEqual(len(gate.MUTATION_NAMES), 12)
+        self.assertEqual(len(gate.MUTATION_NAMES), 13)
         self.assertTrue(mutation["all_mutations_rejected"])
-        self.assertEqual(mutation["mutations_checked"], 12)
-        self.assertEqual(mutation["mutations_rejected"], 12)
-        self.assertEqual(len(mutation["mutation_names"]), 12)
+        self.assertEqual(mutation["mutations_checked"], 13)
+        self.assertEqual(mutation["mutations_rejected"], 13)
+        self.assertEqual(len(mutation["mutation_names"]), 13)
         self.assertEqual(mutation["mutation_names"], list(gate.MUTATION_NAMES))
 
     def test_current_signal_rejects_non_go_match_status(self):
@@ -104,8 +111,22 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         with self.evidence_tempdir() as evidence_tmp, tempfile.TemporaryDirectory() as outside_tmp:
             link_path = gate.pathlib.Path(evidence_tmp) / "escape"
             link_path.symlink_to(gate.pathlib.Path(outside_tmp), target_is_directory=True)
-            with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "symlink components"):
+            with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "stay inside evidence dir"):
                 gate.write_json(link_path / "wide-grid.json", self.payload)
+
+    def test_output_path_rejects_symlinked_evidence_root(self):
+        original_evidence_dir = gate.EVIDENCE_DIR
+        with tempfile.TemporaryDirectory() as outside_tmp:
+            link_path = original_evidence_dir.parent / ".tmp-wide-grid-selector-root-link"
+            link_path.unlink(missing_ok=True)
+            link_path.symlink_to(gate.pathlib.Path(outside_tmp), target_is_directory=True)
+            gate.EVIDENCE_DIR = link_path
+            try:
+                with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "symlink components"):
+                    gate.checked_output_path(link_path / "wide-grid.json")
+            finally:
+                gate.EVIDENCE_DIR = original_evidence_dir
+                link_path.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

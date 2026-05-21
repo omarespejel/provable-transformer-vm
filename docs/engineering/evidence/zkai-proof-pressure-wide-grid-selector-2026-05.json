@@ -58,6 +58,25 @@
   ],
   "claim_boundary": "SELECTS_D64_D128_D256_ATTENTION_ROUTE_TARGETS_FROM_CHECKED_D8_D16_D32_ROUTE_MATRIX;NO_D64_D128_D256_ATTENTION_PROOF_ROWS_YET;NOT_A_WIDE_GRID_RESULT_NOT_A_NANOZK_COMPARISON_NOT_A_FULL_BLOCK_PROOF",
   "current_signal": {
+    "accounting_triplet_signal": {
+      "attention_json_bytes_total": 629466,
+      "attention_raw_proof_savings_bytes_total": 266325,
+      "attention_typed_bytes_total": 234296,
+      "attention_typed_rows": 10,
+      "attention_typed_savings_bytes_total": 51288,
+      "binary_raw_available_rows": 2,
+      "binary_raw_missing_rows": 10,
+      "current_best_inner_policy_bound_row": {
+        "binary_raw_bytes": 1084,
+        "json_bytes": 113388,
+        "matched_frontier_typed_bytes": 47188,
+        "row_id": "seq32_d128_statement_only_probe_b",
+        "typed_bytes": 39516,
+        "typed_saving_bytes": 7672
+      },
+      "guardrail": "typed/local binary accounting is checked, but this is not stable upstream Stwo wire serialization",
+      "status": "CARRIES_TYPED_JSON_AND_BINARY_RAW_CONTEXT_FROM_CLAIM_PACK;RAW_ROUTE_MATRIX_WIDTH_SELECTOR_REMAINS_SEPARATE"
+    },
     "all_checked_rows_have_positive_fused_saving": true,
     "checked_attention_route_rows": 14,
     "checked_head_counts": [
@@ -153,6 +172,11 @@
         "rejected": true
       },
       {
+        "error": "accounting triplet drift",
+        "name": "accounting_triplet_drift",
+        "rejected": true
+      },
+      {
         "error": "candidate order drift",
         "name": "candidate_order_drift",
         "rejected": true
@@ -182,13 +206,14 @@
       "current_row_count_drift",
       "d32_sequence_signal_drift",
       "width_pressure_signal_drift",
+      "accounting_triplet_drift",
       "candidate_order_drift",
       "validation_command_drift",
       "non_claim_removed",
       "payload_commitment_drift"
     ],
-    "mutations_checked": 12,
-    "mutations_rejected": 12
+    "mutations_checked": 13,
+    "mutations_rejected": 13
   },
   "non_claims": [
     "not a d64, d128, or d256 attention proof result",
@@ -199,7 +224,7 @@
     "not production zkML readiness",
     "does not widen the claim beyond checked d8, d16, and d32 attention rows"
   ],
-  "payload_commitment": "blake2b-256:158fcaef3211e6ab4d9b7654dcd15fd915bf25636bd211187b64b96069cfbfc5",
+  "payload_commitment": "blake2b-256:8bb60b1cef17cd9e85d1155b6b0e05cc947867df599789981345e3d318248689",
   "requested_grid_signal": {
     "missing_requested_cell_count": 18,
     "missing_requested_widths": [
