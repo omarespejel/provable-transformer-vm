@@ -15,6 +15,7 @@ import copy
 import hashlib
 import importlib.util
 import json
+import os
 import pathlib
 import subprocess
 import tempfile
@@ -288,9 +289,17 @@ def verify_lookup_envelope_bytes_with_native_cli(envelope_bytes: bytes, label: s
     cache_key = (digest, len(envelope_bytes))
     if cache_key in _LOOKUP_VERIFY_CACHE:
         return
-    with tempfile.NamedTemporaryFile("wb", suffix=".json", delete=False) as tmp:
-        tmp.write(envelope_bytes)
-        tmp_path = pathlib.Path(tmp.name)
+    tmp_path: pathlib.Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile("wb", suffix=".json", delete=False) as tmp:
+            tmp_path = pathlib.Path(tmp.name)
+            tmp.write(envelope_bytes)
+            tmp.flush()
+            os.fsync(tmp.fileno())
+    except Exception:
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
+        raise
     command = [
         "cargo",
         "+nightly-2025-07-14",
@@ -319,10 +328,11 @@ def verify_lookup_envelope_bytes_with_native_cli(envelope_bytes: bytes, label: s
             f"native lookup verifier failed to run for {label}: {err}"
         ) from err
     finally:
-        try:
-            tmp_path.unlink(missing_ok=True)
-        except OSError:
-            pass
+        if tmp_path is not None:
+            try:
+                tmp_path.unlink(missing_ok=True)
+            except OSError:
+                pass
     if completed.returncode != 0:
         detail = (completed.stderr or completed.stdout).strip().splitlines()
         suffix = detail[-1] if detail else f"exit code {completed.returncode}"
@@ -798,16 +808,57 @@ def to_tsv(payload: dict[str, Any]) -> str:
     return "\n".join(out) + "\n"
 
 
+def fsync_parent_dir(path: pathlib.Path) -> None:
+    try:
+        fd = os.open(path.parent, os.O_RDONLY)
+    except OSError:
+        return
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def safe_write_text(path: pathlib.Path, content: str, label: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if path.is_symlink():
+        raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+            f"refusing to write {label} through symlink: {path}"
+        )
+    tmp_path: pathlib.Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            "w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            tmp_path = pathlib.Path(handle.name)
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp_path, path)
+        fsync_parent_dir(path)
+    except Exception:
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
+        raise
+
+
 def write_json(payload: dict[str, Any], path: pathlib.Path) -> None:
     validate_payload(payload)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    safe_write_text(
+        path,
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        "JSON artifact",
+    )
 
 
 def write_tsv(payload: dict[str, Any], path: pathlib.Path) -> None:
     validate_payload(payload)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(to_tsv(payload), encoding="utf-8")
+    safe_write_text(path, to_tsv(payload), "TSV artifact")
 
 
 def main() -> None:

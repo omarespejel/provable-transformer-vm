@@ -379,9 +379,16 @@ def verify_envelope_bytes_with_native_cli(
     if cached_summary is not None:
         assert_fields(cached_summary, expected_summary, f"native {label} verifier summary")
         return
-    with tempfile.NamedTemporaryFile("wb", suffix=".json", delete=False) as tmp:
-        tmp.write(envelope_bytes)
-        tmp_path = pathlib.Path(tmp.name)
+    tmp_path: pathlib.Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile("wb", suffix=".json", delete=False) as tmp:
+            tmp_path = pathlib.Path(tmp.name)
+            tmp.write(envelope_bytes)
+            tmp.flush()
+    except Exception:
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
+        raise
     command = [
         "cargo",
         "+nightly-2025-07-14",
@@ -411,7 +418,8 @@ def verify_envelope_bytes_with_native_cli(
         ) from err
     finally:
         try:
-            tmp_path.unlink(missing_ok=True)
+            if tmp_path is not None:
+                tmp_path.unlink(missing_ok=True)
         except OSError:
             pass
     if completed.returncode != 0:
@@ -439,9 +447,16 @@ def verify_fused_envelope_bytes_with_native_cli(envelope_bytes: bytes, label: st
     cache_key = (digest, len(envelope_bytes))
     if cache_key in _FUSED_VERIFY_CACHE:
         return
-    with tempfile.NamedTemporaryFile("wb", suffix=".json", delete=False) as tmp:
-        tmp.write(envelope_bytes)
-        tmp_path = pathlib.Path(tmp.name)
+    tmp_path: pathlib.Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile("wb", suffix=".json", delete=False) as tmp:
+            tmp_path = pathlib.Path(tmp.name)
+            tmp.write(envelope_bytes)
+            tmp.flush()
+    except Exception:
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
+        raise
     command = [
         "cargo",
         "+nightly-2025-07-14",
@@ -469,7 +484,8 @@ def verify_fused_envelope_bytes_with_native_cli(envelope_bytes: bytes, label: st
         raise AttentionKvD16TwoHeadSeq32FusedSoftmaxTableGateError(f"native fused verifier failed to run for {label}: {err}") from err
     finally:
         try:
-            tmp_path.unlink(missing_ok=True)
+            if tmp_path is not None:
+                tmp_path.unlink(missing_ok=True)
         except OSError:
             pass
     if completed.returncode != 0:
