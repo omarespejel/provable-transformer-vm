@@ -97,6 +97,13 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "payload commitment drift"):
             gate.validate_payload(payload, self.expected_source_artifacts)
 
+    def test_write_json_rejects_source_artifact_drift_against_independent_baseline(self):
+        payload = copy.deepcopy(self.payload)
+        payload["source_artifacts"][0]["sha256"] = "0" * 64
+        with self.evidence_tempdir() as tmp:
+            with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "source artifact drift"):
+                gate.write_json(gate.pathlib.Path(tmp) / "wide-grid.json", payload, self.expected_source_artifacts)
+
     def test_validate_rejects_accounting_total_drift(self):
         payload = copy.deepcopy(self.payload)
         payload["current_signal"]["accounting_triplet_signal"]["attention_typed_bytes_total"] = 0
