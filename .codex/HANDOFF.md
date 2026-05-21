@@ -3081,6 +3081,45 @@ Stwo statement-only attempt transcript reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
+Latest proof-pressure wide-grid selector: issue `#715` now has a checked
+selector artifact for the requested `d64`/`d128`/`d256` scaling agenda. This is
+not a wide proof result. It records that the current source-backed attention
+route matrix covers `14` rows over `d8`, `d16`, and `d32`, with no `d64`,
+`d128`, or `d256` attention rows yet. The key interpretation is that sequence
+scaling remains the strongest signal: fixed `d32` two-head `seq8` to `seq32`
+grows lookup claims `11.384615x` and trace rows `16.000000x` while fused raw
+proof bytes grow `1.193955x`. Width is the stress test: fixed two-head `seq32`
+from `d8` to `d32` keeps lookup claims flat at `1.000000x` while fused raw proof
+bytes grow `2.263739x`. The selected first falsification row is
+`d64_h2_seq32`; `d128_h2_seq32` and `d256_h2_seq32` stay gated behind a `d64`
+GO or a generated/generic backend path. See
+`docs/engineering/zkai-proof-pressure-wide-grid-selector-2026-05-21.md`.
+
+Proof-pressure wide-grid selector reproducibility metadata:
+
+- Gate schema: `zkai-proof-pressure-wide-grid-selector-v1`.
+- Decision:
+  `GO_WIDE_GRID_SELECTOR_KEEP_D64_D128_D256_AS_FALSIFICATION_TARGETS`.
+- Evidence paths:
+  `docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.json`
+  and
+  `docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.tsv`.
+- Source artifacts:
+  route matrix SHA-256
+  `cb2601042c1ae8fbbc081d0962b278f7aff4a7db633adbfbdb2b7124b7f03dc1`,
+  fuller grid SHA-256
+  `cabd3e0294e293f56d2b542ded040c8bde20fe2bec1bc5280ba85968a7bc84c1`,
+  claim pack SHA-256
+  `369da58f91fd9575b81c4287d1b2cb8a8bdcc5e1af1a600c23c5d24e65c2cdc1`.
+- Payload commitment:
+  `blake2b-256:b32059fb3775098db13e793e2544da1eae018183e96da948e68a29c2fd45dc1e`.
+- Step counts: `12` Python mutation cases and `9` Python unit tests.
+- Local validation commands:
+  `python3.10 scripts/zkai_proof_pressure_wide_grid_selector_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.tsv`;
+  `python3.10 -m py_compile scripts/zkai_proof_pressure_wide_grid_selector_gate.py scripts/tests/test_zkai_proof_pressure_wide_grid_selector_gate.py`;
+  `python3.10 -m unittest scripts.tests.test_zkai_proof_pressure_wide_grid_selector_gate`;
+  `git diff --check`.
+
 ## Resume protocol
 
 1. Read `AGENTS.md`.
