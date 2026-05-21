@@ -4,7 +4,7 @@ This is the tracked GitHub-safe mirror of the local `.codex` handoff notes.
 If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 `.codex/HANDOFF.md` first. This file is the durable shared resume surface.
 
-**Mainline tip at last refresh:** `c561e350ab85bbf571a9d031c9b61e0ad24f3ef9` (matches
+**Mainline tip at last refresh:** `2295bf9f2ad71bc12bcfcd17bba8ea4076ec191c` (matches
 `.codex/HANDOFF.md` “Mainline reference at refresh”; update both together).
 
 ## Read order for a fresh agent
@@ -48,6 +48,7 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 37. `docs/engineering/zkai-attention-kv-stwo-native-d16-two-head-longseq-fused-softmax-table-gate-2026-05-10.md`
 38. `docs/engineering/zkai-attention-kv-stwo-native-two-head-seq32-fused-softmax-table-gate-2026-05-10.md`
 39. `docs/engineering/zkai-attention-kv-stwo-native-d16-two-head-seq32-fused-softmax-table-gate-2026-05-22.md`
+40. `docs/engineering/zkai-attention-kv-stwo-native-d32-four-head-longseq-fused-softmax-table-gate-2026-05-22.md`
 40. `docs/engineering/zkai-attention-kv-stwo-native-d32-two-head-fused-softmax-table-gate-2026-05-20.md`
 41. `docs/engineering/zkai-attention-kv-stwo-native-d32-two-head-longseq-fused-softmax-table-gate-2026-05-21.md`
 42. `docs/engineering/zkai-attention-kv-stwo-native-d32-two-head-seq32-fused-softmax-table-gate-2026-05-21.md`
@@ -117,22 +118,22 @@ before opening or executing frontier issues. The north star is STARK-native
 proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
 
-Latest proof-pressure route extension: issue `#715` now has the lower-width
-`d16_two_head_seq32` native Stwo fused Softmax-table row. The matched split
-frontier is `90,754` source proof bytes plus `36,453` LogUp sidecar bytes
-(`127,207` total). The fused proof is `92,363` bytes, saving `34,844` bytes
-(`0.726084x`) against the matched split frontier. It is `1,609` bytes larger
+Latest proof-pressure route extension: issue `#715` now has the
+`d32_four_head_seq16` native Stwo fused Softmax-table row. The matched split
+frontier is `139,755` source proof bytes plus `30,263` LogUp sidecar bytes
+(`170,018` total). The fused proof is `142,334` bytes, saving `27,684` bytes
+(`0.837170x`) against the matched split frontier. It is `2,579` bytes larger
 than the source arithmetic proof alone, so the honest claim is
-source-plus-sidecar fusion saving, not source-only compression. Holding d16 and
-two heads fixed from `seq16` to `seq32`, lookup claims grow `3.523810x` and
-trace rows grow `4.000000x`, while fused proof bytes grow only `1.088314x` and
-fused savings grow `1.496093x`. The route matrix is now `17` matched rows,
-`8,004` lookup claims, `1,729,297` fused proof bytes versus `2,081,532` split
-proof bytes, and `352,235` aggregate saved bytes. The fuller grid is now
-`17 / 60` proved and `43 / 60` missing; the next low-risk row is
-`d32_four_head_seq16`. This is not exact Softmax, not full inference, not a
-NANOZK comparison, not timing evidence, and not a model-faithful d16 trace. See
-`docs/engineering/zkai-attention-kv-stwo-native-d16-two-head-seq32-fused-softmax-table-gate-2026-05-22.md`.
+source-plus-sidecar fusion saving, not source-only compression. Holding d32 and
+seq16 fixed from two heads to four heads, lookup claims grow `2.000000x` and
+trace rows grow `2.000000x`, while fused proof bytes grow only `1.073870x`.
+The route matrix is now `18` matched rows, `8,676` lookup claims, `1,871,631`
+fused proof bytes versus `2,251,550` split proof bytes, and `379,919`
+aggregate saved bytes. The fuller grid is now `18 / 60` proved and `42 / 60`
+missing; the next low-risk row is `d32_four_head_seq32`. This is not exact
+Softmax, not full inference, not a NANOZK comparison, not timing evidence, and
+not a model-faithful d32 four-head trace. See
+`docs/engineering/zkai-attention-kv-stwo-native-d32-four-head-longseq-fused-softmax-table-gate-2026-05-22.md`.
 
 Previous proof-pressure route extension: issue `#720` has a checked
 `d32_two_head_seq32` native Stwo fused Softmax-table row. The matched split

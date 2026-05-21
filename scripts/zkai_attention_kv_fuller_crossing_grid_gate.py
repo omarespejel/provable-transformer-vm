@@ -4,7 +4,7 @@
 This gate is intentionally derived from the checked route matrix. It does not
 generate new proofs. Its job is to make the missing width/head/sequence
 crossings explicit, so the evidence frontier is auditable without promoting the
-current 17 proved rows into a full factorial proof claim.
+    current 18 proved rows into a full factorial proof claim.
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ SOURCE_ISSUE = matrix.ISSUE
 DECISION = "GO_CHECKED_FULLER_CROSSING_GRID_WITH_FULL_PROOF_GRID_NO_GO"
 ROUTE_ID = "local_stwo_attention_kv_fuller_width_head_sequence_crossing_grid"
 GRID_STATUS = "GO_60_CELL_WIDTH_HEAD_SEQUENCE_STATUS_GRID_FROM_CHECKED_ROUTE_MATRIX"
-FULL_PROOF_GRID_STATUS = "NO_GO_43_OF_60_GRID_CELLS_DO_NOT_HAVE_NATIVE_FUSED_PROOFS"
+FULL_PROOF_GRID_STATUS = "NO_GO_42_OF_60_GRID_CELLS_DO_NOT_HAVE_NATIVE_FUSED_PROOFS"
 CLAIM_BOUNDARY = (
     "ENGINEERING_STATUS_GRID_FOR_CHECKED_NATIVE_STWO_FUSED_BOUNDED_SOFTMAX_TABLE_ROUTES_"
     "MAPS_PROVED_AND_MISSING_WIDTH_HEAD_SEQUENCE_CELLS_NOT_A_FULL_FACTORIAL_PROOF_GRID_"
@@ -66,6 +66,7 @@ EXPECTED_PROVED_KEYS = (
     (16, 2, 16),
     (16, 2, 32),
     (32, 2, 16),
+    (32, 4, 16),
     (32, 2, 32),
     (64, 2, 16),
     (64, 2, 32),
@@ -85,6 +86,7 @@ EXPECTED_PROVED_PROFILE_IDS = (
     "d16_two_head_seq16",
     "d16_two_head_seq32",
     "d32_two_head_seq16",
+    "d32_four_head_seq16",
     "d32_two_head_seq32",
     "d64_two_head_seq16",
     "d64_two_head_seq32",
@@ -97,23 +99,23 @@ VALIDATION_COMMANDS = (
 )
 GO_CRITERIA = (
     "the upstream fused Softmax-table route matrix validates locally",
-    "exactly 17 checked route cells are marked proved and exactly 43 cells are marked missing",
+    "exactly 18 checked route cells are marked proved and exactly 42 cells are marked missing",
     "every proved cell has matched source-plus-LogUp-sidecar comparator evidence from the route matrix",
     "missing cells carry no proof-byte, ratio, or evidence-path claims",
 )
 NO_GO_CRITERIA = (
-    "full factorial proof-grid claim: 43 of 60 grid cells are missing native fused proofs",
-    "new crossing proof claim: this slice adds only the d16/two-head/seq32 lower-width sequence extension row",
+    "full factorial proof-grid claim: 42 of 60 grid cells are missing native fused proofs",
+    "new crossing proof claim: this slice adds only the d32/four-head/seq16 width-head-sequence extension row",
     "timing or public benchmark claim: this gate records status only",
     "real-valued Softmax or full-inference claim: the upstream kernel is bounded integer Softmax-table/floor division",
 )
 NEXT_LOW_RISK_PROFILES = (
     {
-        "profile_id": "d32_four_head_seq16",
+        "profile_id": "d32_four_head_seq32",
         "key_width": 32,
         "head_count": 4,
-        "steps_per_head": 16,
-        "reason": "tests the high-width head-axis crossing without jumping to seq32 first",
+        "steps_per_head": 32,
+        "reason": "tests whether the new d32 four-head saving survives the seq32 sequence extension",
         "go_condition": "source, sidecar, fused, and mutation gates all validate under local-only proof accounting",
     },
 )
