@@ -644,8 +644,10 @@ def main() -> None:
     parser.add_argument("--write-tsv", type=pathlib.Path, default=TSV_OUT)
     args = parser.parse_args()
     payload = build_payload()
-    write_json(args.write_json, payload, payload["source_artifacts"])
-    write_tsv(args.write_tsv, payload, payload["source_artifacts"])
+    _, current_raws = load_sources()
+    expected_source_artifacts = source_artifacts(current_raws)
+    write_json(args.write_json, payload, expected_source_artifacts)
+    write_tsv(args.write_tsv, payload, expected_source_artifacts)
     print(json.dumps(payload, indent=2, sort_keys=True))
 
 
