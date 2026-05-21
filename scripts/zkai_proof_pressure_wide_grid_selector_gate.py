@@ -543,17 +543,35 @@ def run_mutations(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def reject_symlink_components(path: pathlib.Path, label: str, *, include_leaf: bool) -> None:
+    """Reject symlinked components without resolving them away first."""
+    if not path.is_absolute():
+        path = ROOT / path
+    current = pathlib.Path(path.anchor)
+    parts = path.parts[1:] if path.anchor else path.parts
+    for index, part in enumerate(parts):
+        current = current / part
+        if not include_leaf and index == len(parts) - 1:
+            break
+        if current.is_symlink():
+            raise ProofPressureWideGridSelectorError(
+                f"output path must not contain symlink components: {label}: {current}"
+            )
+        if not current.exists():
+            break
+
+
 def checked_output_path(path: pathlib.Path) -> pathlib.Path:
     if any(part == ".." for part in path.parts):
         raise ProofPressureWideGridSelectorError(f"output path must stay inside evidence dir: {path}")
-    if EVIDENCE_DIR.is_symlink():
-        raise ProofPressureWideGridSelectorError(f"output path must not contain symlink components: {EVIDENCE_DIR}")
     candidate = path if path.is_absolute() else ROOT / path
-    evidence_root = EVIDENCE_DIR.resolve(strict=True)
+    reject_symlink_components(EVIDENCE_DIR, "evidence root", include_leaf=True)
     try:
         candidate.relative_to(EVIDENCE_DIR)
     except ValueError as err:
         raise ProofPressureWideGridSelectorError(f"output path must stay inside evidence dir: {candidate}") from err
+    reject_symlink_components(candidate.parent, "candidate parent", include_leaf=True)
+    evidence_root = EVIDENCE_DIR.resolve(strict=True)
     try:
         candidate.resolve(strict=False).relative_to(evidence_root)
     except ValueError as err:
