@@ -192,75 +192,78 @@ def requested_grid_rows() -> list[dict[str, Any]]:
 
 
 def build_current_signal(route_matrix: dict[str, Any], fuller_grid: dict[str, Any]) -> dict[str, Any]:
-    rows = route_matrix.get("route_rows")
-    if not isinstance(rows, list):
-        raise ProofPressureWideGridSelectorError("route matrix rows missing")
-    proved = [row for row in rows if row.get("matched_source_sidecar_status") == EXPECTED_MATCH_STATUS]
-    if len(proved) != 14:
-        raise ProofPressureWideGridSelectorError("current route row count drift")
-    if any(row["fused_saves_vs_source_plus_sidecar_bytes"] <= 0 for row in proved):
-        raise ProofPressureWideGridSelectorError("current fused saving sign drift")
+    try:
+        rows = route_matrix.get("route_rows")
+        if not isinstance(rows, list):
+            raise ProofPressureWideGridSelectorError("route matrix rows missing")
+        proved = [row for row in rows if row.get("matched_source_sidecar_status") == EXPECTED_MATCH_STATUS]
+        if len(proved) != 14:
+            raise ProofPressureWideGridSelectorError("current route row count drift")
+        if any(row["fused_saves_vs_source_plus_sidecar_bytes"] <= 0 for row in proved):
+            raise ProofPressureWideGridSelectorError("current fused saving sign drift")
 
-    d32_seq8 = row_by_id(proved, "d32_two_head_seq8")
-    d32_seq32 = row_by_id(proved, "d32_two_head_seq32")
-    d8_seq32 = row_by_id(proved, "d8_two_head_seq32")
-    d8_h1 = row_by_id(proved, "d8_single_head_seq8")
-    d32_h1 = row_by_id(proved, "d32_single_head_seq8")
+        d32_seq8 = row_by_id(proved, "d32_two_head_seq8")
+        d32_seq32 = row_by_id(proved, "d32_two_head_seq32")
+        d8_seq32 = row_by_id(proved, "d8_two_head_seq32")
+        d8_h1 = row_by_id(proved, "d8_single_head_seq8")
+        d32_h1 = row_by_id(proved, "d32_single_head_seq8")
 
-    fuller_summary = fuller_grid.get("summary")
-    if not isinstance(fuller_summary, dict):
-        raise ProofPressureWideGridSelectorError("fuller grid summary missing")
+        fuller_summary = fuller_grid.get("summary")
+        if not isinstance(fuller_summary, dict):
+            raise ProofPressureWideGridSelectorError("fuller grid summary missing")
 
-    aggregates = route_matrix.get("aggregate_metrics")
-    if not isinstance(aggregates, dict):
-        raise ProofPressureWideGridSelectorError("route matrix aggregate metrics missing")
+        aggregates = route_matrix.get("aggregate_metrics")
+        if not isinstance(aggregates, dict):
+            raise ProofPressureWideGridSelectorError("route matrix aggregate metrics missing")
 
-    return {
-        "checked_attention_route_rows": len(proved),
-        "checked_widths": sorted({row["key_width"] for row in proved}),
-        "checked_head_counts": sorted({row["head_count"] for row in proved}),
-        "checked_sequences": sorted({row["steps_per_head"] for row in proved}),
-        "all_checked_rows_have_positive_fused_saving": True,
-        "raw_fused_bytes_total": aggregates["matched_fused_proof_size_bytes_total"],
-        "raw_split_bytes_total": aggregates["matched_source_plus_sidecar_raw_proof_bytes_total"],
-        "raw_saving_bytes_total": aggregates["matched_fused_savings_bytes_total"],
-        "fuller_grid_cells": fuller_summary["grid_cell_count"],
-        "fuller_grid_proved_cells": fuller_summary["proved_cell_count"],
-        "fuller_grid_missing_cells": fuller_summary["missing_cell_count"],
-        "d32_two_head_seq8_to_seq32": {
-            "lookup_claim_growth": ratio(d32_seq32["lookup_claims"], d32_seq8["lookup_claims"]),
-            "trace_row_growth": ratio(d32_seq32["trace_rows"], d32_seq8["trace_rows"]),
-            "fused_raw_proof_growth": ratio(d32_seq32["fused_proof_size_bytes"], d32_seq8["fused_proof_size_bytes"]),
-            "split_raw_proof_growth": ratio(
-                d32_seq32["source_plus_sidecar_raw_proof_bytes"],
-                d32_seq8["source_plus_sidecar_raw_proof_bytes"],
-            ),
-            "saving_growth": ratio(
-                d32_seq32["fused_saves_vs_source_plus_sidecar_bytes"],
-                d32_seq8["fused_saves_vs_source_plus_sidecar_bytes"],
-            ),
-        },
-        "d8_to_d32_two_head_seq32_width_pressure": {
-            "lookup_claim_growth": ratio(d32_seq32["lookup_claims"], d8_seq32["lookup_claims"]),
-            "fused_raw_proof_growth": ratio(d32_seq32["fused_proof_size_bytes"], d8_seq32["fused_proof_size_bytes"]),
-            "split_raw_proof_growth": ratio(
-                d32_seq32["source_plus_sidecar_raw_proof_bytes"],
-                d8_seq32["source_plus_sidecar_raw_proof_bytes"],
-            ),
-        },
-        "d8_to_d32_single_head_seq8_width_pressure": {
-            "lookup_claim_growth": ratio(d32_h1["lookup_claims"], d8_h1["lookup_claims"]),
-            "fused_raw_proof_growth": ratio(d32_h1["fused_proof_size_bytes"], d8_h1["fused_proof_size_bytes"]),
-            "split_raw_proof_growth": ratio(
-                d32_h1["source_plus_sidecar_raw_proof_bytes"],
-                d8_h1["source_plus_sidecar_raw_proof_bytes"],
-            ),
-            "saving_growth": ratio(
-                d32_h1["fused_saves_vs_source_plus_sidecar_bytes"],
-                d8_h1["fused_saves_vs_source_plus_sidecar_bytes"],
-            ),
-        },
-    }
+        return {
+            "checked_attention_route_rows": len(proved),
+            "checked_widths": sorted({row["key_width"] for row in proved}),
+            "checked_head_counts": sorted({row["head_count"] for row in proved}),
+            "checked_sequences": sorted({row["steps_per_head"] for row in proved}),
+            "all_checked_rows_have_positive_fused_saving": True,
+            "raw_fused_bytes_total": aggregates["matched_fused_proof_size_bytes_total"],
+            "raw_split_bytes_total": aggregates["matched_source_plus_sidecar_raw_proof_bytes_total"],
+            "raw_saving_bytes_total": aggregates["matched_fused_savings_bytes_total"],
+            "fuller_grid_cells": fuller_summary["grid_cell_count"],
+            "fuller_grid_proved_cells": fuller_summary["proved_cell_count"],
+            "fuller_grid_missing_cells": fuller_summary["missing_cell_count"],
+            "d32_two_head_seq8_to_seq32": {
+                "lookup_claim_growth": ratio(d32_seq32["lookup_claims"], d32_seq8["lookup_claims"]),
+                "trace_row_growth": ratio(d32_seq32["trace_rows"], d32_seq8["trace_rows"]),
+                "fused_raw_proof_growth": ratio(d32_seq32["fused_proof_size_bytes"], d32_seq8["fused_proof_size_bytes"]),
+                "split_raw_proof_growth": ratio(
+                    d32_seq32["source_plus_sidecar_raw_proof_bytes"],
+                    d32_seq8["source_plus_sidecar_raw_proof_bytes"],
+                ),
+                "saving_growth": ratio(
+                    d32_seq32["fused_saves_vs_source_plus_sidecar_bytes"],
+                    d32_seq8["fused_saves_vs_source_plus_sidecar_bytes"],
+                ),
+            },
+            "d8_to_d32_two_head_seq32_width_pressure": {
+                "lookup_claim_growth": ratio(d32_seq32["lookup_claims"], d8_seq32["lookup_claims"]),
+                "fused_raw_proof_growth": ratio(d32_seq32["fused_proof_size_bytes"], d8_seq32["fused_proof_size_bytes"]),
+                "split_raw_proof_growth": ratio(
+                    d32_seq32["source_plus_sidecar_raw_proof_bytes"],
+                    d8_seq32["source_plus_sidecar_raw_proof_bytes"],
+                ),
+            },
+            "d8_to_d32_single_head_seq8_width_pressure": {
+                "lookup_claim_growth": ratio(d32_h1["lookup_claims"], d8_h1["lookup_claims"]),
+                "fused_raw_proof_growth": ratio(d32_h1["fused_proof_size_bytes"], d8_h1["fused_proof_size_bytes"]),
+                "split_raw_proof_growth": ratio(
+                    d32_h1["source_plus_sidecar_raw_proof_bytes"],
+                    d8_h1["source_plus_sidecar_raw_proof_bytes"],
+                ),
+                "saving_growth": ratio(
+                    d32_h1["fused_saves_vs_source_plus_sidecar_bytes"],
+                    d8_h1["fused_saves_vs_source_plus_sidecar_bytes"],
+                ),
+            },
+        }
+    except KeyError as err:
+        raise ProofPressureWideGridSelectorError("route matrix signal field missing") from err
 
 
 def build_accounting_triplet_signal(claim_pack: dict[str, Any]) -> dict[str, Any]:
@@ -443,6 +446,10 @@ def validate_payload(payload: dict[str, Any], expected_source_artifacts: list[di
         raise ProofPressureWideGridSelectorError("current route row count drift")
     if current.get("checked_widths") != list(SUPPORTED_ATTENTION_WIDTHS):
         raise ProofPressureWideGridSelectorError("checked widths drift")
+    if current.get("raw_fused_bytes_total") != 1_145_173:
+        raise ProofPressureWideGridSelectorError("raw fused total drift")
+    if current.get("raw_split_bytes_total") != 1_411_498:
+        raise ProofPressureWideGridSelectorError("raw split total drift")
     if current.get("raw_saving_bytes_total") != 266_325:
         raise ProofPressureWideGridSelectorError("raw saving total drift")
     d32_seq = current.get("d32_two_head_seq8_to_seq32")
@@ -551,38 +558,32 @@ def run_mutations(payload: dict[str, Any], expected_source_artifacts: list[dict[
     }
 
 
-def reject_symlink_components(path: pathlib.Path, label: str, *, include_leaf: bool, require_exists: bool) -> None:
+def reject_symlink_components(path: pathlib.Path, label: str) -> None:
     """Reject symlinked components without resolving them away first."""
     if not path.is_absolute():
         path = ROOT / path
     current = pathlib.Path(path.anchor)
     parts = path.parts[1:] if path.anchor else path.parts
-    for index, part in enumerate(parts):
+    for part in parts:
         current = current / part
-        if not include_leaf and index == len(parts) - 1:
-            break
         if current.is_symlink():
             raise ProofPressureWideGridSelectorError(
                 f"output path must not contain symlink components: {label}: {current}"
             )
         if not current.exists():
-            if require_exists:
-                raise ProofPressureWideGridSelectorError(
-                    f"output path parent directory must exist: {label}: {current}"
-                )
-            break
+            raise ProofPressureWideGridSelectorError(f"output path parent directory must exist: {label}: {current}")
 
 
 def checked_output_path(path: pathlib.Path) -> pathlib.Path:
     if any(part == ".." for part in path.parts):
         raise ProofPressureWideGridSelectorError(f"output path must stay inside evidence dir: {path}")
     candidate = path if path.is_absolute() else ROOT / path
-    reject_symlink_components(EVIDENCE_DIR, "evidence root", include_leaf=True, require_exists=True)
+    reject_symlink_components(EVIDENCE_DIR, "evidence root")
     try:
         candidate.relative_to(EVIDENCE_DIR)
     except ValueError as err:
         raise ProofPressureWideGridSelectorError(f"output path must stay inside evidence dir: {candidate}") from err
-    reject_symlink_components(candidate.parent, "candidate parent", include_leaf=True, require_exists=True)
+    reject_symlink_components(candidate.parent, "candidate parent")
     if not candidate.parent.is_dir():
         raise ProofPressureWideGridSelectorError(f"output path parent directory must exist: {candidate.parent}")
     evidence_root = EVIDENCE_DIR.resolve(strict=True)
@@ -603,7 +604,6 @@ def checked_output_path(path: pathlib.Path) -> pathlib.Path:
 
 def write_json(path: pathlib.Path, payload: dict[str, Any], expected_source_artifacts: list[dict[str, Any]]) -> None:
     path = checked_output_path(path)
-    path = checked_output_path(path)
     validate_payload(payload, expected_source_artifacts)
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=path.parent, prefix=f".{path.name}.", suffix=".tmp", delete=False) as handle:
         tmp_path = pathlib.Path(handle.name)
@@ -618,7 +618,6 @@ def write_json(path: pathlib.Path, payload: dict[str, Any], expected_source_arti
 
 
 def write_tsv(path: pathlib.Path, payload: dict[str, Any], expected_source_artifacts: list[dict[str, Any]]) -> None:
-    path = checked_output_path(path)
     path = checked_output_path(path)
     validate_payload(payload, expected_source_artifacts)
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", newline="", dir=path.parent, prefix=f".{path.name}.", suffix=".tmp", delete=False) as handle:
