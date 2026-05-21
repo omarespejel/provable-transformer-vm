@@ -199,8 +199,12 @@ def build_current_signal(route_matrix: dict[str, Any], fuller_grid: dict[str, An
         proved = [row for row in rows if row.get("matched_source_sidecar_status") == EXPECTED_MATCH_STATUS]
         if len(proved) != 14:
             raise ProofPressureWideGridSelectorError("current route row count drift")
-        if any(row["fused_saves_vs_source_plus_sidecar_bytes"] <= 0 for row in proved):
-            raise ProofPressureWideGridSelectorError("current fused saving sign drift")
+        for row in proved:
+            fused_saving = row["fused_saves_vs_source_plus_sidecar_bytes"]
+            if not isinstance(fused_saving, (int, float)) or isinstance(fused_saving, bool):
+                raise ProofPressureWideGridSelectorError("route matrix signal field type drift")
+            if fused_saving <= 0:
+                raise ProofPressureWideGridSelectorError("current fused saving sign drift")
 
         d32_seq8 = row_by_id(proved, "d32_two_head_seq8")
         d32_seq32 = row_by_id(proved, "d32_two_head_seq32")
