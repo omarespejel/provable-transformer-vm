@@ -74,13 +74,17 @@ class AttentionKvD16TwoHeadSeq32BoundedSoftmaxTableInputTests(unittest.TestCase)
         self.assertIn(payload["statement_commitment"], tsv)
         self.assertIn(gate.WEIGHT_POLICY, tsv)
 
+    @unittest.skipUnless(hasattr(os, "symlink"), "symlink support is required")
     def test_write_json_rejects_symlinked_parent_before_create(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = gate.pathlib.Path(tmp)
             target = root / "target"
             target.mkdir()
             link = root / "link"
-            os.symlink(target, link, target_is_directory=True)
+            try:
+                os.symlink(target, link, target_is_directory=True)
+            except OSError as err:
+                self.skipTest(f"symlink creation not permitted: {err}")
             with self.assertRaisesRegex(
                 gate.AttentionKvD16TwoHeadSeq32BoundedSoftmaxTableInputError,
                 "symlinked parent",
