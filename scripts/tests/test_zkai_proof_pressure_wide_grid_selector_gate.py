@@ -57,6 +57,7 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         self.assertTrue(mutation["all_mutations_rejected"])
         self.assertEqual(mutation["mutations_checked"], 12)
         self.assertEqual(mutation["mutations_rejected"], 12)
+        self.assertEqual(len(mutation["mutation_names"]), 12)
         self.assertEqual(mutation["mutation_names"], list(gate.MUTATION_NAMES))
 
     def test_current_signal_rejects_non_go_match_status(self):
@@ -98,6 +99,13 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
     def test_write_outputs_reject_relative_parent_traversal(self):
         with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "stay inside evidence dir"):
             gate.write_tsv(gate.pathlib.Path("docs/engineering/evidence/../wide-grid.tsv"), self.payload)
+
+    def test_write_outputs_reject_symlink_escape_inside_evidence_dir(self):
+        with self.evidence_tempdir() as evidence_tmp, tempfile.TemporaryDirectory() as outside_tmp:
+            link_path = gate.pathlib.Path(evidence_tmp) / "escape"
+            link_path.symlink_to(gate.pathlib.Path(outside_tmp), target_is_directory=True)
+            with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "symlink components"):
+                gate.write_json(link_path / "wide-grid.json", self.payload)
 
 
 if __name__ == "__main__":
