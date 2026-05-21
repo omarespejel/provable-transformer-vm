@@ -902,11 +902,11 @@ def fsync_parent_dir(path: pathlib.Path) -> None:
 
 
 def reject_symlinked_output_path(path: pathlib.Path, label: str) -> None:
-    if path.is_symlink():
+    candidate = path if path.is_absolute() else pathlib.Path.cwd() / path
+    if candidate.is_symlink():
         raise AttentionKvD16TwoHeadSeq32BoundedSoftmaxTableInputError(
             f"refusing to write {label} through symlink: {path}"
         )
-    candidate = path if path.is_absolute() else pathlib.Path.cwd() / path
     current = pathlib.Path(candidate.anchor)
     for part in candidate.parts[1:-1]:
         current = current / part
@@ -916,9 +916,28 @@ def reject_symlinked_output_path(path: pathlib.Path, label: str) -> None:
             )
 
 
-def safe_write_text(path: pathlib.Path, content: str, label: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
+def ensure_parent_dir_without_symlinks(path: pathlib.Path, label: str) -> None:
     reject_symlinked_output_path(path, label)
+    candidate = path if path.is_absolute() else pathlib.Path.cwd() / path
+    current = pathlib.Path(candidate.anchor)
+    for part in candidate.parent.parts[1:]:
+        current = current / part
+        if current.is_symlink():
+            raise AttentionKvD16TwoHeadSeq32BoundedSoftmaxTableInputError(
+                f"refusing to create {label} under symlinked parent: {current}"
+            )
+        if current.exists():
+            if not current.is_dir():
+                raise AttentionKvD16TwoHeadSeq32BoundedSoftmaxTableInputError(
+                    f"refusing to create {label}; parent component is not a directory: {current}"
+                )
+            continue
+        current.mkdir()
+    reject_symlinked_output_path(path, label)
+
+
+def safe_write_text(path: pathlib.Path, content: str, label: str) -> None:
+    ensure_parent_dir_without_symlinks(path, label)
     tmp_path: pathlib.Path | None = None
     try:
         with tempfile.NamedTemporaryFile(

@@ -1,4 +1,6 @@
 import copy
+import os
+import tempfile
 import unittest
 from unittest import mock
 
@@ -71,6 +73,20 @@ class AttentionKvD16TwoHeadSeq32BoundedSoftmaxTableInputTests(unittest.TestCase)
         self.assertIn(gate.DECISION, tsv)
         self.assertIn(payload["statement_commitment"], tsv)
         self.assertIn(gate.WEIGHT_POLICY, tsv)
+
+    def test_write_json_rejects_symlinked_parent_before_create(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = gate.pathlib.Path(tmp)
+            target = root / "target"
+            target.mkdir()
+            link = root / "link"
+            os.symlink(target, link, target_is_directory=True)
+            with self.assertRaisesRegex(
+                gate.AttentionKvD16TwoHeadSeq32BoundedSoftmaxTableInputError,
+                "symlinked parent",
+            ):
+                gate.write_json(gate.build_payload(), link / "nested" / "artifact.json")
+            self.assertFalse((target / "nested").exists())
 
     def test_build_payload_is_deterministic(self):
         self.assertEqual(gate.build_payload(), copy.deepcopy(gate.build_payload()))
