@@ -27,6 +27,7 @@ if str(ROOT) not in sys.path:
 from scripts import zkai_attention_kv_d16_fused_softmax_table_native_gate as d16_fused
 from scripts import zkai_attention_kv_d16_two_head_fused_softmax_table_native_gate as d16_two_head_fused
 from scripts import zkai_attention_kv_d16_two_head_longseq_fused_softmax_table_native_gate as d16_two_head_longseq_fused
+from scripts import zkai_attention_kv_d16_two_head_seq32_fused_softmax_table_native_gate as d16_two_head_seq32_fused
 from scripts import zkai_attention_kv_d32_fused_softmax_table_native_gate as d32_fused
 from scripts import zkai_attention_kv_d32_two_head_fused_softmax_table_native_gate as d32_two_head_fused
 from scripts import zkai_attention_kv_d32_two_head_longseq_fused_softmax_table_native_gate as d32_two_head_longseq_fused
@@ -110,6 +111,7 @@ EXPECTED_MUTATION_NAMES = (
     "d16_two_head_combined_axis_metric_smuggling",
     "d32_two_head_combined_axis_metric_smuggling",
     "d16_two_head_longseq_combined_axis_metric_smuggling",
+    "d16_two_head_seq32_combined_axis_metric_smuggling",
     "d32_two_head_longseq_combined_axis_metric_smuggling",
     "d32_two_head_seq32_combined_axis_metric_smuggling",
     "d64_two_head_seq16_falsification_axis_metric_smuggling",
@@ -122,6 +124,9 @@ EXPECTED_MUTATION_NAMES = (
     "axis_summary_combined_axis_ratio_drift",
     "axis_summary_combined_axis_extension_ratio_drift",
     "axis_summary_combined_longseq_axis_ratio_drift",
+    "axis_summary_combined_seq32_axis_ratio_drift",
+    "axis_summary_d8_d16_seq32_width_ratio_drift",
+    "axis_summary_d16_d32_seq32_width_ratio_drift",
     "axis_summary_combined_longseq_axis_extension_ratio_drift",
     "axis_summary_combined_seq32_axis_extension_ratio_drift",
     "axis_summary_d64_seq16_falsification_ratio_drift",
@@ -305,6 +310,19 @@ PROFILES = (
         expected_value_width=16,
         expected_head_count=2,
         expected_steps_per_head=16,
+        comparator_required=True,
+    ),
+    Profile(
+        profile_id="d16_two_head_seq32",
+        axis_role="combined_width_head_sequence_axis_lower_seq32_extension",
+        label="d16 two-head seq32 fused Softmax-table route",
+        gate_module=d16_two_head_seq32_fused,
+        gate_json=d16_two_head_seq32_fused.JSON_OUT,
+        source_input_json=d16_two_head_seq32_fused.SOURCE_INPUT_JSON,
+        expected_key_width=16,
+        expected_value_width=16,
+        expected_head_count=2,
+        expected_steps_per_head=32,
         comparator_required=True,
     ),
     Profile(
@@ -557,6 +575,7 @@ def build_axis_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     d16_two = row_by_id(rows, "d16_two_head_seq8")
     d32_two = row_by_id(rows, "d32_two_head_seq8")
     d16_two_longseq = row_by_id(rows, "d16_two_head_seq16")
+    d16_two_seq32 = row_by_id(rows, "d16_two_head_seq32")
     d32_two_longseq = row_by_id(rows, "d32_two_head_seq16")
     d32_two_seq32 = row_by_id(rows, "d32_two_head_seq32")
     d64_two_longseq = row_by_id(rows, "d64_two_head_seq16")
@@ -768,6 +787,145 @@ def build_axis_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             ),
             "fused_to_source_plus_sidecar_ratio": d16_two_longseq["fused_to_source_plus_sidecar_ratio"],
             "matched_comparator_status": d16_two_longseq["matched_source_sidecar_status"],
+        },
+        "combined_width_head_sequence_axis_lower_seq32_extension": {
+            "held_constant": "key_width_16_head_count_2_bounded_softmax_table_kernel_with_sequence_axis_extended",
+            "profile_ids": ["d16_two_head_seq8", "d16_two_head_seq16", "d16_two_head_seq32"],
+            "steps_per_head": [
+                d16_two["steps_per_head"],
+                d16_two_longseq["steps_per_head"],
+                d16_two_seq32["steps_per_head"],
+            ],
+            "lookup_claims": [
+                d16_two["lookup_claims"],
+                d16_two_longseq["lookup_claims"],
+                d16_two_seq32["lookup_claims"],
+            ],
+            "trace_rows": [
+                d16_two["trace_rows"],
+                d16_two_longseq["trace_rows"],
+                d16_two_seq32["trace_rows"],
+            ],
+            "fused_proof_size_bytes": [
+                d16_two["fused_proof_size_bytes"],
+                d16_two_longseq["fused_proof_size_bytes"],
+                d16_two_seq32["fused_proof_size_bytes"],
+            ],
+            "source_plus_sidecar_raw_proof_bytes": [
+                d16_two["source_plus_sidecar_raw_proof_bytes"],
+                d16_two_longseq["source_plus_sidecar_raw_proof_bytes"],
+                d16_two_seq32["source_plus_sidecar_raw_proof_bytes"],
+            ],
+            "fused_to_source_plus_sidecar_ratios": [
+                d16_two["fused_to_source_plus_sidecar_ratio"],
+                d16_two_longseq["fused_to_source_plus_sidecar_ratio"],
+                d16_two_seq32["fused_to_source_plus_sidecar_ratio"],
+            ],
+            "seq8_to_seq16_steps_ratio": ratio(d16_two_longseq["steps_per_head"], d16_two["steps_per_head"]),
+            "seq8_to_seq16_lookup_claim_ratio": ratio(d16_two_longseq["lookup_claims"], d16_two["lookup_claims"]),
+            "seq8_to_seq16_trace_row_ratio": ratio(d16_two_longseq["trace_rows"], d16_two["trace_rows"]),
+            "seq8_to_seq16_fused_proof_size_ratio": ratio(
+                d16_two_longseq["fused_proof_size_bytes"], d16_two["fused_proof_size_bytes"]
+            ),
+            "seq8_to_seq16_source_plus_sidecar_ratio": ratio(
+                d16_two_longseq["source_plus_sidecar_raw_proof_bytes"],
+                d16_two["source_plus_sidecar_raw_proof_bytes"],
+            ),
+            "seq16_to_seq32_steps_ratio": ratio(
+                d16_two_seq32["steps_per_head"], d16_two_longseq["steps_per_head"]
+            ),
+            "seq16_to_seq32_lookup_claim_ratio": ratio(
+                d16_two_seq32["lookup_claims"], d16_two_longseq["lookup_claims"]
+            ),
+            "seq16_to_seq32_trace_row_ratio": ratio(
+                d16_two_seq32["trace_rows"], d16_two_longseq["trace_rows"]
+            ),
+            "seq16_to_seq32_fused_proof_size_ratio": ratio(
+                d16_two_seq32["fused_proof_size_bytes"], d16_two_longseq["fused_proof_size_bytes"]
+            ),
+            "seq16_to_seq32_source_plus_sidecar_ratio": ratio(
+                d16_two_seq32["source_plus_sidecar_raw_proof_bytes"],
+                d16_two_longseq["source_plus_sidecar_raw_proof_bytes"],
+            ),
+            "seq16_to_seq32_savings_ratio": ratio(
+                d16_two_seq32["fused_saves_vs_source_plus_sidecar_bytes"],
+                d16_two_longseq["fused_saves_vs_source_plus_sidecar_bytes"],
+            ),
+            "matched_comparator_status": d16_two_seq32["matched_source_sidecar_status"],
+        },
+        "combined_width_head_sequence_axis_d8_to_d16_seq32_width_check": {
+            "held_constant": "head_count_2_steps_per_head_32_bounded_softmax_table_kernel_with_width_axis_extended",
+            "profile_ids": ["d8_two_head_seq32", "d16_two_head_seq32"],
+            "key_widths": [seq32["key_width"], d16_two_seq32["key_width"]],
+            "lookup_claims": [seq32["lookup_claims"], d16_two_seq32["lookup_claims"]],
+            "trace_rows": [seq32["trace_rows"], d16_two_seq32["trace_rows"]],
+            "fused_proof_size_bytes": [
+                seq32["fused_proof_size_bytes"],
+                d16_two_seq32["fused_proof_size_bytes"],
+            ],
+            "source_plus_sidecar_raw_proof_bytes": [
+                seq32["source_plus_sidecar_raw_proof_bytes"],
+                d16_two_seq32["source_plus_sidecar_raw_proof_bytes"],
+            ],
+            "fused_to_source_plus_sidecar_ratios": [
+                seq32["fused_to_source_plus_sidecar_ratio"],
+                d16_two_seq32["fused_to_source_plus_sidecar_ratio"],
+            ],
+            "d8_to_d16_key_width_ratio": ratio(d16_two_seq32["key_width"], seq32["key_width"]),
+            "d8_to_d16_lookup_claim_ratio": ratio(d16_two_seq32["lookup_claims"], seq32["lookup_claims"]),
+            "d8_to_d16_trace_row_ratio": ratio(d16_two_seq32["trace_rows"], seq32["trace_rows"]),
+            "d8_to_d16_source_proof_size_ratio": ratio(
+                d16_two_seq32["source_proof_size_bytes"], seq32["source_proof_size_bytes"]
+            ),
+            "d8_to_d16_fused_proof_size_ratio": ratio(
+                d16_two_seq32["fused_proof_size_bytes"], seq32["fused_proof_size_bytes"]
+            ),
+            "d8_to_d16_source_plus_sidecar_ratio": ratio(
+                d16_two_seq32["source_plus_sidecar_raw_proof_bytes"],
+                seq32["source_plus_sidecar_raw_proof_bytes"],
+            ),
+            "d8_to_d16_savings_ratio": ratio(
+                d16_two_seq32["fused_saves_vs_source_plus_sidecar_bytes"],
+                seq32["fused_saves_vs_source_plus_sidecar_bytes"],
+            ),
+            "matched_comparator_status": d16_two_seq32["matched_source_sidecar_status"],
+        },
+        "combined_width_head_sequence_axis_d16_to_d32_seq32_width_check": {
+            "held_constant": "head_count_2_steps_per_head_32_bounded_softmax_table_kernel_with_width_axis_extended",
+            "profile_ids": ["d16_two_head_seq32", "d32_two_head_seq32"],
+            "key_widths": [d16_two_seq32["key_width"], d32_two_seq32["key_width"]],
+            "lookup_claims": [d16_two_seq32["lookup_claims"], d32_two_seq32["lookup_claims"]],
+            "trace_rows": [d16_two_seq32["trace_rows"], d32_two_seq32["trace_rows"]],
+            "fused_proof_size_bytes": [
+                d16_two_seq32["fused_proof_size_bytes"],
+                d32_two_seq32["fused_proof_size_bytes"],
+            ],
+            "source_plus_sidecar_raw_proof_bytes": [
+                d16_two_seq32["source_plus_sidecar_raw_proof_bytes"],
+                d32_two_seq32["source_plus_sidecar_raw_proof_bytes"],
+            ],
+            "fused_to_source_plus_sidecar_ratios": [
+                d16_two_seq32["fused_to_source_plus_sidecar_ratio"],
+                d32_two_seq32["fused_to_source_plus_sidecar_ratio"],
+            ],
+            "d16_to_d32_key_width_ratio": ratio(d32_two_seq32["key_width"], d16_two_seq32["key_width"]),
+            "d16_to_d32_lookup_claim_ratio": ratio(d32_two_seq32["lookup_claims"], d16_two_seq32["lookup_claims"]),
+            "d16_to_d32_trace_row_ratio": ratio(d32_two_seq32["trace_rows"], d16_two_seq32["trace_rows"]),
+            "d16_to_d32_source_proof_size_ratio": ratio(
+                d32_two_seq32["source_proof_size_bytes"], d16_two_seq32["source_proof_size_bytes"]
+            ),
+            "d16_to_d32_fused_proof_size_ratio": ratio(
+                d32_two_seq32["fused_proof_size_bytes"], d16_two_seq32["fused_proof_size_bytes"]
+            ),
+            "d16_to_d32_source_plus_sidecar_ratio": ratio(
+                d32_two_seq32["source_plus_sidecar_raw_proof_bytes"],
+                d16_two_seq32["source_plus_sidecar_raw_proof_bytes"],
+            ),
+            "d16_to_d32_savings_ratio": ratio(
+                d32_two_seq32["fused_saves_vs_source_plus_sidecar_bytes"],
+                d16_two_seq32["fused_saves_vs_source_plus_sidecar_bytes"],
+            ),
+            "matched_comparator_status": d32_two_seq32["matched_source_sidecar_status"],
         },
         "combined_width_head_sequence_axis_extension": {
             "held_constant": "bounded_softmax_table_kernel_with_width_head_and_sequence_axes_combined",
@@ -1114,6 +1272,10 @@ def mutation_cases() -> tuple[tuple[str, Any], ...]:
             lambda v: row_by_id(v["route_rows"], "d16_two_head_seq16").__setitem__("steps_per_head", 8),
         ),
         (
+            "d16_two_head_seq32_combined_axis_metric_smuggling",
+            lambda v: row_by_id(v["route_rows"], "d16_two_head_seq32").__setitem__("steps_per_head", 16),
+        ),
+        (
             "d32_two_head_longseq_combined_axis_metric_smuggling",
             lambda v: row_by_id(v["route_rows"], "d32_two_head_seq16").__setitem__("key_width", 16),
         ),
@@ -1172,6 +1334,24 @@ def mutation_cases() -> tuple[tuple[str, Any], ...]:
             lambda v: v["axis_summary"]["combined_width_head_sequence_axis"].__setitem__(
                 "vs_d8_two_head_seq16_fused_proof_size_ratio", 1.0
             ),
+        ),
+        (
+            "axis_summary_combined_seq32_axis_ratio_drift",
+            lambda v: v["axis_summary"][
+                "combined_width_head_sequence_axis_lower_seq32_extension"
+            ].__setitem__("seq16_to_seq32_fused_proof_size_ratio", 1.0),
+        ),
+        (
+            "axis_summary_d8_d16_seq32_width_ratio_drift",
+            lambda v: v["axis_summary"][
+                "combined_width_head_sequence_axis_d8_to_d16_seq32_width_check"
+            ].__setitem__("d8_to_d16_fused_proof_size_ratio", 1.0),
+        ),
+        (
+            "axis_summary_d16_d32_seq32_width_ratio_drift",
+            lambda v: v["axis_summary"][
+                "combined_width_head_sequence_axis_d16_to_d32_seq32_width_check"
+            ].__setitem__("d16_to_d32_fused_proof_size_ratio", 1.0),
         ),
         (
             "axis_summary_combined_longseq_axis_extension_ratio_drift",

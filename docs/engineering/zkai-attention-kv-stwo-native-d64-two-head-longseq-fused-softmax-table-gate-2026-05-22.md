@@ -75,7 +75,7 @@ proof-pressure hypothesis, but only inside this bounded Softmax-table fixture.
 
 ## Matrix Impact
 
-The controlled route matrix now has:
+At this row's capture time, the controlled route matrix had:
 
 - `16` matched route rows
 - `6,820` total lookup claims
@@ -84,7 +84,9 @@ The controlled route matrix now has:
 - `1,636,934` fused proof bytes
 - `317,391` aggregate fused proof-byte savings
 
-The fuller crossing grid is now `16 / 60` proved and `44 / 60` missing.
+The fuller crossing grid was `16 / 60` proved and `44 / 60` missing at this
+row's capture time. The live route matrix is superseded by the latest checked
+matrix evidence.
 
 ## Correctness Discipline
 
@@ -123,8 +125,7 @@ artifact:
 - `d128` and `d256` attention rows: not produced here. They remain gated behind
   checked `d64` rows and either generated backend support or dedicated native
   rows.
-- `d16_two_head_seq32`: still missing. It is the next lower-width seq32 crossing
-  to test whether the d64 sequence slope is monotone across width.
+- `d16_two_head_seq32`: since filled by the 2026-05-22 lower-width seq32 route.
 - typed and binary/raw proof-size accounting: this artifact reports JSON proof
   bytes only. Typed and raw/binary accounting remain a separate hardening gate
   before paper-facing proof-size claims.
