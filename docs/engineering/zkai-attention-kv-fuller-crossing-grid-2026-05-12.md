@@ -98,6 +98,12 @@ The lowest-risk next proof profiles are now:
 - `d32_four_head_seq16`: test the higher-width head-axis crossing without
   jumping to seq32 first.
 
+Issue-level gates still outside this grid:
+
+- `d128` and `d256` attention rows;
+- typed and binary/raw proof-size accounting;
+- one same-surface external baseline row.
+
 ## Claim Boundary
 
 This may be cited internally as:

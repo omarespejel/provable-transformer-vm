@@ -91,6 +91,24 @@ attention family, the fused proof object continues to beat the matched
 source-plus-sidecar comparator at `d64` two-head `seq32`, while the route matrix
 records that width pressure weakens the relative saving.
 
+## Issue #715 Remaining Gates
+
+This PR is one checked row inside issue #715, not completion of the full issue.
+The following issue-level gates remain open and must not be inferred from this
+artifact:
+
+- `d128` and `d256` attention rows: not produced here. They remain gated behind
+  the checked `d64` result and either generated backend support or dedicated
+  native rows.
+- `seq16`/`seq32` d64 slope: only `d64_two_head_seq32` exists here. The adjacent
+  `d64_two_head_seq16` row is the next recommended falsification point.
+- typed and binary/raw proof-size accounting: this artifact reports JSON proof
+  bytes only. Typed and raw/binary accounting remain a separate hardening gate
+  before paper-facing proof-size claims.
+- external baseline: no EZKL, zkVM, NANOZK, Jolt, or DeepProve row is included
+  here. External comparisons require a same-surface baseline with explicit
+  reproducibility labeling.
+
 ## Reproducibility Metadata
 
 - fused backend binary:
