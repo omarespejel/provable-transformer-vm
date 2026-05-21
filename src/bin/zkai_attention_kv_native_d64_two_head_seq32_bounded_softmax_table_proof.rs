@@ -72,10 +72,12 @@ fn run_with_args(mut args: Vec<std::ffi::OsString>) -> Result<String, String> {
                     &input,
                 )
                 .map_err(|error| error.to_string())?;
-            verify_zkai_attention_kv_native_d64_two_head_seq32_bounded_softmax_table_envelope(
-                &envelope,
-            )
-            .map_err(|error| error.to_string())?;
+            require_verified(
+                verify_zkai_attention_kv_native_d64_two_head_seq32_bounded_softmax_table_envelope(
+                    &envelope,
+                ),
+                "bounded d64 two-head seq32 envelope",
+            )?;
             if let Some(parent) = envelope_path.parent() {
                 if !parent.as_os_str().is_empty() {
                     fs::create_dir_all(parent).map_err(|error| {
@@ -133,10 +135,12 @@ fn run_with_args(mut args: Vec<std::ffi::OsString>) -> Result<String, String> {
                     &raw,
                 )
                 .map_err(|error| error.to_string())?;
-            verify_zkai_attention_kv_native_d64_two_head_seq32_bounded_softmax_table_envelope(
-                &envelope,
-            )
-            .map_err(|error| error.to_string())?;
+            require_verified(
+                verify_zkai_attention_kv_native_d64_two_head_seq32_bounded_softmax_table_envelope(
+                    &envelope,
+                ),
+                "bounded d64 two-head seq32 envelope",
+            )?;
             let envelope_path_json = envelope_path.to_string_lossy().into_owned();
             Ok(serde_json::json!({
                 "schema": "zkai-attention-kv-stwo-native-d64-two-head-seq32-bounded-softmax-table-cli-summary-v1",
@@ -152,6 +156,18 @@ fn run_with_args(mut args: Vec<std::ffi::OsString>) -> Result<String, String> {
             .to_string())
         }
         _ => Err(format!("unknown mode: {mode}")),
+    }
+}
+
+#[cfg(feature = "stwo-backend")]
+fn require_verified<E: std::fmt::Display>(
+    verified: Result<bool, E>,
+    label: &str,
+) -> Result<(), String> {
+    match verified {
+        Ok(true) => Ok(()),
+        Ok(false) => Err(format!("{label} proof verification returned false")),
+        Err(error) => Err(format!("{label} proof verification errored: {error}")),
     }
 }
 
@@ -211,7 +227,7 @@ fn read_bounded_file(path: &Path, max_bytes: usize, label: &str) -> Result<Vec<u
 #[cfg(all(test, feature = "stwo-backend"))]
 mod tests {
     use super::{
-        read_bounded_file, run_with_args,
+        read_bounded_file, require_verified, run_with_args,
         ZKAI_ATTENTION_KV_NATIVE_D64_TWO_HEAD_SEQ32_BOUNDED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BYTES,
     };
     use std::{
@@ -290,5 +306,12 @@ mod tests {
         assert!(oversized_error.contains("exceeds max size"));
 
         fs::remove_dir_all(&dir).expect("remove temp dir");
+    }
+
+    #[test]
+    fn require_verified_rejects_false_verifier_result() {
+        let error = require_verified(Ok::<bool, &str>(false), "fixture envelope")
+            .expect_err("false verifier result rejected");
+        assert!(error.contains("fixture envelope proof verification returned false"));
     }
 }

@@ -75,10 +75,12 @@ fn run_with_args(mut args: Vec<OsString>) -> Result<String, String> {
                     &source_input,
                 )
                 .map_err(|error| error.to_string())?;
-            verify_zkai_attention_kv_native_d64_two_head_seq32_softmax_table_lookup_envelope(
-                &envelope,
-            )
-            .map_err(|error| error.to_string())?;
+            require_verified(
+                verify_zkai_attention_kv_native_d64_two_head_seq32_softmax_table_lookup_envelope(
+                    &envelope,
+                ),
+                "lookup d64 two-head seq32 envelope",
+            )?;
             if let Some(parent) = envelope_path.parent() {
                 if !parent.as_os_str().is_empty() {
                     fs::create_dir_all(parent).map_err(|error| {
@@ -135,10 +137,12 @@ fn run_with_args(mut args: Vec<OsString>) -> Result<String, String> {
                     &raw,
                 )
                 .map_err(|error| error.to_string())?;
-            verify_zkai_attention_kv_native_d64_two_head_seq32_softmax_table_lookup_envelope(
-                &envelope,
-            )
-            .map_err(|error| error.to_string())?;
+            require_verified(
+                verify_zkai_attention_kv_native_d64_two_head_seq32_softmax_table_lookup_envelope(
+                    &envelope,
+                ),
+                "lookup d64 two-head seq32 envelope",
+            )?;
             Ok(serde_json::json!({
                 "schema": "zkai-attention-kv-stwo-native-d64-two-head-seq32-softmax-table-logup-sidecar-cli-summary-v1",
                 "mode": "verify",
@@ -153,6 +157,18 @@ fn run_with_args(mut args: Vec<OsString>) -> Result<String, String> {
             .to_string())
         }
         _ => Err(format!("unknown mode: {mode}")),
+    }
+}
+
+#[cfg(feature = "stwo-backend")]
+fn require_verified<E: std::fmt::Display>(
+    verified: Result<bool, E>,
+    label: &str,
+) -> Result<(), String> {
+    match verified {
+        Ok(true) => Ok(()),
+        Ok(false) => Err(format!("{label} proof verification returned false")),
+        Err(error) => Err(format!("{label} proof verification errored: {error}")),
     }
 }
 
@@ -275,5 +291,12 @@ mod tests {
         assert!(oversized_error.contains("exceeds max size"));
 
         fs::remove_dir_all(dir).ok();
+    }
+
+    #[test]
+    fn require_verified_rejects_false_verifier_result() {
+        let error = require_verified(Ok::<bool, &str>(false), "fixture lookup envelope")
+            .expect_err("false verifier result rejected");
+        assert!(error.contains("fixture lookup envelope proof verification returned false"));
     }
 }

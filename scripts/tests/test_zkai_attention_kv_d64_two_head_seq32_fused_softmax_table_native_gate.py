@@ -22,7 +22,12 @@ class AttentionKvD64TwoHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestCa
             gate.SIDECAR_ENVELOPE_SIZE_BYTES,
             "sidecar envelope",
         )
-        cls.fused_envelope = gate.read_bounded_json(gate.FUSED_ENVELOPE_JSON, gate.MAX_FUSED_ENVELOPE_JSON_BYTES, "fused envelope")
+        cls.fused_envelope, cls.fused_raw = gate.read_sized_envelope(
+            gate.FUSED_ENVELOPE_JSON,
+            gate.MAX_FUSED_ENVELOPE_JSON_BYTES,
+            gate.FUSED_ENVELOPE_SIZE_BYTES,
+            "fused envelope",
+        )
         cls.payload = gate.run_gate()
 
     def evidence_tempdir(self, prefix=".tmp-d64-seq32-fused-test-"):
@@ -46,6 +51,29 @@ class AttentionKvD64TwoHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestCa
         self.assertTrue(payload["fused_proof_commitment"].startswith("blake2b-256:"))
         self.assertEqual(payload["mutations_checked"], len(gate.EXPECTED_MUTATION_NAMES))
         self.assertEqual(payload["mutations_rejected"], len(gate.EXPECTED_MUTATION_NAMES))
+
+    def test_fused_envelope_commitment_binds_raw_envelope_bytes(self):
+        compact = json.dumps(self.fused_envelope, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+        pretty = json.dumps(self.fused_envelope, indent=2, sort_keys=True, ensure_ascii=False).encode("utf-8")
+        self.assertNotEqual(compact, pretty)
+        compact_envelope_commitment, compact_proof_commitment = gate.fused_artifact_commitments(
+            self.fused_envelope, envelope_bytes=compact
+        )
+        pretty_envelope_commitment, pretty_proof_commitment = gate.fused_artifact_commitments(
+            self.fused_envelope, envelope_bytes=pretty
+        )
+        self.assertNotEqual(compact_envelope_commitment, pretty_envelope_commitment)
+        self.assertEqual(compact_proof_commitment, pretty_proof_commitment)
+
+    def test_fused_envelope_commitment_rejects_bytes_dict_split_brain(self):
+        mutated = copy.deepcopy(self.fused_envelope)
+        mutated["decision"] = "GO_RELABELED_FUSED"
+        mutated_raw = json.dumps(mutated, indent=2, sort_keys=True, ensure_ascii=False).encode("utf-8")
+        with self.assertRaisesRegex(
+            gate.AttentionKvD64TwoHeadSeq32FusedSoftmaxTableGateError,
+            "fused envelope commitment bytes/dict split-brain drift",
+        ):
+            gate.fused_artifact_commitments(self.fused_envelope, envelope_bytes=mutated_raw)
 
     def test_fused_summary_counts_table_multiplicities(self):
         summary = self.fused_envelope["fused_summary"]

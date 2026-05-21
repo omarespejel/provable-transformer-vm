@@ -1,4 +1,5 @@
 import copy
+import tempfile
 import unittest
 from unittest import mock
 
@@ -175,6 +176,23 @@ class AttentionKvD64TwoHeadSeq32BoundedSoftmaxTableInputTests(unittest.TestCase)
                 bits=gate.OUTPUT_REMAINDER_BITS,
                 label="output_remainder",
             )
+
+    def test_main_rejects_same_json_and_tsv_output_path(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            same_path = gate.pathlib.Path(tmp) / "same-output"
+            with mock.patch(
+                "sys.argv",
+                [
+                    "prog",
+                    "--write-json",
+                    str(same_path),
+                    "--write-tsv",
+                    str(same_path),
+                ],
+            ):
+                with self.assertRaises(SystemExit) as ctx:
+                    gate.main()
+            self.assertEqual(ctx.exception.code, 2)
 
 
 if __name__ == "__main__":
