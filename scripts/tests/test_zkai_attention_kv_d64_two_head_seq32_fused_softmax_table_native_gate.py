@@ -75,6 +75,16 @@ class AttentionKvD64TwoHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestCa
         ):
             gate.fused_artifact_commitments(self.fused_envelope, envelope_bytes=mutated_raw)
 
+    def test_fused_envelope_commitment_rejects_int_bool_split_brain(self):
+        envelope = {"lookup_claims": 1, "proof": []}
+        bool_drift_raw = b'{"lookup_claims":true,"proof":[]}'
+        self.assertEqual(json.loads(bool_drift_raw), envelope)
+        with self.assertRaisesRegex(
+            gate.AttentionKvD64TwoHeadSeq32FusedSoftmaxTableGateError,
+            "fused envelope commitment bytes/dict split-brain drift",
+        ):
+            gate.fused_artifact_commitments(envelope, envelope_bytes=bool_drift_raw)
+
     def test_fused_summary_counts_table_multiplicities(self):
         summary = self.fused_envelope["fused_summary"]
         self.assertEqual(summary, gate.expected_summary(self.source_input))

@@ -360,7 +360,7 @@ def fused_artifact_commitments(envelope: dict[str, Any], *, envelope_bytes: byte
         raise AttentionKvD64TwoHeadSeq32FusedSoftmaxTableGateError(
             f"fused envelope commitment bytes must decode as JSON: {err}"
         ) from err
-    if parsed_envelope != envelope:
+    if not type_strict_equal(parsed_envelope, envelope):
         raise AttentionKvD64TwoHeadSeq32FusedSoftmaxTableGateError(
             "fused envelope commitment bytes/dict split-brain drift"
         )
