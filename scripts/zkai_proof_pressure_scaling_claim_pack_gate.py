@@ -35,6 +35,7 @@ if str(ROOT) not in sys.path:
 
 from scripts import zkai_attention_kv_stwo_controlled_component_grid_gate as controlled_grid
 from scripts import zkai_attention_kv_fused_softmax_table_route_matrix_gate as route_matrix
+from scripts import zkai_attention_kv_fuller_crossing_grid_gate as fuller_grid
 from scripts import zkai_claim_audit_comparison_artifacts_gate as claim_audit
 from scripts import zkai_d64_external_adapter_surface_probe as d64_external
 from scripts import zkai_jolt_atlas_lookup_tensor_comparison_gate as jolt_comparison
@@ -48,6 +49,7 @@ TSV_OUT = EVIDENCE_DIR / "zkai-proof-pressure-scaling-claim-pack-2026-05.tsv"
 
 CONTROLLED_GRID_PATH = EVIDENCE_DIR / "zkai-attention-kv-stwo-controlled-component-grid-2026-05.json"
 ROUTE_MATRIX_PATH = EVIDENCE_DIR / "zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json"
+FULLER_CROSSING_GRID_PATH = EVIDENCE_DIR / "zkai-attention-kv-fuller-crossing-grid-2026-05.json"
 NATIVE_SINGLE_PATH = EVIDENCE_DIR / "zkai-native-seq32-attention-mlp-single-proof-2026-05.json"
 STATEMENT_ONLY_PATH = EVIDENCE_DIR / "zkai-stwo-statement-only-attempt-transcript-gate-2026-05.json"
 NATIVE_SINGLE_ACCOUNTING_PATH = (
@@ -83,6 +85,7 @@ VALIDATION_COMMANDS = (
     "python3.10 -m unittest scripts.tests.test_zkai_proof_pressure_scaling_claim_pack_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_stwo_controlled_component_grid_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_fused_softmax_table_route_matrix_gate",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_fuller_crossing_grid_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_single_proof_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_stwo_statement_only_attempt_transcript_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_median_timing_gate",
@@ -108,8 +111,8 @@ OPEN_FOLLOWUPS = (
     {
         "id": "d64_d128_d256_grid",
         "status": "OPEN_NEEDED",
-        "reason": "Issue #715 asked for d64/d128/d256 where feasible, but the checked attention grid currently covers d8/d16 width plus d128 MLP-side surfaces.",
-        "go_gate": "add source-backed d64/d128/d256 or explicit no-go rows without changing the claim boundary",
+        "reason": "Issue #715 asked for d64/d128/d256 where feasible, but the checked attention route matrix currently covers d8/d16/d32 attention rows plus d128 MLP-side surfaces.",
+        "go_gate": "add source-backed d64/d128/d256 attention route rows without changing the claim boundary",
     },
     {
         "id": "seq64_attention_row",
@@ -139,7 +142,9 @@ MUTATION_NAMES = (
     "lookup_growth_drift",
     "typed_growth_drift",
     "route_matrix_profile_count_drift",
+    "route_matrix_ratio_drift",
     "d32_seq32_raw_saving_drift",
+    "summary_route_growth_drift",
     "attention_grid_row_loses_saving",
     "native_single_saving_drift",
     "statement_only_saving_drift",
@@ -176,6 +181,7 @@ LOCAL_RECORD_STREAM_STATUS = "LOCAL_RECORD_STREAM_ACCOUNTING_NOT_UPSTREAM_STWO_S
 EXPECTED_SOURCE_ARTIFACT_IDS = (
     "controlled_component_grid",
     "attention_route_matrix",
+    "fuller_crossing_grid",
     "native_seq32_d128_single_proof",
     "statement_only_attempt_transcript",
     "native_single_binary_accounting",
@@ -371,6 +377,10 @@ def load_checked_payloads() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     route_matrix.validate_result(route_payload)
     sources[source["id"]] = source
 
+    fuller_payload, source = read_json_source(FULLER_CROSSING_GRID_PATH, "fuller_crossing_grid")
+    fuller_grid.validate_result(fuller_payload)
+    sources[source["id"]] = source
+
     native_payload, source = read_json_source(NATIVE_SINGLE_PATH, "native_seq32_d128_single_proof")
     native_single.validate_payload(native_payload)
     sources[source["id"]] = source
@@ -418,6 +428,7 @@ def load_checked_payloads() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     payloads = {
         "controlled": controlled_payload,
         "route_matrix": route_payload,
+        "fuller_grid": fuller_payload,
         "native": native_payload,
         "statement": statement_payload,
         "native_accounting": native_accounting,
@@ -945,8 +956,14 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
     def mutate_route_profile_count(item: dict[str, Any]) -> None:
         item["route_matrix_signal"]["profiles_checked"] = 13
 
+    def mutate_route_ratio(item: dict[str, Any]) -> None:
+        item["route_matrix_signal"]["min_fused_to_split_ratio"] = 0.676724
+
     def mutate_d32_seq32_raw_saving(item: dict[str, Any]) -> None:
         item["route_matrix_signal"]["d32_two_head_sequence_ladder"]["seq32_raw_saving_bytes"] = 26_325
+
+    def mutate_summary_route_growth(item: dict[str, Any]) -> None:
+        item["summary"]["d32_seq8_to_seq32_lookup_growth"] = "1.000000"
 
     def mutate_attention_saving(item: dict[str, Any]) -> None:
         row = next(row for row in item["fused_vs_split_rows"] if row["row_id"] == "d8_two_head_seq32")
@@ -993,7 +1010,9 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
         ("lookup_growth_drift", mutate_lookup_growth),
         ("typed_growth_drift", mutate_typed_growth),
         ("route_matrix_profile_count_drift", mutate_route_profile_count),
+        ("route_matrix_ratio_drift", mutate_route_ratio),
         ("d32_seq32_raw_saving_drift", mutate_d32_seq32_raw_saving),
+        ("summary_route_growth_drift", mutate_summary_route_growth),
         ("attention_grid_row_loses_saving", mutate_attention_saving),
         ("native_single_saving_drift", mutate_native_saving),
         ("statement_only_saving_drift", mutate_statement_saving),
@@ -1145,9 +1164,17 @@ def validate_route_matrix_signal(payload: dict[str, Any]) -> None:
         raise ProofPressureScalingClaimPackError("route matrix split total drift")
     if signal.get("raw_proof_savings_bytes_total") != 266_325:
         raise ProofPressureScalingClaimPackError("route matrix raw saving total drift")
+    if signal.get("min_fused_to_split_ratio") != 0.676723:
+        raise ProofPressureScalingClaimPackError("route matrix min ratio drift")
+    if signal.get("max_fused_to_split_ratio") != 0.919259:
+        raise ProofPressureScalingClaimPackError("route matrix max ratio drift")
     ladder = require_dict(signal.get("d32_two_head_sequence_ladder"), "d32 route ladder")
     if ladder.get("profile_ids") != ["d32_two_head_seq8", "d32_two_head_seq16", "d32_two_head_seq32"]:
         raise ProofPressureScalingClaimPackError("d32 route ladder profile drift")
+    if ladder.get("seq8_lookup_claims") != 104:
+        raise ProofPressureScalingClaimPackError("d32 seq8 lookup drift")
+    if ladder.get("seq16_lookup_claims") != 336:
+        raise ProofPressureScalingClaimPackError("d32 seq16 lookup drift")
     if ladder.get("seq32_lookup_claims") != 1_184:
         raise ProofPressureScalingClaimPackError("d32 seq32 lookup drift")
     if ladder.get("seq32_fused_raw_proof_bytes") != 150_147:
@@ -1156,6 +1183,8 @@ def validate_route_matrix_signal(payload: dict[str, Any]) -> None:
         raise ProofPressureScalingClaimPackError("d32 seq32 split raw proof drift")
     if ladder.get("seq32_raw_saving_bytes") != 26_326:
         raise ProofPressureScalingClaimPackError("d32 seq32 raw saving drift")
+    if ladder.get("seq32_fused_to_split_ratio") != 0.850821:
+        raise ProofPressureScalingClaimPackError("d32 seq32 ratio drift")
     if ladder.get("seq8_to_seq32_lookup_claim_growth") != "11.384615":
         raise ProofPressureScalingClaimPackError("d32 seq8 to seq32 lookup growth drift")
     if ladder.get("seq8_to_seq32_trace_row_growth") != "16.000000":
@@ -1243,6 +1272,14 @@ def validate_payload(payload: dict[str, Any], *, check_mutations: bool = True) -
         raise ProofPressureScalingClaimPackError("summary raw saving drift")
     if summary.get("d32_seq32_raw_saving_bytes") != 26_326:
         raise ProofPressureScalingClaimPackError("summary d32 seq32 saving drift")
+    route_signal = require_dict(payload.get("route_matrix_signal"), "route matrix signal")
+    ladder = require_dict(route_signal.get("d32_two_head_sequence_ladder"), "d32 route ladder")
+    if summary.get("d32_seq8_to_seq32_lookup_growth") != ladder.get("seq8_to_seq32_lookup_claim_growth"):
+        raise ProofPressureScalingClaimPackError("summary d32 lookup growth drift")
+    if summary.get("d32_seq8_to_seq32_fused_raw_proof_growth") != ladder.get(
+        "seq8_to_seq32_fused_raw_proof_growth"
+    ):
+        raise ProofPressureScalingClaimPackError("summary d32 fused raw growth drift")
     validate_source_artifacts(payload)
     if payload.get("payload_commitment") != payload_commitment(payload):
         raise ProofPressureScalingClaimPackError("payload commitment drift")
