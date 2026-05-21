@@ -3052,7 +3052,7 @@ Proof-pressure wide-grid selector reproducibility metadata:
   `369da58f91fd9575b81c4287d1b2cb8a8bdcc5e1af1a600c23c5d24e65c2cdc1`.
 - Payload commitment:
   `blake2b-256:158fcaef3211e6ab4d9b7654dcd15fd915bf25636bd211187b64b96069cfbfc5`.
-- Step counts: `12` Python mutation cases and `10` Python unit tests.
+- Step counts: `12` Python mutation cases and `11` Python unit tests.
 - Local validation commands:
   `just gate-fast`;
   `python3.10 scripts/zkai_proof_pressure_wide_grid_selector_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.tsv`;
