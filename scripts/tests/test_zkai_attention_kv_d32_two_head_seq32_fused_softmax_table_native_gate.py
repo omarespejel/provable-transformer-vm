@@ -339,6 +339,40 @@ class AttentionKvD32TwoHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestCa
                 gate.write_json(path, payload)
             self.assertEqual(path.read_text(encoding="utf-8"), original)
 
+    @unittest.skipUnless(hasattr(gate.pathlib.Path, "symlink_to"), "symlink support required")
+    def test_write_outputs_reject_leaf_symlink(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = gate.pathlib.Path(tmp)
+            target = tmp_path / "target.json"
+            link = tmp_path / "gate.json"
+            target.write_text("{}", encoding="utf-8")
+            try:
+                link.symlink_to(target)
+            except OSError as err:
+                self.skipTest(f"symlink creation unavailable: {err}")
+            with self.assertRaisesRegex(
+                gate.AttentionKvD32TwoHeadSeq32FusedSoftmaxTableGateError,
+                "symlink components",
+            ):
+                gate.write_json(link, self.payload)
+
+    @unittest.skipUnless(hasattr(gate.pathlib.Path, "symlink_to"), "symlink support required")
+    def test_write_outputs_reject_parent_symlink(self):
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-d32-seq32-fused-symlink-") as tmp:
+            tmp_path = gate.pathlib.Path(tmp)
+            real_parent = tmp_path / "real-parent"
+            real_parent.mkdir()
+            link_parent = tmp_path / "linked-parent"
+            try:
+                link_parent.symlink_to(real_parent, target_is_directory=True)
+            except OSError as err:
+                self.skipTest(f"directory symlink creation unavailable: {err}")
+            with self.assertRaisesRegex(
+                gate.AttentionKvD32TwoHeadSeq32FusedSoftmaxTableGateError,
+                "symlink components",
+            ):
+                gate.write_tsv(link_parent / "gate.tsv", self.payload)
+
 
 if __name__ == "__main__":
     unittest.main()
