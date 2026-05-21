@@ -194,6 +194,20 @@ Across the fifteen checked rows:
 - total fused savings against matched source-plus-sidecar: `298,170` bytes;
 - matched fused ratios range from `0.676723` to `0.919259`.
 
+## Open Issue #715 Gates
+
+The route matrix is still an internal source-backed attention matrix. It does
+not complete the full proof-pressure scaling issue.
+
+Still open:
+
+- no `d128` or `d256` attention row is checked in this matrix;
+- no typed or binary/raw proof-size accounting is attached to these attention
+  rows yet;
+- no same-surface external baseline row is included;
+- the `d64` slope has only one checked point, so `d64_two_head_seq16` remains
+  the nearest adjacent falsification row.
+
 ## Claim Boundary
 
 This is engineering proof-byte accounting for a fixed bounded integer
