@@ -89,15 +89,11 @@ EXPECTED_LOOKUP_TABLE_MULTIPLICITIES = LOOKUP_TABLE_MULTIPLICITIES
 FIXED_D32_TWO_HEAD_LOOKUP_CLAIMS = 104
 FIXED_D32_TWO_HEAD_LOOKUP_PROOF_SIZE_BYTES = 18_137
 FIXED_D32_TWO_HEAD_LOOKUP_ENVELOPE_SIZE_BYTES = 649_773
-CLAIM_COUNT_RATIO = "11.384615"
-PROOF_SIZE_RATIO = "1.707890"
-ENVELOPE_SIZE_RATIO = "8.453317"
 SOURCE_PROOF_SIZE_BYTES = 145_497
 FUSED_PROOF_SIZE_BYTES = 150_147
 FUSED_ENVELOPE_SIZE_BYTES = 6_447_196
 SOURCE_PLUS_SIDECAR_RAW_PROOF_BYTES = SOURCE_PROOF_SIZE_BYTES + LOOKUP_PROOF_SIZE_BYTES
 FUSED_SAVES_VS_SOURCE_PLUS_SIDECAR_BYTES = SOURCE_PLUS_SIDECAR_RAW_PROOF_BYTES - FUSED_PROOF_SIZE_BYTES
-FUSED_TO_SOURCE_PLUS_SIDECAR_RATIO = "0.850821"
 
 NON_CLAIMS = (
     "not a fused attention-arithmetic-plus-lookup component",
@@ -181,6 +177,12 @@ _LOOKUP_VERIFY_CACHE: set[tuple[str, int]] = set()
 
 class AttentionKvAirPrivateSoftmaxTableLookupGateError(ValueError):
     pass
+
+
+def format_ratio(numerator: int, denominator: int) -> str:
+    if denominator <= 0:
+        raise AttentionKvAirPrivateSoftmaxTableLookupGateError("ratio denominator must be positive")
+    return f"{numerator / denominator:.6f}"
 
 
 def load_script_module(path: pathlib.Path, module_name: str) -> ModuleType:
@@ -475,9 +477,9 @@ def fixed_d32_two_head_comparison() -> dict[str, Any]:
         "seq32_lookup_claims": SOURCE_SCORE_ROWS,
         "seq32_lookup_proof_size_bytes": LOOKUP_PROOF_SIZE_BYTES,
         "seq32_lookup_envelope_size_bytes": LOOKUP_ENVELOPE_SIZE_BYTES,
-        "claim_count_ratio": CLAIM_COUNT_RATIO,
-        "proof_size_ratio": PROOF_SIZE_RATIO,
-        "envelope_size_ratio": ENVELOPE_SIZE_RATIO,
+        "claim_count_ratio": format_ratio(SOURCE_SCORE_ROWS, FIXED_D32_TWO_HEAD_LOOKUP_CLAIMS),
+        "proof_size_ratio": format_ratio(LOOKUP_PROOF_SIZE_BYTES, FIXED_D32_TWO_HEAD_LOOKUP_PROOF_SIZE_BYTES),
+        "envelope_size_ratio": format_ratio(LOOKUP_ENVELOPE_SIZE_BYTES, FIXED_D32_TWO_HEAD_LOOKUP_ENVELOPE_SIZE_BYTES),
     }
 
 
@@ -489,7 +491,7 @@ def fused_comparator() -> dict[str, Any]:
         "fused_proof_size_bytes": FUSED_PROOF_SIZE_BYTES,
         "fused_envelope_size_bytes": FUSED_ENVELOPE_SIZE_BYTES,
         "fused_saves_vs_source_plus_sidecar_bytes": FUSED_SAVES_VS_SOURCE_PLUS_SIDECAR_BYTES,
-        "fused_to_source_plus_sidecar_ratio": FUSED_TO_SOURCE_PLUS_SIDECAR_RATIO,
+        "fused_to_source_plus_sidecar_ratio": format_ratio(FUSED_PROOF_SIZE_BYTES, SOURCE_PLUS_SIDECAR_RAW_PROOF_BYTES),
         "comparison_scope": "raw proof bytes only; no timing, no full inference, no real-valued Softmax claim",
     }
 

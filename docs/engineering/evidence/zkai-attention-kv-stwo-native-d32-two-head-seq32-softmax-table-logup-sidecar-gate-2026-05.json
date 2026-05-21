@@ -4,7 +4,7 @@
   "decision": "GO_NATIVE_STWO_AIR_CONSTRAINED_D32_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_RELATION_SIDECAR",
   "fixed_d32_two_head_comparison": {
     "claim_count_ratio": "11.384615",
-    "envelope_size_ratio": "8.453317",
+    "envelope_size_ratio": "8.453331",
     "fixed_d32_two_head_lookup_claims": 104,
     "fixed_d32_two_head_lookup_envelope_size_bytes": 649773,
     "fixed_d32_two_head_lookup_proof_size_bytes": 18137,

@@ -1046,8 +1046,29 @@ def validate_result(result: dict[str, Any]) -> None:
             raise AttentionKvD32TwoHeadSeq32FusedSoftmaxTableGateError("mutation result rejection drift")
 
 
+def assert_no_output_symlink_components(path: pathlib.Path) -> None:
+    candidate = path if path.is_absolute() else ROOT / path
+    if candidate.is_symlink():
+        raise AttentionKvD32TwoHeadSeq32FusedSoftmaxTableGateError(
+            f"output path must not contain symlink components: {candidate}"
+        )
+    try:
+        relative = candidate.relative_to(ROOT)
+    except ValueError:
+        return
+    current = ROOT
+    for part in relative.parts[:-1]:
+        current = current / part
+        if current.is_symlink():
+            raise AttentionKvD32TwoHeadSeq32FusedSoftmaxTableGateError(
+                f"output path must not contain symlink components: {current}"
+            )
+
+
 def write_json(path: pathlib.Path, result: dict[str, Any]) -> None:
+    assert_no_output_symlink_components(path)
     path.parent.mkdir(parents=True, exist_ok=True)
+    assert_no_output_symlink_components(path)
     validate_result(result)
     with tempfile.NamedTemporaryFile(
         "w",
@@ -1068,7 +1089,9 @@ def write_json(path: pathlib.Path, result: dict[str, Any]) -> None:
 
 
 def write_tsv(path: pathlib.Path, result: dict[str, Any]) -> None:
+    assert_no_output_symlink_components(path)
     path.parent.mkdir(parents=True, exist_ok=True)
+    assert_no_output_symlink_components(path)
     validate_result(result)
     row = {column: result[column] for column in TSV_COLUMNS}
     expected_row = {column: str(value) for column, value in row.items()}

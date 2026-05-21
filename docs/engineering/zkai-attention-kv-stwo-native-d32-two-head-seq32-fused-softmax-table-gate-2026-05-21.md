@@ -76,6 +76,28 @@ This is not exact real-valued Softmax. It is not full autoregressive inference. 
 
 The current claim is narrower: in this native Stwo bounded Softmax-table attention family, the fused proof object continues to beat the matched source-plus-sidecar comparator at d32/two-head/seq32 while lookup work grows much faster than proof bytes.
 
+## Reproducibility Metadata
+
+- fused backend binary: `zkai_attention_kv_native_d32_two_head_seq32_fused_softmax_table_proof`
+- fused backend version: `stwo-attention-kv-d32-two-head-seq32-fused-bounded-softmax-table-logup-v1`
+- fused proof version: `stwo-attention-kv-d32-two-head-seq32-fused-bounded-softmax-table-logup-proof-v1`
+- fused statement version: `zkai-attention-kv-stwo-native-d32-two-head-seq32-fused-softmax-table-logup-statement-v1`
+- toolchain and features: `cargo +nightly-2025-07-14 --locked --features stwo-backend`
+- timing mode: `proof_existence_and_byte_accounting_only_not_public_benchmark`
+- source input invariant tests: `21` Python tests
+- sidecar mutation gate: `28 / 28` rejected
+- fused mutation gate: `30 / 30` rejected
+- focused Python route tests: `39` tests
+- targeted Rust proof tests: `942` tests passed under `proof::tests`
+
+Evidence paths:
+
+- `docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-seq32-bounded-softmax-table-proof-2026-05.envelope.json`
+- `docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-seq32-softmax-table-logup-sidecar-proof-2026-05.envelope.json`
+- `docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-seq32-fused-softmax-table-proof-2026-05.envelope.json`
+- `docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json`
+- `docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json`
+
 ## Reproduction
 
 ```bash
