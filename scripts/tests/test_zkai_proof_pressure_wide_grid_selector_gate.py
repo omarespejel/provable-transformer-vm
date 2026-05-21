@@ -36,6 +36,8 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         current = self.payload["current_signal"]
         self.assertEqual(current["checked_attention_route_rows"], 14)
         self.assertEqual(current["checked_widths"], [8, 16, 32])
+        self.assertEqual(current["raw_fused_bytes_total"], 1145173)
+        self.assertEqual(current["raw_split_bytes_total"], 1411498)
         self.assertEqual(current["raw_saving_bytes_total"], 266325)
         d32_sequence = current["d32_two_head_seq8_to_seq32"]
         self.assertEqual(d32_sequence["lookup_claim_growth"], 11.384615)
@@ -100,6 +102,19 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         payload["current_signal"]["accounting_triplet_signal"]["attention_typed_bytes_total"] = 0
         with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "accounting typed total drift"):
             gate.validate_payload(payload, self.expected_source_artifacts)
+
+    def test_validate_rejects_raw_total_drift(self):
+        payload = copy.deepcopy(self.payload)
+        payload["current_signal"]["raw_fused_bytes_total"] = 0
+        with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "raw fused total drift"):
+            gate.validate_payload(payload, self.expected_source_artifacts)
+
+    def test_current_signal_rejects_missing_required_field(self):
+        sources, _ = gate.load_sources()
+        route_matrix = copy.deepcopy(sources["route_matrix"])
+        del route_matrix["route_rows"][0]["fused_saves_vs_source_plus_sidecar_bytes"]
+        with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "route matrix signal field missing"):
+            gate.build_current_signal(route_matrix, sources["fuller_grid"])
 
     def test_accounting_signal_rejects_missing_required_field(self):
         sources, _ = gate.load_sources()
