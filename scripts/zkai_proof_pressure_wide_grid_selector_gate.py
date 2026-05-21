@@ -43,11 +43,11 @@ SUPPORTED_ATTENTION_SEQUENCES = (8, 16, 32)
 EXPECTED_MATCH_STATUS = "GO_MATCHED_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR_RECORDED"
 
 VALIDATION_COMMANDS = (
-    "just gate-fast",
     "python3.10 scripts/zkai_proof_pressure_wide_grid_selector_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.tsv",
     "python3.10 -m py_compile scripts/zkai_proof_pressure_wide_grid_selector_gate.py scripts/tests/test_zkai_proof_pressure_wide_grid_selector_gate.py",
     "python3.10 -m unittest scripts.tests.test_zkai_proof_pressure_wide_grid_selector_gate",
     "git diff --check",
+    "just gate-fast",
     "just gate",
 )
 

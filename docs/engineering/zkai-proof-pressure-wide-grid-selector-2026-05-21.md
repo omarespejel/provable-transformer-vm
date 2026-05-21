@@ -89,11 +89,11 @@ from the claim pack separately from the raw route-matrix signal.
 ## Validation
 
 ```bash
-just gate-fast
 python3.10 scripts/zkai_proof_pressure_wide_grid_selector_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.tsv
 python3.10 -m py_compile scripts/zkai_proof_pressure_wide_grid_selector_gate.py scripts/tests/test_zkai_proof_pressure_wide_grid_selector_gate.py
 python3.10 -m unittest scripts.tests.test_zkai_proof_pressure_wide_grid_selector_gate
 git diff --check
+just gate-fast
 just gate
 ```
 

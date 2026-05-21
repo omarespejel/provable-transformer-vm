@@ -3117,14 +3117,14 @@ Proof-pressure wide-grid selector reproducibility metadata:
   claim pack SHA-256
   `369da58f91fd9575b81c4287d1b2cb8a8bdcc5e1af1a600c23c5d24e65c2cdc1`.
 - Payload commitment:
-  `blake2b-256:8bb60b1cef17cd9e85d1155b6b0e05cc947867df599789981345e3d318248689`.
+  `blake2b-256:704956740739b33714dfc769c1480a9440bc87c1d4204dfb229424a57b9af212`.
 - Step counts: `13` Python mutation cases and `12` Python unit tests.
 - Local validation commands:
-  `just gate-fast`;
   `python3.10 scripts/zkai_proof_pressure_wide_grid_selector_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.tsv`;
   `python3.10 -m py_compile scripts/zkai_proof_pressure_wide_grid_selector_gate.py scripts/tests/test_zkai_proof_pressure_wide_grid_selector_gate.py`;
   `python3.10 -m unittest scripts.tests.test_zkai_proof_pressure_wide_grid_selector_gate`;
   `git diff --check`;
+  `just gate-fast`;
   `just gate`.
 
 ## Resume protocol
