@@ -858,13 +858,20 @@ def ensure_parent_dir_without_symlinks(path: pathlib.Path, label: str) -> None:
             raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
                 f"refusing to create {label} under symlinked parent: {current}"
             )
-        if current.exists():
-            if not current.is_dir():
-                raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
-                    f"refusing to create {label}; parent component is not a directory: {current}"
-                )
-            continue
-        current.mkdir()
+        try:
+            current.mkdir(exist_ok=True)
+        except OSError as err:
+            raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+                f"failed to create parent directory {current} for {label}: {err}"
+            ) from err
+        if current.is_symlink():
+            raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+                f"refusing to create {label} under symlinked parent: {current}"
+            )
+        if not current.is_dir():
+            raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+                f"refusing to create {label}; parent component is not a directory: {current}"
+            )
     reject_symlinked_output_path(path, label)
 
 

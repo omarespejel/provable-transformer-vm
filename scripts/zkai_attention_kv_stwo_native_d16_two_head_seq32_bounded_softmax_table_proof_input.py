@@ -926,13 +926,20 @@ def ensure_parent_dir_without_symlinks(path: pathlib.Path, label: str) -> None:
             raise AttentionKvD16TwoHeadSeq32BoundedSoftmaxTableInputError(
                 f"refusing to create {label} under symlinked parent: {current}"
             )
-        if current.exists():
-            if not current.is_dir():
-                raise AttentionKvD16TwoHeadSeq32BoundedSoftmaxTableInputError(
-                    f"refusing to create {label}; parent component is not a directory: {current}"
-                )
-            continue
-        current.mkdir()
+        try:
+            current.mkdir(exist_ok=True)
+        except OSError as err:
+            raise AttentionKvD16TwoHeadSeq32BoundedSoftmaxTableInputError(
+                f"failed to create parent directory {current} for {label}: {err}"
+            ) from err
+        if current.is_symlink():
+            raise AttentionKvD16TwoHeadSeq32BoundedSoftmaxTableInputError(
+                f"refusing to create {label} under symlinked parent: {current}"
+            )
+        if not current.is_dir():
+            raise AttentionKvD16TwoHeadSeq32BoundedSoftmaxTableInputError(
+                f"refusing to create {label}; parent component is not a directory: {current}"
+            )
     reject_symlinked_output_path(path, label)
 
 
