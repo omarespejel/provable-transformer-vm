@@ -1046,29 +1046,37 @@ def validate_result(result: dict[str, Any]) -> None:
             raise AttentionKvD32TwoHeadSeq32FusedSoftmaxTableGateError("mutation result rejection drift")
 
 
-def assert_no_output_symlink_components(path: pathlib.Path) -> None:
+def checked_output_path(path: pathlib.Path) -> pathlib.Path:
+    if any(part == ".." for part in path.parts):
+        raise AttentionKvD32TwoHeadSeq32FusedSoftmaxTableGateError(
+            f"output path must stay inside evidence dir: {path}"
+        )
     candidate = path if path.is_absolute() else ROOT / path
+    try:
+        candidate.relative_to(EVIDENCE_DIR)
+    except ValueError as err:
+        raise AttentionKvD32TwoHeadSeq32FusedSoftmaxTableGateError(
+            f"output path must stay inside evidence dir: {candidate}"
+        ) from err
     if candidate.is_symlink():
         raise AttentionKvD32TwoHeadSeq32FusedSoftmaxTableGateError(
             f"output path must not contain symlink components: {candidate}"
         )
-    try:
-        relative = candidate.relative_to(ROOT)
-    except ValueError:
-        return
-    current = ROOT
+    relative = candidate.relative_to(EVIDENCE_DIR)
+    current = EVIDENCE_DIR
     for part in relative.parts[:-1]:
         current = current / part
         if current.is_symlink():
             raise AttentionKvD32TwoHeadSeq32FusedSoftmaxTableGateError(
                 f"output path must not contain symlink components: {current}"
             )
+    return candidate
 
 
 def write_json(path: pathlib.Path, result: dict[str, Any]) -> None:
-    assert_no_output_symlink_components(path)
+    path = checked_output_path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    assert_no_output_symlink_components(path)
+    path = checked_output_path(path)
     validate_result(result)
     with tempfile.NamedTemporaryFile(
         "w",
@@ -1089,9 +1097,9 @@ def write_json(path: pathlib.Path, result: dict[str, Any]) -> None:
 
 
 def write_tsv(path: pathlib.Path, result: dict[str, Any]) -> None:
-    assert_no_output_symlink_components(path)
+    path = checked_output_path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    assert_no_output_symlink_components(path)
+    path = checked_output_path(path)
     validate_result(result)
     row = {column: result[column] for column in TSV_COLUMNS}
     expected_row = {column: str(value) for column, value in row.items()}
