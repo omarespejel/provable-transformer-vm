@@ -123,6 +123,13 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "route matrix signal field missing"):
             gate.build_current_signal(route_matrix, sources["fuller_grid"])
 
+    def test_current_signal_rejects_wrong_typed_route_field(self):
+        sources, _ = gate.load_sources()
+        route_matrix = copy.deepcopy(sources["route_matrix"])
+        route_matrix["route_rows"][0]["fused_saves_vs_source_plus_sidecar_bytes"] = None
+        with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "route matrix signal field type drift"):
+            gate.build_current_signal(route_matrix, sources["fuller_grid"])
+
     def test_accounting_signal_rejects_missing_required_field(self):
         sources, _ = gate.load_sources()
         claim_pack = copy.deepcopy(sources["claim_pack"])
