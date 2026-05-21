@@ -148,9 +148,11 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 142. `docs/engineering/zkai-stwo-attempt-domain-binding-2026-05-19.md`
 143. `docs/engineering/zkai-stwo-inner-attempt-domain-statement-2026-05-19.md`
 144. `docs/engineering/zkai-stwo-statement-only-attempt-transcript-2026-05-20.md`
-145. `docs/engineering/zkai-native-seq32-attention-mlp-median-timing-2026-05.md`
-146. `docs/engineering/reproducibility.md`
-147. `git status --short --branch`
+145. `docs/engineering/zkai-proof-pressure-scaling-claim-pack-2026-05-20.md`
+146. `docs/engineering/zkai-proof-pressure-wide-grid-selector-2026-05-21.md`
+147. `docs/engineering/zkai-native-seq32-attention-mlp-median-timing-2026-05.md`
+148. `docs/engineering/reproducibility.md`
+149. `git status --short --branch`
 
 ## What this repository is now
 

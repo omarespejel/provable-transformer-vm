@@ -1,0 +1,385 @@
+{
+  "candidate_order": [
+    {
+      "go_gate": "source, sidecar, and fused native proof rows exist and fused beats matched split without widening the claim boundary",
+      "head_count": 2,
+      "key_width": 64,
+      "no_go_gate": "width pressure removes the fused saving or proof generation cannot stay within bounded local artifact limits",
+      "priority": 1,
+      "profile_id": "d64_h2_seq32",
+      "selector_status": "FIRST_FALSIFICATION_ROW",
+      "steps_per_head": 32,
+      "why_this_row": "extends the current d32 two-head seq32 high-lookup signal by width only"
+    },
+    {
+      "go_gate": "fused and split rows quantify d32-to-d64 width growth under the cheapest attention shape",
+      "head_count": 1,
+      "key_width": 64,
+      "no_go_gate": "proof bytes grow roughly with width and savings shrink versus the d32 single-head row",
+      "priority": 2,
+      "profile_id": "d64_h1_seq8",
+      "selector_status": "CHEAP_WIDTH_SLOPE_ROW",
+      "steps_per_head": 8,
+      "why_this_row": "isolates width pressure before spending on seq32"
+    },
+    {
+      "go_gate": "keeps d64 sequence-axis growth bounded and still fused-smaller-than-split",
+      "head_count": 2,
+      "key_width": 64,
+      "no_go_gate": "midpoint already loses the fused saving or breaks artifact limits",
+      "priority": 3,
+      "profile_id": "d64_h2_seq16",
+      "selector_status": "MIDPOINT_GRID_ROW",
+      "steps_per_head": 16,
+      "why_this_row": "bridges the cheap d64 width row and the seq32 falsification row"
+    },
+    {
+      "go_gate": "d64 rows are source-backed and the d128 row keeps a positive fused-vs-split saving",
+      "head_count": 2,
+      "key_width": 128,
+      "no_go_gate": "d64 already shows width pressure dominates lookup amortization",
+      "priority": 4,
+      "profile_id": "d128_h2_seq32",
+      "selector_status": "ONLY_AFTER_D64_GO",
+      "steps_per_head": 32,
+      "why_this_row": "approaches model-width relevance, but should not be attacked before d64 falsifies or confirms the slope"
+    },
+    {
+      "go_gate": "generic or generated backend exists and d128 stays structurally positive",
+      "head_count": 2,
+      "key_width": 256,
+      "no_go_gate": "copy-per-width engineering dominates research signal or d128 fails",
+      "priority": 5,
+      "profile_id": "d256_h2_seq32",
+      "selector_status": "ONLY_AFTER_D128_GO_OR_GENERIC_BACKEND",
+      "steps_per_head": 32,
+      "why_this_row": "tests the aspirational wide frontier after the proving path is no longer copy-per-width"
+    }
+  ],
+  "claim_boundary": "SELECTS_D64_D128_D256_ATTENTION_ROUTE_TARGETS_FROM_CHECKED_D8_D16_D32_ROUTE_MATRIX;NO_D64_D128_D256_ATTENTION_PROOF_ROWS_YET;NOT_A_WIDE_GRID_RESULT_NOT_A_NANOZK_COMPARISON_NOT_A_FULL_BLOCK_PROOF",
+  "current_signal": {
+    "all_checked_rows_have_positive_fused_saving": true,
+    "checked_attention_route_rows": 14,
+    "checked_head_counts": [
+      1,
+      2,
+      4,
+      8,
+      16
+    ],
+    "checked_sequences": [
+      8,
+      16,
+      32
+    ],
+    "checked_widths": [
+      8,
+      16,
+      32
+    ],
+    "d32_two_head_seq8_to_seq32": {
+      "fused_raw_proof_growth": 1.193955,
+      "lookup_claim_growth": 11.384615,
+      "saving_growth": 1.614399,
+      "split_raw_proof_growth": 1.242216,
+      "trace_row_growth": 16.0
+    },
+    "d8_to_d32_single_head_seq8_width_pressure": {
+      "fused_raw_proof_growth": 2.248753,
+      "lookup_claim_growth": 1.0,
+      "saving_growth": 0.802539,
+      "split_raw_proof_growth": 1.963121
+    },
+    "d8_to_d32_two_head_seq32_width_pressure": {
+      "fused_raw_proof_growth": 2.263739,
+      "lookup_claim_growth": 1.0,
+      "split_raw_proof_growth": 1.800524
+    },
+    "fuller_grid_cells": 45,
+    "fuller_grid_missing_cells": 31,
+    "fuller_grid_proved_cells": 14,
+    "raw_fused_bytes_total": 1145173,
+    "raw_saving_bytes_total": 266325,
+    "raw_split_bytes_total": 1411498
+  },
+  "decision": "GO_WIDE_GRID_SELECTOR_KEEP_D64_D128_D256_AS_FALSIFICATION_TARGETS",
+  "interpretation": {
+    "human_read": "The current evidence says the lookup-heavy sequence direction is promising, but width is the stress test. Going wider from d8 to d32 at fixed seq32 keeps lookup claims flat while proof bytes grow about 2.26x. So d64/d128/d256 are not victory laps; they are the next way to check whether the paper claim survives model width.",
+    "paper_relevance": "A paper-grade result needs the fused-vs-split saving to survive beyond the d8/d16/d32 grid. The selector therefore promotes d64 two-head seq32 as the first falsification row and keeps d128/d256 gated.",
+    "research_recommendation": "Do d64_h2_seq32 first if the goal is the direct breakthrough gate. Do d64_h1_seq8 first if the goal is the cheapest width-slope sanity check."
+  },
+  "issue": 715,
+  "mutation_result": {
+    "all_mutations_rejected": true,
+    "cases": [
+      {
+        "error": "decision drift",
+        "name": "decision_drift",
+        "rejected": true
+      },
+      {
+        "error": "claim_boundary drift",
+        "name": "claim_boundary_overclaim",
+        "rejected": true
+      },
+      {
+        "error": "source artifact drift",
+        "name": "source_artifact_digest_drift",
+        "rejected": true
+      },
+      {
+        "error": "wide row smuggling",
+        "name": "wide_row_smuggling",
+        "rejected": true
+      },
+      {
+        "error": "requested widths drift",
+        "name": "requested_widths_drift",
+        "rejected": true
+      },
+      {
+        "error": "current route row count drift",
+        "name": "current_row_count_drift",
+        "rejected": true
+      },
+      {
+        "error": "d32 sequence signal drift",
+        "name": "d32_sequence_signal_drift",
+        "rejected": true
+      },
+      {
+        "error": "width pressure signal drift",
+        "name": "width_pressure_signal_drift",
+        "rejected": true
+      },
+      {
+        "error": "candidate order drift",
+        "name": "candidate_order_drift",
+        "rejected": true
+      },
+      {
+        "error": "validation command drift",
+        "name": "validation_command_drift",
+        "rejected": true
+      },
+      {
+        "error": "non_claims drift",
+        "name": "non_claim_removed",
+        "rejected": true
+      },
+      {
+        "error": "payload commitment drift",
+        "name": "payload_commitment_drift",
+        "rejected": true
+      }
+    ],
+    "mutation_names": [
+      "decision_drift",
+      "claim_boundary_overclaim",
+      "source_artifact_digest_drift",
+      "wide_row_smuggling",
+      "requested_widths_drift",
+      "current_row_count_drift",
+      "d32_sequence_signal_drift",
+      "width_pressure_signal_drift",
+      "candidate_order_drift",
+      "validation_command_drift",
+      "non_claim_removed",
+      "payload_commitment_drift"
+    ],
+    "mutations_checked": 12,
+    "mutations_rejected": 12
+  },
+  "non_claims": [
+    "not a d64, d128, or d256 attention proof result",
+    "not a full transformer block proof",
+    "not exact real-valued Softmax",
+    "not a NANOZK proof-size comparison",
+    "not timing evidence",
+    "not production zkML readiness",
+    "does not widen the claim beyond checked d8, d16, and d32 attention rows"
+  ],
+  "payload_commitment": "blake2b-256:b32059fb3775098db13e793e2544da1eae018183e96da948e68a29c2fd45dc1e",
+  "requested_grid_signal": {
+    "missing_requested_cell_count": 18,
+    "missing_requested_widths": [
+      64,
+      128,
+      256
+    ],
+    "requested_cell_count": 18,
+    "requested_head_counts": [
+      1,
+      2
+    ],
+    "requested_rows": [
+      {
+        "head_count": 1,
+        "key_width": 64,
+        "profile_id": "d64_h1_seq16",
+        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "steps_per_head": 16
+      },
+      {
+        "head_count": 1,
+        "key_width": 64,
+        "profile_id": "d64_h1_seq32",
+        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "steps_per_head": 32
+      },
+      {
+        "head_count": 1,
+        "key_width": 64,
+        "profile_id": "d64_h1_seq64",
+        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "steps_per_head": 64
+      },
+      {
+        "head_count": 2,
+        "key_width": 64,
+        "profile_id": "d64_h2_seq16",
+        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "steps_per_head": 16
+      },
+      {
+        "head_count": 2,
+        "key_width": 64,
+        "profile_id": "d64_h2_seq32",
+        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "steps_per_head": 32
+      },
+      {
+        "head_count": 2,
+        "key_width": 64,
+        "profile_id": "d64_h2_seq64",
+        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "steps_per_head": 64
+      },
+      {
+        "head_count": 1,
+        "key_width": 128,
+        "profile_id": "d128_h1_seq16",
+        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "steps_per_head": 16
+      },
+      {
+        "head_count": 1,
+        "key_width": 128,
+        "profile_id": "d128_h1_seq32",
+        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "steps_per_head": 32
+      },
+      {
+        "head_count": 1,
+        "key_width": 128,
+        "profile_id": "d128_h1_seq64",
+        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "steps_per_head": 64
+      },
+      {
+        "head_count": 2,
+        "key_width": 128,
+        "profile_id": "d128_h2_seq16",
+        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "steps_per_head": 16
+      },
+      {
+        "head_count": 2,
+        "key_width": 128,
+        "profile_id": "d128_h2_seq32",
+        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "steps_per_head": 32
+      },
+      {
+        "head_count": 2,
+        "key_width": 128,
+        "profile_id": "d128_h2_seq64",
+        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "steps_per_head": 64
+      },
+      {
+        "head_count": 1,
+        "key_width": 256,
+        "profile_id": "d256_h1_seq16",
+        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "steps_per_head": 16
+      },
+      {
+        "head_count": 1,
+        "key_width": 256,
+        "profile_id": "d256_h1_seq32",
+        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "steps_per_head": 32
+      },
+      {
+        "head_count": 1,
+        "key_width": 256,
+        "profile_id": "d256_h1_seq64",
+        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "steps_per_head": 64
+      },
+      {
+        "head_count": 2,
+        "key_width": 256,
+        "profile_id": "d256_h2_seq16",
+        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "steps_per_head": 16
+      },
+      {
+        "head_count": 2,
+        "key_width": 256,
+        "profile_id": "d256_h2_seq32",
+        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "steps_per_head": 32
+      },
+      {
+        "head_count": 2,
+        "key_width": 256,
+        "profile_id": "d256_h2_seq64",
+        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "steps_per_head": 64
+      }
+    ],
+    "requested_sequences": [
+      16,
+      32,
+      64
+    ],
+    "requested_widths": [
+      64,
+      128,
+      256
+    ],
+    "selector_status": "NO_D64_D128_D256_ATTENTION_ROUTE_ROWS_YET",
+    "source_backed_requested_cell_count": 0
+  },
+  "route_id": "local_stwo_attention_kv_wide_grid_selector_from_checked_route_matrix",
+  "schema": "zkai-proof-pressure-wide-grid-selector-v1",
+  "source_artifacts": [
+    {
+      "id": "fused_softmax_route_matrix",
+      "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
+      "sha256": "cb2601042c1ae8fbbc081d0962b278f7aff4a7db633adbfbdb2b7124b7f03dc1",
+      "size_bytes": 37412
+    },
+    {
+      "id": "fuller_crossing_grid",
+      "path": "docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json",
+      "sha256": "cabd3e0294e293f56d2b542ded040c8bde20fe2bec1bc5280ba85968a7bc84c1",
+      "size_bytes": 41340
+    },
+    {
+      "id": "proof_pressure_claim_pack",
+      "path": "docs/engineering/evidence/zkai-proof-pressure-scaling-claim-pack-2026-05.json",
+      "sha256": "369da58f91fd9575b81c4287d1b2cb8a8bdcc5e1af1a600c23c5d24e65c2cdc1",
+      "size_bytes": 23080
+    }
+  ],
+  "timing_policy": "proof_existence_and_byte_accounting_only_not_public_benchmark",
+  "validation_commands": [
+    "python3.10 scripts/zkai_proof_pressure_wide_grid_selector_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.tsv",
+    "python3.10 -m py_compile scripts/zkai_proof_pressure_wide_grid_selector_gate.py scripts/tests/test_zkai_proof_pressure_wide_grid_selector_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_proof_pressure_wide_grid_selector_gate",
+    "git diff --check"
+  ]
+}
