@@ -14,6 +14,12 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
     def evidence_tempdir(self):
         return tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-wide-grid-selector-test-")
 
+    def symlink_or_skip(self, link_path, target_path):
+        try:
+            link_path.symlink_to(target_path, target_is_directory=True)
+        except OSError as err:
+            self.skipTest(f"symlink creation unavailable: {err}")
+
     def test_records_wide_grid_as_falsification_target_not_result(self):
         payload = self.payload
         self.assertEqual(payload["decision"], gate.DECISION)
@@ -38,6 +44,8 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         self.assertEqual(width_pressure["lookup_claim_growth"], 1.0)
         self.assertEqual(width_pressure["fused_raw_proof_growth"], 2.263739)
         accounting = current["accounting_triplet_signal"]
+        self.assertEqual(accounting["attention_typed_rows"], 10)
+        self.assertEqual(accounting["attention_typed_bytes_total"], 234296)
         self.assertEqual(accounting["attention_typed_savings_bytes_total"], 51288)
         self.assertEqual(accounting["attention_json_bytes_total"], 629466)
         self.assertEqual(accounting["attention_raw_proof_savings_bytes_total"], 266325)
@@ -86,6 +94,12 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "payload commitment drift"):
             gate.validate_payload(payload)
 
+    def test_validate_rejects_accounting_total_drift(self):
+        payload = copy.deepcopy(self.payload)
+        payload["current_signal"]["accounting_triplet_signal"]["attention_typed_bytes_total"] = 0
+        with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "accounting typed total drift"):
+            gate.validate_payload(payload)
+
     def test_write_json_and_tsv_round_trip(self):
         with self.evidence_tempdir() as tmp:
             tmp_path = gate.pathlib.Path(tmp)
@@ -110,7 +124,7 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
     def test_write_outputs_reject_symlink_escape_inside_evidence_dir(self):
         with self.evidence_tempdir() as evidence_tmp, tempfile.TemporaryDirectory() as outside_tmp:
             link_path = gate.pathlib.Path(evidence_tmp) / "escape"
-            link_path.symlink_to(gate.pathlib.Path(outside_tmp), target_is_directory=True)
+            self.symlink_or_skip(link_path, gate.pathlib.Path(outside_tmp))
             with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "symlink components"):
                 gate.write_json(link_path / "wide-grid.json", self.payload)
 
@@ -119,7 +133,7 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as outside_tmp:
             link_path = original_evidence_dir.parent / ".tmp-wide-grid-selector-root-link"
             link_path.unlink(missing_ok=True)
-            link_path.symlink_to(gate.pathlib.Path(outside_tmp), target_is_directory=True)
+            self.symlink_or_skip(link_path, gate.pathlib.Path(outside_tmp))
             gate.EVIDENCE_DIR = link_path
             try:
                 with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "symlink components"):
@@ -137,7 +151,7 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
             real_docs = tmp_path / "real-docs"
             (real_docs / "engineering" / "evidence").mkdir(parents=True)
             fake_root.mkdir()
-            (fake_root / "docs").symlink_to(real_docs, target_is_directory=True)
+            self.symlink_or_skip(fake_root / "docs", real_docs)
             gate.ROOT = fake_root
             gate.EVIDENCE_DIR = fake_root / "docs" / "engineering" / "evidence"
             try:
