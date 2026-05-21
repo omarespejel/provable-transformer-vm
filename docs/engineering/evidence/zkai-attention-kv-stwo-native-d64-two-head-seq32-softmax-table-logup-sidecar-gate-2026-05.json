@@ -265,6 +265,7 @@
     "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d64_two_head_seq32_softmax_table_lookup_proof -- verify docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-two-head-seq32-softmax-table-logup-sidecar-proof-2026-05.envelope.json",
     "python3.10 scripts/zkai_attention_kv_d64_two_head_seq32_air_private_softmax_table_lookup_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-two-head-seq32-softmax-table-logup-sidecar-gate-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-two-head-seq32-softmax-table-logup-sidecar-gate-2026-05.tsv",
     "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d64_two_head_seq32_air_private_softmax_table_lookup_gate",
+    "just lib",
     "just gate-fast",
     "just gate"
   ]

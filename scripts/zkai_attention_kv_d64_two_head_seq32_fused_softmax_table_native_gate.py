@@ -353,10 +353,18 @@ def proof_bytes(envelope: dict[str, Any]) -> bytes:
     return bytes(proof)
 
 
-def fused_artifact_commitments(envelope: dict[str, Any]) -> tuple[str, str]:
-    envelope_commitment = "blake2b-256:" + hashlib.blake2b(
-        canonical_json_bytes(envelope), digest_size=32
-    ).hexdigest()
+def fused_artifact_commitments(envelope: dict[str, Any], *, envelope_bytes: bytes) -> tuple[str, str]:
+    try:
+        parsed_envelope = json.loads(envelope_bytes.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as err:
+        raise AttentionKvD64TwoHeadSeq32FusedSoftmaxTableGateError(
+            f"fused envelope commitment bytes must decode as JSON: {err}"
+        ) from err
+    if parsed_envelope != envelope:
+        raise AttentionKvD64TwoHeadSeq32FusedSoftmaxTableGateError(
+            "fused envelope commitment bytes/dict split-brain drift"
+        )
+    envelope_commitment = "blake2b-256:" + hashlib.blake2b(envelope_bytes, digest_size=32).hexdigest()
     proof_commitment = "blake2b-256:" + hashlib.blake2b(proof_bytes(envelope), digest_size=32).hexdigest()
     return envelope_commitment, proof_commitment
 
@@ -909,7 +917,9 @@ def run_gate() -> dict[str, Any]:
     rejected = sum(1 for result in mutation_results if result["rejected"])
     if rejected != EXPECTED_MUTATION_COUNT:
         raise AttentionKvD64TwoHeadSeq32FusedSoftmaxTableGateError(f"mutation rejection drift: got {rejected}")
-    fused_envelope_commitment, fused_proof_commitment = fused_artifact_commitments(fused_envelope)
+    fused_envelope_commitment, fused_proof_commitment = fused_artifact_commitments(
+        fused_envelope, envelope_bytes=fused_raw
+    )
 
     result = {
         "schema": SCHEMA,
@@ -972,13 +982,15 @@ def evaluate_mutation_results(fused_envelope: dict[str, Any], source_input: dict
 def validate_result(result: dict[str, Any]) -> None:
     if not isinstance(result, dict):
         raise AttentionKvD64TwoHeadSeq32FusedSoftmaxTableGateError("result must be an object")
-    fused_envelope, _fused_raw = read_sized_envelope(
+    fused_envelope, fused_raw = read_sized_envelope(
         FUSED_ENVELOPE_JSON,
         MAX_FUSED_ENVELOPE_JSON_BYTES,
         FUSED_ENVELOPE_SIZE_BYTES,
         "fused envelope",
     )
-    fused_envelope_commitment, fused_proof_commitment = fused_artifact_commitments(fused_envelope)
+    fused_envelope_commitment, fused_proof_commitment = fused_artifact_commitments(
+        fused_envelope, envelope_bytes=fused_raw
+    )
     expected_exact: dict[str, Any] = {
         "schema": SCHEMA,
         "issue": ISSUE,

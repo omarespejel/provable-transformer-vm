@@ -1000,11 +1000,17 @@ def write_tsv(payload: dict[str, Any], path: pathlib.Path) -> None:
     path.write_text(to_tsv(payload), encoding="utf-8")
 
 
+def same_output_path(left: pathlib.Path, right: pathlib.Path) -> bool:
+    return left.expanduser().resolve(strict=False) == right.expanduser().resolve(strict=False)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--write-json", type=pathlib.Path, default=JSON_OUT)
     parser.add_argument("--write-tsv", type=pathlib.Path, default=TSV_OUT)
     args = parser.parse_args()
+    if same_output_path(args.write_json, args.write_tsv):
+        parser.error("--write-json and --write-tsv must point to different files")
     payload = build_payload()
     write_json(payload, args.write_json)
     write_tsv(payload, args.write_tsv)
