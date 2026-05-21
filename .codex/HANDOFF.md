@@ -3118,7 +3118,7 @@ Proof-pressure wide-grid selector reproducibility metadata:
   `369da58f91fd9575b81c4287d1b2cb8a8bdcc5e1af1a600c23c5d24e65c2cdc1`.
 - Payload commitment:
   `blake2b-256:704956740739b33714dfc769c1480a9440bc87c1d4204dfb229424a57b9af212`.
-- Step counts: `13` Python mutation cases and `13` Python unit tests.
+- Step counts: `13` Python mutation cases and `14` Python unit tests.
 - Output-path hardening now rejects `..` traversal plus symlinked
   evidence-root ancestors, candidate parent components, and output components
   before resolving paths. This closes the PR `#723` review blocker around

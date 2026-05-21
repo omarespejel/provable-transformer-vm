@@ -452,6 +452,10 @@ def validate_payload(payload: dict[str, Any]) -> None:
     accounting = current.get("accounting_triplet_signal")
     if not isinstance(accounting, dict):
         raise ProofPressureWideGridSelectorError("accounting triplet missing")
+    if accounting.get("attention_typed_rows") != 10:
+        raise ProofPressureWideGridSelectorError("accounting typed row count drift")
+    if accounting.get("attention_typed_bytes_total") != 234_296:
+        raise ProofPressureWideGridSelectorError("accounting typed total drift")
     if accounting.get("attention_typed_savings_bytes_total") != 51_288:
         raise ProofPressureWideGridSelectorError("accounting triplet drift")
     if accounting.get("attention_json_bytes_total") != 629_466:
