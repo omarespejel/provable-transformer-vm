@@ -175,6 +175,20 @@ class AttentionKvD16TwoHeadSeq32AirPrivateSoftmaxTableLookupGateTests(unittest.T
             with self.assertRaisesRegex(gate.AttentionKvAirPrivateSoftmaxTableLookupGateError, "lookup_receipt drift"):
                 gate.write_json(payload, gate.pathlib.Path(tmp) / "bad.json")
 
+    def test_write_json_rejects_symlinked_parent_before_create(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = gate.pathlib.Path(tmp)
+            target = root / "target"
+            target.mkdir()
+            link = root / "link"
+            os.symlink(target, link, target_is_directory=True)
+            with self.assertRaisesRegex(
+                gate.AttentionKvAirPrivateSoftmaxTableLookupGateError,
+                "symlinked parent",
+            ):
+                gate.write_json(gate.build_payload(), link / "nested" / "artifact.json")
+            self.assertFalse((target / "nested").exists())
+
 
 if __name__ == "__main__":
     unittest.main()
