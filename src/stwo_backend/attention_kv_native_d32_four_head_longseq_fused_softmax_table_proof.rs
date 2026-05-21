@@ -90,8 +90,12 @@ const FUSED_COLUMN_PREFIX: &str =
 const EXPECTED_NON_CLAIMS: &[&str] = &[
     "not exact Softmax attention",
     "not exp/div Softmax semantics",
+    "not a full transformer block",
     "not full autoregressive inference",
     "not a long-context benchmark",
+    "no timing evidence",
+    "no NANOZK comparison",
+    "bounded-integer-fixture only",
     "not recursive verification or PCD",
     "not private witness privacy",
     "not on-chain verification evidence",

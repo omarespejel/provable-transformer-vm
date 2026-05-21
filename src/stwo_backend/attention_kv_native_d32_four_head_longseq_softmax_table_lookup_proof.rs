@@ -67,6 +67,8 @@ const PREPROCESSED_TABLE_WEIGHT: &str =
     "zkai/attention-kv/native-d32-four-head-longseq-softmax-table-logup/table-weight";
 const PREPROCESSED_TABLE_MULTIPLICITY: &str =
     "zkai/attention-kv/native-d32-four-head-longseq-softmax-table-logup/table-multiplicity";
+const LOOKUP_COLUMN_PREFIX: &str =
+    "zkai/attention-kv/native-d32-four-head-longseq-softmax-table-logup";
 
 relation!(AttentionKvD32FourHeadLongseqSoftmaxTableLookupRelation, 2);
 
@@ -167,6 +169,16 @@ struct LookupBundle {
     summary: ZkAiAttentionKvNativeD32FourHeadLongseqSoftmaxTableLookupSummary,
     preprocessed_trace: ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
     base_trace: ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
+}
+
+#[derive(Debug, Clone, Copy)]
+struct LookupTraceColumnIndices {
+    claimed_gap: usize,
+    claimed_weight: usize,
+    enabled: usize,
+    table_gap: usize,
+    table_weight: usize,
+    table_multiplicity: usize,
 }
 
 pub fn zkai_attention_kv_native_d32_four_head_longseq_softmax_table_lookup_source_input_from_json_str(
@@ -481,7 +493,7 @@ fn prove_lookup(bundle: &LookupBundle) -> Result<Vec<u8>> {
         &bundle.base_trace,
         &bundle.preprocessed_trace,
         &lookup_elements,
-    );
+    )?;
     if claimed_sum != SecureField::zero() {
         return Err(lookup_error(
             "Softmax-table lookup LogUp expected zero claimed sum",
@@ -593,7 +605,7 @@ fn lookup_commitment_roots(
         &bundle.base_trace,
         &bundle.preprocessed_trace,
         &lookup_elements,
-    );
+    )?;
     if claimed_sum != SecureField::zero() {
         return Err(lookup_error(
             "Softmax-table lookup LogUp expected zero claimed sum",
@@ -611,38 +623,40 @@ fn lookup_interaction_trace(
     base_trace: &ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
     preprocessed_trace: &ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
     lookup_elements: &AttentionKvD32FourHeadLongseqSoftmaxTableLookupRelation,
-) -> (
+) -> Result<(
     ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
     SecureField,
-) {
+)> {
     let mut logup_gen = LogupTraceGenerator::new(log_size);
     let mut col_gen = logup_gen.new_col();
+    let indices = lookup_trace_column_indices()?;
     for vec_row in 0..(1 << (log_size - LOG_N_LANES)) {
-        let enabled = PackedSecureField::from(base_trace[2].data[vec_row]);
-        let table_multiplicity = PackedSecureField::from(preprocessed_trace[2].data[vec_row]);
-        let claimed_q: PackedSecureField =
-            lookup_elements.combine(&[base_trace[0].data[vec_row], base_trace[1].data[vec_row]]);
+        let enabled = PackedSecureField::from(base_trace[indices.enabled].data[vec_row]);
+        let table_multiplicity =
+            PackedSecureField::from(preprocessed_trace[indices.table_multiplicity].data[vec_row]);
+        let claimed_q: PackedSecureField = lookup_elements.combine(&[
+            base_trace[indices.claimed_gap].data[vec_row],
+            base_trace[indices.claimed_weight].data[vec_row],
+        ]);
         let table_q: PackedSecureField = lookup_elements.combine(&[
-            preprocessed_trace[0].data[vec_row],
-            preprocessed_trace[1].data[vec_row],
+            preprocessed_trace[indices.table_gap].data[vec_row],
+            preprocessed_trace[indices.table_weight].data[vec_row],
         ]);
         let (numerator, denominator) =
             masked_lookup_fraction_terms(enabled, table_multiplicity, claimed_q, table_q);
         col_gen.write_frac(vec_row, numerator, denominator);
     }
     col_gen.finalize_col();
-    logup_gen.finalize_last()
+    Ok(logup_gen.finalize_last())
 }
 
 fn lookup_component(
     lookup_elements: AttentionKvD32FourHeadLongseqSoftmaxTableLookupRelation,
 ) -> FrameworkComponent<AttentionKvD32FourHeadLongseqSoftmaxTableLookupEval> {
     FrameworkComponent::new(
-        &mut TraceLocationAllocator::new_with_preprocessed_columns(&[
-            preprocessed_column_id(PREPROCESSED_TABLE_GAP),
-            preprocessed_column_id(PREPROCESSED_TABLE_WEIGHT),
-            preprocessed_column_id(PREPROCESSED_TABLE_MULTIPLICITY),
-        ]),
+        &mut TraceLocationAllocator::new_with_preprocessed_columns(
+            &lookup_preprocessed_column_ids(),
+        ),
         AttentionKvD32FourHeadLongseqSoftmaxTableLookupEval { lookup_elements },
         SecureField::zero(),
     )
@@ -677,6 +691,60 @@ fn validate_pcs_config(actual: PcsConfig) -> Result<PcsConfig> {
 
 fn lookup_pcs_config() -> PcsConfig {
     super::publication_v1_pcs_config()
+}
+
+fn lookup_row_column_ids() -> Vec<String> {
+    ["claimed-gap", "claimed-weight", "enabled"]
+        .into_iter()
+        .map(lookup_column_id)
+        .collect()
+}
+
+fn lookup_preprocessed_column_ids() -> Vec<PreProcessedColumnId> {
+    [
+        PREPROCESSED_TABLE_GAP,
+        PREPROCESSED_TABLE_WEIGHT,
+        PREPROCESSED_TABLE_MULTIPLICITY,
+    ]
+    .into_iter()
+    .map(preprocessed_column_id)
+    .collect()
+}
+
+fn lookup_column_id(suffix: &str) -> String {
+    format!("{LOOKUP_COLUMN_PREFIX}/{suffix}")
+}
+
+fn lookup_trace_column_indices() -> Result<LookupTraceColumnIndices> {
+    let row_ids = lookup_row_column_ids();
+    let preprocessed_ids = lookup_preprocessed_column_ids();
+    Ok(LookupTraceColumnIndices {
+        claimed_gap: lookup_row_column_index(&row_ids, "claimed-gap")?,
+        claimed_weight: lookup_row_column_index(&row_ids, "claimed-weight")?,
+        enabled: lookup_row_column_index(&row_ids, "enabled")?,
+        table_gap: lookup_preprocessed_column_index(&preprocessed_ids, PREPROCESSED_TABLE_GAP)?,
+        table_weight: lookup_preprocessed_column_index(
+            &preprocessed_ids,
+            PREPROCESSED_TABLE_WEIGHT,
+        )?,
+        table_multiplicity: lookup_preprocessed_column_index(
+            &preprocessed_ids,
+            PREPROCESSED_TABLE_MULTIPLICITY,
+        )?,
+    })
+}
+
+fn lookup_row_column_index(ids: &[String], suffix: &str) -> Result<usize> {
+    let target = lookup_column_id(suffix);
+    ids.iter()
+        .position(|id| id == &target)
+        .ok_or_else(|| lookup_error(format!("missing lookup trace column id: {target}")))
+}
+
+fn lookup_preprocessed_column_index(ids: &[PreProcessedColumnId], target: &str) -> Result<usize> {
+    ids.iter()
+        .position(|id| id.id == target)
+        .ok_or_else(|| lookup_error(format!("missing lookup preprocessed column id: {target}")))
 }
 
 fn preprocessed_column_id(id: &str) -> PreProcessedColumnId {
@@ -759,6 +827,36 @@ mod tests {
             .table_multiplicities
             .iter()
             .any(|entry| entry.gap == input.score_gap_clip && entry.multiplicity > 0));
+    }
+
+    #[test]
+    fn attention_kv_d32_four_head_longseq_softmax_table_lookup_derives_logup_indices_from_column_ids(
+    ) {
+        let row_ids = lookup_row_column_ids();
+        let preprocessed_ids = lookup_preprocessed_column_ids();
+        let indices = lookup_trace_column_indices().expect("indices");
+
+        assert_eq!(
+            row_ids[indices.claimed_gap],
+            lookup_column_id("claimed-gap")
+        );
+        assert_eq!(
+            row_ids[indices.claimed_weight],
+            lookup_column_id("claimed-weight")
+        );
+        assert_eq!(row_ids[indices.enabled], lookup_column_id("enabled"));
+        assert_eq!(
+            preprocessed_ids[indices.table_gap].id,
+            PREPROCESSED_TABLE_GAP
+        );
+        assert_eq!(
+            preprocessed_ids[indices.table_weight].id,
+            PREPROCESSED_TABLE_WEIGHT
+        );
+        assert_eq!(
+            preprocessed_ids[indices.table_multiplicity].id,
+            PREPROCESSED_TABLE_MULTIPLICITY
+        );
     }
 
     #[test]

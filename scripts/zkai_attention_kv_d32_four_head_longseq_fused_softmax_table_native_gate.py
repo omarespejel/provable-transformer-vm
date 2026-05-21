@@ -51,12 +51,12 @@ NON_FUSED_STATUS = "GO_MATCHED_D32_FOUR_HEAD_LONGSEQ_SOURCE_PLUS_LOGUP_SIDECAR_C
 TIMING_POLICY = "proof_existence_and_byte_accounting_only_not_public_benchmark"
 
 SOURCE_PROOF_SIZE_BYTES = 139_755
-SOURCE_ENVELOPE_SIZE_BYTES = 4_194_354
+SOURCE_ENVELOPE_SIZE_BYTES = 4_195_709
 SIDECAR_PROOF_SIZE_BYTES = 30_263
-SIDECAR_ENVELOPE_SIZE_BYTES = 3_320_377
+SIDECAR_ENVELOPE_SIZE_BYTES = 3_321_732
 SOURCE_PLUS_SIDECAR_RAW_PROOF_BYTES = SOURCE_PROOF_SIZE_BYTES + SIDECAR_PROOF_SIZE_BYTES
 FUSED_PROOF_SIZE_BYTES = 142_334
-FUSED_ENVELOPE_SIZE_BYTES = 4_218_036
+FUSED_ENVELOPE_SIZE_BYTES = 4_219_525
 FUSED_OVER_SOURCE_PROOF_BYTES = FUSED_PROOF_SIZE_BYTES - SOURCE_PROOF_SIZE_BYTES
 FUSED_SAVES_VS_SOURCE_PLUS_SIDECAR_BYTES = SOURCE_PLUS_SIDECAR_RAW_PROOF_BYTES - FUSED_PROOF_SIZE_BYTES
 FUSED_TO_SOURCE_PLUS_SIDECAR_RATIO = FUSED_PROOF_SIZE_BYTES / SOURCE_PLUS_SIDECAR_RAW_PROOF_BYTES
@@ -100,8 +100,12 @@ TABLE_MULTIPLICITIES = ({"gap": 0, "weight": 256, "multiplicity": 73}, {"gap": 1
 NON_CLAIMS = (
     "not exact Softmax attention",
     "not exp/div Softmax semantics",
+    "not a full transformer block",
     "not full autoregressive inference",
     "not a long-context benchmark",
+    "no timing evidence",
+    "no NANOZK comparison",
+    "bounded-integer-fixture only",
     "not recursive verification or PCD",
     "not private witness privacy",
     "not on-chain verification evidence",

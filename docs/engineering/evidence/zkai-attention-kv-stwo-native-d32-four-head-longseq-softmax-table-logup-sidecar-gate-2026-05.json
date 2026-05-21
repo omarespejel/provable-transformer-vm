@@ -4,18 +4,18 @@
   "decision": "GO_NATIVE_STWO_AIR_CONSTRAINED_D32_FOUR_HEAD_LONGSEQ_SOFTMAX_TABLE_LOOKUP_RELATION_SIDECAR",
   "fixed_d32_two_head_comparison": {
     "claim_count_ratio": "2.000000",
-    "envelope_size_ratio": "1.893239",
+    "envelope_size_ratio": "1.894011",
     "fixed_d32_two_head_lookup_claims": 336,
     "fixed_d32_two_head_lookup_envelope_size_bytes": 1753808,
     "fixed_d32_two_head_lookup_proof_size_bytes": 27075,
     "longseq_lookup_claims": 672,
-    "longseq_lookup_envelope_size_bytes": 3320377,
+    "longseq_lookup_envelope_size_bytes": 3321732,
     "longseq_lookup_proof_size_bytes": 30263,
     "proof_size_ratio": "1.117747"
   },
   "fused_comparator": {
     "comparison_scope": "raw proof bytes only; no timing, no full inference, no real-valued Softmax claim",
-    "fused_envelope_size_bytes": 4218036,
+    "fused_envelope_size_bytes": 4219525,
     "fused_proof_size_bytes": 142334,
     "fused_saves_vs_source_plus_sidecar_bytes": 27684,
     "fused_to_source_plus_sidecar_ratio": "0.837170",
@@ -28,7 +28,7 @@
   "issue": 715,
   "lookup_receipt": {
     "lookup_claims": 672,
-    "lookup_envelope_size_bytes": 3320377,
+    "lookup_envelope_size_bytes": 3321732,
     "lookup_proof_commitments": 4,
     "lookup_proof_size_bytes": 30263,
     "lookup_relation": "AttentionKvD32FourHeadLongseqSoftmaxTableLookupRelation",
