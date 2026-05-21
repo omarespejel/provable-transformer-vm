@@ -18,9 +18,12 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import io
 import importlib.util
 import json
+import os
 import pathlib
+import tempfile
 from collections.abc import Sequence
 from typing import Any
 
@@ -876,9 +879,51 @@ def build_payload() -> dict[str, Any]:
     return payload
 
 
-def write_json(payload: dict[str, Any], path: pathlib.Path) -> None:
+def fsync_parent_dir(path: pathlib.Path) -> None:
+    try:
+        fd = os.open(path.parent, os.O_RDONLY)
+    except OSError:
+        return
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def safe_write_text(path: pathlib.Path, content: str, label: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    if path.is_symlink():
+        raise AttentionKvD16TwoHeadSeq32BoundedSoftmaxTableInputError(
+            f"refusing to write {label} through symlink: {path}"
+        )
+    tmp_path: pathlib.Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            "w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            tmp_path = pathlib.Path(handle.name)
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp_path, path)
+        fsync_parent_dir(path)
+    except Exception:
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
+        raise
+
+
+def write_json(payload: dict[str, Any], path: pathlib.Path) -> None:
+    safe_write_text(
+        path,
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        "JSON artifact",
+    )
 
 
 def to_tsv(payload: dict[str, Any]) -> str:
@@ -903,7 +948,6 @@ def to_tsv(payload: dict[str, Any]) -> str:
         "non_claims": ";".join(payload["non_claims"]),
     }
     out_lines: list[str] = []
-    import io
 
     buf = io.StringIO()
     writer = csv.DictWriter(buf, fieldnames=TSV_COLUMNS, delimiter="\t", lineterminator="\n")
@@ -914,8 +958,7 @@ def to_tsv(payload: dict[str, Any]) -> str:
 
 
 def write_tsv(payload: dict[str, Any], path: pathlib.Path) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(to_tsv(payload), encoding="utf-8")
+    safe_write_text(path, to_tsv(payload), "TSV artifact")
 
 
 def main() -> None:
