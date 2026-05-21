@@ -278,28 +278,31 @@ def build_accounting_triplet_signal(claim_pack: dict[str, Any]) -> dict[str, Any
     if not isinstance(summary, dict) or not isinstance(accounting_status, dict):
         raise ProofPressureWideGridSelectorError("claim pack accounting summary missing")
 
-    return {
-        "status": (
-            "CARRIES_TYPED_JSON_AND_BINARY_RAW_CONTEXT_FROM_CLAIM_PACK;"
-            "RAW_ROUTE_MATRIX_WIDTH_SELECTOR_REMAINS_SEPARATE"
-        ),
-        "guardrail": accounting_status["guardrail"],
-        "attention_typed_rows": len(attention_rows),
-        "attention_typed_bytes_total": sum(row["typed_bytes"] for row in attention_rows),
-        "attention_json_bytes_total": sum(row["json_bytes"] for row in attention_rows),
-        "attention_typed_savings_bytes_total": summary["attention_typed_savings_bytes_total"],
-        "attention_raw_proof_savings_bytes_total": summary["attention_raw_proof_savings_bytes_total"],
-        "binary_raw_available_rows": sum(1 for row in rows if row.get("binary_raw_bytes") is not None),
-        "binary_raw_missing_rows": sum(1 for row in rows if row.get("binary_raw_bytes") is None),
-        "current_best_inner_policy_bound_row": {
-            "row_id": statement_rows[0]["row_id"],
-            "typed_bytes": statement_rows[0]["typed_bytes"],
-            "json_bytes": statement_rows[0]["json_bytes"],
-            "binary_raw_bytes": statement_rows[0]["binary_raw_bytes"],
-            "matched_frontier_typed_bytes": statement_rows[0]["matched_frontier_typed_bytes"],
-            "typed_saving_bytes": statement_rows[0]["typed_saving_bytes"],
-        },
-    }
+    try:
+        return {
+            "status": (
+                "CARRIES_TYPED_JSON_AND_BINARY_RAW_CONTEXT_FROM_CLAIM_PACK;"
+                "RAW_ROUTE_MATRIX_WIDTH_SELECTOR_REMAINS_SEPARATE"
+            ),
+            "guardrail": accounting_status["guardrail"],
+            "attention_typed_rows": len(attention_rows),
+            "attention_typed_bytes_total": sum(row["typed_bytes"] for row in attention_rows),
+            "attention_json_bytes_total": sum(row["json_bytes"] for row in attention_rows),
+            "attention_typed_savings_bytes_total": summary["attention_typed_savings_bytes_total"],
+            "attention_raw_proof_savings_bytes_total": summary["attention_raw_proof_savings_bytes_total"],
+            "binary_raw_available_rows": sum(1 for row in rows if row.get("binary_raw_bytes") is not None),
+            "binary_raw_missing_rows": sum(1 for row in rows if row.get("binary_raw_bytes") is None),
+            "current_best_inner_policy_bound_row": {
+                "row_id": statement_rows[0]["row_id"],
+                "typed_bytes": statement_rows[0]["typed_bytes"],
+                "json_bytes": statement_rows[0]["json_bytes"],
+                "binary_raw_bytes": statement_rows[0]["binary_raw_bytes"],
+                "matched_frontier_typed_bytes": statement_rows[0]["matched_frontier_typed_bytes"],
+                "typed_saving_bytes": statement_rows[0]["typed_saving_bytes"],
+            },
+        }
+    except KeyError as err:
+        raise ProofPressureWideGridSelectorError("claim pack accounting field missing") from err
 
 
 def build_requested_grid_signal(current_signal: dict[str, Any]) -> dict[str, Any]:
@@ -399,6 +402,7 @@ def build_interpretation() -> dict[str, Any]:
 
 def build_payload() -> dict[str, Any]:
     sources, raws = load_sources()
+    expected_source_artifacts = source_artifacts(raws)
     current_signal = build_current_signal(sources["route_matrix"], sources["fuller_grid"])
     current_signal["accounting_triplet_signal"] = build_accounting_triplet_signal(sources["claim_pack"])
     requested_signal = build_requested_grid_signal(current_signal)
@@ -409,7 +413,7 @@ def build_payload() -> dict[str, Any]:
         "issue": ISSUE,
         "claim_boundary": CLAIM_BOUNDARY,
         "timing_policy": TIMING_POLICY,
-        "source_artifacts": source_artifacts(raws),
+        "source_artifacts": expected_source_artifacts,
         "current_signal": current_signal,
         "requested_grid_signal": requested_signal,
         "candidate_order": build_candidate_order(),
@@ -417,20 +421,20 @@ def build_payload() -> dict[str, Any]:
         "non_claims": list(NON_CLAIMS),
         "validation_commands": list(VALIDATION_COMMANDS),
     }
-    payload["mutation_result"] = run_mutations(payload)
+    payload["mutation_result"] = run_mutations(payload, expected_source_artifacts)
     payload["payload_commitment"] = commitment({k: v for k, v in payload.items() if k != "payload_commitment"})
-    validate_payload(payload)
+    validate_payload(payload, expected_source_artifacts)
     return payload
 
 
-def validate_payload(payload: dict[str, Any]) -> None:
+def validate_payload(payload: dict[str, Any], expected_source_artifacts: list[dict[str, Any]]) -> None:
     if payload.get("schema") != SCHEMA:
         raise ProofPressureWideGridSelectorError("schema drift")
     if payload.get("decision") != DECISION:
         raise ProofPressureWideGridSelectorError("decision drift")
     if payload.get("claim_boundary") != CLAIM_BOUNDARY:
         raise ProofPressureWideGridSelectorError("claim_boundary drift")
-    if payload.get("source_artifacts") != source_artifacts(load_sources()[1]):
+    if payload.get("source_artifacts") != expected_source_artifacts:
         raise ProofPressureWideGridSelectorError("source artifact drift")
     current = payload.get("current_signal")
     if not isinstance(current, dict):
@@ -527,13 +531,13 @@ def mutation_cases(payload: dict[str, Any]) -> tuple[tuple[str, Any], ...]:
     )
 
 
-def run_mutations(payload: dict[str, Any]) -> dict[str, Any]:
+def run_mutations(payload: dict[str, Any], expected_source_artifacts: list[dict[str, Any]]) -> dict[str, Any]:
     results = []
     for name, mutate in mutation_cases(payload):
         mutated = copy.deepcopy(payload)
         mutate(mutated)
         try:
-            validate_payload(mutated)
+            validate_payload(mutated, expected_source_artifacts)
         except ProofPressureWideGridSelectorError as err:
             results.append({"name": name, "rejected": True, "error": str(err)})
         else:
@@ -597,25 +601,26 @@ def checked_output_path(path: pathlib.Path) -> pathlib.Path:
     return candidate
 
 
-def write_json(path: pathlib.Path, payload: dict[str, Any]) -> None:
+def write_json(path: pathlib.Path, payload: dict[str, Any], expected_source_artifacts: list[dict[str, Any]]) -> None:
     path = checked_output_path(path)
     path = checked_output_path(path)
-    validate_payload(payload)
+    validate_payload(payload, expected_source_artifacts)
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=path.parent, prefix=f".{path.name}.", suffix=".tmp", delete=False) as handle:
         tmp_path = pathlib.Path(handle.name)
         handle.write(json.dumps(payload, indent=2, sort_keys=True) + "\n")
     try:
-        validate_payload(json.loads(tmp_path.read_text(encoding="utf-8")))
+        validate_payload(json.loads(tmp_path.read_text(encoding="utf-8")), expected_source_artifacts)
+        path = checked_output_path(path)
         tmp_path.replace(path)
     except Exception:
         tmp_path.unlink(missing_ok=True)
         raise
 
 
-def write_tsv(path: pathlib.Path, payload: dict[str, Any]) -> None:
+def write_tsv(path: pathlib.Path, payload: dict[str, Any], expected_source_artifacts: list[dict[str, Any]]) -> None:
     path = checked_output_path(path)
     path = checked_output_path(path)
-    validate_payload(payload)
+    validate_payload(payload, expected_source_artifacts)
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", newline="", dir=path.parent, prefix=f".{path.name}.", suffix=".tmp", delete=False) as handle:
         tmp_path = pathlib.Path(handle.name)
         writer = csv.DictWriter(handle, fieldnames=TSV_COLUMNS, delimiter="\t", lineterminator="\n")
@@ -627,6 +632,7 @@ def write_tsv(path: pathlib.Path, payload: dict[str, Any]) -> None:
             rows = list(csv.DictReader(handle, delimiter="\t"))
         if len(rows) != len(payload["candidate_order"]):
             raise ProofPressureWideGridSelectorError("TSV row count drift")
+        path = checked_output_path(path)
         tmp_path.replace(path)
     except Exception:
         tmp_path.unlink(missing_ok=True)
@@ -639,8 +645,8 @@ def main() -> None:
     parser.add_argument("--write-tsv", type=pathlib.Path, default=TSV_OUT)
     args = parser.parse_args()
     payload = build_payload()
-    write_json(args.write_json, payload)
-    write_tsv(args.write_tsv, payload)
+    write_json(args.write_json, payload, payload["source_artifacts"])
+    write_tsv(args.write_tsv, payload, payload["source_artifacts"])
     print(json.dumps(payload, indent=2, sort_keys=True))
 
 

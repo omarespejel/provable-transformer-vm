@@ -10,6 +10,7 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.payload = gate.build_payload()
+        cls.expected_source_artifacts = cls.payload["source_artifacts"]
 
     def evidence_tempdir(self):
         return tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-wide-grid-selector-test-")
@@ -17,7 +18,7 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
     def symlink_or_skip(self, link_path, target_path):
         try:
             link_path.symlink_to(target_path, target_is_directory=True)
-        except OSError as err:
+        except (OSError, NotImplementedError) as err:
             self.skipTest(f"symlink creation unavailable: {err}")
 
     def test_records_wide_grid_as_falsification_target_not_result(self):
@@ -86,27 +87,34 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         payload = copy.deepcopy(self.payload)
         payload["requested_grid_signal"]["source_backed_requested_cell_count"] = 1
         with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "wide row smuggling"):
-            gate.validate_payload(payload)
+            gate.validate_payload(payload, self.expected_source_artifacts)
 
     def test_validate_rejects_payload_commitment_drift(self):
         payload = copy.deepcopy(self.payload)
         payload["payload_commitment"] = "blake2b-256:" + "0" * 64
         with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "payload commitment drift"):
-            gate.validate_payload(payload)
+            gate.validate_payload(payload, self.expected_source_artifacts)
 
     def test_validate_rejects_accounting_total_drift(self):
         payload = copy.deepcopy(self.payload)
         payload["current_signal"]["accounting_triplet_signal"]["attention_typed_bytes_total"] = 0
         with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "accounting typed total drift"):
-            gate.validate_payload(payload)
+            gate.validate_payload(payload, self.expected_source_artifacts)
+
+    def test_accounting_signal_rejects_missing_required_field(self):
+        sources, _ = gate.load_sources()
+        claim_pack = copy.deepcopy(sources["claim_pack"])
+        del claim_pack["fused_vs_split_rows"][0]["typed_bytes"]
+        with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "accounting field missing"):
+            gate.build_accounting_triplet_signal(claim_pack)
 
     def test_write_json_and_tsv_round_trip(self):
         with self.evidence_tempdir() as tmp:
             tmp_path = gate.pathlib.Path(tmp)
             json_path = tmp_path / "wide-grid.json"
             tsv_path = tmp_path / "wide-grid.tsv"
-            gate.write_json(json_path, self.payload)
-            gate.write_tsv(tsv_path, self.payload)
+            gate.write_json(json_path, self.payload, self.expected_source_artifacts)
+            gate.write_tsv(tsv_path, self.payload, self.expected_source_artifacts)
             self.assertEqual(json.loads(json_path.read_text(encoding="utf-8"))["schema"], gate.SCHEMA)
             tsv = tsv_path.read_text(encoding="utf-8")
             self.assertIn("d64_h2_seq32", tsv)
@@ -115,22 +123,30 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
     def test_write_outputs_reject_absolute_outside_evidence_dir(self):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "stay inside evidence dir"):
-                gate.write_json(gate.pathlib.Path(tmp) / "wide-grid.json", self.payload)
+                gate.write_json(gate.pathlib.Path(tmp) / "wide-grid.json", self.payload, self.expected_source_artifacts)
 
     def test_write_outputs_reject_relative_parent_traversal(self):
         with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "stay inside evidence dir"):
-            gate.write_tsv(gate.pathlib.Path("docs/engineering/evidence/../wide-grid.tsv"), self.payload)
+            gate.write_tsv(
+                gate.pathlib.Path("docs/engineering/evidence/../wide-grid.tsv"),
+                self.payload,
+                self.expected_source_artifacts,
+            )
 
     def test_write_outputs_reject_missing_parent_directory(self):
         with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "parent directory must exist"):
-            gate.write_json(gate.EVIDENCE_DIR / ".tmp-wide-grid-selector-missing" / "wide-grid.json", self.payload)
+            gate.write_json(
+                gate.EVIDENCE_DIR / ".tmp-wide-grid-selector-missing" / "wide-grid.json",
+                self.payload,
+                self.expected_source_artifacts,
+            )
 
     def test_write_outputs_reject_symlink_escape_inside_evidence_dir(self):
         with self.evidence_tempdir() as evidence_tmp, tempfile.TemporaryDirectory() as outside_tmp:
             link_path = gate.pathlib.Path(evidence_tmp) / "escape"
             self.symlink_or_skip(link_path, gate.pathlib.Path(outside_tmp))
             with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "symlink components"):
-                gate.write_json(link_path / "wide-grid.json", self.payload)
+                gate.write_json(link_path / "wide-grid.json", self.payload, self.expected_source_artifacts)
 
     def test_output_path_rejects_symlinked_evidence_root(self):
         original_evidence_dir = gate.EVIDENCE_DIR
