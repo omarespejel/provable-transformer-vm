@@ -4,7 +4,7 @@
 This gate is intentionally derived from the checked route matrix. It does not
 generate new proofs. Its job is to make the missing width/head/sequence
 crossings explicit, so the evidence frontier is auditable without promoting the
-current 14 proved rows into a full factorial proof claim.
+current 15 proved rows into a full factorial proof claim.
 """
 
 from __future__ import annotations
@@ -37,8 +37,8 @@ ISSUE = 7
 SOURCE_ISSUE = matrix.ISSUE
 DECISION = "GO_CHECKED_FULLER_CROSSING_GRID_WITH_FULL_PROOF_GRID_NO_GO"
 ROUTE_ID = "local_stwo_attention_kv_fuller_width_head_sequence_crossing_grid"
-GRID_STATUS = "GO_45_CELL_WIDTH_HEAD_SEQUENCE_STATUS_GRID_FROM_CHECKED_ROUTE_MATRIX"
-FULL_PROOF_GRID_STATUS = "NO_GO_31_OF_45_GRID_CELLS_DO_NOT_HAVE_NATIVE_FUSED_PROOFS"
+GRID_STATUS = "GO_60_CELL_WIDTH_HEAD_SEQUENCE_STATUS_GRID_FROM_CHECKED_ROUTE_MATRIX"
+FULL_PROOF_GRID_STATUS = "NO_GO_45_OF_60_GRID_CELLS_DO_NOT_HAVE_NATIVE_FUSED_PROOFS"
 CLAIM_BOUNDARY = (
     "ENGINEERING_STATUS_GRID_FOR_CHECKED_NATIVE_STWO_FUSED_BOUNDED_SOFTMAX_TABLE_ROUTES_"
     "MAPS_PROVED_AND_MISSING_WIDTH_HEAD_SEQUENCE_CELLS_NOT_A_FULL_FACTORIAL_PROOF_GRID_"
@@ -47,7 +47,7 @@ CLAIM_BOUNDARY = (
 TIMING_POLICY = "status_grid_only_not_timing_not_public_benchmark"
 PROVED_STATUS = "PROVED_NATIVE_FUSED_WITH_MATCHED_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR"
 MISSING_STATUS = "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR"
-WIDTHS = (8, 16, 32)
+WIDTHS = (8, 16, 32, 64)
 HEAD_COUNTS = (1, 2, 4, 8, 16)
 STEPS_PER_HEAD = (8, 16, 32)
 GRID_CELL_COUNT = len(WIDTHS) * len(HEAD_COUNTS) * len(STEPS_PER_HEAD)
@@ -66,6 +66,7 @@ EXPECTED_PROVED_KEYS = (
     (16, 2, 16),
     (32, 2, 16),
     (32, 2, 32),
+    (64, 2, 32),
 )
 EXPECTED_PROVED_PROFILE_IDS = (
     "d8_single_head_seq8",
@@ -82,6 +83,7 @@ EXPECTED_PROVED_PROFILE_IDS = (
     "d16_two_head_seq16",
     "d32_two_head_seq16",
     "d32_two_head_seq32",
+    "d64_two_head_seq32",
 )
 VALIDATION_COMMANDS = (
     "python3.10 scripts/zkai_attention_kv_fuller_crossing_grid_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.tsv",
@@ -91,32 +93,32 @@ VALIDATION_COMMANDS = (
 )
 GO_CRITERIA = (
     "the upstream fused Softmax-table route matrix validates locally",
-    "exactly 14 checked route cells are marked proved and exactly 31 cells are marked missing",
+    "exactly 15 checked route cells are marked proved and exactly 45 cells are marked missing",
     "every proved cell has matched source-plus-LogUp-sidecar comparator evidence from the route matrix",
     "missing cells carry no proof-byte, ratio, or evidence-path claims",
 )
 NO_GO_CRITERIA = (
-    "full factorial proof-grid claim: 31 of 45 grid cells are missing native fused proofs",
-    "new crossing proof claim: this slice adds only the d32/two-head/seq32 all-axis extension",
+    "full factorial proof-grid claim: 45 of 60 grid cells are missing native fused proofs",
+    "new crossing proof claim: this slice adds only the d64/two-head/seq32 width-extension falsification row",
     "timing or public benchmark claim: this gate records status only",
     "real-valued Softmax or full-inference claim: the upstream kernel is bounded integer Softmax-table/floor division",
 )
 NEXT_LOW_RISK_PROFILES = (
     {
+        "profile_id": "d64_two_head_seq16",
+        "key_width": 64,
+        "head_count": 2,
+        "steps_per_head": 16,
+        "reason": "tests whether the d64 seq32 saving is a width-only artifact by filling the adjacent d64 sequence point",
+        "go_condition": "source, sidecar, fused, and route-grid gates validate with no source-only compression overclaim",
+    },
+    {
         "profile_id": "d16_two_head_seq32",
         "key_width": 16,
         "head_count": 2,
         "steps_per_head": 32,
-        "reason": "extends the existing d16/two-head all-axis row along sequence only",
+        "reason": "fills the missing lower-width seq32 all-axis crossing between d8 and d32",
         "go_condition": "seq32 proof envelope remains bounded and the matched source-plus-sidecar comparator validates",
-    },
-    {
-        "profile_id": "d16_four_head_seq16",
-        "key_width": 16,
-        "head_count": 4,
-        "steps_per_head": 16,
-        "reason": "tests whether the all-axis signal survives a second head-axis crossing",
-        "go_condition": "only after d16/two-head/seq32 and d32/two-head/seq32 remain stable in the route matrix and fuller grid",
     },
     {
         "profile_id": "d32_four_head_seq16",

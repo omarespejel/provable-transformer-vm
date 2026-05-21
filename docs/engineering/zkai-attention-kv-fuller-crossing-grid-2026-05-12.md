@@ -7,7 +7,7 @@ fused Softmax-table route family, and which combinations are still missing?
 
 The bounded grid is:
 
-- width: `d8`, `d16`, `d32`;
+- width: `d8`, `d16`, `d32`, `d64`;
 - head count: `1`, `2`, `4`, `8`, `16`;
 - sequence length: `seq8`, `seq16`, `seq32` steps per head.
 
@@ -15,8 +15,8 @@ The bounded grid is:
 
 `GO_CHECKED_FULLER_CROSSING_GRID_WITH_FULL_PROOF_GRID_NO_GO`
 
-This slice adds a checkable status grid over all `45` width/head/sequence
-cells. The current evidence frontier is `12 / 45` proved cells and `33 / 45`
+This slice adds a checkable status grid over all `60` width/head/sequence
+cells. The current evidence frontier is `15 / 60` proved cells and `45 / 60`
 missing cells.
 
 ## Evidence
@@ -39,13 +39,13 @@ The gate is derived from the checked route matrix:
 
 | Metric | Value |
 |---|---:|
-| Grid cells | `45` |
-| Proved cells | `12` |
-| Missing cells | `33` |
-| Coverage | `26.6667%` |
-| Proved crossing cells | `5` |
-| Proved all-axis cells | `1` |
-| Missing all-axis cells | `15` |
+| Grid cells | `60` |
+| Proved cells | `15` |
+| Missing cells | `45` |
+| Coverage | `25.0000%` |
+| Proved crossing cells | `8` |
+| Proved all-axis cells | `4` |
+| Missing all-axis cells | `20` |
 
 The proved cells are exactly the checked route-matrix cells:
 
@@ -61,6 +61,9 @@ The proved cells are exactly the checked route-matrix cells:
 - `d16_h2_seq8`
 - `d32_h2_seq8`
 - `d16_h2_seq16`
+- `d32_h2_seq16`
+- `d32_h2_seq32`
+- `d64_h2_seq32`
 
 Every other cell is marked
 `MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR` and carries no proof-byte,
@@ -71,15 +74,16 @@ ratio, or evidence-path metrics.
 GO for a controlled crossing-grid artifact:
 
 - the upstream fused Softmax-table route matrix validates locally;
-- exactly `12` checked route cells are marked proved and exactly `33` cells are
+- exactly `15` checked route cells are marked proved and exactly `45` cells are
   marked missing;
 - every proved cell has matched source-plus-LogUp-sidecar comparator evidence;
 - missing cells carry no proof-byte, ratio, or evidence-path claims.
 
 NO-GO for stronger claims:
 
-- no full factorial proof-grid claim, because `33 / 45` cells are missing;
-- no broad crossing proof claim, because this slice adds only `d32_two_head_seq8`;
+- no full factorial proof-grid claim, because `45 / 60` cells are missing;
+- no broad crossing proof claim, because the newest slice adds only
+  `d64_two_head_seq32`;
 - no timing or public benchmark claim;
 - no real-valued Softmax or full-inference claim.
 
@@ -87,18 +91,20 @@ NO-GO for stronger claims:
 
 The lowest-risk next proof profiles are now:
 
-- `d16_two_head_seq32`: extend the existing `d16` two-head all-axis row along
-  sequence only.
-- `d32_two_head_seq16`: first `d32` row with all three pressure axes crossed,
-  after the shorter `d32` two-head crossing has validated.
+- `d64_two_head_seq16`: fill the adjacent d64 sequence point and test whether
+  the d64 seq32 saving is a width-only artifact.
+- `d16_two_head_seq32`: fill the missing lower-width seq32 all-axis crossing
+  between d8 and d32.
+- `d32_four_head_seq16`: test the higher-width head-axis crossing without
+  jumping to seq32 first.
 
 ## Claim Boundary
 
 This may be cited internally as:
 
 > The fuller crossing grid makes the current native Stwo fused Softmax-table
-> evidence frontier explicit: `12 / 45` width/head/sequence cells are proved
-> with matched source-plus-sidecar comparators, while `33 / 45` cells remain
+> evidence frontier explicit: `15 / 60` width/head/sequence cells are proved
+> with matched source-plus-sidecar comparators, while `45 / 60` cells remain
 > unproved and carry no proof-size claims.
 
 Do not cite it as:

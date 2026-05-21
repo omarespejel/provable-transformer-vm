@@ -5,7 +5,8 @@
 Do the checked native Stwo fused Softmax-table routes still hold when the
 fixture changes along controlled axes, when the single-head width axis extends
 to `d32`, when width and head count are combined, when sequence length extends
-to `seq32`, and when width, head count, and sequence length are combined in one route?
+to `seq32`, when width, head count, and sequence length are combined in one
+route, and when the first `d64` two-head `seq32` falsification row is added?
 
 The axes are:
 
@@ -16,11 +17,13 @@ The axes are:
 - combined width/head: `d16` and `d32`, two heads, eight steps per head;
 - combined width/head/sequence: `d16` and `d32`, two heads, sixteen steps per
   head.
+- combined width/head/sequence seq32 extension: `d32` and `d64`, two heads,
+  thirty-two steps per head.
 
 ## Result
 
 GO for a controlled engineering route matrix, now with matched source-plus-LogUp
-sidecar comparators for all thirteen profile rows.
+sidecar comparators for all fifteen profile rows.
 
 The checked matrix is machine-readable at:
 
@@ -29,7 +32,7 @@ The checked matrix is machine-readable at:
 
 The gate validates the existing per-route fused evidence files, checks the
 source-input dimensions, normalizes the matched source-plus-sidecar comparators,
-and rejects `34 / 34` matrix drift, provenance-drift, and overclaim mutations.
+and rejects `38 / 38` matrix drift, provenance-drift, and overclaim mutations.
 
 ## Route Matrix
 
@@ -48,6 +51,8 @@ and rejects `34 / 34` matrix drift, provenance-drift, and overclaim mutations.
 | d32 two-head seq8 | combined width/head extension | 32 | 2 | 8 | 104 | 128 | 125,756 | 142,063 | 0.885213 |
 | d16 two-head seq16 | combined width/head/sequence | 16 | 2 | 16 | 336 | 512 | 84,868 | 108,158 | 0.784667 |
 | d32 two-head seq16 | combined width/head/sequence extension | 32 | 2 | 16 | 336 | 512 | 132,543 | 162,138 | 0.817470 |
+| d32 two-head seq32 | combined width/head/sequence seq32 extension | 32 | 2 | 32 | 1,184 | 2,048 | 150,147 | 176,473 | 0.850821 |
+| d64 two-head seq32 | d64 seq32 falsification | 64 | 2 | 32 | 1,184 | 2,048 | 253,257 | 285,102 | 0.888303 |
 
 ## Axis Read
 
@@ -155,15 +160,38 @@ Combined width/head/sequence extension row:
   family that table membership can share enough proof plumbing to offset more
   than the standalone sidecar.
 
+Combined width/head/sequence seq32 extension:
+
+- The `d32` two-head seq32 row extends the all-axis route from `seq16` to
+  `seq32`.
+- Against the `d32` two-head seq16 row, lookup claims grow `3.523810x`
+  (`336` to `1,184`) and trace rows grow `4.000000x` (`512` to `2,048`), while
+  fused proof bytes grow `1.132817x` (`132,543` to `150,147`).
+- The matched source-plus-sidecar control is `176,473` bytes; the fused proof is
+  `150,147` bytes, saving `26,326` bytes (`0.850821x`).
+
+d64 seq32 falsification row:
+
+- The `d64` two-head seq32 row holds head count, sequence length, lookup claims,
+  and trace rows fixed against the `d32` two-head seq32 row, then doubles width.
+- From `d32` to `d64`, source arithmetic proof bytes grow `1.709327x`, matched
+  source-plus-sidecar bytes grow `1.615556x`, and fused proof bytes grow
+  `1.686727x`.
+- The fused proof still beats the matched source-plus-sidecar control:
+  `253,257` bytes versus `285,102` bytes, saving `31,845` bytes (`0.888303x`).
+- The relative ratio weakens compared with `d32` seq32 (`0.850821x`), so this is
+  a GO for the fused-vs-split route and a warning that width pressure remains
+  real.
+
 ## Aggregate Read
 
-Across the thirteen checked rows:
+Across the fifteen checked rows:
 
-- total lookup claims: `4,116`;
-- total trace rows: `5,952`;
-- total fused proof bytes: `995,026`;
-- total matched source-plus-sidecar proof bytes: `1,235,025`;
-- total fused savings against matched source-plus-sidecar: `239,999` bytes;
+- total lookup claims: `6,484`;
+- total trace rows: `10,048`;
+- total fused proof bytes: `1,398,430`;
+- total matched source-plus-sidecar proof bytes: `1,696,600`;
+- total fused savings against matched source-plus-sidecar: `298,170` bytes;
 - matched fused ratios range from `0.676723` to `0.919259`.
 
 ## Claim Boundary
