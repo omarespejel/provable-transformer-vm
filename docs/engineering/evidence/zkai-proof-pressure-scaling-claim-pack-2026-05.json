@@ -281,8 +281,18 @@
       "rejected": true
     },
     {
+      "error": "route matrix min ratio drift",
+      "name": "route_matrix_ratio_drift",
+      "rejected": true
+    },
+    {
       "error": "d32 seq32 raw saving drift",
       "name": "d32_seq32_raw_saving_drift",
+      "rejected": true
+    },
+    {
+      "error": "summary d32 lookup growth drift",
+      "name": "summary_route_growth_drift",
       "rejected": true
     },
     {
@@ -346,8 +356,8 @@
       "rejected": true
     }
   ],
-  "mutations_checked": 16,
-  "mutations_rejected": 16,
+  "mutations_checked": 18,
+  "mutations_rejected": 18,
   "non_claims": [
     "not a d64/d128/d256 attention grid",
     "not a seq64 proof row",
@@ -362,9 +372,9 @@
   ],
   "open_followups": [
     {
-      "go_gate": "add source-backed d64/d128/d256 or explicit no-go rows without changing the claim boundary",
+      "go_gate": "add source-backed d64/d128/d256 attention route rows without changing the claim boundary",
       "id": "d64_d128_d256_grid",
-      "reason": "Issue #715 asked for d64/d128/d256 where feasible, but the checked attention grid currently covers d8/d16 width plus d128 MLP-side surfaces.",
+      "reason": "Issue #715 asked for d64/d128/d256 where feasible, but the checked attention route matrix currently covers d8/d16/d32 attention rows plus d128 MLP-side surfaces.",
       "status": "OPEN_NEEDED"
     },
     {
@@ -380,7 +390,7 @@
       "status": "OPEN_NEEDED"
     }
   ],
-  "payload_commitment": "blake2b-256:938cf9284e0c55f3f3db712683351349cdae63bcaf80399edb373587182cac62",
+  "payload_commitment": "blake2b-256:96684dbdb5a2db5326b6ad4a6146968532e4c1c45f3b009a2a805ecfa60399e8",
   "result": "FOURTEEN_ATTENTION_ROUTE_ROWS_SCALE_RAW_PROOF_PRESSURE_AND_SEQ32_D128_BOUNDARY_SAVES_7672_TYPED_BYTES",
   "route_matrix_signal": {
     "d32_two_head_sequence_ladder": {
@@ -499,6 +509,12 @@
       "size_bytes": 37412
     },
     {
+      "id": "fuller_crossing_grid",
+      "path": "docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json",
+      "sha256": "cabd3e0294e293f56d2b542ded040c8bde20fe2bec1bc5280ba85968a7bc84c1",
+      "size_bytes": 41340
+    },
+    {
       "id": "native_seq32_d128_single_proof",
       "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.json",
       "sha256": "d4732af4966599264e34b893d9e24333cabd32e1c9caa45d8d8aac10b6fc98ab",
@@ -588,6 +604,7 @@
     "python3.10 -m unittest scripts.tests.test_zkai_proof_pressure_scaling_claim_pack_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_stwo_controlled_component_grid_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_fused_softmax_table_route_matrix_gate",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_fuller_crossing_grid_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_single_proof_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_stwo_statement_only_attempt_transcript_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_median_timing_gate",

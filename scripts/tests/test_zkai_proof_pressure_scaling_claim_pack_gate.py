@@ -49,6 +49,8 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         self.assertEqual(route_signal["matched_comparator_profiles"], 14)
         self.assertEqual(route_signal["widths"], [8, 16, 32])
         self.assertEqual(route_signal["raw_proof_savings_bytes_total"], 266325)
+        self.assertEqual(route_signal["min_fused_to_split_ratio"], 0.676723)
+        self.assertEqual(route_signal["max_fused_to_split_ratio"], 0.919259)
         self.assertEqual(route_signal["d32_two_head_sequence_ladder"]["seq32_raw_saving_bytes"], 26326)
         self.assertEqual(summary["proof_size_comparable_external_rows"], 0)
         self.assertEqual(summary["attention_route_rows_checked"], 14)
@@ -76,9 +78,12 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         self.assertEqual(route_signal["fused_raw_proof_bytes_total"], 1145173)
         self.assertEqual(route_signal["source_plus_sidecar_raw_proof_bytes_total"], 1411498)
         self.assertEqual(ladder["profile_ids"], ["d32_two_head_seq8", "d32_two_head_seq16", "d32_two_head_seq32"])
+        self.assertEqual(ladder["seq8_lookup_claims"], 104)
+        self.assertEqual(ladder["seq16_lookup_claims"], 336)
         self.assertEqual(ladder["seq32_lookup_claims"], 1184)
         self.assertEqual(ladder["seq32_fused_raw_proof_bytes"], 150147)
         self.assertEqual(ladder["seq32_source_plus_sidecar_raw_proof_bytes"], 176473)
+        self.assertEqual(ladder["seq32_fused_to_split_ratio"], 0.850821)
         self.assertEqual(ladder["seq8_to_seq32_lookup_claim_growth"], "11.384615")
         self.assertEqual(ladder["seq8_to_seq32_trace_row_growth"], "16.000000")
         self.assertEqual(ladder["seq8_to_seq32_fused_raw_proof_growth"], "1.193955")
@@ -159,8 +164,16 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         self.assert_rejects(payload, "route matrix profile count drift")
 
         payload = self.strip_mutation_summary(self.payload)
+        payload["route_matrix_signal"]["min_fused_to_split_ratio"] = 0.676724
+        self.assert_rejects(payload, "route matrix min ratio drift")
+
+        payload = self.strip_mutation_summary(self.payload)
         payload["route_matrix_signal"]["d32_two_head_sequence_ladder"]["seq32_raw_saving_bytes"] = 26325
         self.assert_rejects(payload, "d32 seq32 raw saving drift")
+
+        payload = self.strip_mutation_summary(self.payload)
+        payload["summary"]["d32_seq8_to_seq32_lookup_growth"] = "1.000000"
+        self.assert_rejects(payload, "summary d32 lookup growth drift")
 
         payload = self.strip_mutation_summary(self.payload)
         payload["fused_vs_split_rows"][0]["typed_saving_bytes"] = 0
