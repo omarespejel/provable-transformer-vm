@@ -53,10 +53,18 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
 
     def test_all_declared_mutations_reject(self):
         mutation = self.payload["mutation_result"]
+        self.assertEqual(len(gate.MUTATION_NAMES), 12)
         self.assertTrue(mutation["all_mutations_rejected"])
-        self.assertEqual(mutation["mutations_checked"], len(gate.MUTATION_NAMES))
-        self.assertEqual(mutation["mutations_rejected"], len(gate.MUTATION_NAMES))
+        self.assertEqual(mutation["mutations_checked"], 12)
+        self.assertEqual(mutation["mutations_rejected"], 12)
         self.assertEqual(mutation["mutation_names"], list(gate.MUTATION_NAMES))
+
+    def test_current_signal_rejects_non_go_match_status(self):
+        sources, _ = gate.load_sources()
+        route_matrix = copy.deepcopy(sources["route_matrix"])
+        route_matrix["route_rows"][0]["matched_source_sidecar_status"] = "NO_GO_PLACEHOLDER"
+        with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "current route row count drift"):
+            gate.build_current_signal(route_matrix, sources["fuller_grid"])
 
     def test_validate_rejects_wide_row_smuggling(self):
         payload = copy.deepcopy(self.payload)

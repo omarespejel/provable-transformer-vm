@@ -3051,13 +3051,15 @@ Proof-pressure wide-grid selector reproducibility metadata:
   claim pack SHA-256
   `369da58f91fd9575b81c4287d1b2cb8a8bdcc5e1af1a600c23c5d24e65c2cdc1`.
 - Payload commitment:
-  `blake2b-256:b32059fb3775098db13e793e2544da1eae018183e96da948e68a29c2fd45dc1e`.
-- Step counts: `12` Python mutation cases and `9` Python unit tests.
+  `blake2b-256:158fcaef3211e6ab4d9b7654dcd15fd915bf25636bd211187b64b96069cfbfc5`.
+- Step counts: `12` Python mutation cases and `10` Python unit tests.
 - Local validation commands:
+  `just gate-fast`;
   `python3.10 scripts/zkai_proof_pressure_wide_grid_selector_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.tsv`;
   `python3.10 -m py_compile scripts/zkai_proof_pressure_wide_grid_selector_gate.py scripts/tests/test_zkai_proof_pressure_wide_grid_selector_gate.py`;
   `python3.10 -m unittest scripts.tests.test_zkai_proof_pressure_wide_grid_selector_gate`;
-  `git diff --check`.
+  `git diff --check`;
+  `just gate`.
 
 1. Treat `rmsnorm_mlp_fused` as the current positive MLP-side fusion result:
    the native fused proof saves `32,144` local typed bytes (`56.4167%`) versus
