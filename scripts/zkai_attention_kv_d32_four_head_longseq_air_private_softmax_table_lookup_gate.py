@@ -86,9 +86,10 @@ LOOKUP_TABLE_MULTIPLICITIES = (
 )
 EXPECTED_LOOKUP_TABLE_MULTIPLICITIES = LOOKUP_TABLE_MULTIPLICITIES
 
-FIXED_D32_FOUR_HEAD_LOOKUP_CLAIMS = 336
-FIXED_D32_FOUR_HEAD_LOOKUP_PROOF_SIZE_BYTES = 27_075
-FIXED_D32_FOUR_HEAD_LOOKUP_ENVELOPE_SIZE_BYTES = 1_753_808
+# Baseline: checked d32 two-head seq16 LogUp sidecar row.
+FIXED_D32_TWO_HEAD_LOOKUP_CLAIMS = 336
+FIXED_D32_TWO_HEAD_LOOKUP_PROOF_SIZE_BYTES = 27_075
+FIXED_D32_TWO_HEAD_LOOKUP_ENVELOPE_SIZE_BYTES = 1_753_808
 CLAIM_COUNT_RATIO = "2.000000"
 PROOF_SIZE_RATIO = "1.117747"
 ENVELOPE_SIZE_RATIO = "1.893239"
@@ -469,9 +470,9 @@ def validate_lookup_envelope(envelope: Any, source_input: dict[str, Any], envelo
 
 def fixed_d32_two_head_comparison() -> dict[str, Any]:
     return {
-        "fixed_d32_two_head_lookup_claims": FIXED_D32_FOUR_HEAD_LOOKUP_CLAIMS,
-        "fixed_d32_two_head_lookup_proof_size_bytes": FIXED_D32_FOUR_HEAD_LOOKUP_PROOF_SIZE_BYTES,
-        "fixed_d32_two_head_lookup_envelope_size_bytes": FIXED_D32_FOUR_HEAD_LOOKUP_ENVELOPE_SIZE_BYTES,
+        "fixed_d32_two_head_lookup_claims": FIXED_D32_TWO_HEAD_LOOKUP_CLAIMS,
+        "fixed_d32_two_head_lookup_proof_size_bytes": FIXED_D32_TWO_HEAD_LOOKUP_PROOF_SIZE_BYTES,
+        "fixed_d32_two_head_lookup_envelope_size_bytes": FIXED_D32_TWO_HEAD_LOOKUP_ENVELOPE_SIZE_BYTES,
         "longseq_lookup_claims": SOURCE_SCORE_ROWS,
         "longseq_lookup_proof_size_bytes": LOOKUP_PROOF_SIZE_BYTES,
         "longseq_lookup_envelope_size_bytes": LOOKUP_ENVELOPE_SIZE_BYTES,
