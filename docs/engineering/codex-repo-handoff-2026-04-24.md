@@ -3057,11 +3057,13 @@ Proof-pressure wide-grid selector reproducibility metadata:
   `369da58f91fd9575b81c4287d1b2cb8a8bdcc5e1af1a600c23c5d24e65c2cdc1`.
 - Payload commitment:
   `blake2b-256:704956740739b33714dfc769c1480a9440bc87c1d4204dfb229424a57b9af212`.
-- Step counts: `13` Python mutation cases and `14` Python unit tests.
+- Step counts: `13` Python mutation cases and `15` Python unit tests.
 - Output-path hardening now rejects `..` traversal plus symlinked
   evidence-root ancestors, candidate parent components, and output components
   before resolving paths. This closes the PR `#723` review blocker around
   symlinked ancestor directories such as `docs/` or `docs/engineering/`.
+  Output parent directories must already exist; the writer no longer creates
+  parent directory chains.
 - Local validation commands:
   `python3.10 scripts/zkai_proof_pressure_wide_grid_selector_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.tsv`;
   `python3.10 -m py_compile scripts/zkai_proof_pressure_wide_grid_selector_gate.py scripts/tests/test_zkai_proof_pressure_wide_grid_selector_gate.py`;

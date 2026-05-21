@@ -547,7 +547,7 @@ def run_mutations(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def reject_symlink_components(path: pathlib.Path, label: str, *, include_leaf: bool) -> None:
+def reject_symlink_components(path: pathlib.Path, label: str, *, include_leaf: bool, require_exists: bool) -> None:
     """Reject symlinked components without resolving them away first."""
     if not path.is_absolute():
         path = ROOT / path
@@ -562,6 +562,10 @@ def reject_symlink_components(path: pathlib.Path, label: str, *, include_leaf: b
                 f"output path must not contain symlink components: {label}: {current}"
             )
         if not current.exists():
+            if require_exists:
+                raise ProofPressureWideGridSelectorError(
+                    f"output path parent directory must exist: {label}: {current}"
+                )
             break
 
 
@@ -569,12 +573,14 @@ def checked_output_path(path: pathlib.Path) -> pathlib.Path:
     if any(part == ".." for part in path.parts):
         raise ProofPressureWideGridSelectorError(f"output path must stay inside evidence dir: {path}")
     candidate = path if path.is_absolute() else ROOT / path
-    reject_symlink_components(EVIDENCE_DIR, "evidence root", include_leaf=True)
+    reject_symlink_components(EVIDENCE_DIR, "evidence root", include_leaf=True, require_exists=True)
     try:
         candidate.relative_to(EVIDENCE_DIR)
     except ValueError as err:
         raise ProofPressureWideGridSelectorError(f"output path must stay inside evidence dir: {candidate}") from err
-    reject_symlink_components(candidate.parent, "candidate parent", include_leaf=True)
+    reject_symlink_components(candidate.parent, "candidate parent", include_leaf=True, require_exists=True)
+    if not candidate.parent.is_dir():
+        raise ProofPressureWideGridSelectorError(f"output path parent directory must exist: {candidate.parent}")
     evidence_root = EVIDENCE_DIR.resolve(strict=True)
     try:
         candidate.resolve(strict=False).relative_to(evidence_root)
@@ -593,7 +599,6 @@ def checked_output_path(path: pathlib.Path) -> pathlib.Path:
 
 def write_json(path: pathlib.Path, payload: dict[str, Any]) -> None:
     path = checked_output_path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
     path = checked_output_path(path)
     validate_payload(payload)
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=path.parent, prefix=f".{path.name}.", suffix=".tmp", delete=False) as handle:
@@ -609,7 +614,6 @@ def write_json(path: pathlib.Path, payload: dict[str, Any]) -> None:
 
 def write_tsv(path: pathlib.Path, payload: dict[str, Any]) -> None:
     path = checked_output_path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
     path = checked_output_path(path)
     validate_payload(payload)
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", newline="", dir=path.parent, prefix=f".{path.name}.", suffix=".tmp", delete=False) as handle:

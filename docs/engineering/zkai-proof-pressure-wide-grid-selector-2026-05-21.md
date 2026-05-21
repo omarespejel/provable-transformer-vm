@@ -117,7 +117,9 @@ The gate rejects `13 / 13` mutations:
 
 Output writes are restricted to `docs/engineering/evidence`, reject `..`
 traversal, and reject symlinked evidence-root ancestors, candidate parent
-components, and output components before resolving paths.
+components, and output components before resolving paths. The writer also
+requires output parent directories to exist instead of creating directory
+chains during the write path.
 
 ## Non-Claims
 

@@ -121,6 +121,10 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "stay inside evidence dir"):
             gate.write_tsv(gate.pathlib.Path("docs/engineering/evidence/../wide-grid.tsv"), self.payload)
 
+    def test_write_outputs_reject_missing_parent_directory(self):
+        with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "parent directory must exist"):
+            gate.write_json(gate.EVIDENCE_DIR / ".tmp-wide-grid-selector-missing" / "wide-grid.json", self.payload)
+
     def test_write_outputs_reject_symlink_escape_inside_evidence_dir(self):
         with self.evidence_tempdir() as evidence_tmp, tempfile.TemporaryDirectory() as outside_tmp:
             link_path = gate.pathlib.Path(evidence_tmp) / "escape"
