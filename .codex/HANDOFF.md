@@ -20,41 +20,45 @@ before opening or executing frontier issues. The north star is STARK-native
 proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
 
-Latest proof-pressure route extension: issue `#715` now has a checked
-`d32_two_head_seq16` native Stwo fused Softmax-table row. The matched split
-frontier is `135,063` source proof bytes plus `27,075` LogUp sidecar bytes
-(`162,138` total). The fused proof is `132,543` bytes, saving `29,595` bytes
-(`0.817470x`) and landing `2,520` bytes below the source arithmetic proof
-alone. Against the earlier `d32_two_head_seq8` row, lookup claims grow
-`3.230769x` (`104` to `336`) and trace rows grow `4.000000x` (`128` to `512`),
-while fused proof bytes grow only `1.053970x` (`125,756` to `132,543`). The
-route matrix is now `13` matched rows, `4,116` lookup claims, `995,026` fused
-proof bytes versus `1,235,025` split proof bytes, and `239,999` aggregate saved
-bytes. The fuller grid is now `13 / 45` proved and `32 / 45` missing; the next
-low-risk rows are `d16_two_head_seq32` and `d32_two_head_seq32`. This is not
+Latest proof-pressure route extension: issue `#720` now has a checked
+`d32_two_head_seq32` native Stwo fused Softmax-table row. The matched split
+frontier is `145,497` source proof bytes plus `30,976` LogUp sidecar bytes
+(`176,473` total). The fused proof is `150,147` bytes, saving `26,326` bytes
+(`0.850821x`) against the matched split frontier. It is `4,650` bytes larger
+than the source arithmetic proof alone, so the honest claim is source-plus-sidecar
+fusion saving, not source-only compression. Against the earlier
+`d32_two_head_seq16` row, lookup claims grow `3.523810x` (`336` to `1,184`) and
+trace rows grow `4.000000x` (`512` to `2,048`), while fused proof bytes grow
+`1.132817x` (`132,543` to `150,147`) and split proof bytes grow `1.088412x`.
+Against `d32_two_head_seq8`, lookup claims grow `11.384615x` and trace rows
+grow `16.000000x`, while fused proof bytes grow `1.193955x`. The route matrix
+is now `14` matched rows, `5,300` lookup claims, `1,145,173` fused proof bytes
+versus `1,411,498` split proof bytes, and `266,325` aggregate saved bytes. The
+fuller grid is now `14 / 45` proved and `31 / 45` missing; the next low-risk
+row is `d16_two_head_seq32`, then a four-head all-axis crossing. This is not
 exact Softmax, not full inference, not a NANOZK comparison, and not timing
 evidence. See
-`docs/engineering/zkai-attention-kv-stwo-native-d32-two-head-longseq-fused-softmax-table-gate-2026-05-21.md`.
+`docs/engineering/zkai-attention-kv-stwo-native-d32-two-head-seq32-fused-softmax-table-gate-2026-05-21.md`.
 Reproducibility metadata: backend
-`stwo-attention-kv-d32-two-head-longseq-fused-bounded-softmax-table-logup-v1`,
+`stwo-attention-kv-d32-two-head-seq32-fused-bounded-softmax-table-logup-v1`,
 proof version
-`stwo-attention-kv-d32-two-head-longseq-fused-bounded-softmax-table-logup-proof-v1`,
+`stwo-attention-kv-d32-two-head-seq32-fused-bounded-softmax-table-logup-proof-v1`,
 statement version
-`zkai-attention-kv-stwo-native-d32-two-head-longseq-fused-softmax-table-logup-statement-v1`,
+`zkai-attention-kv-stwo-native-d32-two-head-seq32-fused-softmax-table-logup-statement-v1`,
 timing mode `proof_existence_and_byte_accounting_only_not_public_benchmark`,
-`336` lookup claims, and `512` trace rows. Evidence paths:
-`docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-longseq-bounded-softmax-table-proof-2026-05.json`,
-`docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-longseq-bounded-softmax-table-proof-2026-05.envelope.json`,
-`docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-longseq-softmax-table-logup-sidecar-proof-2026-05.envelope.json`,
-`docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-longseq-fused-softmax-table-proof-2026-05.envelope.json`,
-`docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-longseq-fused-softmax-table-gate-2026-05.json`,
+`1,184` lookup claims, and `2,048` trace rows. Evidence paths:
+`docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-seq32-bounded-softmax-table-proof-2026-05.json`,
+`docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-seq32-bounded-softmax-table-proof-2026-05.envelope.json`,
+`docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-seq32-softmax-table-logup-sidecar-proof-2026-05.envelope.json`,
+`docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-seq32-fused-softmax-table-proof-2026-05.envelope.json`,
+`docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-seq32-fused-softmax-table-gate-2026-05.json`,
 `docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json`,
 `docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.tsv`,
 `docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json`,
 and `docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.tsv`.
-Reproduce with `python3.10 -m unittest scripts.tests.test_zkai_attention_kv_stwo_native_d32_two_head_longseq_bounded_softmax_table_proof_input scripts.tests.test_zkai_attention_kv_d32_two_head_longseq_air_private_softmax_table_lookup_gate scripts.tests.test_zkai_attention_kv_d32_two_head_longseq_fused_softmax_table_native_gate`,
-`cargo +nightly-2025-07-14 test --locked attention_kv_native_d32_two_head_longseq --lib --features stwo-backend`,
-`cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d32_two_head_longseq_fused_softmax_table_proof -- verify docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-longseq-fused-softmax-table-proof-2026-05.envelope.json`,
+Reproduce with `python3.10 -m unittest scripts.tests.test_zkai_attention_kv_stwo_native_d32_two_head_seq32_bounded_softmax_table_proof_input scripts.tests.test_zkai_attention_kv_d32_two_head_seq32_air_private_softmax_table_lookup_gate scripts.tests.test_zkai_attention_kv_d32_two_head_seq32_fused_softmax_table_native_gate`,
+`cargo +nightly-2025-07-14 test --locked attention_kv_native_d32_two_head_seq32 --lib --features stwo-backend`,
+`cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d32_two_head_seq32_fused_softmax_table_proof -- verify docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-two-head-seq32-fused-softmax-table-proof-2026-05.envelope.json`,
 `python3.10 scripts/zkai_attention_kv_fused_softmax_table_route_matrix_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.tsv`,
 and `python3.10 scripts/zkai_attention_kv_fuller_crossing_grid_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.tsv`.
 
