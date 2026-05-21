@@ -25,6 +25,9 @@ class AttentionKvD32TwoHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestCa
         cls.fused_envelope = gate.read_bounded_json(gate.FUSED_ENVELOPE_JSON, gate.MAX_FUSED_ENVELOPE_JSON_BYTES, "fused envelope")
         cls.payload = gate.run_gate()
 
+    def evidence_tempdir(self, prefix=".tmp-d32-seq32-fused-test-"):
+        return tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=prefix)
+
     def test_gate_records_fused_go_and_byte_delta(self):
         payload = self.payload
         self.assertEqual(payload["decision"], gate.DECISION)
@@ -259,7 +262,7 @@ class AttentionKvD32TwoHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestCa
                 gate.expect_artifact_size(raw + b" ", expected_size, label)
 
     def test_write_json_and_tsv_round_trip(self):
-        with tempfile.TemporaryDirectory() as tmp_dir:
+        with self.evidence_tempdir() as tmp_dir:
             tmp_path = gate.pathlib.Path(tmp_dir)
             json_path = tmp_path / "gate.json"
             tsv_path = tmp_path / "gate.tsv"
@@ -272,7 +275,7 @@ class AttentionKvD32TwoHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestCa
     def test_write_json_rejects_metric_drift(self):
         payload = copy.deepcopy(self.payload)
         payload["fused_proof_size_bytes"] += 1
-        with tempfile.TemporaryDirectory() as tmp:
+        with self.evidence_tempdir() as tmp:
             with self.assertRaisesRegex(
                 gate.AttentionKvD32TwoHeadSeq32FusedSoftmaxTableGateError,
                 "result drift for fused_proof_size_bytes",
@@ -282,7 +285,7 @@ class AttentionKvD32TwoHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestCa
     def test_write_json_rejects_published_identity_drift(self):
         payload = copy.deepcopy(self.payload)
         payload["route_id"] = "different-route"
-        with tempfile.TemporaryDirectory() as tmp:
+        with self.evidence_tempdir() as tmp:
             with self.assertRaisesRegex(
                 gate.AttentionKvD32TwoHeadSeq32FusedSoftmaxTableGateError,
                 "result drift for route_id",
@@ -292,7 +295,7 @@ class AttentionKvD32TwoHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestCa
     def test_write_json_rejects_mutation_result_shape_drift(self):
         payload = copy.deepcopy(self.payload)
         payload["mutation_results"][0]["rejected"] = False
-        with tempfile.TemporaryDirectory() as tmp:
+        with self.evidence_tempdir() as tmp:
             with self.assertRaisesRegex(
                 gate.AttentionKvD32TwoHeadSeq32FusedSoftmaxTableGateError,
                 "mutation result rejection drift",
@@ -302,7 +305,7 @@ class AttentionKvD32TwoHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestCa
     def test_write_json_rejects_unknown_result_key(self):
         payload = copy.deepcopy(self.payload)
         payload["unexpected"] = "claim smuggling"
-        with tempfile.TemporaryDirectory() as tmp:
+        with self.evidence_tempdir() as tmp:
             with self.assertRaisesRegex(
                 gate.AttentionKvD32TwoHeadSeq32FusedSoftmaxTableGateError,
                 "unknown result keys",
@@ -326,7 +329,7 @@ class AttentionKvD32TwoHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestCa
             gate.validate_result(payload)
 
     def test_write_json_failure_preserves_existing_artifact(self):
-        with tempfile.TemporaryDirectory() as tmp:
+        with self.evidence_tempdir() as tmp:
             path = gate.pathlib.Path(tmp) / "gate.json"
             gate.write_json(path, self.payload)
             original = path.read_text(encoding="utf-8")
@@ -341,7 +344,7 @@ class AttentionKvD32TwoHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestCa
 
     @unittest.skipUnless(hasattr(gate.pathlib.Path, "symlink_to"), "symlink support required")
     def test_write_outputs_reject_leaf_symlink(self):
-        with tempfile.TemporaryDirectory() as tmp:
+        with self.evidence_tempdir(prefix=".tmp-d32-seq32-fused-leaf-symlink-") as tmp:
             tmp_path = gate.pathlib.Path(tmp)
             target = tmp_path / "target.json"
             link = tmp_path / "gate.json"
@@ -358,7 +361,7 @@ class AttentionKvD32TwoHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestCa
 
     @unittest.skipUnless(hasattr(gate.pathlib.Path, "symlink_to"), "symlink support required")
     def test_write_outputs_reject_parent_symlink(self):
-        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-d32-seq32-fused-symlink-") as tmp:
+        with self.evidence_tempdir(prefix=".tmp-d32-seq32-fused-symlink-") as tmp:
             tmp_path = gate.pathlib.Path(tmp)
             real_parent = tmp_path / "real-parent"
             real_parent.mkdir()
@@ -372,6 +375,21 @@ class AttentionKvD32TwoHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestCa
                 "symlink components",
             ):
                 gate.write_tsv(link_parent / "gate.tsv", self.payload)
+
+    def test_write_outputs_reject_absolute_outside_evidence_dir(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(
+                gate.AttentionKvD32TwoHeadSeq32FusedSoftmaxTableGateError,
+                "stay inside evidence dir",
+            ):
+                gate.write_json(gate.pathlib.Path(tmp) / "gate.json", self.payload)
+
+    def test_write_outputs_reject_relative_parent_traversal(self):
+        with self.assertRaisesRegex(
+            gate.AttentionKvD32TwoHeadSeq32FusedSoftmaxTableGateError,
+            "stay inside evidence dir",
+        ):
+            gate.write_tsv(gate.pathlib.Path("docs/engineering/evidence/../gate.tsv"), self.payload)
 
 
 if __name__ == "__main__":
