@@ -5,7 +5,7 @@ This gate does not generate new proofs. It turns the current checked artifacts
 into a harder-to-misread research claim pack:
 
 - attention lookup/table pressure scaling from the controlled component grid;
-- fused-vs-split savings across checked rows;
+- raw proof-byte fused-vs-split savings from the 14-row route matrix;
 - the current seq32+d128 native boundary and statement-only frontier;
 - binary/local typed accounting status;
 - external baseline status without pretending non-matched rows are comparable.
@@ -34,7 +34,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts import zkai_attention_kv_stwo_controlled_component_grid_gate as controlled_grid
-from scripts import zkai_attention_kv_fuller_crossing_grid_gate as fuller_grid
+from scripts import zkai_attention_kv_fused_softmax_table_route_matrix_gate as route_matrix
 from scripts import zkai_claim_audit_comparison_artifacts_gate as claim_audit
 from scripts import zkai_d64_external_adapter_surface_probe as d64_external
 from scripts import zkai_jolt_atlas_lookup_tensor_comparison_gate as jolt_comparison
@@ -47,7 +47,7 @@ JSON_OUT = EVIDENCE_DIR / "zkai-proof-pressure-scaling-claim-pack-2026-05.json"
 TSV_OUT = EVIDENCE_DIR / "zkai-proof-pressure-scaling-claim-pack-2026-05.tsv"
 
 CONTROLLED_GRID_PATH = EVIDENCE_DIR / "zkai-attention-kv-stwo-controlled-component-grid-2026-05.json"
-FULLER_CROSSING_GRID_PATH = EVIDENCE_DIR / "zkai-attention-kv-fuller-crossing-grid-2026-05.json"
+ROUTE_MATRIX_PATH = EVIDENCE_DIR / "zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json"
 NATIVE_SINGLE_PATH = EVIDENCE_DIR / "zkai-native-seq32-attention-mlp-single-proof-2026-05.json"
 STATEMENT_ONLY_PATH = EVIDENCE_DIR / "zkai-stwo-statement-only-attempt-transcript-gate-2026-05.json"
 NATIVE_SINGLE_ACCOUNTING_PATH = (
@@ -69,7 +69,7 @@ MEDIAN_TIMING_PATH = EVIDENCE_DIR / "zkai-native-seq32-attention-mlp-median-timi
 SCHEMA = "zkai-proof-pressure-scaling-claim-pack-v1"
 ISSUE = "https://github.com/omarespejel/provable-transformer-vm/issues/715"
 DECISION = "GO_BOUNDED_SCALE_SIGNAL_SYNTHESIS_KEEP_ISSUE_OPEN_FOR_FULL_GRID"
-RESULT = "TEN_TYPED_ATTENTION_ROWS_AND_TWELVE_ROUTE_ROWS_SCALE_PROOF_PRESSURE_WITH_SEQ32_D128_SAVING_7672"
+RESULT = "FOURTEEN_ATTENTION_ROUTE_ROWS_SCALE_RAW_PROOF_PRESSURE_AND_SEQ32_D128_BOUNDARY_SAVES_7672_TYPED_BYTES"
 PAYLOAD_DOMAIN = "ptvm:zkai:proof-pressure-scaling-claim-pack:v1"
 CLAIM_BOUNDARY = (
     "BOUNDED_SCALE_SYNTHESIS_FOR_STARK_NATIVE_TRANSFORMER_PROOF_PRESSURE;"
@@ -81,9 +81,8 @@ VALIDATION_COMMANDS = (
     "python3.10 scripts/zkai_proof_pressure_scaling_claim_pack_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-scaling-claim-pack-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-scaling-claim-pack-2026-05.tsv",
     "python3.10 -m py_compile scripts/zkai_proof_pressure_scaling_claim_pack_gate.py scripts/tests/test_zkai_proof_pressure_scaling_claim_pack_gate.py",
     "python3.10 -m unittest scripts.tests.test_zkai_proof_pressure_scaling_claim_pack_gate",
-    "python3.10 scripts/zkai_attention_kv_fuller_crossing_grid_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.tsv",
-    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_fuller_crossing_grid_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_stwo_controlled_component_grid_gate",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_fused_softmax_table_route_matrix_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_single_proof_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_stwo_statement_only_attempt_transcript_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_median_timing_gate",
@@ -109,7 +108,7 @@ OPEN_FOLLOWUPS = (
     {
         "id": "d64_d128_d256_grid",
         "status": "OPEN_NEEDED",
-        "reason": "Issue #715 asked for d64/d128/d256 where feasible, but the checked attention route grid currently covers d8/d16/d32 plus d64/d128 MLP-side surfaces.",
+        "reason": "Issue #715 asked for d64/d128/d256 where feasible, but the checked attention grid currently covers d8/d16 width plus d128 MLP-side surfaces.",
         "go_gate": "add source-backed d64/d128/d256 or explicit no-go rows without changing the claim boundary",
     },
     {
@@ -139,11 +138,8 @@ FORBIDDEN_CLAIM_PATTERNS = (
 MUTATION_NAMES = (
     "lookup_growth_drift",
     "typed_growth_drift",
-    "fuller_grid_coverage_drift",
-    "fuller_grid_d32_metric_drift",
-    "fuller_grid_d32_raw_status_overclaim",
-    "fuller_grid_d32_ratio_overclaim",
-    "explicit_no_go_grid_row_promoted",
+    "route_matrix_profile_count_drift",
+    "d32_seq32_raw_saving_drift",
     "attention_grid_row_loses_saving",
     "native_single_saving_drift",
     "statement_only_saving_drift",
@@ -175,43 +171,11 @@ TSV_COLUMNS = (
 )
 
 ATTENTION_BINARY_RAW_STATUS = "NOT_AVAILABLE_IN_CONTROLLED_COMPONENT_GRID_ROW"
-FULLER_ROUTE_FUSED_BINARY_RAW_STATUS = "NOT_AVAILABLE_IN_FULLER_CROSSING_GRID_ROUTE_ROW"
-FULLER_ROUTE_MIXED_RATIO_STATUS = "NO_GO_MIXED_JSON_VS_RAW_BYTE_DOMAINS"
 LOCAL_RECORD_STREAM_STATUS = "LOCAL_RECORD_STREAM_ACCOUNTING_NOT_UPSTREAM_STWO_SERIALIZATION"
-
-EXPLICIT_NO_GO_GRID_ROWS = (
-    {
-        "profile_id": "d64_attention_grid_no_go",
-        "status": "NO_GO_NOT_SOURCE_BACKED_NATIVE_FUSED_ATTENTION_ROW",
-        "width": 64,
-        "head_counts": [1, 2],
-        "sequence_lengths": [16, 32],
-        "proof_size_comparable": False,
-        "reason": "No checked source-backed native fused attention proof row exists for d64 in the current artifact set.",
-    },
-    {
-        "profile_id": "d128_attention_grid_no_go",
-        "status": "NO_GO_NOT_SOURCE_BACKED_NATIVE_FUSED_ATTENTION_ROW",
-        "width": 128,
-        "head_counts": [1, 2],
-        "sequence_lengths": [16, 32],
-        "proof_size_comparable": False,
-        "reason": "Current d128 evidence is MLP/boundary-side; no matched source-backed native fused attention proof row exists.",
-    },
-    {
-        "profile_id": "d256_attention_grid_no_go",
-        "status": "NO_GO_NOT_SOURCE_BACKED_NATIVE_FUSED_ATTENTION_ROW",
-        "width": 256,
-        "head_counts": [1, 2],
-        "sequence_lengths": [16, 32],
-        "proof_size_comparable": False,
-        "reason": "No checked source-backed native fused attention proof row exists for d256 in the current artifact set.",
-    },
-)
 
 EXPECTED_SOURCE_ARTIFACT_IDS = (
     "controlled_component_grid",
-    "fuller_crossing_grid",
+    "attention_route_matrix",
     "native_seq32_d128_single_proof",
     "statement_only_attempt_transcript",
     "native_single_binary_accounting",
@@ -403,8 +367,8 @@ def load_checked_payloads() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     controlled_grid.validate_payload(controlled_payload)
     sources[source["id"]] = source
 
-    fuller_payload, source = read_json_source(FULLER_CROSSING_GRID_PATH, "fuller_crossing_grid")
-    fuller_grid.validate_result(fuller_payload)
+    route_payload, source = read_json_source(ROUTE_MATRIX_PATH, "attention_route_matrix")
+    route_matrix.validate_result(route_payload)
     sources[source["id"]] = source
 
     native_payload, source = read_json_source(NATIVE_SINGLE_PATH, "native_seq32_d128_single_proof")
@@ -453,7 +417,7 @@ def load_checked_payloads() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
 
     payloads = {
         "controlled": controlled_payload,
-        "fuller": fuller_payload,
+        "route_matrix": route_payload,
         "native": native_payload,
         "statement": statement_payload,
         "native_accounting": native_accounting,
@@ -512,7 +476,7 @@ def _row_by_id(rows: Iterable[dict[str, Any]], profile_id: str) -> dict[str, Any
     raise ProofPressureScalingClaimPackError(f"missing profile row: {profile_id}")
 
 
-def build_scale_signal(controlled_payload: dict[str, Any], fuller_payload: dict[str, Any]) -> dict[str, Any]:
+def build_scale_signal(controlled_payload: dict[str, Any]) -> dict[str, Any]:
     rows = require_list(controlled_payload.get("grid_rows"), "controlled grid rows")
     typed_rows = [require_dict(row, f"grid_rows[{index}]") for index, row in enumerate(rows)]
     baseline = _row_by_id(typed_rows, "d8_single_head_seq8")
@@ -533,11 +497,6 @@ def build_scale_signal(controlled_payload: dict[str, Any], fuller_payload: dict[
         raise ProofPressureScalingClaimPackError("controlled grid contains non-positive fused saving")
 
     aggregate = require_dict(controlled_payload.get("aggregate"), "controlled aggregate")
-    fuller_summary = require_dict(fuller_payload.get("summary"), "fuller grid summary")
-    fuller_rows = [require_dict(row, "fuller grid row") for row in require_list(fuller_payload.get("grid_rows"), "fuller grid rows")]
-    d32_single_head = next((row for row in fuller_rows if row.get("cell_id") == "d32_h1_seq8"), None)
-    if d32_single_head is None:
-        raise ProofPressureScalingClaimPackError("fuller grid d32 single-head row missing")
     return {
         "status": "GO_SCALE_SIGNAL_FROM_CHECKED_D8_D16_ATTENTION_GRID",
         "profiles_checked": int_field(aggregate.get("profiles_checked"), "profiles checked"),
@@ -555,7 +514,6 @@ def build_scale_signal(controlled_payload: dict[str, Any], fuller_payload: dict[
             "seq64 attention row is not present in this checked grid",
             "full factorial width/head/sequence crossing is not present",
         ],
-        "explicit_no_go_grid_rows": copy.deepcopy(list(EXPLICIT_NO_GO_GRID_ROWS)),
         "all_checked_attention_rows_save_typed_bytes": all_rows_save,
         "typed_savings_bytes_total": int_field(
             aggregate.get("typed_savings_bytes_total"), "aggregate typed savings"
@@ -588,39 +546,82 @@ def build_scale_signal(controlled_payload: dict[str, Any], fuller_payload: dict[
             "typed_saving_bytes": int_field(d16_two_head_seq16.get("typed_savings_bytes"), "d16 seq16 saving"),
             "typed_saving_share": d16_two_head_seq16.get("typed_saving_share"),
         },
-        "fuller_crossing_grid": {
-            "status": "GO_45_CELL_D8_D16_D32_ROUTE_GRID_WITH_12_PROVED_CELLS",
-            "grid_cell_count": int_field(fuller_summary.get("grid_cell_count"), "fuller grid cells"),
-            "proved_cell_count": int_field(fuller_summary.get("proved_cell_count"), "fuller proved cells"),
-            "missing_cell_count": int_field(fuller_summary.get("missing_cell_count"), "fuller missing cells"),
-            "coverage_share": fuller_summary.get("coverage_share"),
-            "proved_crossing_cell_count": int_field(
-                fuller_summary.get("proved_crossing_cell_count"), "fuller proved crossing cells"
+    }
+
+
+def build_route_matrix_signal(route_payload: dict[str, Any]) -> dict[str, Any]:
+    rows = [require_dict(row, "route matrix row") for row in require_list(route_payload.get("route_rows"), "route rows")]
+    d32_seq8 = _row_by_id(rows, "d32_two_head_seq8")
+    d32_seq16 = _row_by_id(rows, "d32_two_head_seq16")
+    d32_seq32 = _row_by_id(rows, "d32_two_head_seq32")
+    aggregate = require_dict(route_payload.get("aggregate_metrics"), "route matrix aggregate")
+    axis_summary = require_dict(route_payload.get("axis_summary"), "route matrix axis summary")
+    d32_sequence = require_dict(
+        axis_summary.get("combined_width_head_sequence_axis_seq32_extension"),
+        "d32 route matrix sequence summary",
+    )
+
+    return {
+        "status": "GO_14_ROW_RAW_PROOF_ROUTE_MATRIX_WITH_D32_SEQ32_EXTENSION",
+        "profiles_checked": int_field(route_payload.get("profiles_checked"), "route profiles checked"),
+        "matched_comparator_profiles": int_field(
+            route_payload.get("matched_comparator_profiles"), "route matched profiles"
+        ),
+        "widths": sorted({int_field(row.get("key_width"), "route width") for row in rows}),
+        "head_counts": sorted({int_field(row.get("head_count"), "route head count") for row in rows}),
+        "steps_per_head": sorted({int_field(row.get("steps_per_head"), "route steps") for row in rows}),
+        "total_lookup_claims": int_field(aggregate.get("total_lookup_claims"), "route total lookups"),
+        "total_trace_rows": int_field(aggregate.get("total_trace_rows"), "route total trace rows"),
+        "fused_raw_proof_bytes_total": int_field(
+            aggregate.get("matched_fused_proof_size_bytes_total"), "route fused total"
+        ),
+        "source_plus_sidecar_raw_proof_bytes_total": int_field(
+            aggregate.get("matched_source_plus_sidecar_raw_proof_bytes_total"), "route split total"
+        ),
+        "raw_proof_savings_bytes_total": int_field(
+            aggregate.get("matched_fused_savings_bytes_total"), "route saving total"
+        ),
+        "min_fused_to_split_ratio": aggregate.get("min_matched_fused_to_source_plus_sidecar_ratio"),
+        "max_fused_to_split_ratio": aggregate.get("max_matched_fused_to_source_plus_sidecar_ratio"),
+        "d32_two_head_sequence_ladder": {
+            "profile_ids": list(d32_sequence.get("profile_ids", [])),
+            "seq8_lookup_claims": int_field(d32_seq8.get("lookup_claims"), "d32 seq8 lookups"),
+            "seq16_lookup_claims": int_field(d32_seq16.get("lookup_claims"), "d32 seq16 lookups"),
+            "seq32_lookup_claims": int_field(d32_seq32.get("lookup_claims"), "d32 seq32 lookups"),
+            "seq32_fused_raw_proof_bytes": int_field(
+                d32_seq32.get("fused_proof_size_bytes"), "d32 seq32 fused raw proof bytes"
             ),
-            "proved_all_axis_cell_count": int_field(
-                fuller_summary.get("proved_all_axis_cell_count"), "fuller proved all-axis cells"
+            "seq32_source_plus_sidecar_raw_proof_bytes": int_field(
+                d32_seq32.get("source_plus_sidecar_raw_proof_bytes"), "d32 seq32 split raw proof bytes"
             ),
-            "highest_proved_width": max(
-                int(key) for key in require_dict(fuller_summary.get("proved_counts_by_width"), "fuller width counts")
+            "seq32_raw_saving_bytes": int_field(
+                d32_seq32.get("fused_saves_vs_source_plus_sidecar_bytes"), "d32 seq32 raw saving"
             ),
-            "next_low_risk_profile_ids": [
-                string_field(row.get("profile_id"), "next low-risk profile")
-                for row in require_list(fuller_payload.get("next_low_risk_profiles"), "fuller next profiles")
-            ],
-            "d32_single_head_seq8": {
-                "profile_id": string_field(d32_single_head.get("profile_id"), "d32 profile id"),
-                "lookup_claims": int_field(d32_single_head.get("lookup_claims"), "d32 lookup claims"),
-                "fused_json_proof_size_bytes": int_field(
-                    d32_single_head.get("fused_proof_size_bytes"), "d32 fused proof bytes"
-                ),
-                "fused_binary_raw_proof_bytes": None,
-                "fused_binary_raw_status": FULLER_ROUTE_FUSED_BINARY_RAW_STATUS,
-                "source_plus_sidecar_raw_proof_bytes": int_field(
-                    d32_single_head.get("source_plus_sidecar_raw_proof_bytes"), "d32 source plus sidecar bytes"
-                ),
-                "fused_to_source_plus_sidecar_ratio": None,
-                "fused_to_source_plus_sidecar_ratio_status": FULLER_ROUTE_MIXED_RATIO_STATUS,
-            },
+            "seq32_fused_to_split_ratio": d32_seq32.get("fused_to_source_plus_sidecar_ratio"),
+            "seq8_to_seq32_lookup_claim_growth": ratio_string(
+                int_field(d32_seq32.get("lookup_claims"), "d32 seq32 lookups"),
+                int_field(d32_seq8.get("lookup_claims"), "d32 seq8 lookups"),
+            ),
+            "seq8_to_seq32_trace_row_growth": ratio_string(
+                int_field(d32_seq32.get("trace_rows"), "d32 seq32 trace rows"),
+                int_field(d32_seq8.get("trace_rows"), "d32 seq8 trace rows"),
+            ),
+            "seq8_to_seq32_fused_raw_proof_growth": ratio_string(
+                int_field(d32_seq32.get("fused_proof_size_bytes"), "d32 seq32 fused raw proof bytes"),
+                int_field(d32_seq8.get("fused_proof_size_bytes"), "d32 seq8 fused raw proof bytes"),
+            ),
+            "seq16_to_seq32_lookup_claim_growth": ratio_string(
+                int_field(d32_seq32.get("lookup_claims"), "d32 seq32 lookups"),
+                int_field(d32_seq16.get("lookup_claims"), "d32 seq16 lookups"),
+            ),
+            "seq16_to_seq32_trace_row_growth": ratio_string(
+                int_field(d32_seq32.get("trace_rows"), "d32 seq32 trace rows"),
+                int_field(d32_seq16.get("trace_rows"), "d32 seq16 trace rows"),
+            ),
+            "seq16_to_seq32_fused_raw_proof_growth": ratio_string(
+                int_field(d32_seq32.get("fused_proof_size_bytes"), "d32 seq32 fused raw proof bytes"),
+                int_field(d32_seq16.get("fused_proof_size_bytes"), "d32 seq16 fused raw proof bytes"),
+            ),
         },
     }
 
@@ -818,7 +819,9 @@ def build_external_baseline_status(payloads: dict[str, Any]) -> list[dict[str, A
     ]
 
 
-def build_summary(rows: list[dict[str, Any]], scale_signal: dict[str, Any]) -> dict[str, Any]:
+def build_summary(
+    rows: list[dict[str, Any]], scale_signal: dict[str, Any], route_signal: dict[str, Any]
+) -> dict[str, Any]:
     attention_rows = [row for row in rows if row["category"] == "attention_fused_vs_split"]
     positive_attention_rows = [row for row in attention_rows if int_field(row["typed_saving_bytes"], "row saving") > 0]
     boundary_rows = [row for row in rows if row["category"] != "attention_fused_vs_split"]
@@ -829,24 +832,28 @@ def build_summary(rows: list[dict[str, Any]], scale_signal: dict[str, Any]) -> d
         "attention_typed_savings_bytes_total": int_field(
             scale_signal.get("typed_savings_bytes_total"), "total typed savings"
         ),
+        "attention_route_rows_checked": int_field(route_signal.get("profiles_checked"), "route rows checked"),
+        "attention_raw_proof_savings_bytes_total": int_field(
+            route_signal.get("raw_proof_savings_bytes_total"), "route raw saving total"
+        ),
+        "d32_seq32_raw_saving_bytes": int_field(
+            require_dict(route_signal.get("d32_two_head_sequence_ladder"), "d32 ladder").get(
+                "seq32_raw_saving_bytes"
+            ),
+            "d32 seq32 raw saving",
+        ),
         "seq32_lookup_growth_vs_d8_single_head": require_dict(
             scale_signal.get("seq32_vs_d8_single_head"), "seq32 signal"
         )["lookup_claim_growth"],
+        "d32_seq8_to_seq32_lookup_growth": require_dict(
+            route_signal.get("d32_two_head_sequence_ladder"), "d32 route signal"
+        )["seq8_to_seq32_lookup_claim_growth"],
+        "d32_seq8_to_seq32_fused_raw_proof_growth": require_dict(
+            route_signal.get("d32_two_head_sequence_ladder"), "d32 route signal"
+        )["seq8_to_seq32_fused_raw_proof_growth"],
         "seq32_attention_typed_growth_vs_d8_single_head": require_dict(
             scale_signal.get("seq32_vs_d8_single_head"), "seq32 signal"
         )["typed_byte_growth"],
-        "fuller_grid_cell_count": require_dict(scale_signal.get("fuller_crossing_grid"), "fuller grid")[
-            "grid_cell_count"
-        ],
-        "fuller_grid_proved_cell_count": require_dict(scale_signal.get("fuller_crossing_grid"), "fuller grid")[
-            "proved_cell_count"
-        ],
-        "fuller_grid_missing_cell_count": require_dict(scale_signal.get("fuller_crossing_grid"), "fuller grid")[
-            "missing_cell_count"
-        ],
-        "explicit_no_go_grid_row_count": len(
-            require_list(scale_signal.get("explicit_no_go_grid_rows"), "explicit no-go grid rows")
-        ),
         "current_best_inner_policy_bound_row": best_boundary["row_id"],
         "current_best_inner_policy_bound_typed_bytes": best_boundary["typed_bytes"],
         "current_best_saving_vs_47188_frontier_bytes": best_boundary["typed_saving_bytes"],
@@ -872,6 +879,7 @@ def assert_no_forbidden_positive_claims(payload: dict[str, Any]) -> None:
         "result": payload.get("result"),
         "claim_boundary": payload.get("claim_boundary"),
         "scale_signal": payload.get("scale_signal"),
+        "route_matrix_signal": payload.get("route_matrix_signal"),
         "summary": payload.get("summary"),
         "external_baseline_status": payload.get("external_baseline_status"),
     }
@@ -884,7 +892,8 @@ def assert_no_forbidden_positive_claims(payload: dict[str, Any]) -> None:
 
 def build_payload(*, include_mutations: bool = True) -> dict[str, Any]:
     payloads, sources = load_checked_payloads()
-    scale_signal = build_scale_signal(payloads["controlled"], payloads["fuller"])
+    scale_signal = build_scale_signal(payloads["controlled"])
+    route_signal = build_route_matrix_signal(payloads["route_matrix"])
     rows = build_attention_rows(payloads["controlled"])
     rows.extend(
         build_boundary_rows(
@@ -901,10 +910,11 @@ def build_payload(*, include_mutations: bool = True) -> dict[str, Any]:
         "result": RESULT,
         "claim_boundary": CLAIM_BOUNDARY,
         "scale_signal": scale_signal,
+        "route_matrix_signal": route_signal,
         "fused_vs_split_rows": rows,
         "accounting_status": build_accounting_status(payloads),
         "external_baseline_status": build_external_baseline_status(payloads),
-        "summary": build_summary(rows, scale_signal),
+        "summary": build_summary(rows, scale_signal, route_signal),
         "open_followups": list(OPEN_FOLLOWUPS),
         "non_claims": list(NON_CLAIMS),
         "validation_commands": list(VALIDATION_COMMANDS),
@@ -932,24 +942,11 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
     def mutate_typed_growth(item: dict[str, Any]) -> None:
         item["scale_signal"]["seq32_vs_d8_single_head"]["typed_byte_growth"] = "22.769231"
 
-    def mutate_fuller_grid_coverage(item: dict[str, Any]) -> None:
-        item["scale_signal"]["fuller_crossing_grid"]["proved_cell_count"] = 45
+    def mutate_route_profile_count(item: dict[str, Any]) -> None:
+        item["route_matrix_signal"]["profiles_checked"] = 13
 
-    def mutate_fuller_grid_d32_metric(item: dict[str, Any]) -> None:
-        item["scale_signal"]["fuller_crossing_grid"]["d32_single_head_seq8"]["fused_json_proof_size_bytes"] = 1
-
-    def mutate_fuller_grid_d32_raw_status(item: dict[str, Any]) -> None:
-        item["scale_signal"]["fuller_crossing_grid"]["d32_single_head_seq8"][
-            "fused_binary_raw_status"
-        ] = "STABLE_UPSTREAM_STWO_BINARY_SERIALIZATION"
-
-    def mutate_fuller_grid_d32_ratio(item: dict[str, Any]) -> None:
-        item["scale_signal"]["fuller_crossing_grid"]["d32_single_head_seq8"][
-            "fused_to_source_plus_sidecar_ratio"
-        ] = 0.919259
-
-    def mutate_explicit_no_go_grid_row(item: dict[str, Any]) -> None:
-        item["scale_signal"]["explicit_no_go_grid_rows"][1]["status"] = "GO_SOURCE_BACKED_NATIVE_FUSED_ATTENTION_ROW"
+    def mutate_d32_seq32_raw_saving(item: dict[str, Any]) -> None:
+        item["route_matrix_signal"]["d32_two_head_sequence_ladder"]["seq32_raw_saving_bytes"] = 26_325
 
     def mutate_attention_saving(item: dict[str, Any]) -> None:
         row = next(row for row in item["fused_vs_split_rows"] if row["row_id"] == "d8_two_head_seq32")
@@ -995,11 +992,8 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
     mutations: tuple[tuple[str, Callable[[dict[str, Any]], None]], ...] = (
         ("lookup_growth_drift", mutate_lookup_growth),
         ("typed_growth_drift", mutate_typed_growth),
-        ("fuller_grid_coverage_drift", mutate_fuller_grid_coverage),
-        ("fuller_grid_d32_metric_drift", mutate_fuller_grid_d32_metric),
-        ("fuller_grid_d32_raw_status_overclaim", mutate_fuller_grid_d32_raw_status),
-        ("fuller_grid_d32_ratio_overclaim", mutate_fuller_grid_d32_ratio),
-        ("explicit_no_go_grid_row_promoted", mutate_explicit_no_go_grid_row),
+        ("route_matrix_profile_count_drift", mutate_route_profile_count),
+        ("d32_seq32_raw_saving_drift", mutate_d32_seq32_raw_saving),
         ("attention_grid_row_loses_saving", mutate_attention_saving),
         ("native_single_saving_drift", mutate_native_saving),
         ("statement_only_saving_drift", mutate_statement_saving),
@@ -1120,9 +1114,6 @@ def validate_scale_signal(payload: dict[str, Any]) -> None:
     missing = require_list(signal.get("missing_axes"), "missing axes")
     if not any("d64/d128/d256" in str(item) for item in missing):
         raise ProofPressureScalingClaimPackError("missing d64/d128/d256 guardrail")
-    explicit_no_go_rows = require_list(signal.get("explicit_no_go_grid_rows"), "explicit no-go grid rows")
-    if explicit_no_go_rows != list(EXPLICIT_NO_GO_GRID_ROWS):
-        raise ProofPressureScalingClaimPackError("explicit no-go grid row drift")
     seq32 = require_dict(signal.get("seq32_vs_d8_single_head"), "seq32 signal")
     if seq32.get("lookup_claim_growth") != "22.769231":
         raise ProofPressureScalingClaimPackError("lookup growth drift")
@@ -1132,37 +1123,51 @@ def validate_scale_signal(payload: dict[str, Any]) -> None:
         raise ProofPressureScalingClaimPackError("baseline bytes per lookup drift")
     if seq32.get("seq32_typed_bytes_per_lookup_claim") != "19.354730":
         raise ProofPressureScalingClaimPackError("seq32 bytes per lookup drift")
-    fuller = require_dict(signal.get("fuller_crossing_grid"), "fuller crossing grid")
-    if fuller.get("status") != "GO_45_CELL_D8_D16_D32_ROUTE_GRID_WITH_12_PROVED_CELLS":
-        raise ProofPressureScalingClaimPackError("fuller grid status drift")
-    if fuller.get("grid_cell_count") != 45 or fuller.get("proved_cell_count") != 12:
-        raise ProofPressureScalingClaimPackError("fuller grid coverage drift")
-    if fuller.get("missing_cell_count") != 33 or fuller.get("coverage_share") != 0.266667:
-        raise ProofPressureScalingClaimPackError("fuller grid missing coverage drift")
-    if fuller.get("proved_crossing_cell_count") != 5 or fuller.get("proved_all_axis_cell_count") != 1:
-        raise ProofPressureScalingClaimPackError("fuller grid crossing count drift")
-    if fuller.get("highest_proved_width") != 32:
-        raise ProofPressureScalingClaimPackError("fuller grid width drift")
-    if fuller.get("next_low_risk_profile_ids") != [
-        "d16_two_head_seq32",
-        "d32_two_head_seq16",
-    ]:
-        raise ProofPressureScalingClaimPackError("fuller next profile drift")
-    d32 = require_dict(fuller.get("d32_single_head_seq8"), "d32 single-head row")
-    if d32.get("profile_id") != "d32_single_head_seq8":
-        raise ProofPressureScalingClaimPackError("d32 profile drift")
-    if d32.get("lookup_claims") != 52 or d32.get("fused_json_proof_size_bytes") != 107_261:
-        raise ProofPressureScalingClaimPackError("d32 metric drift")
-    if d32.get("fused_binary_raw_proof_bytes") is not None:
-        raise ProofPressureScalingClaimPackError("d32 fused raw byte overclaim")
-    if d32.get("fused_binary_raw_status") != FULLER_ROUTE_FUSED_BINARY_RAW_STATUS:
-        raise ProofPressureScalingClaimPackError("d32 fused raw status drift")
-    if d32.get("source_plus_sidecar_raw_proof_bytes") != 116_682:
-        raise ProofPressureScalingClaimPackError("d32 comparator metric drift")
-    if d32.get("fused_to_source_plus_sidecar_ratio") is not None:
-        raise ProofPressureScalingClaimPackError("d32 ratio overclaim")
-    if d32.get("fused_to_source_plus_sidecar_ratio_status") != FULLER_ROUTE_MIXED_RATIO_STATUS:
-        raise ProofPressureScalingClaimPackError("d32 ratio status drift")
+
+
+def validate_route_matrix_signal(payload: dict[str, Any]) -> None:
+    signal = require_dict(payload.get("route_matrix_signal"), "route matrix signal")
+    if signal.get("status") != "GO_14_ROW_RAW_PROOF_ROUTE_MATRIX_WITH_D32_SEQ32_EXTENSION":
+        raise ProofPressureScalingClaimPackError("route matrix status drift")
+    if signal.get("profiles_checked") != 14 or signal.get("matched_comparator_profiles") != 14:
+        raise ProofPressureScalingClaimPackError("route matrix profile count drift")
+    if signal.get("widths") != [8, 16, 32]:
+        raise ProofPressureScalingClaimPackError("route matrix width coverage drift")
+    if signal.get("head_counts") != [1, 2, 4, 8, 16]:
+        raise ProofPressureScalingClaimPackError("route matrix head coverage drift")
+    if signal.get("steps_per_head") != [8, 16, 32]:
+        raise ProofPressureScalingClaimPackError("route matrix sequence coverage drift")
+    if signal.get("total_lookup_claims") != 5_300 or signal.get("total_trace_rows") != 8_000:
+        raise ProofPressureScalingClaimPackError("route matrix work total drift")
+    if signal.get("fused_raw_proof_bytes_total") != 1_145_173:
+        raise ProofPressureScalingClaimPackError("route matrix fused total drift")
+    if signal.get("source_plus_sidecar_raw_proof_bytes_total") != 1_411_498:
+        raise ProofPressureScalingClaimPackError("route matrix split total drift")
+    if signal.get("raw_proof_savings_bytes_total") != 266_325:
+        raise ProofPressureScalingClaimPackError("route matrix raw saving total drift")
+    ladder = require_dict(signal.get("d32_two_head_sequence_ladder"), "d32 route ladder")
+    if ladder.get("profile_ids") != ["d32_two_head_seq8", "d32_two_head_seq16", "d32_two_head_seq32"]:
+        raise ProofPressureScalingClaimPackError("d32 route ladder profile drift")
+    if ladder.get("seq32_lookup_claims") != 1_184:
+        raise ProofPressureScalingClaimPackError("d32 seq32 lookup drift")
+    if ladder.get("seq32_fused_raw_proof_bytes") != 150_147:
+        raise ProofPressureScalingClaimPackError("d32 seq32 fused raw proof drift")
+    if ladder.get("seq32_source_plus_sidecar_raw_proof_bytes") != 176_473:
+        raise ProofPressureScalingClaimPackError("d32 seq32 split raw proof drift")
+    if ladder.get("seq32_raw_saving_bytes") != 26_326:
+        raise ProofPressureScalingClaimPackError("d32 seq32 raw saving drift")
+    if ladder.get("seq8_to_seq32_lookup_claim_growth") != "11.384615":
+        raise ProofPressureScalingClaimPackError("d32 seq8 to seq32 lookup growth drift")
+    if ladder.get("seq8_to_seq32_trace_row_growth") != "16.000000":
+        raise ProofPressureScalingClaimPackError("d32 seq8 to seq32 trace growth drift")
+    if ladder.get("seq8_to_seq32_fused_raw_proof_growth") != "1.193955":
+        raise ProofPressureScalingClaimPackError("d32 seq8 to seq32 fused raw growth drift")
+    if ladder.get("seq16_to_seq32_lookup_claim_growth") != "3.523810":
+        raise ProofPressureScalingClaimPackError("d32 seq16 to seq32 lookup growth drift")
+    if ladder.get("seq16_to_seq32_trace_row_growth") != "4.000000":
+        raise ProofPressureScalingClaimPackError("d32 seq16 to seq32 trace growth drift")
+    if ladder.get("seq16_to_seq32_fused_raw_proof_growth") != "1.132817":
+        raise ProofPressureScalingClaimPackError("d32 seq16 to seq32 fused raw growth drift")
 
 
 def validate_external_status(payload: dict[str, Any]) -> None:
@@ -1186,6 +1191,7 @@ def validate_payload(payload: dict[str, Any], *, check_mutations: bool = True) -
         "result",
         "claim_boundary",
         "scale_signal",
+        "route_matrix_signal",
         "fused_vs_split_rows",
         "accounting_status",
         "external_baseline_status",
@@ -1218,6 +1224,7 @@ def validate_payload(payload: dict[str, Any], *, check_mutations: bool = True) -
         raise ProofPressureScalingClaimPackError("open followup drift")
     assert_no_forbidden_positive_claims(payload)
     validate_scale_signal(payload)
+    validate_route_matrix_signal(payload)
     validate_rows(payload)
     validate_external_status(payload)
     accounting = require_dict(payload.get("accounting_status"), "accounting status")
@@ -1230,10 +1237,12 @@ def validate_payload(payload: dict[str, Any], *, check_mutations: bool = True) -
         raise ProofPressureScalingClaimPackError("proof-size comparable external row drift")
     if summary.get("current_best_inner_policy_bound_typed_bytes") != 39_516:
         raise ProofPressureScalingClaimPackError("best boundary summary drift")
-    if summary.get("fuller_grid_proved_cell_count") != 12 or summary.get("fuller_grid_missing_cell_count") != 33:
-        raise ProofPressureScalingClaimPackError("fuller grid summary drift")
-    if summary.get("explicit_no_go_grid_row_count") != len(EXPLICIT_NO_GO_GRID_ROWS):
-        raise ProofPressureScalingClaimPackError("explicit no-go summary drift")
+    if summary.get("attention_route_rows_checked") != 14:
+        raise ProofPressureScalingClaimPackError("summary route row count drift")
+    if summary.get("attention_raw_proof_savings_bytes_total") != 266_325:
+        raise ProofPressureScalingClaimPackError("summary raw saving drift")
+    if summary.get("d32_seq32_raw_saving_bytes") != 26_326:
+        raise ProofPressureScalingClaimPackError("summary d32 seq32 saving drift")
     validate_source_artifacts(payload)
     if payload.get("payload_commitment") != payload_commitment(payload):
         raise ProofPressureScalingClaimPackError("payload commitment drift")
@@ -1257,16 +1266,6 @@ def render_tsv(payload: dict[str, Any]) -> str:
     writer.writeheader()
     for row in payload["fused_vs_split_rows"]:
         writer.writerow(row)
-    for row in require_dict(payload["scale_signal"], "scale signal")["explicit_no_go_grid_rows"]:
-        writer.writerow(
-            {
-                "row_id": row["profile_id"],
-                "category": "explicit_no_go_grid_row",
-                "status": row["status"],
-                "comparison_status": "NOT_PROOF_SIZE_COMPARABLE",
-                "source_status": "explicit_no_go",
-            }
-        )
     for row in payload["external_baseline_status"]:
         writer.writerow(
             {
