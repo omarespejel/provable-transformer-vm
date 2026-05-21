@@ -387,7 +387,10 @@ def verify_envelope_bytes_with_native_cli(
             tmp.flush()
     except Exception:
         if tmp_path is not None:
-            tmp_path.unlink(missing_ok=True)
+            try:
+                tmp_path.unlink(missing_ok=True)
+            except OSError:
+                pass
         raise
     command = [
         "cargo",
@@ -455,7 +458,10 @@ def verify_fused_envelope_bytes_with_native_cli(envelope_bytes: bytes, label: st
             tmp.flush()
     except Exception:
         if tmp_path is not None:
-            tmp_path.unlink(missing_ok=True)
+            try:
+                tmp_path.unlink(missing_ok=True)
+            except OSError:
+                pass
         raise
     command = [
         "cargo",
