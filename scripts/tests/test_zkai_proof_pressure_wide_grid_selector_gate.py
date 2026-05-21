@@ -111,7 +111,7 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         with self.evidence_tempdir() as evidence_tmp, tempfile.TemporaryDirectory() as outside_tmp:
             link_path = gate.pathlib.Path(evidence_tmp) / "escape"
             link_path.symlink_to(gate.pathlib.Path(outside_tmp), target_is_directory=True)
-            with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "stay inside evidence dir"):
+            with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "symlink components"):
                 gate.write_json(link_path / "wide-grid.json", self.payload)
 
     def test_output_path_rejects_symlinked_evidence_root(self):
@@ -127,6 +127,25 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
             finally:
                 gate.EVIDENCE_DIR = original_evidence_dir
                 link_path.unlink(missing_ok=True)
+
+    def test_output_path_rejects_symlinked_evidence_ancestor(self):
+        original_root = gate.ROOT
+        original_evidence_dir = gate.EVIDENCE_DIR
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = gate.pathlib.Path(tmp)
+            fake_root = tmp_path / "repo"
+            real_docs = tmp_path / "real-docs"
+            (real_docs / "engineering" / "evidence").mkdir(parents=True)
+            fake_root.mkdir()
+            (fake_root / "docs").symlink_to(real_docs, target_is_directory=True)
+            gate.ROOT = fake_root
+            gate.EVIDENCE_DIR = fake_root / "docs" / "engineering" / "evidence"
+            try:
+                with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "symlink components"):
+                    gate.checked_output_path(gate.EVIDENCE_DIR / "wide-grid.json")
+            finally:
+                gate.ROOT = original_root
+                gate.EVIDENCE_DIR = original_evidence_dir
 
 
 if __name__ == "__main__":

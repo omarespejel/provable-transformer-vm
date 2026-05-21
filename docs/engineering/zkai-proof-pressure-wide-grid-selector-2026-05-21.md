@@ -116,7 +116,8 @@ The gate rejects `13 / 13` mutations:
 - payload-commitment drift
 
 Output writes are restricted to `docs/engineering/evidence`, reject `..`
-traversal, and reject symlinked output components.
+traversal, and reject symlinked evidence-root ancestors, candidate parent
+components, and output components before resolving paths.
 
 ## Non-Claims
 
