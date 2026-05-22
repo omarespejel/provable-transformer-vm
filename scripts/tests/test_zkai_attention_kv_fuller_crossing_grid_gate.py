@@ -126,7 +126,11 @@ class AttentionKvFullerCrossingGridGateTests(unittest.TestCase):
         self.assertEqual(summary["proved_counts_by_head_count"], {"1": 3, "16": 1, "2": 12, "4": 6, "8": 1})
         self.assertEqual(summary["proved_counts_by_steps_per_head"], {"16": 6, "32": 6, "64": 2, "8": 9})
         self.assertIn("full factorial proof-grid claim", self.result["no_go_criteria"][0])
-        self.assertEqual(self.result["next_low_risk_profiles"][0]["profile_id"], "d32_four_head_seq64")
+        self.assertEqual(self.result["next_low_risk_profiles"][0]["profile_id"], "d64_single_head_seq16")
+        self.assertNotIn(
+            "d64_two_head_seq64",
+            [row["profile_id"] for row in self.result["next_low_risk_profiles"]],
+        )
 
     def test_validate_rejects_overclaims_and_metric_smuggling(self):
         bad = copy.deepcopy(self.result)

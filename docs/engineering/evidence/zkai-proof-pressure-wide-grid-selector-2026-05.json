@@ -301,7 +301,7 @@
     "not production zkML readiness",
     "does not widen the claim beyond checked d8, d16, d32, and partial d64 attention rows"
   ],
-  "payload_commitment": "blake2b-256:bbfd2d4dffe581db01b6888a21ba3fd7e2a75f4e3358f2cf321a52fde100cb01",
+  "payload_commitment": "blake2b-256:982d701005fb0a4a075324ce71ee40ad815c68e9254723b882c581349742dfc8",
   "requested_grid_signal": {
     "fully_missing_requested_widths": [
       128,
@@ -538,13 +538,13 @@
     {
       "id": "fuller_crossing_grid",
       "path": "docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json",
-      "sha256": "ec3449076d5f4fd1bd8f3c78284b4c4c38ed33bebe15556cfafaa60bf77488ad",
-      "size_bytes": 67527
+      "sha256": "3abfe6d5ba38164fe3e1a914bbc9988569a073ec9ee4ec6b9988420177158147",
+      "size_bytes": 67487
     },
     {
       "id": "proof_pressure_claim_pack",
       "path": "docs/engineering/evidence/zkai-proof-pressure-scaling-claim-pack-2026-05.json",
-      "sha256": "9104d256233b2ff0cb87d3f4bf3a6f4294ed15c3bd8053099ff54909250590fd",
+      "sha256": "864dc9599fbb95d1e1e8cc280cca20f3df57a6a5111522fbf7dc113c724849fb",
       "size_bytes": 26655
     }
   ],

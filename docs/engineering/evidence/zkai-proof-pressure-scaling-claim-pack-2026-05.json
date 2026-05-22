@@ -395,7 +395,7 @@
       "status": "OPEN_NEEDED"
     }
   ],
-  "payload_commitment": "blake2b-256:20fff10f2bab7e37ca1ffed485169c8b1768b2111b75ee4a8c24f41f4f18e9c1",
+  "payload_commitment": "blake2b-256:a1747b90f1d31fc7573d235a121547efdbd50678745604785073f4096437aca7",
   "result": "TWENTY_THREE_ATTENTION_ROUTE_ROWS_SCALE_RAW_PROOF_PRESSURE_AND_SEQ32_D128_BOUNDARY_SAVES_7672_TYPED_BYTES",
   "route_matrix_signal": {
     "d32_two_head_sequence_ladder": {
@@ -592,8 +592,8 @@
     {
       "id": "fuller_crossing_grid",
       "path": "docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json",
-      "sha256": "ec3449076d5f4fd1bd8f3c78284b4c4c38ed33bebe15556cfafaa60bf77488ad",
-      "size_bytes": 67527
+      "sha256": "3abfe6d5ba38164fe3e1a914bbc9988569a073ec9ee4ec6b9988420177158147",
+      "size_bytes": 67487
     },
     {
       "id": "native_seq32_d128_single_proof",
