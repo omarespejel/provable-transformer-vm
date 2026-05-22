@@ -554,12 +554,26 @@ fn validate_envelope(
 fn validate_source_input(
     input: &ZkAiAttentionKvNativeD64FourHeadLongseqBoundedSoftmaxTableProofInput,
 ) -> Result<()> {
+    if input.score_gap_clip != SCORE_GAP_CLIP {
+        return Err(fused_error(format!(
+            "source score gap clip drift: got {}, expected {}",
+            input.score_gap_clip, SCORE_GAP_CLIP
+        )));
+    }
+    if input.score_row_count != input.score_rows.len() {
+        return Err(fused_error(format!(
+            "source score row count drift: got {}, expected actual row count {}",
+            input.score_row_count,
+            input.score_rows.len()
+        )));
+    }
     validate_zkai_attention_kv_native_d64_four_head_longseq_bounded_softmax_table_input(input)
 }
 
 fn fused_summary(
     input: &ZkAiAttentionKvNativeD64FourHeadLongseqBoundedSoftmaxTableProofInput,
 ) -> Result<ZkAiAttentionKvNativeD64FourHeadLongseqFusedSoftmaxTableSummary> {
+    validate_source_input(input)?;
     let mut multiplicities = input
         .weight_table
         .iter()
@@ -575,7 +589,7 @@ fn fused_summary(
         if row.score_gap < 0 {
             return Err(fused_error("negative score gap in source rows"));
         }
-        let clipped_gap = std::cmp::min(row.score_gap as usize, input.score_gap_clip);
+        let clipped_gap = std::cmp::min(row.score_gap as usize, SCORE_GAP_CLIP);
         let Some(entry) = multiplicities
             .iter_mut()
             .find(|entry| entry.gap == clipped_gap && entry.weight == row.attention_weight)
@@ -603,10 +617,10 @@ fn fused_summary(
             source_outputs_commitment: input.outputs_commitment.clone(),
             source_weight_table_commitment: input.weight_table_commitment.clone(),
             source_head_count: input.head_count,
-            score_rows: input.score_row_count,
+            score_rows: input.score_rows.len(),
             trace_rows: TRACE_ROW_COUNT,
             table_rows: input.weight_table.len(),
-            score_gap_clip: input.score_gap_clip,
+            score_gap_clip: SCORE_GAP_CLIP,
             weight_policy: input.weight_policy.clone(),
             lookup_relation: "AttentionKvD64FourHeadLongseqFusedSoftmaxTableRelation".to_string(),
             lookup_relation_width: 2,
@@ -1270,6 +1284,24 @@ mod tests {
         assert_eq!(total, input.score_rows.len());
         assert_eq!(summary.source_issue, SOURCE_ISSUE);
         assert_eq!(summary.fusion_status, FUSION_STATUS);
+    }
+
+    #[test]
+    fn attention_kv_d64_four_head_longseq_fused_softmax_table_rejects_source_score_gap_clip_drift()
+    {
+        let mut input = source_input();
+        input.score_gap_clip += 1;
+        let error = validate_source_input(&input).expect_err("score gap clip drift must reject");
+        assert!(error.to_string().contains("source score gap clip drift"));
+    }
+
+    #[test]
+    fn attention_kv_d64_four_head_longseq_fused_softmax_table_rejects_source_score_row_count_drift()
+    {
+        let mut input = source_input();
+        input.score_row_count += 1;
+        let error = validate_source_input(&input).expect_err("score row count drift must reject");
+        assert!(error.to_string().contains("source score row count drift"));
     }
 
     #[test]
