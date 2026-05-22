@@ -1,0 +1,234 @@
+{
+  "claim_boundary": "ONE_NATIVE_STWO_D64_SINGLE_HEAD_LONGSEQ_BOUNDED_SOFTMAX_TABLE_ATTENTION_PROOF_WITH_LOGUP_TABLE_MEMBERSHIP_NOT_EXACT_SOFTMAX_NOT_FULL_INFERENCE_NOT_LONG_CONTEXT_NOT_RECURSION_OR_PCD",
+  "decision": "GO_NATIVE_STWO_FUSED_ATTENTION_ARITHMETIC_AND_SOFTMAX_TABLE_LOGUP_MEMBERSHIP",
+  "fused_envelope_commitment": "blake2b-256:6f21410465b02db1e2ac5a19ccbe51d115f477a64051c1fe9a388ee473f3b9c8",
+  "fused_envelope_size_bytes": 3320952,
+  "fused_over_source_proof_bytes": 6310,
+  "fused_proof_commitment": "blake2b-256:731d0b35e6a5fc3f9517da9806b1604ce7ac1538296d89709fa99bbca2409beb",
+  "fused_proof_size_bytes": 237725,
+  "fused_saves_vs_source_plus_sidecar_bytes": 16650,
+  "fused_to_source_plus_sidecar_ratio": "0.934545",
+  "fusion_status": "GO_ONE_NATIVE_STWO_PROOF_OBJECT_WITH_ATTENTION_ARITHMETIC_AND_LOGUP_MEMBERSHIP",
+  "issue": 715,
+  "lookup_claims": 168,
+  "lookup_relation": "AttentionKvD64SingleHeadLongseqFusedSoftmaxTableRelation",
+  "lookup_relation_width": 2,
+  "mutation_results": [
+    {
+      "error": "fused decision drift",
+      "name": "fused_decision_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift",
+      "name": "fusion_status_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift",
+      "name": "non_fused_status_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift",
+      "name": "claim_boundary_exact_softmax_overclaim",
+      "rejected": true
+    },
+    {
+      "error": "fused semantic scope drift",
+      "name": "semantic_scope_exact_softmax_overclaim",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift",
+      "name": "source_statement_commitment_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift",
+      "name": "source_weight_table_commitment_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift",
+      "name": "source_score_row_commitment_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift",
+      "name": "lookup_relation_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift",
+      "name": "lookup_claim_count_metric_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift",
+      "name": "source_plus_sidecar_metric_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "fused proof byte length drift",
+      "name": "fused_proof_size_metric_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "fused source input split-brain drift",
+      "name": "source_input_statement_commitment_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift",
+      "name": "table_multiplicity_drift",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift",
+      "name": "non_claim_removed",
+      "rejected": true
+    },
+    {
+      "error": "fused source input split-brain drift",
+      "name": "source_input_split_brain_weight",
+      "rejected": true
+    },
+    {
+      "error": "fused source input split-brain drift",
+      "name": "source_input_output_remainder_drift",
+      "rejected": true
+    },
+    {
+      "error": "native fused verifier rejected in-memory fused envelope: unsupported proof construction: attention/KV native d64 single-head seq16 fused bounded Softmax-table proof: fused proof commitment 0 does not match recomputed source rows",
+      "name": "proof_byte_tamper",
+      "rejected": true
+    },
+    {
+      "error": "fused target id drift",
+      "name": "target_id_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused verifier domain drift",
+      "name": "verifier_domain_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused statement version drift",
+      "name": "statement_version_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused proof backend version drift",
+      "name": "proof_backend_version_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused proof schema version drift",
+      "name": "proof_schema_version_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "unknown fused envelope field(s): ['sidecar_proof']",
+      "name": "sidecar_proof_injection",
+      "rejected": true
+    },
+    {
+      "error": "unknown fused envelope field(s): ['source_proof']",
+      "name": "source_proof_injection",
+      "rejected": true
+    },
+    {
+      "error": "unknown fused envelope field(s): ['unexpected']",
+      "name": "unknown_field_injection",
+      "rejected": true
+    }
+  ],
+  "mutations_checked": 26,
+  "mutations_rejected": 26,
+  "non_claims": [
+    "not exact Softmax attention",
+    "not exp/div Softmax semantics",
+    "not full autoregressive inference",
+    "not a long-context benchmark",
+    "not recursive verification or PCD",
+    "not private witness privacy",
+    "not on-chain verification evidence",
+    "clipped-gap derivation and source-row semantics are verifier-recomputed from public rows before proof verification"
+  ],
+  "non_fused_status": "GO_MATCHED_D64_SINGLE_HEAD_LONGSEQ_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR_RECORDED",
+  "route_id": "local_stwo_attention_kv_d64_single_head_longseq_fused_bounded_softmax_table_logup_proof",
+  "schema": "zkai-attention-kv-stwo-native-d64-single-head-longseq-fused-softmax-table-gate-v1",
+  "sidecar_envelope_size_bytes": 1601867,
+  "sidecar_issue": 715,
+  "sidecar_proof_size_bytes": 22960,
+  "source_envelope_size_bytes": 3267678,
+  "source_issue": 715,
+  "source_plus_sidecar_raw_proof_bytes": 254375,
+  "source_proof_size_bytes": 231415,
+  "source_public_instance_commitment": "blake2b-256:c93a2a984047b2ef9c00bd9d7a86979b2d20b898a4e58e8d193abcb4d6c2773e",
+  "source_score_row_commitment": "blake2b-256:622e8d110cae6c2e19bda9f165116152e38556c6ff21f7bbaa724b77c18e38a1",
+  "source_statement_commitment": "blake2b-256:8fbe4d65ed56dfb86cb8267645bc12f9ccf56582335c5dab6626b97806ac0168",
+  "source_weight_table_commitment": "blake2b-256:3282ee0fa00e37aa8db87432d039dfb6d59795368ef9ef1e12dbd14069835fb2",
+  "table_multiplicities": [
+    {
+      "gap": 0,
+      "multiplicity": 35,
+      "weight": 256
+    },
+    {
+      "gap": 1,
+      "multiplicity": 3,
+      "weight": 181
+    },
+    {
+      "gap": 2,
+      "multiplicity": 2,
+      "weight": 128
+    },
+    {
+      "gap": 3,
+      "multiplicity": 1,
+      "weight": 91
+    },
+    {
+      "gap": 4,
+      "multiplicity": 7,
+      "weight": 64
+    },
+    {
+      "gap": 5,
+      "multiplicity": 2,
+      "weight": 45
+    },
+    {
+      "gap": 6,
+      "multiplicity": 4,
+      "weight": 32
+    },
+    {
+      "gap": 7,
+      "multiplicity": 0,
+      "weight": 23
+    },
+    {
+      "gap": 8,
+      "multiplicity": 114,
+      "weight": 16
+    }
+  ],
+  "table_rows": 9,
+  "timing_policy": "proof_existence_and_byte_accounting_only_not_public_benchmark",
+  "trace_rows": 256,
+  "validation_commands": [
+    "cargo +nightly-2025-07-14 test --locked attention_kv_d64_single_head_longseq_fused_softmax_table --lib --features stwo-backend",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d64_single_head_longseq_fused_softmax_table_proof -- prove docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-single-head-longseq-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-single-head-longseq-fused-softmax-table-proof-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d64_single_head_longseq_fused_softmax_table_proof -- verify docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-single-head-longseq-fused-softmax-table-proof-2026-05.envelope.json",
+    "python3.10 scripts/zkai_attention_kv_d64_single_head_longseq_fused_softmax_table_native_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-single-head-longseq-fused-softmax-table-gate-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-single-head-longseq-fused-softmax-table-gate-2026-05.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d64_single_head_longseq_fused_softmax_table_native_gate",
+    "just lib",
+    "just gate-fast",
+    "just gate"
+  ]
+}

@@ -1,26 +1,26 @@
 {
   "candidate_order": [
     {
-      "go_gate": "fused and split rows quantify d32-to-d64 width growth under a narrow attention shape",
-      "head_count": 1,
-      "key_width": 64,
-      "no_go_gate": "proof bytes grow roughly with width and savings shrink versus nearby d32 rows",
-      "priority": 1,
-      "profile_id": "d64_h1_seq16",
-      "selector_status": "D64_SINGLE_HEAD_WIDTH_SLOPE_ROW",
-      "steps_per_head": 16,
-      "why_this_row": "isolates d64 single-head width pressure without adding another head axis"
-    },
-    {
       "go_gate": "d64 rows are source-backed and the d128 row keeps a positive fused-vs-split saving",
       "head_count": 2,
       "key_width": 128,
       "no_go_gate": "d64 already shows width pressure dominates lookup amortization",
-      "priority": 2,
+      "priority": 1,
       "profile_id": "d128_h2_seq32",
-      "selector_status": "ONLY_AFTER_D64_GO",
+      "selector_status": "NEXT_WIDTH_FRONTIER_AFTER_D64_ANCHOR_GO",
       "steps_per_head": 32,
-      "why_this_row": "approaches model-width relevance, but should not be attacked before d64 falsifies or confirms the slope"
+      "why_this_row": "approaches model-width relevance after d64 single-head, two-head, and four-head seq16 rows stayed positive"
+    },
+    {
+      "go_gate": "single-head sequence growth keeps fused bytes much flatter than lookup and trace growth",
+      "head_count": 1,
+      "key_width": 64,
+      "no_go_gate": "single-head sequence growth erases the d64 seq16 saving",
+      "priority": 2,
+      "profile_id": "d64_h1_seq32",
+      "selector_status": "D64_SINGLE_HEAD_SEQUENCE_FALLBACK",
+      "steps_per_head": 32,
+      "why_this_row": "extends the new single-head width anchor along sequence if d128 engineering becomes too heavy"
     },
     {
       "go_gate": "generic or generated backend exists and d128 stays structurally positive",
@@ -38,7 +38,7 @@
   "current_signal": {
     "accounting_triplet_signal": {
       "attention_json_bytes_total": 629466,
-      "attention_raw_proof_savings_bytes_total": 547294,
+      "attention_raw_proof_savings_bytes_total": 563944,
       "attention_typed_bytes_total": 234296,
       "attention_typed_rows": 10,
       "attention_typed_savings_bytes_total": 51288,
@@ -56,7 +56,7 @@
       "status": "CARRIES_TYPED_JSON_AND_BINARY_RAW_CONTEXT_FROM_CLAIM_PACK;RAW_ROUTE_MATRIX_WIDTH_SELECTOR_REMAINS_SEPARATE"
     },
     "all_checked_rows_have_positive_fused_saving": true,
-    "checked_attention_route_rows": 23,
+    "checked_attention_route_rows": 24,
     "checked_head_counts": [
       1,
       2,
@@ -65,6 +65,7 @@
       16
     ],
     "checked_requested_profile_ids": [
+      "d64_h1_seq16",
       "d64_h2_seq16",
       "d64_h2_seq32",
       "d64_h2_seq64",
@@ -98,6 +99,15 @@
       "sidecar_raw_proof_growth": 1.263566,
       "source_raw_proof_growth": 1.072766,
       "split_raw_proof_growth": 1.095365,
+      "trace_row_growth": 4.0
+    },
+    "d64_single_to_four_head_seq16": {
+      "fused_raw_proof_growth": 0.999457,
+      "lookup_claim_growth": 4.0,
+      "saving_growth": 1.386727,
+      "sidecar_raw_proof_growth": 1.206185,
+      "source_raw_proof_growth": 1.00681,
+      "split_raw_proof_growth": 1.024806,
       "trace_row_growth": 4.0
     },
     "d64_two_head_seq16_to_seq32": {
@@ -146,21 +156,21 @@
       "split_raw_proof_growth": 1.800524
     },
     "fuller_grid_cells": 80,
-    "fuller_grid_missing_cells": 57,
-    "fuller_grid_proved_cells": 23,
+    "fuller_grid_missing_cells": 56,
+    "fuller_grid_proved_cells": 24,
     "fully_missing_requested_widths": [
       128,
       256
     ],
-    "raw_fused_bytes_total": 3068925,
-    "raw_saving_bytes_total": 547294,
-    "raw_split_bytes_total": 3616219
+    "raw_fused_bytes_total": 3306650,
+    "raw_saving_bytes_total": 563944,
+    "raw_split_bytes_total": 3870594
   },
   "decision": "GO_WIDE_GRID_SELECTOR_KEEP_PARTIAL_D64_AND_D128_D256_AS_FALSIFICATION_TARGETS",
   "interpretation": {
     "human_read": "The current evidence says the lookup-heavy sequence direction is promising, but width is the stress test. The d64 rows kept fused smaller than split, the d64 two-to-four-head rows doubled lookup and trace work while fused proof bytes moved only about 1.01x or less, and the d64 four-head seq64 row and two-head seq64 row each grew lookup work 3.73x from seq32 while fused bytes grew about 1.08x. D128 and D256 are still not victory laps; they are the next way to check whether the paper claim survives model width.",
-    "paper_relevance": "A paper-grade result needs the fused-vs-split saving to survive beyond isolated rows. The selector therefore promotes a remaining d64 single-head width anchor and keeps d128/d256 gated.",
-    "research_recommendation": "Do d64_h1_seq16 next to pin the d64 single-head width slope. If that stays positive, move to d128_h2_seq32; if it fails, analyze width pressure before widening."
+    "paper_relevance": "A paper-grade result needs the fused-vs-split saving to survive beyond isolated rows. The selector therefore promotes d128 after the d64 single-head width anchor stayed positive.",
+    "research_recommendation": "Do d128_h2_seq32 next. If it is too heavy, use d64_h1_seq32 as the fallback to extend the single-head slope."
   },
   "issue": 715,
   "mutation_result": {
@@ -237,6 +247,11 @@
         "rejected": true
       },
       {
+        "error": "d64 single-head anchor signal drift",
+        "name": "d64_single_head_anchor_drift",
+        "rejected": true
+      },
+      {
         "error": "d64 seq16 head-axis signal drift",
         "name": "d64_head_extra_metric_drift",
         "rejected": true
@@ -282,6 +297,7 @@
       "d64_sequence_signal_drift",
       "d64_two_head_seq64_signal_drift",
       "width_pressure_signal_drift",
+      "d64_single_head_anchor_drift",
       "d64_head_extra_metric_drift",
       "accounting_triplet_drift",
       "candidate_order_drift",
@@ -289,8 +305,8 @@
       "non_claim_removed",
       "payload_commitment_drift"
     ],
-    "mutations_checked": 20,
-    "mutations_rejected": 20
+    "mutations_checked": 21,
+    "mutations_rejected": 21
   },
   "non_claims": [
     "not a complete d64, d128, or d256 attention proof result",
@@ -301,13 +317,13 @@
     "not production zkML readiness",
     "does not widen the claim beyond checked d8, d16, d32, and partial d64 attention rows"
   ],
-  "payload_commitment": "blake2b-256:aca90c7f3bf0dd6800ebb22c6e8aa3e141a9b73a446ba673be79ead94850704c",
+  "payload_commitment": "blake2b-256:daa984c59184eef29e5620da2868b7453515263fa6ca3cf69ecf403468dabe05",
   "requested_grid_signal": {
     "fully_missing_requested_widths": [
       128,
       256
     ],
-    "missing_requested_cell_count": 21,
+    "missing_requested_cell_count": 20,
     "requested_cell_count": 27,
     "requested_head_counts": [
       1,
@@ -319,7 +335,7 @@
         "head_count": 1,
         "key_width": 64,
         "profile_id": "d64_h1_seq16",
-        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "selector_status": "SOURCE_BACKED_ATTENTION_ROUTE_ROW",
         "steps_per_head": 16
       },
       {
@@ -516,8 +532,9 @@
       256
     ],
     "selector_status": "PARTIAL_D64_SOURCE_BACKED_D128_D256_MISSING",
-    "source_backed_requested_cell_count": 6,
+    "source_backed_requested_cell_count": 7,
     "source_backed_requested_profile_ids": [
+      "d64_h1_seq16",
       "d64_h2_seq16",
       "d64_h2_seq32",
       "d64_h2_seq64",
@@ -532,20 +549,20 @@
     {
       "id": "fused_softmax_route_matrix",
       "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
-      "sha256": "8f8e55b8bff06901418fa7483cda27946dc3e98e7fb97263fe937e49989a43b7",
-      "size_bytes": 68862
+      "sha256": "73db8b64c4ee65f2b52b1724c74ee94b267112d0f5590cc7440a078a51eb6ed5",
+      "size_bytes": 71549
     },
     {
       "id": "fuller_crossing_grid",
       "path": "docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json",
-      "sha256": "3abfe6d5ba38164fe3e1a914bbc9988569a073ec9ee4ec6b9988420177158147",
-      "size_bytes": 67487
+      "sha256": "fb6ee74979a677532859042419b2641bb77b902cfac2fb5284d5ea155e694993",
+      "size_bytes": 67256
     },
     {
       "id": "proof_pressure_claim_pack",
       "path": "docs/engineering/evidence/zkai-proof-pressure-scaling-claim-pack-2026-05.json",
-      "sha256": "0eb683cb44e2c1667a92ba8a7291bc6b4f296161bc553c503daf61b6c3fe0855",
-      "size_bytes": 26794
+      "sha256": "64f59b731def7721ec42cb0ce82f42da0693391f7c5e7a3b7a22e749f82a9055",
+      "size_bytes": 28338
     }
   ],
   "timing_policy": "proof_existence_and_byte_accounting_only_not_public_benchmark",
