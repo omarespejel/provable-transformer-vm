@@ -15,11 +15,12 @@ question first:
 
 ## Result
 
-`GO_WIDE_GRID_SELECTOR_KEEP_D64_D128_D256_AS_FALSIFICATION_TARGETS`
+`GO_WIDE_GRID_SELECTOR_KEEP_PARTIAL_D64_AND_D128_D256_AS_FALSIFICATION_TARGETS`
 
-The current checked route matrix covers `14` source-backed attention rows over
-`d8`, `d16`, and `d32`. It does not yet contain any source-backed `d64`,
-`d128`, or `d256` attention route rows. The selector therefore records the wide
+The current checked route matrix covers `20` source-backed attention rows over
+`d8`, `d16`, `d32`, and partial `d64`. It contains checked `d64_h2_seq16`,
+`d64_h2_seq32`, and `d64_h4_seq32` rows. It does not yet contain `d128` or
+`d256` attention route rows. The selector therefore records the remaining wide
 grid as a falsification target, not as a result.
 
 ## Why This Matters
@@ -29,6 +30,8 @@ The strongest current signal is lookup-heavy sequence scaling:
 | Fixed surface | Lookup growth | Trace-row growth | Fused raw proof growth |
 |---|---:|---:|---:|
 | `d32`, two-head, `seq8` to `seq32` | `11.384615x` | `16.000000x` | `1.193955x` |
+| `d64`, two-head, `seq16` to `seq32` | `3.523810x` | `4.000000x` | `1.061856x` |
+| `d64`, `seq32`, two heads to four heads | `2.000000x` | `2.000000x` | `1.010393x` |
 
 That is the signal a paper can try to turn into a structural result.
 
@@ -38,10 +41,11 @@ Width is the stress test:
 |---|---:|---:|
 | two-head `seq32`, `d8` to `d32` | `1.000000x` | `2.263739x` |
 
-Human read: sequence makes lookup work grow much faster than proof bytes; width
-currently grows proof bytes without adding lookup claims. So `d64`, `d128`, and
-`d256` should not be treated as victory laps. They are the next way to check
-whether the amortization story survives model width.
+Human read: sequence and head-axis pressure can make lookup work grow much
+faster than proof bytes. Width still grows proof bytes without adding lookup
+claims. So `d128` and `d256` should not be treated as victory laps, and the
+remaining `d64` cells should be used to check whether the head and sequence
+signals are real rather than one lucky row.
 
 Accounting guardrail: the selector carries typed, JSON, and binary/raw context
 from the claim pack separately from the raw route-matrix signal.
@@ -54,22 +58,22 @@ from the claim pack separately from the raw route-matrix signal.
 
 ## Selected Attack Order
 
-1. `d64_h2_seq32`
-   - Direct falsification row.
-   - Extends the current `d32` two-head `seq32` high-lookup point by width only.
+1. `d64_h4_seq16`
+   - Next d64 head-axis midpoint.
+   - Tests whether the d64 two-to-four-head amortization at `seq32` also holds
+     at `seq16`.
    - GO if source, sidecar, and fused rows exist and fused beats matched split.
-   - NO-GO if width pressure removes the fused saving or bounded local artifacts
-     become impractical.
+   - NO-GO if the shorter row contradicts the `seq32` head-axis signal.
 
 2. `d64_h1_seq8`
    - Cheapest width-slope sanity row.
    - Isolates width pressure before spending on `seq32`.
 
-3. `d64_h2_seq16`
-   - Midpoint row between cheap width slope and direct `seq32` falsification.
+3. `d64_h2_seq64`
+   - Sequence extension row after the d64 `seq16` to `seq32` signal.
 
 4. `d128_h2_seq32`
-   - Only after `d64` is source-backed and still structurally positive.
+   - Only after the partial `d64` grid remains structurally positive.
 
 5. `d256_h2_seq32`
    - Only after `d128` is positive or after a generated/generic backend avoids
