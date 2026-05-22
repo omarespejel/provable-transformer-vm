@@ -1,0 +1,261 @@
+{
+  "claim_boundary": "ONE_NATIVE_STWO_D32_FOUR_HEAD_SEQ32_BOUNDED_SOFTMAX_TABLE_ATTENTION_PROOF_WITH_LOGUP_TABLE_MEMBERSHIP_NOT_EXACT_SOFTMAX_NOT_FULL_INFERENCE_NOT_LONG_CONTEXT_NOT_RECURSION_OR_PCD",
+  "decision": "GO_NATIVE_STWO_FUSED_ATTENTION_ARITHMETIC_AND_SOFTMAX_TABLE_LOGUP_MEMBERSHIP",
+  "fused_envelope_commitment": "blake2b-256:cbf803cae1944b5dcc7847ee62799cf17db2811a091bb226ff57f6a8e50c9cd3",
+  "fused_envelope_size_bytes": 11768002,
+  "fused_over_source_proof_bytes": 3361,
+  "fused_proof_commitment": "blake2b-256:4dccf412e0b2f60653d3fcd4d978998ed616618d8f14e18cd78e10b2bed89d54",
+  "fused_proof_size_bytes": 154670,
+  "fused_saves_vs_source_plus_sidecar_bytes": 38267,
+  "fused_to_source_plus_sidecar_ratio": 0.8016606457030016,
+  "fusion_status": "GO_ONE_NATIVE_STWO_PROOF_OBJECT_WITH_ATTENTION_ARITHMETIC_AND_LOGUP_MEMBERSHIP",
+  "issue": 728,
+  "lookup_claims": 2368,
+  "lookup_relation": "AttentionKvD32FourHeadSeq32FusedSoftmaxTableRelation",
+  "lookup_relation_width": 2,
+  "mutation_results": [
+    {
+      "error": "fused envelope drift for decision: got 'GO_EXACT_SOFTMAX_FUSED_PROOF'",
+      "name": "fused_decision_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift: got dict(keys=['fusion_status', 'issue', 'lookup_claims', 'lookup_relation', 'lookup_relation_width', 'non_claims', 'non_fused_status', 'score_gap_clip'], len=24)",
+      "name": "fusion_status_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift: got dict(keys=['fusion_status', 'issue', 'lookup_claims', 'lookup_relation', 'lookup_relation_width', 'non_claims', 'non_fused_status', 'score_gap_clip'], len=24)",
+      "name": "non_fused_status_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift: got dict(keys=['fusion_status', 'issue', 'lookup_claims', 'lookup_relation', 'lookup_relation_width', 'non_claims', 'non_fused_status', 'score_gap_clip'], len=24)",
+      "name": "claim_boundary_exact_softmax_overclaim",
+      "rejected": true
+    },
+    {
+      "error": "fused envelope drift for semantic_scope: got 'exact_real_valued_softmax_attention'",
+      "name": "semantic_scope_exact_softmax_overclaim",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift: got dict(keys=['fusion_status', 'issue', 'lookup_claims', 'lookup_relation', 'lookup_relation_width', 'non_claims', 'non_fused_status', 'score_gap_clip'], len=24)",
+      "name": "source_statement_commitment_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift: got dict(keys=['fusion_status', 'issue', 'lookup_claims', 'lookup_relation', 'lookup_relation_width', 'non_claims', 'non_fused_status', 'score_gap_clip'], len=24)",
+      "name": "source_weight_table_commitment_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift: got dict(keys=['fusion_status', 'issue', 'lookup_claims', 'lookup_relation', 'lookup_relation_width', 'non_claims', 'non_fused_status', 'score_gap_clip'], len=24)",
+      "name": "source_score_row_commitment_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift: got dict(keys=['fusion_status', 'issue', 'lookup_claims', 'lookup_relation', 'lookup_relation_width', 'non_claims', 'non_fused_status', 'score_gap_clip'], len=24)",
+      "name": "source_final_kv_commitment_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift: got dict(keys=['fusion_status', 'issue', 'lookup_claims', 'lookup_relation', 'lookup_relation_width', 'non_claims', 'non_fused_status', 'score_gap_clip'], len=24)",
+      "name": "source_outputs_commitment_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift: got dict(keys=['fusion_status', 'issue', 'lookup_claims', 'lookup_relation', 'lookup_relation_width', 'non_claims', 'non_fused_status', 'score_gap_clip'], len=24)",
+      "name": "source_head_count_metric_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift: got dict(keys=['fusion_status', 'issue', 'lookup_claims', 'lookup_relation', 'lookup_relation_width', 'non_claims', 'non_fused_status', 'score_gap_clip'], len=24)",
+      "name": "lookup_relation_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift: got dict(keys=['fusion_status', 'issue', 'lookup_claims', 'lookup_relation', 'lookup_relation_width', 'non_claims', 'non_fused_status', 'score_gap_clip'], len=24)",
+      "name": "lookup_claim_count_metric_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift: got dict(keys=['fusion_status', 'issue', 'lookup_claims', 'lookup_relation', 'lookup_relation_width', 'non_claims', 'non_fused_status', 'score_gap_clip'], len=24)",
+      "name": "source_plus_sidecar_metric_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "fused proof byte length drift",
+      "name": "fused_proof_size_metric_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "fused source input split-brain drift: got dict(keys=['attention_outputs', 'causal_gap_bits', 'decision', 'final_kv_cache', 'final_kv_cache_commitment', 'final_kv_items', 'head_count', 'initial_kv_cache'], len=46)",
+      "name": "source_input_statement_commitment_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused source input split-brain drift: got dict(keys=['attention_outputs', 'causal_gap_bits', 'decision', 'final_kv_cache', 'final_kv_cache_commitment', 'final_kv_items', 'head_count', 'initial_kv_cache'], len=46)",
+      "name": "source_input_head_index_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift: got dict(keys=['fusion_status', 'issue', 'lookup_claims', 'lookup_relation', 'lookup_relation_width', 'non_claims', 'non_fused_status', 'score_gap_clip'], len=24)",
+      "name": "table_multiplicity_drift",
+      "rejected": true
+    },
+    {
+      "error": "fused summary drift: got dict(keys=['fusion_status', 'issue', 'lookup_claims', 'lookup_relation', 'lookup_relation_width', 'non_claims', 'non_fused_status', 'score_gap_clip'], len=24)",
+      "name": "non_claim_removed",
+      "rejected": true
+    },
+    {
+      "error": "fused source input split-brain drift: got dict(keys=['attention_outputs', 'causal_gap_bits', 'decision', 'final_kv_cache', 'final_kv_cache_commitment', 'final_kv_items', 'head_count', 'initial_kv_cache'], len=46)",
+      "name": "source_input_split_brain_weight",
+      "rejected": true
+    },
+    {
+      "error": "fused source input split-brain drift: got dict(keys=['attention_outputs', 'causal_gap_bits', 'decision', 'final_kv_cache', 'final_kv_cache_commitment', 'final_kv_items', 'head_count', 'initial_kv_cache'], len=46)",
+      "name": "source_input_output_remainder_drift",
+      "rejected": true
+    },
+    {
+      "error": "native fused verifier rejected in-memory fused envelope: unsupported proof construction: attention/KV native d32-four-head fused bounded Softmax-table proof: fused proof commitment 0 does not match recomputed source rows",
+      "name": "proof_byte_tamper",
+      "rejected": true
+    },
+    {
+      "error": "fused envelope drift for target_id: got 'different-target'",
+      "name": "target_id_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused envelope drift for verifier_domain: got 'different-domain'",
+      "name": "verifier_domain_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused envelope drift for statement_version: got 'different-statement'",
+      "name": "statement_version_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused envelope drift for proof_backend_version: got 'different-stwo-backend'",
+      "name": "proof_backend_version_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused envelope drift for proof_schema_version: got 'different-fused-proof-schema'",
+      "name": "proof_schema_version_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "unknown fused envelope field(s): ['sidecar_proof']",
+      "name": "sidecar_proof_injection",
+      "rejected": true
+    },
+    {
+      "error": "unknown fused envelope field(s): ['source_proof']",
+      "name": "source_proof_injection",
+      "rejected": true
+    },
+    {
+      "error": "unknown fused envelope field(s): ['unexpected']",
+      "name": "unknown_field_injection",
+      "rejected": true
+    }
+  ],
+  "mutations_checked": 30,
+  "mutations_rejected": 30,
+  "non_claims": [
+    "not exact Softmax attention",
+    "not exp/div Softmax semantics",
+    "not a full transformer block",
+    "not full autoregressive inference",
+    "not a long-context benchmark",
+    "no timing evidence",
+    "no NANOZK comparison",
+    "bounded-integer-fixture only",
+    "not recursive verification or PCD",
+    "not private witness privacy",
+    "not on-chain verification evidence",
+    "clipped-gap derivation and source-row semantics are verifier-recomputed from public rows before proof verification"
+  ],
+  "non_fused_status": "GO_MATCHED_D32_FOUR_HEAD_SEQ32_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR_RECORDED",
+  "route_id": "local_stwo_attention_kv_d32_four_head_seq32_fused_bounded_softmax_table_logup_proof",
+  "schema": "zkai-attention-kv-stwo-native-d32-four-head-seq32-fused-softmax-table-gate-v1",
+  "sidecar_envelope_size_bytes": 10862447,
+  "sidecar_issue": 728,
+  "sidecar_proof_size_bytes": 41628,
+  "source_envelope_size_bytes": 11737933,
+  "source_final_kv_cache_commitment": "blake2b-256:a120400dab0494a5bb7deb08e1d737a03ca9faae1089b3c4d9f06a3f8d16e52b",
+  "source_head_count": 4,
+  "source_issue": 720,
+  "source_outputs_commitment": "blake2b-256:65119a0f20ff3ab1a697e221b03707d618eca492723e495590ccbb616fce1185",
+  "source_plus_sidecar_raw_proof_bytes": 192937,
+  "source_proof_size_bytes": 151309,
+  "source_public_instance_commitment": "blake2b-256:5dcfeed47c3ac6787d8b53f1caf53f0f674fbc7be486451e59e8fc29641605fe",
+  "source_score_row_commitment": "blake2b-256:7a0470fcd07d040ef0df4c2ef196aa87574ed485a52e9bd8d540279da4d31851",
+  "source_statement_commitment": "blake2b-256:8b07ad9d2735f5f9b908b2d6e52e639680355564f336ea5459df49c43d62bc01",
+  "source_weight_table_commitment": "blake2b-256:51313e87f3ccf8d139347fc2083c41088c37638d4f6fa60558b38dc6729406c7",
+  "table_multiplicities": [
+    {
+      "gap": 0,
+      "multiplicity": 142,
+      "weight": 256
+    },
+    {
+      "gap": 1,
+      "multiplicity": 7,
+      "weight": 181
+    },
+    {
+      "gap": 2,
+      "multiplicity": 8,
+      "weight": 128
+    },
+    {
+      "gap": 3,
+      "multiplicity": 6,
+      "weight": 91
+    },
+    {
+      "gap": 4,
+      "multiplicity": 8,
+      "weight": 64
+    },
+    {
+      "gap": 5,
+      "multiplicity": 10,
+      "weight": 45
+    },
+    {
+      "gap": 6,
+      "multiplicity": 7,
+      "weight": 32
+    },
+    {
+      "gap": 7,
+      "multiplicity": 3,
+      "weight": 23
+    },
+    {
+      "gap": 8,
+      "multiplicity": 2177,
+      "weight": 16
+    }
+  ],
+  "table_rows": 9,
+  "timing_policy": "proof_existence_and_byte_accounting_only_not_public_benchmark",
+  "trace_rows": 4096,
+  "validation_commands": [
+    "cargo +nightly-2025-07-14 test --locked attention_kv_d32_four_head_seq32_fused_softmax_table --lib --features stwo-backend",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d32_four_head_seq32_fused_softmax_table_proof -- prove docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-four-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-four-head-seq32-fused-softmax-table-proof-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d32_four_head_seq32_fused_softmax_table_proof -- verify docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-four-head-seq32-fused-softmax-table-proof-2026-05.envelope.json",
+    "python3.10 scripts/zkai_attention_kv_d32_four_head_seq32_fused_softmax_table_native_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-four-head-seq32-fused-softmax-table-gate-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-stwo-native-d32-four-head-seq32-fused-softmax-table-gate-2026-05.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d32_four_head_seq32_fused_softmax_table_native_gate",
+    "just lib",
+    "just gate-fast",
+    "just gate"
+  ]
+}

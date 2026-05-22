@@ -49,13 +49,14 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 38. `docs/engineering/zkai-attention-kv-stwo-native-two-head-seq32-fused-softmax-table-gate-2026-05-10.md`
 39. `docs/engineering/zkai-attention-kv-stwo-native-d16-two-head-seq32-fused-softmax-table-gate-2026-05-22.md`
 40. `docs/engineering/zkai-attention-kv-stwo-native-d32-four-head-longseq-fused-softmax-table-gate-2026-05-22.md`
-41. `docs/engineering/zkai-attention-kv-stwo-native-d32-two-head-fused-softmax-table-gate-2026-05-20.md`
-42. `docs/engineering/zkai-attention-kv-stwo-native-d32-two-head-longseq-fused-softmax-table-gate-2026-05-21.md`
-43. `docs/engineering/zkai-attention-kv-stwo-native-d32-two-head-seq32-fused-softmax-table-gate-2026-05-21.md`
-44. `docs/engineering/zkai-attention-kv-stwo-native-d64-two-head-seq32-fused-softmax-table-gate-2026-05-21.md`
-45. `docs/engineering/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05-09.md`
-46. `docs/engineering/zkai-attention-kv-fused-softmax-table-microprofile-2026-05-10.md`
-47. `docs/engineering/zkai-attention-kv-fused-softmax-table-section-delta-2026-05-10.md`
+41. `docs/engineering/zkai-attention-kv-stwo-native-d32-four-head-seq32-fused-softmax-table-gate-2026-05-22.md`
+42. `docs/engineering/zkai-attention-kv-stwo-native-d32-two-head-fused-softmax-table-gate-2026-05-20.md`
+43. `docs/engineering/zkai-attention-kv-stwo-native-d32-two-head-longseq-fused-softmax-table-gate-2026-05-21.md`
+44. `docs/engineering/zkai-attention-kv-stwo-native-d32-two-head-seq32-fused-softmax-table-gate-2026-05-21.md`
+45. `docs/engineering/zkai-attention-kv-stwo-native-d64-two-head-seq32-fused-softmax-table-gate-2026-05-21.md`
+46. `docs/engineering/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05-09.md`
+47. `docs/engineering/zkai-attention-kv-fused-softmax-table-microprofile-2026-05-10.md`
+48. `docs/engineering/zkai-attention-kv-fused-softmax-table-section-delta-2026-05-10.md`
 48. `docs/engineering/zkai-attention-kv-stwo-fine-grained-component-schema-2026-05-10.md`
 49. `docs/engineering/zkai-attention-kv-stwo-controlled-component-grid-2026-05-10.md`
 50. `docs/engineering/zkai-attention-kv-proof-route-selector-2026-05-05.md`
@@ -118,7 +119,25 @@ before opening or executing frontier issues. The north star is STARK-native
 proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
 
-Latest proof-pressure route extension: issue `#715` now has the
+Latest proof-pressure route extension: issue `#728` now has the
+`d32_four_head_seq32` native Stwo fused Softmax-table row. The matched split
+frontier is `151,309` source proof bytes plus `41,628` LogUp sidecar bytes
+(`192,937` total). The fused proof is `154,670` bytes, saving `38,267` bytes
+(`0.801661x`) against the matched split frontier. It is `3,361` bytes larger
+than the source arithmetic proof alone, so the honest claim is
+source-plus-sidecar fusion saving, not source-only compression. Holding d32 and
+seq32 fixed from two heads to four heads, lookup claims grow `2.000000x` and
+trace rows grow `2.000000x`, while fused proof bytes grow only `1.030124x` and
+fused savings grow `1.453582x`. The route matrix is now `19` matched rows,
+`11,044` lookup claims, `2,026,301` fused proof bytes versus `2,444,487` split
+proof bytes, and `418,186` aggregate saved bytes. The fuller grid is now
+`19 / 60` proved and `41 / 60` missing; the next low-risk rows are
+`d64_four_head_seq32` and `d32_four_head_seq64`. This is not exact Softmax, not
+full inference, not a NANOZK comparison, not timing evidence, and not a
+model-faithful d32 four-head trace. See
+`docs/engineering/zkai-attention-kv-stwo-native-d32-four-head-seq32-fused-softmax-table-gate-2026-05-22.md`.
+
+Previous proof-pressure route extension: issue `#715` has the
 `d32_four_head_seq16` native Stwo fused Softmax-table row. The matched split
 frontier is `139,755` source proof bytes plus `30,263` LogUp sidecar bytes
 (`170,018` total). The fused proof is `142,334` bytes, saving `27,684` bytes
