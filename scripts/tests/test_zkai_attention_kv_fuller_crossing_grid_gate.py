@@ -20,6 +20,7 @@ class AttentionKvFullerCrossingGridGateTests(unittest.TestCase):
         self.assertEqual(result["full_proof_grid_status"], gate.FULL_PROOF_GRID_STATUS)
         self.assertIn("57_OF_80", result["full_proof_grid_status"])
         self.assertNotIn("58_OF_80", result["full_proof_grid_status"])
+        self.assertIn("57 of 80", result["no_go_criteria"][0])
         self.assertIn("NOT_A_FULL_FACTORIAL_PROOF_GRID", result["claim_boundary"])
         self.assertEqual(result["summary"]["grid_cell_count"], 80)
         self.assertEqual(result["summary"]["proved_cell_count"], 23)
