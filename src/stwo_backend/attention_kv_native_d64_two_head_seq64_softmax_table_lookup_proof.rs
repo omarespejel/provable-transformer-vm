@@ -923,6 +923,14 @@ mod tests {
         );
         assert_eq!((-numerator).to_array(), table_multiplicity.to_array());
         assert_eq!(denominator.to_array(), table_q.to_array());
+
+        let (numerator, denominator) =
+            masked_lookup_fraction_terms(one, table_multiplicity, claimed_q, table_q);
+        assert_eq!(
+            numerator.to_array(),
+            (table_q - table_multiplicity * claimed_q).to_array()
+        );
+        assert_eq!(denominator.to_array(), (claimed_q * table_q).to_array());
     }
 
     #[test]

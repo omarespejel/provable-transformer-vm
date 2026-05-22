@@ -301,6 +301,11 @@
       "rejected": true
     },
     {
+      "error": "d64 two-head seq64 raw saving drift",
+      "name": "d64_two_head_seq64_signal_drift",
+      "rejected": true
+    },
+    {
       "error": "row typed saving arithmetic drift",
       "name": "attention_grid_row_loses_saving",
       "rejected": true
@@ -361,8 +366,8 @@
       "rejected": true
     }
   ],
-  "mutations_checked": 19,
-  "mutations_rejected": 19,
+  "mutations_checked": 20,
+  "mutations_rejected": 20,
   "non_claims": [
     "not a d64/d128/d256 attention grid",
     "not a complete seq64 grid",
@@ -395,7 +400,7 @@
       "status": "OPEN_NEEDED"
     }
   ],
-  "payload_commitment": "blake2b-256:a1747b90f1d31fc7573d235a121547efdbd50678745604785073f4096437aca7",
+  "payload_commitment": "blake2b-256:f0cf28b98c678b0f1864947730c3ed814c2913c88727c5458e48715a3bade873",
   "result": "TWENTY_THREE_ATTENTION_ROUTE_ROWS_SCALE_RAW_PROOF_PRESSURE_AND_SEQ32_D128_BOUNDARY_SAVES_7672_TYPED_BYTES",
   "route_matrix_signal": {
     "d32_two_head_sequence_ladder": {

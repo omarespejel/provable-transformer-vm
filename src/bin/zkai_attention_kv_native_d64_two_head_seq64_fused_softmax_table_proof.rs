@@ -74,10 +74,14 @@ fn run_with_args(mut args: Vec<std::ffi::OsString>) -> Result<String, String> {
                     &source_input,
                 )
                 .map_err(|error| error.to_string())?;
-            verify_zkai_attention_kv_native_d64_two_head_seq64_fused_softmax_table_envelope(
-                &envelope,
-            )
-            .map_err(|error| error.to_string())?;
+            let verified =
+                verify_zkai_attention_kv_native_d64_two_head_seq64_fused_softmax_table_envelope(
+                    &envelope,
+                )
+                .map_err(|error| error.to_string())?;
+            if !verified {
+                return Err("fused envelope verification returned false".to_string());
+            }
             if let Some(parent) = envelope_path.parent() {
                 if !parent.as_os_str().is_empty() {
                     fs::create_dir_all(parent).map_err(|error| {
@@ -137,10 +141,14 @@ fn run_with_args(mut args: Vec<std::ffi::OsString>) -> Result<String, String> {
                     &raw,
                 )
                 .map_err(|error| error.to_string())?;
-            verify_zkai_attention_kv_native_d64_two_head_seq64_fused_softmax_table_envelope(
-                &envelope,
-            )
-            .map_err(|error| error.to_string())?;
+            let verified =
+                verify_zkai_attention_kv_native_d64_two_head_seq64_fused_softmax_table_envelope(
+                    &envelope,
+                )
+                .map_err(|error| error.to_string())?;
+            if !verified {
+                return Err("fused envelope verification returned false".to_string());
+            }
             let envelope_path_json = envelope_path.to_string_lossy().into_owned();
             Ok(serde_json::json!({
                 "schema": "zkai-attention-kv-stwo-native-d64-two-head-seq64-fused-softmax-table-cli-summary-v1",
@@ -152,7 +160,7 @@ fn run_with_args(mut args: Vec<std::ffi::OsString>) -> Result<String, String> {
                 "source_statement_commitment": envelope.fused_summary.source_statement_commitment,
                 "lookup_claims": envelope.fused_summary.lookup_claims,
                 "table_rows": envelope.fused_summary.table_rows,
-                "verified": true,
+                "verified": verified,
             })
             .to_string())
         }

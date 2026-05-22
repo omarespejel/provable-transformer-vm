@@ -18,10 +18,16 @@ class AttentionKvFullerCrossingGridGateTests(unittest.TestCase):
         self.assertEqual(result["decision"], gate.DECISION)
         self.assertEqual(result["grid_status"], gate.GRID_STATUS)
         self.assertEqual(result["full_proof_grid_status"], gate.FULL_PROOF_GRID_STATUS)
+        self.assertIn("57_OF_80", result["full_proof_grid_status"])
+        self.assertNotIn("58_OF_80", result["full_proof_grid_status"])
         self.assertIn("NOT_A_FULL_FACTORIAL_PROOF_GRID", result["claim_boundary"])
         self.assertEqual(result["summary"]["grid_cell_count"], 80)
         self.assertEqual(result["summary"]["proved_cell_count"], 23)
         self.assertEqual(result["summary"]["missing_cell_count"], 57)
+        self.assertNotIn(
+            "d64_two_head_seq64",
+            [row["profile_id"] for row in result["next_low_risk_profiles"]],
+        )
         self.assertEqual(result["summary"]["coverage_share"], 0.2875)
         self.assertEqual(result["mutations_checked"], len(gate.EXPECTED_MUTATION_NAMES))
         self.assertEqual(result["mutations_rejected"], len(gate.EXPECTED_MUTATION_NAMES))

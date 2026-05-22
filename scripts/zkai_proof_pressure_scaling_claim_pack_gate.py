@@ -146,6 +146,7 @@ MUTATION_NAMES = (
     "d32_seq32_raw_saving_drift",
     "d64_seq16_head_growth_drift",
     "summary_route_growth_drift",
+    "d64_two_head_seq64_signal_drift",
     "attention_grid_row_loses_saving",
     "native_single_saving_drift",
     "statement_only_saving_drift",
@@ -1201,6 +1202,9 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
     def mutate_summary_route_growth(item: dict[str, Any]) -> None:
         item["summary"]["d32_seq8_to_seq32_lookup_growth"] = "1.000000"
 
+    def mutate_d64_two_head_seq64_signal(item: dict[str, Any]) -> None:
+        item["route_matrix_signal"]["d64_two_head_seq64_decision_gate"]["seq64_raw_saving_bytes"] = 34_333
+
     def mutate_attention_saving(item: dict[str, Any]) -> None:
         row = next(row for row in item["fused_vs_split_rows"] if row["row_id"] == "d8_two_head_seq32")
         row["typed_saving_bytes"] = 0
@@ -1250,6 +1254,7 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
         ("d32_seq32_raw_saving_drift", mutate_d32_seq32_raw_saving),
         ("d64_seq16_head_growth_drift", mutate_d64_seq16_head_growth),
         ("summary_route_growth_drift", mutate_summary_route_growth),
+        ("d64_two_head_seq64_signal_drift", mutate_d64_two_head_seq64_signal),
         ("attention_grid_row_loses_saving", mutate_attention_saving),
         ("native_single_saving_drift", mutate_native_saving),
         ("statement_only_saving_drift", mutate_statement_saving),
