@@ -17,8 +17,8 @@ class AttentionKvFusedSoftmaxTableRouteMatrixGateTests(unittest.TestCase):
         result = self.result
         self.assertEqual(result["decision"], gate.DECISION)
         self.assertEqual(result["route_id"], gate.ROUTE_ID)
-        self.assertEqual(result["profiles_checked"], 19)
-        self.assertEqual(result["matched_comparator_profiles"], 19)
+        self.assertEqual(result["profiles_checked"], 20)
+        self.assertEqual(result["matched_comparator_profiles"], 20)
         self.assertEqual(result["no_comparator_profiles"], [])
         self.assertIn("NOT_REAL_VALUED_SOFTMAX", result["claim_boundary"])
         self.assertIn("MATCHED_SOURCE_PLUS_SIDECAR_COMPARATORS", result["claim_boundary"])
@@ -217,6 +217,20 @@ class AttentionKvFusedSoftmaxTableRouteMatrixGateTests(unittest.TestCase):
         self.assertEqual(rows["d64_two_head_seq32"]["fused_over_source_proof_bytes"], 4555)
         self.assertEqual(rows["d64_two_head_seq32"]["fused_saves_vs_source_plus_sidecar_bytes"], 31845)
         self.assertEqual(rows["d64_two_head_seq32"]["fused_to_source_plus_sidecar_ratio"], 0.888303)
+
+        self.assertEqual(rows["d64_four_head_seq32"]["axis_role"], "combined_width_head_sequence_axis_d64_seq32_head_extension")
+        self.assertEqual(rows["d64_four_head_seq32"]["key_width"], 64)
+        self.assertEqual(rows["d64_four_head_seq32"]["head_count"], 4)
+        self.assertEqual(rows["d64_four_head_seq32"]["steps_per_head"], 32)
+        self.assertEqual(rows["d64_four_head_seq32"]["lookup_claims"], 2368)
+        self.assertEqual(rows["d64_four_head_seq32"]["trace_rows"], 4096)
+        self.assertEqual(rows["d64_four_head_seq32"]["source_proof_size_bytes"], 254145)
+        self.assertEqual(rows["d64_four_head_seq32"]["sidecar_proof_size_bytes"], 34147)
+        self.assertEqual(rows["d64_four_head_seq32"]["source_plus_sidecar_raw_proof_bytes"], 288292)
+        self.assertEqual(rows["d64_four_head_seq32"]["fused_proof_size_bytes"], 255889)
+        self.assertEqual(rows["d64_four_head_seq32"]["fused_over_source_proof_bytes"], 1744)
+        self.assertEqual(rows["d64_four_head_seq32"]["fused_saves_vs_source_plus_sidecar_bytes"], 32403)
+        self.assertEqual(rows["d64_four_head_seq32"]["fused_to_source_plus_sidecar_ratio"], 0.887604)
 
     def test_axis_summary_separates_width_head_and_sequence_effects(self):
         summary = self.result["axis_summary"]
@@ -436,6 +450,26 @@ class AttentionKvFusedSoftmaxTableRouteMatrixGateTests(unittest.TestCase):
         self.assertEqual(d64_seq32["d32_to_d64_savings_ratio"], 1.209641)
         self.assertEqual(d64_seq32["matched_comparator_status"], gate.MATCHED_COMPARATOR_STATUS)
 
+        d64_seq32_head = summary["combined_width_head_sequence_axis_d64_seq32_head_extension"]
+        self.assertEqual(d64_seq32_head["profile_ids"], ["d64_two_head_seq32", "d64_four_head_seq32"])
+        self.assertEqual(d64_seq32_head["head_counts"], [2, 4])
+        self.assertEqual(d64_seq32_head["lookup_claims"], [1184, 2368])
+        self.assertEqual(d64_seq32_head["trace_rows"], [2048, 4096])
+        self.assertEqual(d64_seq32_head["source_proof_size_bytes"], [248702, 254145])
+        self.assertEqual(d64_seq32_head["sidecar_proof_size_bytes"], [36400, 34147])
+        self.assertEqual(d64_seq32_head["fused_proof_size_bytes"], [253257, 255889])
+        self.assertEqual(d64_seq32_head["source_plus_sidecar_raw_proof_bytes"], [285102, 288292])
+        self.assertEqual(d64_seq32_head["fused_to_source_plus_sidecar_ratios"], [0.888303, 0.887604])
+        self.assertEqual(d64_seq32_head["two_to_four_head_ratio"], 2.0)
+        self.assertEqual(d64_seq32_head["two_to_four_lookup_claim_ratio"], 2.0)
+        self.assertEqual(d64_seq32_head["two_to_four_trace_row_ratio"], 2.0)
+        self.assertEqual(d64_seq32_head["two_to_four_source_proof_size_ratio"], 1.021886)
+        self.assertEqual(d64_seq32_head["two_to_four_sidecar_proof_size_ratio"], 0.938104)
+        self.assertEqual(d64_seq32_head["two_to_four_fused_proof_size_ratio"], 1.010393)
+        self.assertEqual(d64_seq32_head["two_to_four_source_plus_sidecar_ratio"], 1.011189)
+        self.assertEqual(d64_seq32_head["two_to_four_savings_ratio"], 1.017522)
+        self.assertEqual(d64_seq32_head["matched_comparator_status"], gate.MATCHED_COMPARATOR_STATUS)
+
         d64_seq16 = summary["combined_width_head_sequence_axis_d64_seq16_falsification"]
         self.assertEqual(d64_seq16["profile_ids"], ["d32_two_head_seq16", "d64_two_head_seq16"])
         self.assertEqual(d64_seq16["key_widths"], [32, 64])
@@ -469,13 +503,13 @@ class AttentionKvFusedSoftmaxTableRouteMatrixGateTests(unittest.TestCase):
 
     def test_aggregate_metrics_are_checked(self):
         metrics = self.result["aggregate_metrics"]
-        self.assertEqual(metrics["total_lookup_claims"], 11044)
-        self.assertEqual(metrics["total_trace_rows"], 17728)
-        self.assertEqual(metrics["total_fused_proof_size_bytes"], 2026301)
-        self.assertEqual(metrics["max_fused_proof_size_bytes"], 253257)
-        self.assertEqual(metrics["matched_source_plus_sidecar_raw_proof_bytes_total"], 2444487)
-        self.assertEqual(metrics["matched_fused_proof_size_bytes_total"], 2026301)
-        self.assertEqual(metrics["matched_fused_savings_bytes_total"], 418186)
+        self.assertEqual(metrics["total_lookup_claims"], 13412)
+        self.assertEqual(metrics["total_trace_rows"], 21824)
+        self.assertEqual(metrics["total_fused_proof_size_bytes"], 2282190)
+        self.assertEqual(metrics["max_fused_proof_size_bytes"], 255889)
+        self.assertEqual(metrics["matched_source_plus_sidecar_raw_proof_bytes_total"], 2732779)
+        self.assertEqual(metrics["matched_fused_proof_size_bytes_total"], 2282190)
+        self.assertEqual(metrics["matched_fused_savings_bytes_total"], 450589)
         self.assertEqual(metrics["min_matched_fused_to_source_plus_sidecar_ratio"], 0.676723)
         self.assertEqual(metrics["max_matched_fused_to_source_plus_sidecar_ratio"], 0.925421)
 
@@ -657,7 +691,7 @@ class AttentionKvFusedSoftmaxTableRouteMatrixGateTests(unittest.TestCase):
             gate.validate_result(loaded)
             with tsv_path.open("r", encoding="utf-8", newline="") as handle:
                 rows = list(csv.DictReader(handle, delimiter="\t"))
-            self.assertEqual(len(rows), 19)
+            self.assertEqual(len(rows), 20)
             self.assertEqual(rows[0]["profile_id"], "d8_single_head_seq8")
             self.assertEqual(rows[2]["profile_id"], "d32_single_head_seq8")
             self.assertEqual(rows[2]["source_plus_sidecar_raw_proof_bytes"], "116682")
@@ -701,6 +735,9 @@ class AttentionKvFusedSoftmaxTableRouteMatrixGateTests(unittest.TestCase):
             self.assertEqual(rows[18]["profile_id"], "d64_two_head_seq32")
             self.assertEqual(rows[18]["source_plus_sidecar_raw_proof_bytes"], "285102")
             self.assertEqual(rows[18]["fused_to_source_plus_sidecar_ratio"], "0.888303")
+            self.assertEqual(rows[19]["profile_id"], "d64_four_head_seq32")
+            self.assertEqual(rows[19]["source_plus_sidecar_raw_proof_bytes"], "288292")
+            self.assertEqual(rows[19]["fused_to_source_plus_sidecar_ratio"], "0.887604")
 
 
 if __name__ == "__main__":
