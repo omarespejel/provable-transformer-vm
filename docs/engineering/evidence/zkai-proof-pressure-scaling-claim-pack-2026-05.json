@@ -296,6 +296,11 @@
       "rejected": true
     },
     {
+      "error": "d64 seq16 single-head fused raw proof drift",
+      "name": "d64_seq16_single_head_anchor_drift",
+      "rejected": true
+    },
+    {
       "error": "summary d32 lookup growth drift",
       "name": "summary_route_growth_drift",
       "rejected": true
@@ -366,8 +371,8 @@
       "rejected": true
     }
   ],
-  "mutations_checked": 20,
-  "mutations_rejected": 20,
+  "mutations_checked": 21,
+  "mutations_rejected": 21,
   "non_claims": [
     "not a d64/d128/d256 attention grid",
     "not a complete seq64 grid",
@@ -400,7 +405,7 @@
       "status": "OPEN_NEEDED"
     }
   ],
-  "payload_commitment": "blake2b-256:f0cf28b98c678b0f1864947730c3ed814c2913c88727c5458e48715a3bade873",
+  "payload_commitment": "blake2b-256:aa0c5e0cb8fbdcbee5266ea5d31734bc15845174f9d79f5fbfe2afd15fb57b67",
   "result": "TWENTY_THREE_ATTENTION_ROUTE_ROWS_SCALE_RAW_PROOF_PRESSURE_AND_SEQ32_D128_BOUNDARY_SAVES_7672_TYPED_BYTES",
   "route_matrix_signal": {
     "d32_two_head_sequence_ladder": {
@@ -457,12 +462,36 @@
       "four_head_raw_saving_bytes": 23089,
       "four_head_source_plus_sidecar_raw_proof_bytes": 260685,
       "four_head_trace_rows": 1024,
+      "one_to_four_fused_raw_proof_growth": "0.999457",
+      "one_to_four_lookup_claim_growth": "4.000000",
+      "one_to_four_saving_growth": "1.386727",
+      "one_to_four_sidecar_raw_proof_growth": "1.206185",
+      "one_to_four_source_raw_proof_growth": "1.006810",
+      "one_to_four_split_raw_proof_growth": "1.024806",
+      "one_to_four_trace_row_growth": "4.000000",
+      "one_to_two_fused_raw_proof_growth": "1.003277",
+      "one_to_two_lookup_claim_growth": "2.000000",
+      "one_to_two_saving_growth": "1.154414",
+      "one_to_two_split_raw_proof_growth": "1.013170",
+      "one_to_two_trace_row_growth": "2.000000",
       "profile_ids": [
+        "d64_single_head_seq16",
         "d64_two_head_seq16",
         "d64_four_head_seq16"
       ],
+      "single_head_fused_raw_proof_bytes": 237725,
+      "single_head_fused_to_split_ratio": 0.934545,
+      "single_head_lookup_claims": 168,
+      "single_head_raw_saving_bytes": 16650,
+      "single_head_sidecar_raw_proof_bytes": 22960,
+      "single_head_source_plus_sidecar_raw_proof_bytes": 254375,
+      "single_head_source_raw_proof_bytes": 231415,
+      "single_head_trace_rows": 256,
       "two_head_fused_raw_proof_bytes": 238504,
+      "two_head_fused_to_split_ratio": 0.925421,
       "two_head_lookup_claims": 336,
+      "two_head_raw_saving_bytes": 19221,
+      "two_head_source_plus_sidecar_raw_proof_bytes": 257725,
       "two_head_trace_rows": 512,
       "two_to_four_fused_raw_proof_growth": "0.996193",
       "two_to_four_lookup_claim_growth": "2.000000",
@@ -497,7 +526,7 @@
       "seq64_source_raw_proof_bytes": 264403,
       "seq64_trace_rows": 8192
     },
-    "fused_raw_proof_bytes_total": 3068925,
+    "fused_raw_proof_bytes_total": 3306650,
     "head_counts": [
       1,
       2,
@@ -505,21 +534,21 @@
       8,
       16
     ],
-    "matched_comparator_profiles": 23,
-    "max_fused_to_split_ratio": 0.925421,
+    "matched_comparator_profiles": 24,
+    "max_fused_to_split_ratio": 0.934545,
     "min_fused_to_split_ratio": 0.676723,
-    "profiles_checked": 23,
-    "raw_proof_savings_bytes_total": 547294,
-    "source_plus_sidecar_raw_proof_bytes_total": 3616219,
-    "status": "GO_23_ROW_RAW_PROOF_ROUTE_MATRIX_WITH_D64_SEQ64_DECISION_GATES",
+    "profiles_checked": 24,
+    "raw_proof_savings_bytes_total": 563944,
+    "source_plus_sidecar_raw_proof_bytes_total": 3870594,
+    "status": "GO_24_ROW_RAW_PROOF_ROUTE_MATRIX_WITH_D64_SEQ64_AND_SINGLE_HEAD_ANCHOR",
     "steps_per_head": [
       8,
       16,
       32,
       64
     ],
-    "total_lookup_claims": 27332,
-    "total_trace_rows": 47424,
+    "total_lookup_claims": 27500,
+    "total_trace_rows": 47680,
     "widths": [
       8,
       16,
@@ -591,14 +620,14 @@
     {
       "id": "attention_route_matrix",
       "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
-      "sha256": "8f8e55b8bff06901418fa7483cda27946dc3e98e7fb97263fe937e49989a43b7",
-      "size_bytes": 68862
+      "sha256": "73db8b64c4ee65f2b52b1724c74ee94b267112d0f5590cc7440a078a51eb6ed5",
+      "size_bytes": 71549
     },
     {
       "id": "fuller_crossing_grid",
       "path": "docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json",
-      "sha256": "3abfe6d5ba38164fe3e1a914bbc9988569a073ec9ee4ec6b9988420177158147",
-      "size_bytes": 67487
+      "sha256": "fb6ee74979a677532859042419b2641bb77b902cfac2fb5284d5ea155e694993",
+      "size_bytes": 67256
     },
     {
       "id": "native_seq32_d128_single_proof",
@@ -668,8 +697,8 @@
     }
   ],
   "summary": {
-    "attention_raw_proof_savings_bytes_total": 547294,
-    "attention_route_rows_checked": 23,
+    "attention_raw_proof_savings_bytes_total": 563944,
+    "attention_route_rows_checked": 24,
     "attention_rows_checked": 10,
     "attention_rows_with_positive_typed_saving": 10,
     "attention_typed_savings_bytes_total": 51288,
@@ -680,6 +709,9 @@
     "d32_seq8_to_seq32_fused_raw_proof_growth": "1.193955",
     "d32_seq8_to_seq32_lookup_growth": "11.384615",
     "d64_seq16_four_head_raw_saving_bytes": 23089,
+    "d64_seq16_one_to_four_fused_raw_proof_growth": "0.999457",
+    "d64_seq16_one_to_four_lookup_growth": "4.000000",
+    "d64_seq16_single_head_raw_saving_bytes": 16650,
     "d64_seq16_two_to_four_fused_raw_proof_growth": "0.996193",
     "d64_seq16_two_to_four_lookup_growth": "2.000000",
     "open_followup_count": 3,

@@ -31,9 +31,9 @@ CLAIM_BOUNDARY = (
 )
 TIMING_POLICY = "proof_existence_and_byte_accounting_only_not_public_benchmark"
 
-ROUTE_MATRIX_SHA256 = "8f8e55b8bff06901418fa7483cda27946dc3e98e7fb97263fe937e49989a43b7"
-FULLER_GRID_SHA256 = "3abfe6d5ba38164fe3e1a914bbc9988569a073ec9ee4ec6b9988420177158147"
-CLAIM_PACK_SHA256 = "0eb683cb44e2c1667a92ba8a7291bc6b4f296161bc553c503daf61b6c3fe0855"
+ROUTE_MATRIX_SHA256 = "73db8b64c4ee65f2b52b1724c74ee94b267112d0f5590cc7440a078a51eb6ed5"
+FULLER_GRID_SHA256 = "fb6ee74979a677532859042419b2641bb77b902cfac2fb5284d5ea155e694993"
+CLAIM_PACK_SHA256 = "64f59b731def7721ec42cb0ce82f42da0693391f7c5e7a3b7a22e749f82a9055"
 
 REQUESTED_WIDTHS = (64, 128, 256)
 REQUESTED_HEAD_COUNTS = (1, 2, 4)
@@ -88,6 +88,7 @@ MUTATION_NAMES = (
     "d64_sequence_signal_drift",
     "d64_two_head_seq64_signal_drift",
     "width_pressure_signal_drift",
+    "d64_single_head_anchor_drift",
     "d64_head_extra_metric_drift",
     "accounting_triplet_drift",
     "candidate_order_drift",
@@ -222,7 +223,7 @@ def build_current_signal(route_matrix: dict[str, Any], fuller_grid: dict[str, An
         if not isinstance(rows, list):
             raise ProofPressureWideGridSelectorError("route matrix rows missing")
         proved = [row for row in rows if row.get("matched_source_sidecar_status") == EXPECTED_MATCH_STATUS]
-        if len(proved) != 23:
+        if len(proved) != 24:
             raise ProofPressureWideGridSelectorError("current route row count drift")
         for row in proved:
             fused_saving = row["fused_saves_vs_source_plus_sidecar_bytes"]
@@ -236,6 +237,7 @@ def build_current_signal(route_matrix: dict[str, Any], fuller_grid: dict[str, An
         d8_seq32 = row_by_id(proved, "d8_two_head_seq32")
         d8_h1 = row_by_id(proved, "d8_single_head_seq8")
         d32_h1 = row_by_id(proved, "d32_single_head_seq8")
+        d64_single_seq16 = row_by_id(proved, "d64_single_head_seq16")
         d64_seq16 = row_by_id(proved, "d64_two_head_seq16")
         d64_four_seq16 = row_by_id(proved, "d64_four_head_seq16")
         d64_seq32 = row_by_id(proved, "d64_two_head_seq32")
@@ -356,6 +358,27 @@ def build_current_signal(route_matrix: dict[str, Any], fuller_grid: dict[str, An
                     d64_seq16["fused_saves_vs_source_plus_sidecar_bytes"],
                 ),
             },
+            "d64_single_to_four_head_seq16": {
+                "lookup_claim_growth": ratio(d64_four_seq16["lookup_claims"], d64_single_seq16["lookup_claims"]),
+                "trace_row_growth": ratio(d64_four_seq16["trace_rows"], d64_single_seq16["trace_rows"]),
+                "source_raw_proof_growth": ratio(
+                    d64_four_seq16["source_proof_size_bytes"], d64_single_seq16["source_proof_size_bytes"]
+                ),
+                "sidecar_raw_proof_growth": ratio(
+                    d64_four_seq16["sidecar_proof_size_bytes"], d64_single_seq16["sidecar_proof_size_bytes"]
+                ),
+                "fused_raw_proof_growth": ratio(
+                    d64_four_seq16["fused_proof_size_bytes"], d64_single_seq16["fused_proof_size_bytes"]
+                ),
+                "split_raw_proof_growth": ratio(
+                    d64_four_seq16["source_plus_sidecar_raw_proof_bytes"],
+                    d64_single_seq16["source_plus_sidecar_raw_proof_bytes"],
+                ),
+                "saving_growth": ratio(
+                    d64_four_seq16["fused_saves_vs_source_plus_sidecar_bytes"],
+                    d64_single_seq16["fused_saves_vs_source_plus_sidecar_bytes"],
+                ),
+            },
             "d64_two_to_four_head_seq32": {
                 "lookup_claim_growth": ratio(d64_four_seq32["lookup_claims"], d64_seq32["lookup_claims"]),
                 "trace_row_growth": ratio(d64_four_seq32["trace_rows"], d64_seq32["trace_rows"]),
@@ -471,25 +494,25 @@ def build_candidate_order() -> list[dict[str, Any]]:
     return [
         {
             "priority": 1,
-            "profile_id": "d64_h1_seq16",
-            "key_width": 64,
-            "head_count": 1,
-            "steps_per_head": 16,
-            "selector_status": "D64_SINGLE_HEAD_WIDTH_SLOPE_ROW",
-            "why_this_row": "isolates d64 single-head width pressure without adding another head axis",
-            "go_gate": "fused and split rows quantify d32-to-d64 width growth under a narrow attention shape",
-            "no_go_gate": "proof bytes grow roughly with width and savings shrink versus nearby d32 rows",
-        },
-        {
-            "priority": 2,
             "profile_id": "d128_h2_seq32",
             "key_width": 128,
             "head_count": 2,
             "steps_per_head": 32,
-            "selector_status": "ONLY_AFTER_D64_GO",
-            "why_this_row": "approaches model-width relevance, but should not be attacked before d64 falsifies or confirms the slope",
+            "selector_status": "NEXT_WIDTH_FRONTIER_AFTER_D64_ANCHOR_GO",
+            "why_this_row": "approaches model-width relevance after d64 single-head, two-head, and four-head seq16 rows stayed positive",
             "go_gate": "d64 rows are source-backed and the d128 row keeps a positive fused-vs-split saving",
             "no_go_gate": "d64 already shows width pressure dominates lookup amortization",
+        },
+        {
+            "priority": 2,
+            "profile_id": "d64_h1_seq32",
+            "key_width": 64,
+            "head_count": 1,
+            "steps_per_head": 32,
+            "selector_status": "D64_SINGLE_HEAD_SEQUENCE_FALLBACK",
+            "why_this_row": "extends the new single-head width anchor along sequence if d128 engineering becomes too heavy",
+            "go_gate": "single-head sequence growth keeps fused bytes much flatter than lookup and trace growth",
+            "no_go_gate": "single-head sequence growth erases the d64 seq16 saving",
         },
         {
             "priority": 3,
@@ -517,11 +540,10 @@ def build_interpretation() -> dict[str, Any]:
         ),
         "paper_relevance": (
             "A paper-grade result needs the fused-vs-split saving to survive beyond isolated rows. "
-            "The selector therefore promotes a remaining d64 single-head width anchor and keeps d128/d256 gated."
+            "The selector therefore promotes d128 after the d64 single-head width anchor stayed positive."
         ),
         "research_recommendation": (
-            "Do d64_h1_seq16 next to pin the d64 single-head width slope. "
-            "If that stays positive, move to d128_h2_seq32; if it fails, analyze width pressure before widening."
+            "Do d128_h2_seq32 next. If it is too heavy, use d64_h1_seq32 as the fallback to extend the single-head slope."
         ),
     }
 
@@ -565,19 +587,20 @@ def validate_payload(payload: dict[str, Any], expected_source_artifacts: list[di
     current = payload.get("current_signal")
     if not isinstance(current, dict):
         raise ProofPressureWideGridSelectorError("current signal missing")
-    if current.get("checked_attention_route_rows") != 23:
+    if current.get("checked_attention_route_rows") != 24:
         raise ProofPressureWideGridSelectorError("current route row count drift")
     if current.get("checked_widths") != list(SUPPORTED_ATTENTION_WIDTHS):
         raise ProofPressureWideGridSelectorError("checked widths drift")
     if current.get("checked_sequences") != list(SUPPORTED_ATTENTION_SEQUENCES):
         raise ProofPressureWideGridSelectorError("checked sequences drift")
-    if current.get("raw_fused_bytes_total") != 3_068_925:
+    if current.get("raw_fused_bytes_total") != 3_306_650:
         raise ProofPressureWideGridSelectorError("raw fused total drift")
-    if current.get("raw_split_bytes_total") != 3_616_219:
+    if current.get("raw_split_bytes_total") != 3_870_594:
         raise ProofPressureWideGridSelectorError("raw split total drift")
-    if current.get("raw_saving_bytes_total") != 547_294:
+    if current.get("raw_saving_bytes_total") != 563_944:
         raise ProofPressureWideGridSelectorError("raw saving total drift")
     if current.get("checked_requested_profile_ids") != [
+        "d64_h1_seq16",
         "d64_h2_seq16",
         "d64_h2_seq32",
         "d64_h2_seq64",
@@ -636,6 +659,20 @@ def validate_payload(payload: dict[str, Any], expected_source_artifacts: list[di
     }
     if {key: d64_head_seq16.get(key) for key in expected_d64_head_seq16} != expected_d64_head_seq16:
         raise ProofPressureWideGridSelectorError("d64 seq16 head-axis signal drift")
+    d64_single_head_seq16 = current.get("d64_single_to_four_head_seq16")
+    if not isinstance(d64_single_head_seq16, dict):
+        raise ProofPressureWideGridSelectorError("d64 single-head anchor signal drift")
+    expected_d64_single_head_seq16 = {
+        "lookup_claim_growth": 4.0,
+        "trace_row_growth": 4.0,
+        "source_raw_proof_growth": 1.00681,
+        "sidecar_raw_proof_growth": 1.206185,
+        "fused_raw_proof_growth": 0.999457,
+        "split_raw_proof_growth": 1.024806,
+        "saving_growth": 1.386727,
+    }
+    if {key: d64_single_head_seq16.get(key) for key in expected_d64_single_head_seq16} != expected_d64_single_head_seq16:
+        raise ProofPressureWideGridSelectorError("d64 single-head anchor signal drift")
     d64_head = current.get("d64_two_to_four_head_seq32")
     if not isinstance(d64_head, dict):
         raise ProofPressureWideGridSelectorError("d64 head-axis signal drift")
@@ -675,7 +712,7 @@ def validate_payload(payload: dict[str, Any], expected_source_artifacts: list[di
         raise ProofPressureWideGridSelectorError("accounting triplet drift")
     if accounting.get("attention_json_bytes_total") != 629_466:
         raise ProofPressureWideGridSelectorError("accounting JSON drift")
-    if accounting.get("attention_raw_proof_savings_bytes_total") != 547_294:
+    if accounting.get("attention_raw_proof_savings_bytes_total") != 563_944:
         raise ProofPressureWideGridSelectorError("accounting raw drift")
     if accounting.get("binary_raw_available_rows") != 2 or accounting.get("binary_raw_missing_rows") != 10:
         raise ProofPressureWideGridSelectorError("binary raw availability drift")
@@ -690,11 +727,12 @@ def validate_payload(payload: dict[str, Any], expected_source_artifacts: list[di
         raise ProofPressureWideGridSelectorError("requested sequences drift")
     if requested.get("requested_cell_count") != 27:
         raise ProofPressureWideGridSelectorError("requested cell count drift")
-    if requested.get("source_backed_requested_cell_count") != 6:
+    if requested.get("source_backed_requested_cell_count") != 7:
         raise ProofPressureWideGridSelectorError("wide row smuggling")
-    if requested.get("missing_requested_cell_count") != 21:
+    if requested.get("missing_requested_cell_count") != 20:
         raise ProofPressureWideGridSelectorError("missing requested cell count drift")
     if requested.get("source_backed_requested_profile_ids") != [
+        "d64_h1_seq16",
         "d64_h2_seq16",
         "d64_h2_seq32",
         "d64_h2_seq64",
@@ -725,8 +763,8 @@ def validate_payload(payload: dict[str, Any], expected_source_artifacts: list[di
             raise ProofPressureWideGridSelectorError("requested row status drift")
     candidates = payload.get("candidate_order")
     if not isinstance(candidates, list) or [row.get("profile_id") for row in candidates] != [
-        "d64_h1_seq16",
         "d128_h2_seq32",
+        "d64_h1_seq32",
         "d256_h2_seq32",
     ]:
         raise ProofPressureWideGridSelectorError("candidate order drift")
@@ -749,7 +787,7 @@ def mutation_cases(payload: dict[str, Any]) -> tuple[tuple[str, Any], ...]:
         ("decision_drift", lambda p: p.__setitem__("decision", "GO_WIDE_GRID_PROVED")),
         ("claim_boundary_overclaim", lambda p: p.__setitem__("claim_boundary", "D64_D128_D256_ATTENTION_ROWS_PROVED")),
         ("source_artifact_digest_drift", lambda p: p["source_artifacts"][0].__setitem__("sha256", "0" * 64)),
-        ("wide_row_smuggling", lambda p: p["requested_grid_signal"].__setitem__("source_backed_requested_cell_count", 7)),
+        ("wide_row_smuggling", lambda p: p["requested_grid_signal"].__setitem__("source_backed_requested_cell_count", 8)),
         ("requested_widths_drift", lambda p: p["requested_grid_signal"].__setitem__("requested_widths", [64, 128])),
         (
             "requested_head_counts_drift",
@@ -768,7 +806,7 @@ def mutation_cases(payload: dict[str, Any]) -> tuple[tuple[str, Any], ...]:
         (
             "requested_row_status_drift",
             lambda p: p["requested_grid_signal"]["requested_rows"][0].__setitem__(
-                "selector_status", "SOURCE_BACKED_ATTENTION_ROUTE_ROW"
+                "selector_status", "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW"
             ),
         ),
         ("current_row_count_drift", lambda p: p["current_signal"].__setitem__("checked_attention_route_rows", 15)),
@@ -789,6 +827,12 @@ def mutation_cases(payload: dict[str, Any]) -> tuple[tuple[str, Any], ...]:
         (
             "width_pressure_signal_drift",
             lambda p: p["current_signal"]["d8_to_d32_two_head_seq32_width_pressure"].__setitem__(
+                "fused_raw_proof_growth", 1.0
+            ),
+        ),
+        (
+            "d64_single_head_anchor_drift",
+            lambda p: p["current_signal"]["d64_single_to_four_head_seq16"].__setitem__(
                 "fused_raw_proof_growth", 1.0
             ),
         ),

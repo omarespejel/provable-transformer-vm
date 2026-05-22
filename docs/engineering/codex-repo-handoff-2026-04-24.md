@@ -56,7 +56,8 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 45. `docs/engineering/zkai-attention-kv-stwo-native-d64-four-head-longseq-fused-softmax-table-gate-2026-05-22.md`
 46. `docs/engineering/zkai-attention-kv-stwo-native-d64-four-head-seq64-fused-softmax-table-gate-2026-05-22.md`
 47. `docs/engineering/zkai-attention-kv-stwo-native-d64-two-head-seq64-fused-softmax-table-gate-2026-05-22.md`
-48. `docs/engineering/zkai-attention-kv-stwo-native-d64-two-head-seq32-fused-softmax-table-gate-2026-05-21.md`
+48. `docs/engineering/zkai-attention-kv-stwo-native-d64-single-head-longseq-fused-softmax-table-gate-2026-05-23.md`
+49. `docs/engineering/zkai-attention-kv-stwo-native-d64-two-head-seq32-fused-softmax-table-gate-2026-05-21.md`
 49. `docs/engineering/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05-09.md`
 50. `docs/engineering/zkai-attention-kv-fused-softmax-table-microprofile-2026-05-10.md`
 51. `docs/engineering/zkai-attention-kv-fused-softmax-table-section-delta-2026-05-10.md`
@@ -123,6 +124,25 @@ proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
 
 Latest proof-pressure route extension: issue `#715` now has the
+`d64_single_head_seq16` native Stwo fused Softmax-table row. The matched split
+frontier is `231,415` source proof bytes plus `22,960` LogUp sidecar bytes
+(`254,375` total). The fused proof is `237,725` bytes, saving `16,650` bytes
+(`0.934545x`) against the matched split frontier. It is `6,310` bytes larger
+than the source arithmetic proof alone, so the honest claim is
+source-plus-sidecar fusion saving, not source-only compression. Holding d64 and
+seq16 fixed from one head to four heads, lookup claims and trace rows grow
+`4.000000x`, while fused proof bytes move to `0.999457x`, matched split bytes
+grow `1.024806x`, and fused savings grow `1.386727x`. The route matrix is now
+`24` matched rows, `27,500` lookup claims, `3,306,650` fused proof bytes versus
+`3,870,594` split proof bytes, and `563,944` aggregate saved bytes. The fuller
+grid is now `24 / 80` proved and `56 / 80` missing; the next selector target is
+`d128_h2_seq32`, with `d64_h1_seq32` as the fallback if the d128 engineering
+path is too heavy. This is not exact Softmax, not full transformer inference,
+not recursion or PCD, not production zkML readiness, not a NANOZK comparison,
+not timing evidence, and not a model-faithful d64 single-head trace. See
+`docs/engineering/zkai-attention-kv-stwo-native-d64-single-head-longseq-fused-softmax-table-gate-2026-05-23.md`.
+
+Previous proof-pressure route extension: issue `#715` has the
 `d64_two_head_seq64` native Stwo fused Softmax-table row. The matched split
 frontier is `264,403` source proof bytes plus `42,567` LogUp sidecar bytes
 (`306,970` total). The fused proof is `272,636` bytes, saving `34,334` bytes
