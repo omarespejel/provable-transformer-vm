@@ -823,6 +823,8 @@ def write_tsv(payload: dict[str, Any], path: pathlib.Path) -> None:
 
 
 def fsync_parent_dir(path: pathlib.Path) -> None:
+    if os.name == "nt":
+        return
     flags = getattr(os, "O_RDONLY", 0)
     if hasattr(os, "O_DIRECTORY"):
         flags |= os.O_DIRECTORY

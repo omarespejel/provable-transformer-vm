@@ -301,7 +301,7 @@
     "not production zkML readiness",
     "does not widen the claim beyond checked d8, d16, d32, and partial d64 attention rows"
   ],
-  "payload_commitment": "blake2b-256:982d701005fb0a4a075324ce71ee40ad815c68e9254723b882c581349742dfc8",
+  "payload_commitment": "blake2b-256:aca90c7f3bf0dd6800ebb22c6e8aa3e141a9b73a446ba673be79ead94850704c",
   "requested_grid_signal": {
     "fully_missing_requested_widths": [
       128,
@@ -544,8 +544,8 @@
     {
       "id": "proof_pressure_claim_pack",
       "path": "docs/engineering/evidence/zkai-proof-pressure-scaling-claim-pack-2026-05.json",
-      "sha256": "864dc9599fbb95d1e1e8cc280cca20f3df57a6a5111522fbf7dc113c724849fb",
-      "size_bytes": 26655
+      "sha256": "0eb683cb44e2c1667a92ba8a7291bc6b4f296161bc553c503daf61b6c3fe0855",
+      "size_bytes": 26794
     }
   ],
   "timing_policy": "proof_existence_and_byte_accounting_only_not_public_benchmark",
