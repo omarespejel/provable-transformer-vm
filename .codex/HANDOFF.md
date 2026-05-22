@@ -21,6 +21,26 @@ proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
 
 Latest proof-pressure route extension: issue `#715` now has the
+`d64_four_head_seq16` native Stwo fused Softmax-table row. The matched split
+frontier is `232,991` source proof bytes plus `27,694` LogUp sidecar bytes
+(`260,685` total). The fused proof is `237,596` bytes, saving `23,089` bytes
+(`0.911430x`) against the matched split frontier. It is `4,605` bytes larger
+than the source arithmetic proof alone, so the honest claim is
+source-plus-sidecar fusion saving, not source-only compression. Holding d64 and
+seq16 fixed from two heads to four heads, lookup claims grow `2.000000x` and
+trace rows grow `2.000000x`, while fused proof bytes move to `0.996193x`,
+matched split bytes grow `1.011485x`, and fused savings grow `1.201238x`.
+The route matrix is now `21` matched rows, `14,084` lookup claims, `2,519,786`
+fused proof bytes versus `2,993,464` split proof bytes, and `473,678`
+aggregate saved bytes. The fuller grid is now `21 / 60` proved and `39 / 60`
+missing; the next selector target is `d64_h4_seq64`, with `d64_h2_seq64` as
+the lower-risk sequence-axis fallback. This is not exact Softmax, not full
+transformer inference, not recursion or PCD, not production zkML readiness, not
+a NANOZK comparison, not timing evidence, and not a model-faithful d64
+four-head trace. See
+`docs/engineering/zkai-attention-kv-stwo-native-d64-four-head-longseq-fused-softmax-table-gate-2026-05-22.md`.
+
+Previous proof-pressure route extension: issue `#715` has the
 `d64_four_head_seq32` native Stwo fused Softmax-table row. The matched split
 frontier is `254,145` source proof bytes plus `34,147` LogUp sidecar bytes
 (`288,292` total). The fused proof is `255,889` bytes, saving `32,403` bytes
@@ -31,9 +51,8 @@ seq32 fixed from two heads to four heads, lookup claims grow `2.000000x` and
 trace rows grow `2.000000x`, while fused proof bytes grow only `1.010393x` and
 the LogUp sidecar shrinks to `0.938104x`. The route matrix is now `20` matched
 rows, `13,412` lookup claims, `2,282,190` fused proof bytes versus `2,732,779`
-split proof bytes, and `450,589` aggregate saved bytes. The fuller grid is now
-`20 / 60` proved and `40 / 60` missing; the next low-risk rows are
-`d64_four_head_seq16` and `d64_two_head_seq64`. This is not exact Softmax, not
+split proof bytes, and `450,589` aggregate saved bytes. The fuller grid was
+`20 / 60` proved and `40 / 60` missing after this row. This is not exact Softmax, not
 full transformer inference, not recursion or PCD, not production zkML readiness,
 not a NANOZK comparison, not timing evidence, and not a model-faithful d64
 four-head trace. See

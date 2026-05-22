@@ -17,11 +17,11 @@ question first:
 
 `GO_WIDE_GRID_SELECTOR_KEEP_PARTIAL_D64_AND_D128_D256_AS_FALSIFICATION_TARGETS`
 
-The current checked route matrix covers `20` source-backed attention rows over
+The current checked route matrix covers `21` source-backed attention rows over
 `d8`, `d16`, `d32`, and partial `d64`. It contains checked `d64_h2_seq16`,
-`d64_h2_seq32`, and `d64_h4_seq32` rows. It does not yet contain `d128` or
-`d256` attention route rows. The selector therefore records the remaining wide
-grid as a falsification target, not as a result.
+`d64_h2_seq32`, `d64_h4_seq16`, and `d64_h4_seq32` rows. It does not yet
+contain `d128` or `d256` attention route rows. The selector therefore records
+the remaining wide grid as a falsification target, not as a result.
 
 ## Why This Matters
 
@@ -31,6 +31,7 @@ The strongest current signal is lookup-heavy sequence scaling:
 |---|---:|---:|---:|
 | `d32`, two-head, `seq8` to `seq32` | `11.384615x` | `16.000000x` | `1.193955x` |
 | `d64`, two-head, `seq16` to `seq32` | `3.523810x` | `4.000000x` | `1.061856x` |
+| `d64`, `seq16`, two heads to four heads | `2.000000x` | `2.000000x` | `0.996193x` |
 | `d64`, `seq32`, two heads to four heads | `2.000000x` | `2.000000x` | `1.010393x` |
 
 That is the signal a paper can try to turn into a structural result.
@@ -54,23 +55,24 @@ from the claim pack separately from the raw route-matrix signal.
 |---|---:|---:|---:|---|
 | attention controlled grid totals | `234,296` | `629,466` | not available for those rows | typed/JSON only |
 | statement-only seq32+d128 row | `39,516` | `113,388` | `1,084` | local record-stream accounting |
-| route matrix raw saving | not comparable | not comparable | `266,325` saved | raw proof-byte route signal |
+| route matrix raw saving | not comparable | not comparable | `473,678` saved | raw proof-byte route signal |
 
 ## Selected Attack Order
 
-1. `d64_h4_seq16`
-   - Next d64 head-axis midpoint.
-   - Tests whether the d64 two-to-four-head amortization at `seq32` also holds
-     at `seq16`.
+1. `d64_h4_seq64`
+   - Next d64 four-head sequence stress row.
+   - Tests whether the d64 four-head amortization that held at `seq16` and
+     `seq32` survives a longer sequence.
    - GO if source, sidecar, and fused rows exist and fused beats matched split.
-   - NO-GO if the shorter row contradicts the `seq32` head-axis signal.
+   - NO-GO if `seq64` breaks artifact limits or fused bytes grow roughly with
+     lookup work.
 
-2. `d64_h1_seq8`
-   - Cheapest width-slope sanity row.
-   - Isolates width pressure before spending on `seq32`.
-
-3. `d64_h2_seq64`
+2. `d64_h2_seq64`
    - Sequence extension row after the d64 `seq16` to `seq32` signal.
+
+3. `d64_h1_seq16`
+   - Single-head width-slope sanity row.
+   - Isolates width pressure before adding another head axis.
 
 4. `d128_h2_seq32`
    - Only after the partial `d64` grid remains structurally positive.
@@ -103,16 +105,22 @@ just gate
 
 ## Correctness Guards
 
-The gate rejects `13 / 13` mutations:
+The gate rejects `19 / 19` mutations:
 
 - decision drift
 - claim-boundary overclaim
 - source-artifact digest drift
 - wide-row smuggling
 - requested-width drift
+- requested-head-count drift
+- requested-sequence drift
+- requested-source-id drift
+- requested-row-status drift
 - current-row-count drift
 - d32 sequence-signal drift
+- d64 sequence-signal drift
 - width-pressure-signal drift
+- d64 head-axis metric drift
 - accounting-triplet drift
 - candidate-order drift
 - validation-command drift
