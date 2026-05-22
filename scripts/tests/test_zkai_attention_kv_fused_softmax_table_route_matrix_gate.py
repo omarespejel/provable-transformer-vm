@@ -495,6 +495,13 @@ class AttentionKvFusedSoftmaxTableRouteMatrixGateTests(unittest.TestCase):
             gate.validate_result(bad)
 
         bad = copy.deepcopy(self.result)
+        bad["axis_summary"]["combined_width_head_sequence_axis_d32_seq32_head_extension"][
+            "two_to_four_fused_proof_size_ratio"
+        ] = 1.0
+        with self.assertRaisesRegex(gate.FusedSoftmaxTableRouteMatrixGateError, "axis summary drift"):
+            gate.validate_result(bad)
+
+        bad = copy.deepcopy(self.result)
         bad["claim_boundary"] = "GO_REAL_VALUED_SOFTMAX_PUBLIC_BENCHMARK"
         with self.assertRaisesRegex(gate.FusedSoftmaxTableRouteMatrixGateError, "result drift for claim_boundary"):
             gate.validate_result(bad)
