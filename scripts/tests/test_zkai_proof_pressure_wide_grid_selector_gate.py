@@ -28,14 +28,22 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         requested = payload["requested_grid_signal"]
         self.assertEqual(requested["requested_widths"], [64, 128, 256])
         self.assertEqual(requested["requested_head_counts"], [1, 2, 4])
+        self.assertEqual(requested["requested_sequences"], [16, 32, 64])
         self.assertEqual(requested["requested_cell_count"], 27)
         self.assertEqual(requested["source_backed_requested_cell_count"], 3)
+        self.assertEqual(requested["missing_requested_cell_count"], 24)
         self.assertEqual(
             requested["source_backed_requested_profile_ids"],
             ["d64_h2_seq16", "d64_h2_seq32", "d64_h4_seq32"],
         )
         self.assertEqual(requested["fully_missing_requested_widths"], [128, 256])
         self.assertEqual(requested["selector_status"], "PARTIAL_D64_SOURCE_BACKED_D128_D256_MISSING")
+        status_by_id = {row["profile_id"]: row["selector_status"] for row in requested["requested_rows"]}
+        self.assertEqual(status_by_id["d64_h2_seq16"], "SOURCE_BACKED_ATTENTION_ROUTE_ROW")
+        self.assertEqual(status_by_id["d64_h2_seq32"], "SOURCE_BACKED_ATTENTION_ROUTE_ROW")
+        self.assertEqual(status_by_id["d64_h4_seq32"], "SOURCE_BACKED_ATTENTION_ROUTE_ROW")
+        self.assertEqual(status_by_id["d64_h1_seq16"], "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW")
+        self.assertEqual(status_by_id["d128_h2_seq32"], "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW")
 
     def test_binds_current_route_matrix_signal(self):
         current = self.payload["current_signal"]
@@ -44,6 +52,8 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         self.assertEqual(current["raw_fused_bytes_total"], 2282190)
         self.assertEqual(current["raw_split_bytes_total"], 2732779)
         self.assertEqual(current["raw_saving_bytes_total"], 450589)
+        self.assertEqual(current["checked_requested_profile_ids"], ["d64_h2_seq16", "d64_h2_seq32", "d64_h4_seq32"])
+        self.assertEqual(current["fully_missing_requested_widths"], [128, 256])
         d32_sequence = current["d32_two_head_seq8_to_seq32"]
         self.assertEqual(d32_sequence["lookup_claim_growth"], 11.384615)
         self.assertEqual(d32_sequence["trace_row_growth"], 16.0)
@@ -53,12 +63,18 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         self.assertEqual(width_pressure["fused_raw_proof_growth"], 2.263739)
         d64_sequence = current["d64_two_head_seq16_to_seq32"]
         self.assertEqual(d64_sequence["lookup_claim_growth"], 3.52381)
+        self.assertEqual(d64_sequence["trace_row_growth"], 4.0)
         self.assertEqual(d64_sequence["fused_raw_proof_growth"], 1.061856)
+        self.assertEqual(d64_sequence["split_raw_proof_growth"], 1.106226)
+        self.assertEqual(d64_sequence["saving_growth"], 1.656782)
         d64_head = current["d64_two_to_four_head_seq32"]
         self.assertEqual(d64_head["lookup_claim_growth"], 2.0)
         self.assertEqual(d64_head["trace_row_growth"], 2.0)
+        self.assertEqual(d64_head["source_raw_proof_growth"], 1.021886)
         self.assertEqual(d64_head["fused_raw_proof_growth"], 1.010393)
         self.assertEqual(d64_head["sidecar_raw_proof_growth"], 0.938104)
+        self.assertEqual(d64_head["split_raw_proof_growth"], 1.011189)
+        self.assertEqual(d64_head["saving_growth"], 1.017522)
         accounting = current["accounting_triplet_signal"]
         self.assertEqual(accounting["attention_typed_rows"], 10)
         self.assertEqual(accounting["attention_typed_bytes_total"], 234296)
@@ -84,11 +100,10 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
 
     def test_all_declared_mutations_reject(self):
         mutation = self.payload["mutation_result"]
-        self.assertEqual(len(gate.MUTATION_NAMES), 13)
         self.assertTrue(mutation["all_mutations_rejected"])
-        self.assertEqual(mutation["mutations_checked"], 13)
-        self.assertEqual(mutation["mutations_rejected"], 13)
-        self.assertEqual(len(mutation["mutation_names"]), 13)
+        self.assertEqual(mutation["mutations_checked"], len(gate.MUTATION_NAMES))
+        self.assertEqual(mutation["mutations_rejected"], len(gate.MUTATION_NAMES))
+        self.assertEqual(len(mutation["mutation_names"]), len(gate.MUTATION_NAMES))
         self.assertEqual(mutation["mutation_names"], list(gate.MUTATION_NAMES))
 
     def test_current_signal_rejects_non_go_match_status(self):
@@ -102,6 +117,18 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         payload = copy.deepcopy(self.payload)
         payload["requested_grid_signal"]["source_backed_requested_cell_count"] = 4
         with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "wide row smuggling"):
+            gate.validate_payload(payload, self.expected_source_artifacts)
+
+    def test_validate_rejects_requested_source_id_drift(self):
+        payload = copy.deepcopy(self.payload)
+        payload["requested_grid_signal"]["source_backed_requested_profile_ids"] = ["d64_h2_seq16", "d64_h2_seq32"]
+        with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "source-backed requested profile IDs drift"):
+            gate.validate_payload(payload, self.expected_source_artifacts)
+
+    def test_validate_rejects_requested_row_status_drift(self):
+        payload = copy.deepcopy(self.payload)
+        payload["requested_grid_signal"]["requested_rows"][0]["selector_status"] = "SOURCE_BACKED_ATTENTION_ROUTE_ROW"
+        with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "requested row status drift"):
             gate.validate_payload(payload, self.expected_source_artifacts)
 
     def test_validate_rejects_payload_commitment_drift(self):

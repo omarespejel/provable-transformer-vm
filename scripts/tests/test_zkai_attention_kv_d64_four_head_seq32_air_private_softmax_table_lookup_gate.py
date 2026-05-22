@@ -118,7 +118,7 @@ class AttentionKvD64FourHeadSeq32AirPrivateSoftmaxTableLookupGateTests(unittest.
 
     def test_native_verifier_rejects_same_size_tampered_proof_payload(self):
         serialized = self.same_size_tampered_envelope_json()
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-d64-h4-sidecar-input-test-") as tmp:
             tampered = gate.pathlib.Path(tmp) / "same-size-tampered-envelope.json"
             tampered.write_text(serialized, encoding="utf-8")
             with self.assertRaisesRegex(
@@ -133,7 +133,7 @@ class AttentionKvD64FourHeadSeq32AirPrivateSoftmaxTableLookupGateTests(unittest.
         original = json.dumps(envelope, indent=2, sort_keys=True)
         tampered = self.same_size_tampered_envelope_json()
         self.assertEqual(len(original.encode("utf-8")), len(tampered.encode("utf-8")))
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-d64-h4-sidecar-input-test-") as tmp:
             path = gate.pathlib.Path(tmp) / "lookup-envelope.json"
             path.write_text(original, encoding="utf-8")
             gate.verify_lookup_envelope_with_native_cli(path)
@@ -183,7 +183,7 @@ class AttentionKvD64FourHeadSeq32AirPrivateSoftmaxTableLookupGateTests(unittest.
 
     def test_write_helpers_reject_symlink_targets(self):
         payload = gate.build_payload()
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-d64-h4-sidecar-test-") as tmp:
             tmp_path = gate.pathlib.Path(tmp)
             real_target = tmp_path / "real.json"
             real_target.write_text("{}", encoding="utf-8")
@@ -194,6 +194,11 @@ class AttentionKvD64FourHeadSeq32AirPrivateSoftmaxTableLookupGateTests(unittest.
                 self.skipTest(f"symlink creation unavailable: {err}")
             with self.assertRaisesRegex(gate.AttentionKvAirPrivateSoftmaxTableLookupGateError, "refusing to write json"):
                 gate.write_json(payload, symlink_target)
+
+    def test_write_helpers_reject_outputs_outside_evidence_dir(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(gate.AttentionKvAirPrivateSoftmaxTableLookupGateError, "stay inside evidence dir"):
+                gate.write_json(gate.build_payload(), gate.pathlib.Path(tmp) / "gate.json")
 
 
 if __name__ == "__main__":

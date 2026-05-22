@@ -84,7 +84,7 @@ class AttentionKvD64FourHeadSeq32BoundedSoftmaxTableInputTests(unittest.TestCase
 
     @unittest.skipUnless(hasattr(os, "symlink"), "symlink support is required")
     def test_write_json_rejects_symlinked_parent_before_create(self):
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-d64-h4-source-test-") as tmp:
             root = gate.pathlib.Path(tmp)
             target = root / "target"
             target.mkdir()
@@ -99,6 +99,14 @@ class AttentionKvD64FourHeadSeq32BoundedSoftmaxTableInputTests(unittest.TestCase
             ):
                 gate.write_json(gate.build_payload(), link / "nested" / "artifact.json")
             self.assertFalse((target / "nested").exists())
+
+    def test_write_json_rejects_outputs_outside_evidence_dir(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(
+                gate.AttentionKvD64FourHeadSeq32BoundedSoftmaxTableInputError,
+                "stay inside evidence dir",
+            ):
+                gate.write_json(gate.build_payload(), gate.pathlib.Path(tmp) / "artifact.json")
 
     def test_build_payload_is_deterministic(self):
         self.assertEqual(gate.build_payload(), copy.deepcopy(gate.build_payload()))

@@ -1564,7 +1564,7 @@
       "axis_role": "combined_width_head_sequence_axis_d64_seq32_head_extension",
       "decision": "GO_NATIVE_STWO_FUSED_ATTENTION_ARITHMETIC_AND_SOFTMAX_TABLE_LOGUP_MEMBERSHIP",
       "evidence_json": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-four-head-seq32-fused-softmax-table-gate-2026-05.json",
-      "fused_envelope_size_bytes": 21506429,
+      "fused_envelope_size_bytes": 21506508,
       "fused_issue": 715,
       "fused_over_source_proof_bytes": 1744,
       "fused_proof_size_bytes": 255889,
