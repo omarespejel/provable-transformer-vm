@@ -59,7 +59,7 @@ SIDECAR_PROOF_SIZE_BYTES = 34_147
 SIDECAR_ENVELOPE_SIZE_BYTES = 19_731_274
 SOURCE_PLUS_SIDECAR_RAW_PROOF_BYTES = SOURCE_PROOF_SIZE_BYTES + SIDECAR_PROOF_SIZE_BYTES
 FUSED_PROOF_SIZE_BYTES = 255_889
-FUSED_ENVELOPE_SIZE_BYTES = 21_506_429
+FUSED_ENVELOPE_SIZE_BYTES = 21_506_508
 FUSED_OVER_SOURCE_PROOF_BYTES = FUSED_PROOF_SIZE_BYTES - SOURCE_PROOF_SIZE_BYTES
 FUSED_SAVES_VS_SOURCE_PLUS_SIDECAR_BYTES = SOURCE_PLUS_SIDECAR_RAW_PROOF_BYTES - FUSED_PROOF_SIZE_BYTES
 FUSED_TO_SOURCE_PLUS_SIDECAR_RATIO = FUSED_PROOF_SIZE_BYTES / SOURCE_PLUS_SIDECAR_RAW_PROOF_BYTES
@@ -104,10 +104,12 @@ NON_CLAIMS = (
     "not exact Softmax attention",
     "not exp/div Softmax semantics",
     "not a full transformer block",
+    "not full transformer inference",
     "not full autoregressive inference",
     "not a long-context benchmark",
     "no timing evidence",
     "no NANOZK comparison",
+    "not production zkML readiness",
     "bounded-integer-fixture only",
     "not recursive verification or PCD",
     "not private witness privacy",
@@ -1100,32 +1102,43 @@ def fsync_parent_dir(path: pathlib.Path) -> None:
         os.close(fd)
 
 
-def ensure_parent_dir_without_symlinks(path: pathlib.Path, label: str) -> None:
-    candidate = path if path.is_absolute() else pathlib.Path.cwd() / path
-    reject_symlinked_output_path(candidate, label)
-    try:
-        candidate.parent.mkdir(parents=True, exist_ok=True)
-    except OSError as err:
+def checked_output_path(path: pathlib.Path, label: str) -> pathlib.Path:
+    if any(part == ".." for part in path.parts):
         raise AttentionKvD64FourHeadSeq32FusedSoftmaxTableGateError(
-            f"failed to create parent directory {candidate.parent} for {label}: {err}"
+            f"{label} output must stay inside evidence dir: {path}"
+        )
+    candidate = path if path.is_absolute() else ROOT / path
+    reject_symlinked_output_path(EVIDENCE_DIR, "evidence root")
+    try:
+        candidate.relative_to(EVIDENCE_DIR)
+    except ValueError as err:
+        raise AttentionKvD64FourHeadSeq32FusedSoftmaxTableGateError(
+            f"{label} output must stay inside evidence dir: {candidate}"
         ) from err
     reject_symlinked_output_path(candidate, label)
     if not candidate.parent.is_dir():
         raise AttentionKvD64FourHeadSeq32FusedSoftmaxTableGateError(
-            f"artifact parent path is not a directory for {label}: {candidate.parent}"
+            f"{label} output parent directory must exist: {candidate.parent}"
         )
+    evidence_root = EVIDENCE_DIR.resolve(strict=True)
+    try:
+        candidate.resolve(strict=False).relative_to(evidence_root)
+    except ValueError as err:
+        raise AttentionKvD64FourHeadSeq32FusedSoftmaxTableGateError(
+            f"{label} output must stay inside evidence dir: {candidate}"
+        ) from err
+    return candidate
 
 
 def safe_write_text(path: pathlib.Path, text: str, *, label: str) -> pathlib.Path:
-    ensure_parent_dir_without_symlinks(path, label)
-    reject_symlinked_output_path(path, label)
+    candidate = checked_output_path(path, label)
     temp_name: pathlib.Path | None = None
     try:
         with tempfile.NamedTemporaryFile(
             "w",
             encoding="utf-8",
-            dir=path.parent,
-            prefix=f".{path.name}.",
+            dir=candidate.parent,
+            prefix=f".{candidate.name}.",
             suffix=".tmp",
             delete=False,
         ) as tmp:
@@ -1143,10 +1156,10 @@ def safe_write_text(path: pathlib.Path, text: str, *, label: str) -> pathlib.Pat
 
 
 def replace_temp_output(temp_name: pathlib.Path, path: pathlib.Path, label: str) -> None:
-    reject_symlinked_output_path(path, label)
+    candidate = checked_output_path(path, label)
     try:
-        os.replace(temp_name, path)
-        fsync_parent_dir(path)
+        os.replace(temp_name, candidate)
+        fsync_parent_dir(candidate)
     except OSError as err:
         temp_name.unlink(missing_ok=True)
         raise AttentionKvD64FourHeadSeq32FusedSoftmaxTableGateError(
@@ -1169,16 +1182,15 @@ def write_tsv(path: pathlib.Path, result: dict[str, Any]) -> None:
     validate_result(result)
     row = {column: result[column] for column in TSV_COLUMNS}
     expected_row = {column: str(value) for column, value in row.items()}
-    ensure_parent_dir_without_symlinks(path, "tsv output")
-    reject_symlinked_output_path(path, "tsv output")
+    candidate = checked_output_path(path, "tsv output")
     tmp_path: pathlib.Path | None = None
     try:
         with tempfile.NamedTemporaryFile(
             "w",
             encoding="utf-8",
             newline="",
-            dir=path.parent,
-            prefix=f".{path.name}.",
+            dir=candidate.parent,
+            prefix=f".{candidate.name}.",
             suffix=".tmp",
             delete=False,
         ) as handle:
@@ -1203,7 +1215,7 @@ def write_tsv(path: pathlib.Path, result: dict[str, Any]) -> None:
             rows = list(csv.DictReader(handle, delimiter="\t"))
         if rows != [expected_row]:
             raise AttentionKvD64FourHeadSeq32FusedSoftmaxTableGateError("TSV round-trip drift")
-        replace_temp_output(tmp_path, path, "tsv output")
+        replace_temp_output(tmp_path, candidate, "tsv output")
     except Exception:
         if tmp_path is not None:
             tmp_path.unlink(missing_ok=True)

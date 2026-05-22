@@ -86,6 +86,11 @@
       8,
       16
     ],
+    "checked_requested_profile_ids": [
+      "d64_h2_seq16",
+      "d64_h2_seq32",
+      "d64_h4_seq32"
+    ],
     "checked_sequences": [
       8,
       16,
@@ -134,6 +139,10 @@
     "fuller_grid_cells": 60,
     "fuller_grid_missing_cells": 40,
     "fuller_grid_proved_cells": 20,
+    "fully_missing_requested_widths": [
+      128,
+      256
+    ],
     "raw_fused_bytes_total": 2282190,
     "raw_saving_bytes_total": 450589,
     "raw_split_bytes_total": 2732779
@@ -174,6 +183,26 @@
         "rejected": true
       },
       {
+        "error": "requested head counts drift",
+        "name": "requested_head_counts_drift",
+        "rejected": true
+      },
+      {
+        "error": "requested sequences drift",
+        "name": "requested_sequences_drift",
+        "rejected": true
+      },
+      {
+        "error": "source-backed requested profile IDs drift",
+        "name": "requested_source_ids_drift",
+        "rejected": true
+      },
+      {
+        "error": "requested row status drift",
+        "name": "requested_row_status_drift",
+        "rejected": true
+      },
+      {
         "error": "current route row count drift",
         "name": "current_row_count_drift",
         "rejected": true
@@ -184,8 +213,18 @@
         "rejected": true
       },
       {
+        "error": "d64 sequence signal drift",
+        "name": "d64_sequence_signal_drift",
+        "rejected": true
+      },
+      {
         "error": "width pressure signal drift",
         "name": "width_pressure_signal_drift",
+        "rejected": true
+      },
+      {
+        "error": "d64 head-axis signal drift",
+        "name": "d64_head_extra_metric_drift",
         "rejected": true
       },
       {
@@ -220,17 +259,23 @@
       "source_artifact_digest_drift",
       "wide_row_smuggling",
       "requested_widths_drift",
+      "requested_head_counts_drift",
+      "requested_sequences_drift",
+      "requested_source_ids_drift",
+      "requested_row_status_drift",
       "current_row_count_drift",
       "d32_sequence_signal_drift",
+      "d64_sequence_signal_drift",
       "width_pressure_signal_drift",
+      "d64_head_extra_metric_drift",
       "accounting_triplet_drift",
       "candidate_order_drift",
       "validation_command_drift",
       "non_claim_removed",
       "payload_commitment_drift"
     ],
-    "mutations_checked": 13,
-    "mutations_rejected": 13
+    "mutations_checked": 19,
+    "mutations_rejected": 19
   },
   "non_claims": [
     "not a complete d64, d128, or d256 attention proof result",
@@ -241,7 +286,7 @@
     "not production zkML readiness",
     "does not widen the claim beyond checked d8, d16, d32, and partial d64 attention rows"
   ],
-  "payload_commitment": "blake2b-256:b4017d3b1729393f348f1ebb8848ae6c458cb9b5131e6f112ab6f475d64165e5",
+  "payload_commitment": "blake2b-256:797237481ae09845538419ce616a306875c1577d1bd74fe311ed705bc216d8d8",
   "requested_grid_signal": {
     "fully_missing_requested_widths": [
       128,
@@ -469,7 +514,7 @@
     {
       "id": "fused_softmax_route_matrix",
       "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
-      "sha256": "1c7f0e99f04024752502e2d4ec3c13c1fb76b36ed3ef5b19b829ef2aee626f2c",
+      "sha256": "15603b95d79fbbe27c1aed2bbaf1553a89fe7875abf7bb4c1e2bf90d6fde395b",
       "size_bytes": 59756
     },
     {

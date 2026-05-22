@@ -77,9 +77,10 @@ The d64 four-head route keeps the local-only validation discipline:
 
 ## Non-Claims
 
-This is not exact real-valued Softmax. It is not full autoregressive inference.
-It is not a full transformer block. It is not recursion, PCD, private-witness
-privacy, on-chain verification, timing evidence, or a NANOZK comparison.
+This is not exact real-valued Softmax. It is not full transformer inference or
+full autoregressive inference. It is not a full transformer block. It is not
+recursion, PCD, production zkML readiness, private-witness privacy, on-chain
+verification, timing evidence, or a NANOZK comparison.
 
 The `d64` source row is deterministically widened from the checked `d64`
 two-head `seq32` source fixture and extends the head axis. It is not a
@@ -114,4 +115,6 @@ cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attent
 python3.10 scripts/zkai_attention_kv_fused_softmax_table_route_matrix_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.tsv
 python3.10 scripts/zkai_attention_kv_fuller_crossing_grid_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.tsv
 python3.10 scripts/zkai_proof_pressure_wide_grid_selector_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.tsv
+just gate-fast
+just gate
 ```

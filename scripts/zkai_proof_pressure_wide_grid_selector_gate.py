@@ -31,7 +31,7 @@ CLAIM_BOUNDARY = (
 )
 TIMING_POLICY = "proof_existence_and_byte_accounting_only_not_public_benchmark"
 
-ROUTE_MATRIX_SHA256 = "1c7f0e99f04024752502e2d4ec3c13c1fb76b36ed3ef5b19b829ef2aee626f2c"
+ROUTE_MATRIX_SHA256 = "15603b95d79fbbe27c1aed2bbaf1553a89fe7875abf7bb4c1e2bf90d6fde395b"
 FULLER_GRID_SHA256 = "cc7a7f9f45836f8a2c58a8c4cb61ce84eb8292d03f6756c2c02748bc9aacf163"
 CLAIM_PACK_SHA256 = "369da58f91fd9575b81c4287d1b2cb8a8bdcc5e1af1a600c23c5d24e65c2cdc1"
 
@@ -79,9 +79,15 @@ MUTATION_NAMES = (
     "source_artifact_digest_drift",
     "wide_row_smuggling",
     "requested_widths_drift",
+    "requested_head_counts_drift",
+    "requested_sequences_drift",
+    "requested_source_ids_drift",
+    "requested_row_status_drift",
     "current_row_count_drift",
     "d32_sequence_signal_drift",
+    "d64_sequence_signal_drift",
     "width_pressure_signal_drift",
+    "d64_head_extra_metric_drift",
     "accounting_triplet_drift",
     "candidate_order_drift",
     "validation_command_drift",
@@ -191,6 +197,24 @@ def requested_grid_rows() -> list[dict[str, Any]]:
     return rows
 
 
+def requested_profile_id_for_route_row(row: dict[str, Any]) -> str:
+    return f"d{row['key_width']}_h{row['head_count']}_seq{row['steps_per_head']}"
+
+
+def checked_requested_profile_ids(proved_rows: list[dict[str, Any]]) -> list[str]:
+    proved_profile_ids = {requested_profile_id_for_route_row(row) for row in proved_rows}
+    return [row["profile_id"] for row in requested_grid_rows() if row["profile_id"] in proved_profile_ids]
+
+
+def fully_missing_requested_widths(checked_profile_ids: list[str]) -> list[int]:
+    checked = set(checked_profile_ids)
+    widths = []
+    for width in REQUESTED_WIDTHS:
+        if not any(row["key_width"] == width and row["profile_id"] in checked for row in requested_grid_rows()):
+            widths.append(width)
+    return widths
+
+
 def build_current_signal(route_matrix: dict[str, Any], fuller_grid: dict[str, Any]) -> dict[str, Any]:
     try:
         rows = route_matrix.get("route_rows")
@@ -218,6 +242,7 @@ def build_current_signal(route_matrix: dict[str, Any], fuller_grid: dict[str, An
         fuller_summary = fuller_grid.get("summary")
         if not isinstance(fuller_summary, dict):
             raise ProofPressureWideGridSelectorError("fuller grid summary missing")
+        source_backed_requested_ids = checked_requested_profile_ids(proved)
 
         aggregates = route_matrix.get("aggregate_metrics")
         if not isinstance(aggregates, dict):
@@ -235,6 +260,8 @@ def build_current_signal(route_matrix: dict[str, Any], fuller_grid: dict[str, An
             "fuller_grid_cells": fuller_summary["grid_cell_count"],
             "fuller_grid_proved_cells": fuller_summary["proved_cell_count"],
             "fuller_grid_missing_cells": fuller_summary["missing_cell_count"],
+            "checked_requested_profile_ids": source_backed_requested_ids,
+            "fully_missing_requested_widths": fully_missing_requested_widths(source_backed_requested_ids),
             "d32_two_head_seq8_to_seq32": {
                 "lookup_claim_growth": ratio(d32_seq32["lookup_claims"], d32_seq8["lookup_claims"]),
                 "trace_row_growth": ratio(d32_seq32["trace_rows"], d32_seq8["trace_rows"]),
@@ -353,11 +380,7 @@ def build_accounting_triplet_signal(claim_pack: dict[str, Any]) -> dict[str, Any
 
 def build_requested_grid_signal(current_signal: dict[str, Any]) -> dict[str, Any]:
     rows = requested_grid_rows()
-    source_backed_ids = {
-        "d64_h2_seq16",
-        "d64_h2_seq32",
-        "d64_h4_seq32",
-    }
+    source_backed_ids = set(current_signal.get("checked_requested_profile_ids", []))
     for row in rows:
         if row["profile_id"] in source_backed_ids:
             row["selector_status"] = "SOURCE_BACKED_ATTENTION_ROUTE_ROW"
@@ -371,7 +394,7 @@ def build_requested_grid_signal(current_signal: dict[str, Any]) -> dict[str, Any
         "source_backed_requested_cell_count": len(source_backed_rows),
         "missing_requested_cell_count": len(missing_rows),
         "source_backed_requested_profile_ids": [row["profile_id"] for row in source_backed_rows],
-        "fully_missing_requested_widths": [128, 256],
+        "fully_missing_requested_widths": current_signal.get("fully_missing_requested_widths", []),
         "requested_rows": rows,
         "selector_status": "PARTIAL_D64_SOURCE_BACKED_D128_D256_MISSING",
     }
@@ -505,6 +528,10 @@ def validate_payload(payload: dict[str, Any], expected_source_artifacts: list[di
         raise ProofPressureWideGridSelectorError("raw split total drift")
     if current.get("raw_saving_bytes_total") != 450_589:
         raise ProofPressureWideGridSelectorError("raw saving total drift")
+    if current.get("checked_requested_profile_ids") != ["d64_h2_seq16", "d64_h2_seq32", "d64_h4_seq32"]:
+        raise ProofPressureWideGridSelectorError("checked requested profile IDs drift")
+    if current.get("fully_missing_requested_widths") != [128, 256]:
+        raise ProofPressureWideGridSelectorError("current missing requested widths drift")
     d32_seq = current.get("d32_two_head_seq8_to_seq32")
     if not isinstance(d32_seq, dict) or d32_seq.get("lookup_claim_growth") != 11.384615:
         raise ProofPressureWideGridSelectorError("d32 sequence signal drift")
@@ -513,8 +540,31 @@ def validate_payload(payload: dict[str, Any], expected_source_artifacts: list[di
     width_pressure = current.get("d8_to_d32_two_head_seq32_width_pressure")
     if not isinstance(width_pressure, dict) or width_pressure.get("fused_raw_proof_growth") != 2.263739:
         raise ProofPressureWideGridSelectorError("width pressure signal drift")
+    d64_seq = current.get("d64_two_head_seq16_to_seq32")
+    if not isinstance(d64_seq, dict):
+        raise ProofPressureWideGridSelectorError("d64 sequence signal drift")
+    expected_d64_sequence = {
+        "lookup_claim_growth": 3.52381,
+        "trace_row_growth": 4.0,
+        "fused_raw_proof_growth": 1.061856,
+        "split_raw_proof_growth": 1.106226,
+        "saving_growth": 1.656782,
+    }
+    if {key: d64_seq.get(key) for key in expected_d64_sequence} != expected_d64_sequence:
+        raise ProofPressureWideGridSelectorError("d64 sequence signal drift")
     d64_head = current.get("d64_two_to_four_head_seq32")
-    if not isinstance(d64_head, dict) or d64_head.get("fused_raw_proof_growth") != 1.010393:
+    if not isinstance(d64_head, dict):
+        raise ProofPressureWideGridSelectorError("d64 head-axis signal drift")
+    expected_d64_head = {
+        "lookup_claim_growth": 2.0,
+        "trace_row_growth": 2.0,
+        "source_raw_proof_growth": 1.021886,
+        "sidecar_raw_proof_growth": 0.938104,
+        "fused_raw_proof_growth": 1.010393,
+        "split_raw_proof_growth": 1.011189,
+        "saving_growth": 1.017522,
+    }
+    if {key: d64_head.get(key) for key in expected_d64_head} != expected_d64_head:
         raise ProofPressureWideGridSelectorError("d64 head-axis signal drift")
     accounting = current.get("accounting_triplet_signal")
     if not isinstance(accounting, dict):
@@ -536,10 +586,38 @@ def validate_payload(payload: dict[str, Any], expected_source_artifacts: list[di
         raise ProofPressureWideGridSelectorError("requested grid signal missing")
     if requested.get("requested_widths") != list(REQUESTED_WIDTHS):
         raise ProofPressureWideGridSelectorError("requested widths drift")
+    if requested.get("requested_head_counts") != list(REQUESTED_HEAD_COUNTS):
+        raise ProofPressureWideGridSelectorError("requested head counts drift")
+    if requested.get("requested_sequences") != list(REQUESTED_SEQUENCES):
+        raise ProofPressureWideGridSelectorError("requested sequences drift")
+    if requested.get("requested_cell_count") != 27:
+        raise ProofPressureWideGridSelectorError("requested cell count drift")
     if requested.get("source_backed_requested_cell_count") != 3:
         raise ProofPressureWideGridSelectorError("wide row smuggling")
+    if requested.get("missing_requested_cell_count") != 24:
+        raise ProofPressureWideGridSelectorError("missing requested cell count drift")
+    if requested.get("source_backed_requested_profile_ids") != ["d64_h2_seq16", "d64_h2_seq32", "d64_h4_seq32"]:
+        raise ProofPressureWideGridSelectorError("source-backed requested profile IDs drift")
     if requested.get("fully_missing_requested_widths") != [128, 256]:
         raise ProofPressureWideGridSelectorError("missing requested widths drift")
+    requested_rows = requested.get("requested_rows")
+    expected_rows = requested_grid_rows()
+    if not isinstance(requested_rows, list) or len(requested_rows) != len(expected_rows):
+        raise ProofPressureWideGridSelectorError("requested rows drift")
+    source_backed_ids = set(requested["source_backed_requested_profile_ids"])
+    expected_status_by_id = {
+        row["profile_id"]: (
+            "SOURCE_BACKED_ATTENTION_ROUTE_ROW"
+            if row["profile_id"] in source_backed_ids
+            else "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW"
+        )
+        for row in expected_rows
+    }
+    for actual, expected in zip(requested_rows, expected_rows, strict=True):
+        expected_with_status = dict(expected)
+        expected_with_status["selector_status"] = expected_status_by_id[expected["profile_id"]]
+        if actual != expected_with_status:
+            raise ProofPressureWideGridSelectorError("requested row status drift")
     candidates = payload.get("candidate_order")
     if not isinstance(candidates, list) or [row.get("profile_id") for row in candidates] != [
         "d64_h4_seq16",
@@ -570,15 +648,45 @@ def mutation_cases(payload: dict[str, Any]) -> tuple[tuple[str, Any], ...]:
         ("source_artifact_digest_drift", lambda p: p["source_artifacts"][0].__setitem__("sha256", "0" * 64)),
         ("wide_row_smuggling", lambda p: p["requested_grid_signal"].__setitem__("source_backed_requested_cell_count", 4)),
         ("requested_widths_drift", lambda p: p["requested_grid_signal"].__setitem__("requested_widths", [64, 128])),
+        (
+            "requested_head_counts_drift",
+            lambda p: p["requested_grid_signal"].__setitem__("requested_head_counts", [1, 2]),
+        ),
+        (
+            "requested_sequences_drift",
+            lambda p: p["requested_grid_signal"].__setitem__("requested_sequences", [16, 32]),
+        ),
+        (
+            "requested_source_ids_drift",
+            lambda p: p["requested_grid_signal"].__setitem__(
+                "source_backed_requested_profile_ids", ["d64_h2_seq16", "d64_h2_seq32"]
+            ),
+        ),
+        (
+            "requested_row_status_drift",
+            lambda p: p["requested_grid_signal"]["requested_rows"][0].__setitem__(
+                "selector_status", "SOURCE_BACKED_ATTENTION_ROUTE_ROW"
+            ),
+        ),
         ("current_row_count_drift", lambda p: p["current_signal"].__setitem__("checked_attention_route_rows", 15)),
         (
             "d32_sequence_signal_drift",
             lambda p: p["current_signal"]["d32_two_head_seq8_to_seq32"].__setitem__("lookup_claim_growth", 1.0),
         ),
         (
+            "d64_sequence_signal_drift",
+            lambda p: p["current_signal"]["d64_two_head_seq16_to_seq32"].__setitem__("saving_growth", 1.0),
+        ),
+        (
             "width_pressure_signal_drift",
             lambda p: p["current_signal"]["d8_to_d32_two_head_seq32_width_pressure"].__setitem__(
                 "fused_raw_proof_growth", 1.0
+            ),
+        ),
+        (
+            "d64_head_extra_metric_drift",
+            lambda p: p["current_signal"]["d64_two_to_four_head_seq32"].__setitem__(
+                "source_raw_proof_growth", 1.0
             ),
         ),
         (

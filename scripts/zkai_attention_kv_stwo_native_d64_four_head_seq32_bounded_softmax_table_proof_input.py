@@ -889,41 +889,43 @@ def reject_symlinked_output_path(path: pathlib.Path, label: str) -> None:
             )
 
 
-def ensure_parent_dir_without_symlinks(path: pathlib.Path, label: str) -> None:
-    reject_symlinked_output_path(path, label)
-    candidate = path if path.is_absolute() else pathlib.Path.cwd() / path
-    current = pathlib.Path(candidate.anchor)
-    for part in candidate.parent.parts[1:]:
-        current = current / part
-        if current.is_symlink():
-            raise AttentionKvD64FourHeadSeq32BoundedSoftmaxTableInputError(
-                f"refusing to create {label} under symlinked parent: {current}"
-            )
-        try:
-            current.mkdir(exist_ok=True)
-        except OSError as err:
-            raise AttentionKvD64FourHeadSeq32BoundedSoftmaxTableInputError(
-                f"failed to create parent directory {current} for {label}: {err}"
-            ) from err
-        if current.is_symlink():
-            raise AttentionKvD64FourHeadSeq32BoundedSoftmaxTableInputError(
-                f"refusing to create {label} under symlinked parent: {current}"
-            )
-        if not current.is_dir():
-            raise AttentionKvD64FourHeadSeq32BoundedSoftmaxTableInputError(
-                f"artifact parent path is not a directory for {label}: {current}"
-            )
+def checked_output_path(path: pathlib.Path, label: str) -> pathlib.Path:
+    if any(part == ".." for part in path.parts):
+        raise AttentionKvD64FourHeadSeq32BoundedSoftmaxTableInputError(
+            f"{label} output must stay inside evidence dir: {path}"
+        )
+    candidate = path if path.is_absolute() else ROOT / path
+    reject_symlinked_output_path(EVIDENCE_DIR, "evidence root")
+    try:
+        candidate.relative_to(EVIDENCE_DIR)
+    except ValueError as err:
+        raise AttentionKvD64FourHeadSeq32BoundedSoftmaxTableInputError(
+            f"{label} output must stay inside evidence dir: {candidate}"
+        ) from err
+    reject_symlinked_output_path(candidate, label)
+    if not candidate.parent.is_dir():
+        raise AttentionKvD64FourHeadSeq32BoundedSoftmaxTableInputError(
+            f"{label} output parent directory must exist: {candidate.parent}"
+        )
+    evidence_root = EVIDENCE_DIR.resolve(strict=True)
+    try:
+        candidate.resolve(strict=False).relative_to(evidence_root)
+    except ValueError as err:
+        raise AttentionKvD64FourHeadSeq32BoundedSoftmaxTableInputError(
+            f"{label} output must stay inside evidence dir: {candidate}"
+        ) from err
+    return candidate
 
 
 def safe_write_text(path: pathlib.Path, text: str, *, label: str) -> None:
-    ensure_parent_dir_without_symlinks(path, label)
-    reject_symlinked_output_path(path, label)
+    candidate = checked_output_path(path, label)
+    temp_name: pathlib.Path | None = None
     try:
         with tempfile.NamedTemporaryFile(
             "w",
             encoding="utf-8",
-            dir=path.parent,
-            prefix=f".{path.name}.",
+            dir=candidate.parent,
+            prefix=f".{candidate.name}.",
             suffix=".tmp",
             delete=False,
         ) as tmp:
@@ -931,11 +933,13 @@ def safe_write_text(path: pathlib.Path, text: str, *, label: str) -> None:
             tmp.flush()
             os.fsync(tmp.fileno())
             temp_name = pathlib.Path(tmp.name)
-        temp_name.replace(path)
-        fsync_parent_dir(path)
+        os.replace(temp_name, candidate)
+        fsync_parent_dir(candidate)
     except OSError as err:
+        if temp_name is not None:
+            temp_name.unlink(missing_ok=True)
         raise AttentionKvD64FourHeadSeq32BoundedSoftmaxTableInputError(
-            f"failed to write {label} artifact {path}: {err}"
+            f"failed to write {label} artifact {candidate}: {err}"
         ) from err
 
 

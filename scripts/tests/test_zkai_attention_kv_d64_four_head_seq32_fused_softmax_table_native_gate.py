@@ -265,7 +265,7 @@ class AttentionKvD64FourHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestC
                 gate.expect_artifact_size(raw + b" ", expected_size, label)
 
     def test_write_json_and_tsv_round_trip(self):
-        with tempfile.TemporaryDirectory(dir=gate.ROOT) as tmp_dir:
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-d64-h4-fused-test-") as tmp_dir:
             tmp_path = gate.pathlib.Path(tmp_dir)
             json_path = tmp_path / "gate.json"
             tsv_path = tmp_path / "gate.tsv"
@@ -306,7 +306,7 @@ class AttentionKvD64FourHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestC
 
     @unittest.skipUnless(hasattr(gate.pathlib.Path, "symlink_to"), "symlink support required")
     def test_write_helpers_reject_symlink_targets(self):
-        with tempfile.TemporaryDirectory(dir=gate.ROOT) as tmp_dir:
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-d64-h4-fused-test-") as tmp_dir:
             tmp_path = gate.pathlib.Path(tmp_dir)
             json_target = tmp_path / "target.json"
             json_target.write_text("original-json\n", encoding="utf-8")
@@ -332,6 +332,14 @@ class AttentionKvD64FourHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestC
                 gate.write_json(link_parent / "nested" / "gate.json", self.payload)
             with self.assertRaisesRegex(gate.AttentionKvD64FourHeadSeq32FusedSoftmaxTableGateError, "symlink"):
                 gate.write_tsv(link_parent / "nested" / "gate.tsv", self.payload)
+
+    def test_write_helpers_reject_outputs_outside_evidence_dir(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(
+                gate.AttentionKvD64FourHeadSeq32FusedSoftmaxTableGateError,
+                "stay inside evidence dir",
+            ):
+                gate.write_json(gate.pathlib.Path(tmp) / "gate.json", self.payload)
 
     def test_write_json_rejects_metric_drift(self):
         payload = copy.deepcopy(self.payload)
@@ -390,7 +398,7 @@ class AttentionKvD64FourHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestC
             gate.validate_result(payload)
 
     def test_write_json_failure_preserves_existing_artifact(self):
-        with tempfile.TemporaryDirectory(dir=gate.ROOT) as tmp:
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-d64-h4-fused-test-") as tmp:
             path = gate.pathlib.Path(tmp) / "gate.json"
             gate.write_json(path, self.payload)
             original = path.read_text(encoding="utf-8")

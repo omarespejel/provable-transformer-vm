@@ -133,8 +133,9 @@ rows, `13,412` lookup claims, `2,282,190` fused proof bytes versus `2,732,779`
 split proof bytes, and `450,589` aggregate saved bytes. The fuller grid is now
 `20 / 60` proved and `40 / 60` missing; the next low-risk rows are
 `d64_four_head_seq16` and `d64_two_head_seq64`. This is not exact Softmax, not
-full inference, not a NANOZK comparison, not timing evidence, and not a
-model-faithful d64 four-head trace. See
+full transformer inference, not recursion or PCD, not production zkML readiness,
+not a NANOZK comparison, not timing evidence, and not a model-faithful d64
+four-head trace. See
 `docs/engineering/zkai-attention-kv-stwo-native-d64-four-head-seq32-fused-softmax-table-gate-2026-05-22.md`.
 
 Previous proof-pressure route extension: issue `#728` has the
