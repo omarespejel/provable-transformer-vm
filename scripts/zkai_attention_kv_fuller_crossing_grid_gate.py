@@ -72,6 +72,7 @@ EXPECTED_PROVED_KEYS = (
     (64, 2, 16),
     (64, 4, 16),
     (64, 2, 32),
+    (64, 2, 64),
     (64, 4, 32),
     (64, 4, 64),
 )
@@ -96,6 +97,7 @@ EXPECTED_PROVED_PROFILE_IDS = (
     "d64_two_head_seq16",
     "d64_four_head_seq16",
     "d64_two_head_seq32",
+    "d64_two_head_seq64",
     "d64_four_head_seq32",
     "d64_four_head_seq64",
 )
@@ -107,12 +109,12 @@ VALIDATION_COMMANDS = (
 )
 GO_CRITERIA = (
     "the upstream fused Softmax-table route matrix validates locally",
-    "exactly 22 checked route cells are marked proved and exactly 58 cells are marked missing",
+    "exactly 23 checked route cells are marked proved and exactly 57 cells are marked missing",
     "every proved cell has matched source-plus-LogUp-sidecar comparator evidence from the route matrix",
     "missing cells carry no proof-byte, ratio, or evidence-path claims",
 )
 NO_GO_CRITERIA = (
-    "full factorial proof-grid claim: 58 of 80 grid cells are missing native fused proofs",
+    "full factorial proof-grid claim: 57 of 80 grid cells are missing native fused proofs",
     "new crossing proof claim: this slice adds only the d64/four-head/seq64 width-head-sequence decision row",
     "timing or public benchmark claim: this gate records status only",
     "real-valued Softmax or full-inference claim: the upstream kernel is bounded integer Softmax-table/floor division",

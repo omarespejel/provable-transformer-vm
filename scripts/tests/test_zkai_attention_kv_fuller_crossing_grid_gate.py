@@ -13,16 +13,16 @@ class AttentionKvFullerCrossingGridGateTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.result = gate.build_result()
 
-    def test_records_80_cell_grid_with_22_proved_and_58_missing(self):
+    def test_records_80_cell_grid_with_23_proved_and_57_missing(self):
         result = self.result
         self.assertEqual(result["decision"], gate.DECISION)
         self.assertEqual(result["grid_status"], gate.GRID_STATUS)
         self.assertEqual(result["full_proof_grid_status"], gate.FULL_PROOF_GRID_STATUS)
         self.assertIn("NOT_A_FULL_FACTORIAL_PROOF_GRID", result["claim_boundary"])
         self.assertEqual(result["summary"]["grid_cell_count"], 80)
-        self.assertEqual(result["summary"]["proved_cell_count"], 22)
-        self.assertEqual(result["summary"]["missing_cell_count"], 58)
-        self.assertEqual(result["summary"]["coverage_share"], 0.275)
+        self.assertEqual(result["summary"]["proved_cell_count"], 23)
+        self.assertEqual(result["summary"]["missing_cell_count"], 57)
+        self.assertEqual(result["summary"]["coverage_share"], 0.2875)
         self.assertEqual(result["mutations_checked"], len(gate.EXPECTED_MUTATION_NAMES))
         self.assertEqual(result["mutations_rejected"], len(gate.EXPECTED_MUTATION_NAMES))
 
@@ -83,6 +83,12 @@ class AttentionKvFullerCrossingGridGateTests(unittest.TestCase):
         self.assertEqual(by_cell["d64_h4_seq32"]["fused_proof_size_bytes"], 255889)
         self.assertEqual(by_cell["d64_h4_seq32"]["source_plus_sidecar_raw_proof_bytes"], 288292)
         self.assertEqual(by_cell["d64_h4_seq32"]["fused_to_source_plus_sidecar_ratio"], 0.887604)
+        self.assertEqual(by_cell["d64_h2_seq64"]["profile_id"], "d64_two_head_seq64")
+        self.assertEqual(by_cell["d64_h2_seq64"]["pressure_axes"], ["width", "head", "sequence"])
+        self.assertEqual(by_cell["d64_h2_seq64"]["lookup_claims"], 4416)
+        self.assertEqual(by_cell["d64_h2_seq64"]["fused_proof_size_bytes"], 272636)
+        self.assertEqual(by_cell["d64_h2_seq64"]["source_plus_sidecar_raw_proof_bytes"], 306970)
+        self.assertEqual(by_cell["d64_h2_seq64"]["fused_to_source_plus_sidecar_ratio"], 0.888152)
         self.assertEqual(by_cell["d64_h4_seq64"]["profile_id"], "d64_four_head_seq64")
         self.assertEqual(by_cell["d64_h4_seq64"]["pressure_axes"], ["width", "head", "sequence"])
         self.assertEqual(by_cell["d64_h4_seq64"]["lookup_claims"], 8832)
@@ -94,7 +100,7 @@ class AttentionKvFullerCrossingGridGateTests(unittest.TestCase):
 
     def test_missing_cells_carry_no_proof_metrics_or_evidence_paths(self):
         missing = [row for row in self.result["grid_rows"] if row["status"] == gate.MISSING_STATUS]
-        self.assertEqual(len(missing), 58)
+        self.assertEqual(len(missing), 57)
         for row in missing:
             self.assertIsNone(row["profile_id"])
             self.assertIsNone(row["lookup_claims"])
@@ -113,12 +119,12 @@ class AttentionKvFullerCrossingGridGateTests(unittest.TestCase):
 
     def test_summary_keeps_go_and_no_go_boundary_sharp(self):
         summary = self.result["summary"]
-        self.assertEqual(summary["proved_crossing_cell_count"], 15)
-        self.assertEqual(summary["proved_all_axis_cell_count"], 11)
-        self.assertEqual(summary["missing_all_axis_cell_count"], 25)
-        self.assertEqual(summary["proved_counts_by_width"], {"16": 4, "32": 6, "64": 5, "8": 7})
-        self.assertEqual(summary["proved_counts_by_head_count"], {"1": 3, "16": 1, "2": 11, "4": 6, "8": 1})
-        self.assertEqual(summary["proved_counts_by_steps_per_head"], {"16": 6, "32": 6, "64": 1, "8": 9})
+        self.assertEqual(summary["proved_crossing_cell_count"], 16)
+        self.assertEqual(summary["proved_all_axis_cell_count"], 12)
+        self.assertEqual(summary["missing_all_axis_cell_count"], 24)
+        self.assertEqual(summary["proved_counts_by_width"], {"16": 4, "32": 6, "64": 6, "8": 7})
+        self.assertEqual(summary["proved_counts_by_head_count"], {"1": 3, "16": 1, "2": 12, "4": 6, "8": 1})
+        self.assertEqual(summary["proved_counts_by_steps_per_head"], {"16": 6, "32": 6, "64": 2, "8": 9})
         self.assertIn("full factorial proof-grid claim", self.result["no_go_criteria"][0])
         self.assertEqual(self.result["next_low_risk_profiles"][0]["profile_id"], "d32_four_head_seq64")
 
@@ -226,6 +232,9 @@ class AttentionKvFullerCrossingGridGateTests(unittest.TestCase):
             self.assertEqual(rows[65]["profile_id"], "d64_two_head_seq16")
             self.assertEqual(rows[66]["cell_id"], "d64_h2_seq32")
             self.assertEqual(rows[66]["profile_id"], "d64_two_head_seq32")
+            self.assertEqual(rows[67]["cell_id"], "d64_h2_seq64")
+            self.assertEqual(rows[67]["profile_id"], "d64_two_head_seq64")
+            self.assertEqual(rows[67]["fused_to_source_plus_sidecar_ratio"], "0.888152")
             self.assertEqual(rows[69]["cell_id"], "d64_h4_seq16")
             self.assertEqual(rows[69]["profile_id"], "d64_four_head_seq16")
             self.assertEqual(rows[69]["fused_to_source_plus_sidecar_ratio"], "0.91143")

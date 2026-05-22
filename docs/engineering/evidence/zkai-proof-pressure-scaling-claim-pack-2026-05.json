@@ -383,9 +383,9 @@
       "status": "OPEN_NEEDED"
     },
     {
-      "go_gate": "produce a checked d64 two-head seq64 row to isolate sequence pressure or record a concrete resource/no-go blocker",
+      "go_gate": "produce the next checked seq64 row or record a concrete resource/no-go blocker with proof-byte attribution",
       "id": "seq64_attention_grid",
-      "reason": "d64 four-head seq64 is present, but d64 two-head seq64 and other seq64 crossings are still missing.",
+      "reason": "d64 two-head and four-head seq64 are present, but the seq64 grid is not complete across width/head axes.",
       "status": "OPEN_NEEDED"
     },
     {
@@ -395,8 +395,8 @@
       "status": "OPEN_NEEDED"
     }
   ],
-  "payload_commitment": "blake2b-256:87b97f4719af99f8b3f2f3aa8da5cbe5d2f5854ab8437ea994ba55ee4d7ddbee",
-  "result": "TWENTY_TWO_ATTENTION_ROUTE_ROWS_SCALE_RAW_PROOF_PRESSURE_AND_SEQ32_D128_BOUNDARY_SAVES_7672_TYPED_BYTES",
+  "payload_commitment": "blake2b-256:20fff10f2bab7e37ca1ffed485169c8b1768b2111b75ee4a8c24f41f4f18e9c1",
+  "result": "TWENTY_THREE_ATTENTION_ROUTE_ROWS_SCALE_RAW_PROOF_PRESSURE_AND_SEQ32_D128_BOUNDARY_SAVES_7672_TYPED_BYTES",
   "route_matrix_signal": {
     "d32_two_head_sequence_ladder": {
       "profile_ids": [
@@ -465,7 +465,34 @@
       "two_to_four_split_raw_proof_growth": "1.011485",
       "two_to_four_trace_row_growth": "2.000000"
     },
-    "fused_raw_proof_bytes_total": 2796289,
+    "d64_two_head_seq64_decision_gate": {
+      "profile_ids": [
+        "d64_two_head_seq16",
+        "d64_two_head_seq32",
+        "d64_two_head_seq64"
+      ],
+      "seq32_fused_raw_proof_bytes": 253257,
+      "seq32_lookup_claims": 1184,
+      "seq32_sidecar_raw_proof_bytes": 36400,
+      "seq32_source_raw_proof_bytes": 248702,
+      "seq32_to_seq64_fused_raw_proof_growth": "1.076519",
+      "seq32_to_seq64_lookup_claim_growth": "3.729730",
+      "seq32_to_seq64_saving_growth": "1.078160",
+      "seq32_to_seq64_sidecar_raw_proof_growth": "1.169423",
+      "seq32_to_seq64_source_raw_proof_growth": "1.063132",
+      "seq32_to_seq64_split_raw_proof_growth": "1.076702",
+      "seq32_to_seq64_trace_row_growth": "4.000000",
+      "seq32_trace_rows": 2048,
+      "seq64_fused_raw_proof_bytes": 272636,
+      "seq64_fused_to_split_ratio": 0.888152,
+      "seq64_lookup_claims": 4416,
+      "seq64_raw_saving_bytes": 34334,
+      "seq64_sidecar_raw_proof_bytes": 42567,
+      "seq64_source_plus_sidecar_raw_proof_bytes": 306970,
+      "seq64_source_raw_proof_bytes": 264403,
+      "seq64_trace_rows": 8192
+    },
+    "fused_raw_proof_bytes_total": 3068925,
     "head_counts": [
       1,
       2,
@@ -473,21 +500,21 @@
       8,
       16
     ],
-    "matched_comparator_profiles": 22,
+    "matched_comparator_profiles": 23,
     "max_fused_to_split_ratio": 0.925421,
     "min_fused_to_split_ratio": 0.676723,
-    "profiles_checked": 22,
-    "raw_proof_savings_bytes_total": 512960,
-    "source_plus_sidecar_raw_proof_bytes_total": 3309249,
-    "status": "GO_22_ROW_RAW_PROOF_ROUTE_MATRIX_WITH_D64_SEQ64_DECISION_GATE",
+    "profiles_checked": 23,
+    "raw_proof_savings_bytes_total": 547294,
+    "source_plus_sidecar_raw_proof_bytes_total": 3616219,
+    "status": "GO_23_ROW_RAW_PROOF_ROUTE_MATRIX_WITH_D64_SEQ64_DECISION_GATES",
     "steps_per_head": [
       8,
       16,
       32,
       64
     ],
-    "total_lookup_claims": 22916,
-    "total_trace_rows": 39232,
+    "total_lookup_claims": 27332,
+    "total_trace_rows": 47424,
     "widths": [
       8,
       16,
@@ -559,14 +586,14 @@
     {
       "id": "attention_route_matrix",
       "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
-      "sha256": "fea587a9e34e70dc71a99bc6203d29b2d2e24aeeb5b8dcc3798f6fd9c9c1712c",
-      "size_bytes": 66399
+      "sha256": "8f8e55b8bff06901418fa7483cda27946dc3e98e7fb97263fe937e49989a43b7",
+      "size_bytes": 68862
     },
     {
       "id": "fuller_crossing_grid",
       "path": "docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json",
-      "sha256": "4210a6f8ea8d8f154a940bf833a3df7d3961ac9d0c2fa992a95284bc6d113de6",
-      "size_bytes": 67435
+      "sha256": "ec3449076d5f4fd1bd8f3c78284b4c4c38ed33bebe15556cfafaa60bf77488ad",
+      "size_bytes": 67527
     },
     {
       "id": "native_seq32_d128_single_proof",
@@ -636,8 +663,8 @@
     }
   ],
   "summary": {
-    "attention_raw_proof_savings_bytes_total": 512960,
-    "attention_route_rows_checked": 22,
+    "attention_raw_proof_savings_bytes_total": 547294,
+    "attention_route_rows_checked": 23,
     "attention_rows_checked": 10,
     "attention_rows_with_positive_typed_saving": 10,
     "attention_typed_savings_bytes_total": 51288,
