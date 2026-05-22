@@ -1,7 +1,7 @@
 {
   "claim_boundary": "ENGINEERING_STATUS_GRID_FOR_CHECKED_NATIVE_STWO_FUSED_BOUNDED_SOFTMAX_TABLE_ROUTES_MAPS_PROVED_AND_MISSING_WIDTH_HEAD_SEQUENCE_CELLS_NOT_A_FULL_FACTORIAL_PROOF_GRID_NOT_TIMING_NOT_REAL_VALUED_SOFTMAX_NOT_FULL_INFERENCE_NOT_RECURSION_OR_PCD",
   "decision": "GO_CHECKED_FULLER_CROSSING_GRID_WITH_FULL_PROOF_GRID_NO_GO",
-  "full_proof_grid_status": "NO_GO_58_OF_80_GRID_CELLS_DO_NOT_HAVE_NATIVE_FUSED_PROOFS",
+  "full_proof_grid_status": "NO_GO_57_OF_80_GRID_CELLS_DO_NOT_HAVE_NATIVE_FUSED_PROOFS",
   "go_criteria": [
     "the upstream fused Softmax-table route matrix validates locally",
     "exactly 23 checked route cells are marked proved and exactly 57 cells are marked missing",
@@ -1835,24 +1835,24 @@
   "next_low_risk_profiles": [
     {
       "go_condition": "source, sidecar, fused, and mutation gates all validate under local-only proof accounting",
+      "head_count": 1,
+      "key_width": 64,
+      "profile_id": "d64_single_head_seq16",
+      "reason": "pins the d64 single-head width slope before moving to d128",
+      "steps_per_head": 16
+    },
+    {
+      "go_condition": "source, sidecar, fused, and mutation gates all validate under local-only proof accounting",
       "head_count": 4,
       "key_width": 32,
       "profile_id": "d32_four_head_seq64",
       "reason": "tests whether the d32 four-head seq32 saving strengthens under another sequence-axis extension",
       "steps_per_head": 64
-    },
-    {
-      "go_condition": "source, sidecar, fused, and mutation gates all validate under local-only proof accounting",
-      "head_count": 2,
-      "key_width": 64,
-      "profile_id": "d64_two_head_seq64",
-      "reason": "isolates d64 sequence pressure from the four-head interaction now that d64 four-head seq64 is proved",
-      "steps_per_head": 64
     }
   ],
   "no_go_criteria": [
     "full factorial proof-grid claim: 57 of 80 grid cells are missing native fused proofs",
-    "new crossing proof claim: this slice adds only the d64/four-head/seq64 width-head-sequence decision row",
+    "new crossing proof claim: this slice adds only the d64/two-head/seq64 width-head-sequence decision row",
     "timing or public benchmark claim: this gate records status only",
     "real-valued Softmax or full-inference claim: the upstream kernel is bounded integer Softmax-table/floor division"
   ],
