@@ -2,7 +2,7 @@
 
 Last refreshed: 2026-05-22
 Repository: `/Users/espejelomar/StarkNet/provable-transformer-vm`
-Mainline reference at refresh: `2295bf9f2ad71bc12bcfcd17bba8ea4076ec191c`
+Mainline reference at refresh: `982e73b8d1c4e3e1e55ad3576108582e7a80d419`
 
 ## Immediate orientation
 
@@ -21,6 +21,26 @@ proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
 
 Latest proof-pressure route extension: issue `#715` now has the
+`d64_four_head_seq64` native Stwo fused Softmax-table row. The matched split
+frontier is `272,638` source proof bytes plus `43,147` LogUp sidecar bytes
+(`315,785` total). The fused proof is `276,503` bytes, saving `39,282` bytes
+(`0.875605x`) against the matched split frontier. It is `3,865` bytes larger
+than the source arithmetic proof alone, so the honest claim is
+source-plus-sidecar fusion saving, not source-only compression. Holding d64 and
+four heads fixed from seq32 to seq64, lookup claims grow `3.729730x` and trace
+rows grow `4.000000x`, while fused proof bytes grow `1.080558x`, matched split
+bytes grow `1.095365x`, and fused savings grow `1.212295x`. The route matrix is
+now `22` matched rows, `22,916` lookup claims, `2,796,289` fused proof bytes
+versus `3,309,249` split proof bytes, and `512,960` aggregate saved bytes. The
+fuller grid is now `22 / 80` proved and `58 / 80` missing; the next selector
+target is `d64_h2_seq64` to isolate sequence pressure from the passing
+four-head seq64 crossing. This is not exact Softmax, not full transformer
+inference, not recursion or PCD, not production zkML readiness, not a NANOZK
+comparison, not timing evidence, and not a model-faithful d64 four-head trace.
+See
+`docs/engineering/zkai-attention-kv-stwo-native-d64-four-head-seq64-fused-softmax-table-gate-2026-05-22.md`.
+
+Previous proof-pressure route extension: issue `#715` has the
 `d64_four_head_seq16` native Stwo fused Softmax-table row. The matched split
 frontier is `232,991` source proof bytes plus `27,694` LogUp sidecar bytes
 (`260,685` total). The fused proof is `237,596` bytes, saving `23,089` bytes
