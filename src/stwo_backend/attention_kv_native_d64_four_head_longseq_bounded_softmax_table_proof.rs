@@ -1219,14 +1219,14 @@ fn attention_trace(
     for (real_index, row) in rows.iter().enumerate() {
         let enabled = usize::from(real_index < SCORE_ROW_COUNT);
         let mut values = vec![
-            field_usize(enabled),
-            field_usize(row.row_index),
-            field_usize(row.head_index),
-            field_usize(row.step_index),
-            field_usize(row.candidate_index),
-            field_usize(row.token_position),
-            field_usize(row.candidate_position),
-            field_usize(row.mask_allowed),
+            field_usize(enabled, "enabled")?,
+            field_usize(row.row_index, "row index")?,
+            field_usize(row.head_index, "head index")?,
+            field_usize(row.step_index, "step index")?,
+            field_usize(row.candidate_index, "candidate index")?,
+            field_usize(row.token_position, "token position")?,
+            field_usize(row.candidate_position, "candidate position")?,
+            field_usize(row.mask_allowed, "mask allowed")?,
             field_i64(row.selected_score),
             field_i64(row.score),
             field_i64(row.score_gap),
@@ -1242,41 +1242,27 @@ fn attention_trace(
         values.extend(row.weighted_numerator.iter().map(|value| field_i64(*value)));
         values.extend(row.attention_output.iter().map(|value| field_i64(*value)));
         values.extend(row.output_remainder.iter().map(|value| field_i64(*value)));
-        values.extend(
-            bits(
-                usize::try_from(row.score_gap).expect("score_gap is validated non-negative"),
-                SCORE_GAP_BITS,
-            )
-            .into_iter()
-            .map(field_usize),
-        );
-        values.extend(
-            bits(
-                usize::try_from(row.causal_gap).expect("causal_gap is validated non-negative"),
-                CAUSAL_GAP_BITS,
-            )
-            .into_iter()
-            .map(field_usize),
-        );
-        values.extend(
-            bits(
-                usize::try_from(row.attention_weight)
-                    .expect("attention_weight is validated non-negative"),
-                WEIGHT_BITS,
-            )
-            .into_iter()
-            .map(field_usize),
-        );
+        values.extend(bits_as_fields(
+            nonnegative_usize(row.score_gap, "score gap")?,
+            SCORE_GAP_BITS,
+            "score gap bit",
+        )?);
+        values.extend(bits_as_fields(
+            nonnegative_usize(row.causal_gap, "causal gap")?,
+            CAUSAL_GAP_BITS,
+            "causal gap bit",
+        )?);
+        values.extend(bits_as_fields(
+            nonnegative_usize(row.attention_weight, "attention weight")?,
+            WEIGHT_BITS,
+            "weight bit",
+        )?);
         for remainder in &row.output_remainder {
-            values.extend(
-                bits(
-                    usize::try_from(*remainder)
-                        .expect("output_remainder is validated non-negative"),
-                    OUTPUT_REMAINDER_BITS,
-                )
-                .into_iter()
-                .map(field_usize),
-            );
+            values.extend(bits_as_fields(
+                nonnegative_usize(*remainder, "output remainder")?,
+                OUTPUT_REMAINDER_BITS,
+                "output remainder bit",
+            )?);
         }
         if values.len() != columns.len() {
             return Err(weighted_error(
@@ -1424,8 +1410,10 @@ fn preprocessed_column_id(id: &str) -> PreProcessedColumnId {
     PreProcessedColumnId { id: id.to_string() }
 }
 
-fn field_usize(value: usize) -> BaseField {
-    BaseField::from(u32::try_from(value).expect("field_usize: value out of u32 range"))
+fn field_usize(value: usize, label: &str) -> Result<BaseField> {
+    let value = u32::try_from(value)
+        .map_err(|_| weighted_error(format!("{label} exceeds bounded u32 range")))?;
+    Ok(BaseField::from(value))
 }
 
 fn field_i64(value: i64) -> BaseField {
@@ -1434,6 +1422,17 @@ fn field_i64(value: i64) -> BaseField {
 
 fn bits(value: usize, width: usize) -> Vec<usize> {
     (0..width).map(|index| (value >> index) & 1).collect()
+}
+
+fn bits_as_fields(value: usize, width: usize, label: &str) -> Result<Vec<BaseField>> {
+    bits(value, width)
+        .into_iter()
+        .map(|bit| field_usize(bit, label))
+        .collect()
+}
+
+fn nonnegative_usize(value: i64, label: &str) -> Result<usize> {
+    usize::try_from(value).map_err(|_| weighted_error(format!("negative {label} in trace row")))
 }
 
 fn expected_weight_table_entries(
@@ -1462,10 +1461,9 @@ fn bounded_weight(score_gap: i64) -> Result<i64> {
     if score_gap < 0 {
         return Err(weighted_error("negative score gap"));
     }
-    let clipped = std::cmp::min(
-        usize::try_from(score_gap).expect("score_gap is checked non-negative"),
-        SCORE_GAP_CLIP,
-    );
+    let score_gap =
+        usize::try_from(score_gap).map_err(|_| weighted_error("score gap conversion overflow"))?;
+    let clipped = std::cmp::min(score_gap, SCORE_GAP_CLIP);
     WEIGHT_TABLE
         .iter()
         .find_map(|(gap, weight)| (*gap == clipped).then_some(*weight))
@@ -1937,6 +1935,25 @@ mod tests {
             (-2, 15)
         );
         assert_eq!(quotient_remainder_floor(17, 16).expect("division"), (1, 1));
+    }
+
+    #[test]
+    fn attention_kv_native_d64_four_head_longseq_bounded_softmax_table_trace_conversions_return_errors(
+    ) {
+        let error = nonnegative_usize(-1, "score gap").unwrap_err();
+        assert!(error.to_string().contains("negative score gap"));
+        if let Some(oversized) = (u32::MAX as usize).checked_add(1) {
+            let error = field_usize(oversized, "oversized row index").unwrap_err();
+            assert!(error
+                .to_string()
+                .contains("oversized row index exceeds bounded u32 range"));
+        }
+        assert_eq!(
+            bits_as_fields(3, 2, "bit")
+                .expect("bit field conversion")
+                .len(),
+            2
+        );
     }
 
     #[test]
