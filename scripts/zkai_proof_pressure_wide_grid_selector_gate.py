@@ -81,6 +81,7 @@ MUTATION_NAMES = (
     "requested_widths_drift",
     "requested_head_counts_drift",
     "requested_sequences_drift",
+    "requested_selector_status_drift",
     "requested_source_ids_drift",
     "requested_row_status_drift",
     "current_row_count_drift",
@@ -93,6 +94,7 @@ MUTATION_NAMES = (
     "d64_head_extra_metric_drift",
     "accounting_triplet_drift",
     "candidate_order_drift",
+    "candidate_text_drift",
     "validation_command_drift",
     "non_claim_removed",
     "payload_commitment_drift",
@@ -763,6 +765,8 @@ def validate_payload(payload: dict[str, Any], expected_source_artifacts: list[di
         raise ProofPressureWideGridSelectorError("requested head counts drift")
     if requested.get("requested_sequences") != list(REQUESTED_SEQUENCES):
         raise ProofPressureWideGridSelectorError("requested sequences drift")
+    if requested.get("selector_status") != "PARTIAL_D64_AND_ONE_D128_SOURCE_BACKED_D256_MISSING":
+        raise ProofPressureWideGridSelectorError("requested selector status drift")
     if requested.get("requested_cell_count") != 27:
         raise ProofPressureWideGridSelectorError("requested cell count drift")
     if requested.get("source_backed_requested_cell_count") != 8:
@@ -801,11 +805,7 @@ def validate_payload(payload: dict[str, Any], expected_source_artifacts: list[di
         if actual != expected_with_status:
             raise ProofPressureWideGridSelectorError("requested row status drift")
     candidates = payload.get("candidate_order")
-    if not isinstance(candidates, list) or [row.get("profile_id") for row in candidates] != [
-        "d128_h2_seq64",
-        "d128_h1_seq16",
-        "d256_h2_seq32",
-    ]:
+    if not isinstance(candidates, list) or candidates != build_candidate_order():
         raise ProofPressureWideGridSelectorError("candidate order drift")
     if payload.get("validation_commands") != list(VALIDATION_COMMANDS):
         raise ProofPressureWideGridSelectorError("validation command drift")
@@ -835,6 +835,10 @@ def mutation_cases(payload: dict[str, Any]) -> tuple[tuple[str, Any], ...]:
         (
             "requested_sequences_drift",
             lambda p: p["requested_grid_signal"].__setitem__("requested_sequences", [16, 32]),
+        ),
+        (
+            "requested_selector_status_drift",
+            lambda p: p["requested_grid_signal"].__setitem__("selector_status", "DRIFTED_STATUS"),
         ),
         (
             "requested_source_ids_drift",
@@ -894,6 +898,10 @@ def mutation_cases(payload: dict[str, Any]) -> tuple[tuple[str, Any], ...]:
             ),
         ),
         ("candidate_order_drift", lambda p: p["candidate_order"].reverse()),
+        (
+            "candidate_text_drift",
+            lambda p: p["candidate_order"][0].__setitem__("why_this_row", "drifted narrative"),
+        ),
         ("validation_command_drift", lambda p: p["validation_commands"].append("just gate")),
         ("non_claim_removed", lambda p: p["non_claims"].pop()),
         ("payload_commitment_drift", lambda p: p.__setitem__("payload_commitment", "blake2b-256:" + "0" * 64)),

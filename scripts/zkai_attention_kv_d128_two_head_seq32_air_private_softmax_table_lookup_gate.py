@@ -15,6 +15,7 @@ import copy
 import hashlib
 import importlib.util
 import json
+import os
 import pathlib
 import subprocess
 import tempfile
@@ -801,14 +802,80 @@ def to_tsv(payload: dict[str, Any]) -> str:
 
 def write_json(payload: dict[str, Any], path: pathlib.Path) -> None:
     validate_payload(payload)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    atomic_write_text(path, json.dumps(payload, indent=2, sort_keys=True) + "\n", "lookup gate JSON")
 
 
 def write_tsv(payload: dict[str, Any], path: pathlib.Path) -> None:
     validate_payload(payload)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(to_tsv(payload), encoding="utf-8")
+    atomic_write_text(path, to_tsv(payload), "lookup gate TSV")
+
+
+def reject_symlink_components(path: pathlib.Path, label: str) -> None:
+    if not path.is_absolute():
+        path = ROOT / path
+    current = pathlib.Path(path.anchor)
+    parts = path.parts[1:] if path.anchor else path.parts
+    for part in parts:
+        current = current / part
+        if current.exists() and current.is_symlink():
+            raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+                f"output path must not contain symlink components: {label}: {current}"
+            )
+
+
+def checked_output_path(path: pathlib.Path) -> pathlib.Path:
+    if any(part == ".." for part in path.parts):
+        raise AttentionKvAirPrivateSoftmaxTableLookupGateError(f"output path must stay inside evidence dir: {path}")
+    candidate = path if path.is_absolute() else ROOT / path
+    reject_symlink_components(EVIDENCE_DIR, "evidence root")
+    evidence_root = EVIDENCE_DIR.resolve(strict=True)
+    try:
+        candidate.resolve(strict=False).relative_to(evidence_root)
+    except ValueError as err:
+        raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+            f"output path must stay inside evidence dir: {candidate}"
+        ) from err
+    try:
+        candidate.relative_to(EVIDENCE_DIR)
+    except ValueError as err:
+        raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+            f"output path must stay inside evidence dir: {candidate}"
+        ) from err
+    if candidate.exists() and candidate.is_symlink():
+        raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+            f"output path must not contain symlink components: {candidate}"
+        )
+    reject_symlink_components(candidate.parent, "candidate parent")
+    candidate.parent.mkdir(parents=True, exist_ok=True)
+    reject_symlink_components(candidate.parent, "candidate parent")
+    return candidate
+
+
+def atomic_write_text(path: pathlib.Path, text: str, label: str) -> None:
+    path = checked_output_path(path)
+    fd, tmp_name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    tmp_path = pathlib.Path(tmp_name)
+    try:
+        os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(text.encode("utf-8"))
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp_path, path)
+        try:
+            dir_fd = os.open(path.parent, os.O_RDONLY)
+        except OSError:
+            dir_fd = None
+        if dir_fd is not None:
+            try:
+                os.fsync(dir_fd)
+            finally:
+                os.close(dir_fd)
+    except Exception as err:
+        tmp_path.unlink(missing_ok=True)
+        if isinstance(err, AttentionKvAirPrivateSoftmaxTableLookupGateError):
+            raise
+        raise AttentionKvAirPrivateSoftmaxTableLookupGateError(f"failed to write {label} {path}: {err}") from err
 
 
 def main() -> None:
