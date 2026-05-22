@@ -1,8 +1,9 @@
 use std::ffi::OsString;
 use std::fs;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
-use std::process::ExitCode;
+use std::process::{self, ExitCode};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[cfg(feature = "stwo-backend")]
 use llm_provable_computer::stwo_backend::{
@@ -102,12 +103,7 @@ fn run_with_args(mut args: Vec<OsString>) -> Result<String, String> {
                     ZKAI_ATTENTION_KV_NATIVE_D128_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_MAX_ENVELOPE_JSON_BYTES
                 ));
             }
-            fs::write(&envelope_path, &envelope_bytes).map_err(|error| {
-                format!(
-                    "failed to write lookup envelope {}: {error}",
-                    envelope_path.display()
-                )
-            })?;
+            atomic_write_file(&envelope_path, &envelope_bytes, "lookup envelope")?;
             Ok(serde_json::json!({
                 "schema": "zkai-attention-kv-stwo-native-d128-two-head-seq32-softmax-table-logup-sidecar-cli-summary-v1",
                 "mode": "prove",
@@ -174,8 +170,15 @@ fn require_verified<E: std::fmt::Display>(
 
 #[cfg(feature = "stwo-backend")]
 fn read_bounded_file(path: &Path, max_bytes: usize, label: &str) -> Result<Vec<u8>, String> {
-    let metadata = fs::metadata(path)
+    let metadata = fs::symlink_metadata(path)
         .map_err(|error| format!("failed to stat {} {}: {error}", label, path.display()))?;
+    if metadata.file_type().is_symlink() {
+        return Err(format!(
+            "{} {} is a symlink, expected a regular file",
+            label,
+            path.display()
+        ));
+    }
     if !metadata.is_file() {
         return Err(format!(
             "{} {} is not a regular file",
@@ -225,10 +228,67 @@ fn read_bounded_file(path: &Path, max_bytes: usize, label: &str) -> Result<Vec<u
     Ok(raw)
 }
 
+#[cfg(feature = "stwo-backend")]
+fn atomic_write_file(path: &Path, bytes: &[u8], label: &str) -> Result<(), String> {
+    let parent = path
+        .parent()
+        .filter(|parent| !parent.as_os_str().is_empty())
+        .unwrap_or_else(|| Path::new("."));
+    fs::create_dir_all(parent).map_err(|error| {
+        format!(
+            "failed to create output parent {} for {} {}: {error}",
+            parent.display(),
+            label,
+            path.display()
+        )
+    })?;
+    let file_name = path
+        .file_name()
+        .ok_or_else(|| format!("{} {} has no file name", label, path.display()))?;
+    let nonce = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(|error| format!("system time before epoch while writing {}: {error}", label))?
+        .as_nanos();
+    let tmp_path = parent.join(format!(
+        ".{}.{}.{}.tmp",
+        file_name.to_string_lossy(),
+        process::id(),
+        nonce
+    ));
+    let mut file = fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&tmp_path)
+        .map_err(|error| {
+            format!(
+                "failed to create temp {} {}: {error}",
+                label,
+                tmp_path.display()
+            )
+        })?;
+    if let Err(error) = file.write_all(bytes).and_then(|_| file.sync_all()) {
+        let _ = fs::remove_file(&tmp_path);
+        return Err(format!(
+            "failed to write temp {} {}: {error}",
+            label,
+            tmp_path.display()
+        ));
+    }
+    drop(file);
+    if let Err(error) = fs::rename(&tmp_path, path) {
+        let _ = fs::remove_file(&tmp_path);
+        return Err(format!(
+            "failed to publish {} {}: {error}",
+            label,
+            path.display()
+        ));
+    }
+    Ok(())
+}
+
 #[cfg(all(test, feature = "stwo-backend"))]
 mod tests {
     use super::*;
-    use std::time::{SystemTime, UNIX_EPOCH};
 
     fn temp_dir(label: &str) -> PathBuf {
         let nonce = SystemTime::now()
@@ -256,6 +316,44 @@ mod tests {
         let oversized_error = read_bounded_file(&oversized, 2, "lookup envelope JSON")
             .expect_err("oversized files must be rejected");
         assert!(oversized_error.contains("exceeds max size"));
+
+        fs::remove_dir_all(dir).ok();
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn read_bounded_file_rejects_symlink_input() {
+        use std::os::unix::fs::symlink;
+
+        let dir = temp_dir("reader-symlink");
+        let target = dir.join("target.json");
+        let link = dir.join("link.json");
+        fs::write(&target, b"{}").expect("write target");
+        symlink(&target, &link).expect("create symlink");
+
+        let error = read_bounded_file(&link, 1024, "lookup envelope JSON")
+            .expect_err("symlinks must be rejected");
+        assert!(error.contains("is a symlink"));
+
+        fs::remove_dir_all(dir).ok();
+    }
+
+    #[test]
+    fn atomic_write_file_publishes_complete_file() {
+        let dir = temp_dir("atomic-write");
+        let output = dir.join("lookup-envelope.json");
+
+        atomic_write_file(&output, br#"{"ok":true}"#, "fixture lookup envelope")
+            .expect("atomic write succeeds");
+
+        assert_eq!(fs::read(&output).expect("read output"), br#"{"ok":true}"#);
+        assert!(fs::read_dir(&dir)
+            .expect("read temp dir")
+            .all(|entry| !entry
+                .expect("dir entry")
+                .file_name()
+                .to_string_lossy()
+                .contains(".tmp")));
 
         fs::remove_dir_all(dir).ok();
     }
