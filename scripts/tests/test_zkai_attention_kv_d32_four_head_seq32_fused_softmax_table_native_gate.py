@@ -269,6 +269,42 @@ class AttentionKvD32FourHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestC
             self.assertIn(gate.DECISION, tsv_path.read_text(encoding="utf-8"))
             self.assertIn("154670", tsv_path.read_text(encoding="utf-8"))
 
+    def test_input_helpers_reject_symlink_paths(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = gate.pathlib.Path(tmp_dir)
+            script_target = tmp_path / "script_target.py"
+            script_target.write_text("VALUE = 1\n", encoding="utf-8")
+            script_link = tmp_path / "script_link.py"
+            script_link.symlink_to(script_target)
+            with self.assertRaisesRegex(gate.AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError, "symlink"):
+                gate.load_script_module(script_link, "linked_script")
+
+            artifact_target = tmp_path / "artifact_target.json"
+            artifact_target.write_text("{}", encoding="utf-8")
+            artifact_link = tmp_path / "artifact_link.json"
+            artifact_link.symlink_to(artifact_target)
+            with self.assertRaisesRegex(gate.AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError, "symlink"):
+                gate.read_bounded_bytes(artifact_link, 1024, "linked artifact")
+
+    def test_write_helpers_reject_symlink_targets(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = gate.pathlib.Path(tmp_dir)
+            json_target = tmp_path / "target.json"
+            json_target.write_text("original-json\n", encoding="utf-8")
+            json_link = tmp_path / "link.json"
+            json_link.symlink_to(json_target)
+            with self.assertRaisesRegex(gate.AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError, "symlink"):
+                gate.write_json(json_link, self.payload)
+            self.assertEqual(json_target.read_text(encoding="utf-8"), "original-json\n")
+
+            tsv_target = tmp_path / "target.tsv"
+            tsv_target.write_text("original-tsv\n", encoding="utf-8")
+            tsv_link = tmp_path / "link.tsv"
+            tsv_link.symlink_to(tsv_target)
+            with self.assertRaisesRegex(gate.AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError, "symlink"):
+                gate.write_tsv(tsv_link, self.payload)
+            self.assertEqual(tsv_target.read_text(encoding="utf-8"), "original-tsv\n")
+
     def test_write_json_rejects_metric_drift(self):
         payload = copy.deepcopy(self.payload)
         payload["fused_proof_size_bytes"] += 1
