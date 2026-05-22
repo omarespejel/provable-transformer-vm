@@ -5,7 +5,7 @@ This gate does not generate new proofs. It turns the current checked artifacts
 into a harder-to-misread research claim pack:
 
 - attention lookup/table pressure scaling from the controlled component grid;
-- raw proof-byte fused-vs-split savings from the 14-row route matrix;
+- raw proof-byte fused-vs-split savings from the 21-row route matrix;
 - the current seq32+d128 native boundary and statement-only frontier;
 - binary/local typed accounting status;
 - external baseline status without pretending non-matched rows are comparable.
@@ -71,7 +71,7 @@ MEDIAN_TIMING_PATH = EVIDENCE_DIR / "zkai-native-seq32-attention-mlp-median-timi
 SCHEMA = "zkai-proof-pressure-scaling-claim-pack-v1"
 ISSUE = "https://github.com/omarespejel/provable-transformer-vm/issues/715"
 DECISION = "GO_BOUNDED_SCALE_SIGNAL_SYNTHESIS_KEEP_ISSUE_OPEN_FOR_FULL_GRID"
-RESULT = "FOURTEEN_ATTENTION_ROUTE_ROWS_SCALE_RAW_PROOF_PRESSURE_AND_SEQ32_D128_BOUNDARY_SAVES_7672_TYPED_BYTES"
+RESULT = "TWENTY_ONE_ATTENTION_ROUTE_ROWS_SCALE_RAW_PROOF_PRESSURE_AND_SEQ32_D128_BOUNDARY_SAVES_7672_TYPED_BYTES"
 PAYLOAD_DOMAIN = "ptvm:zkai:proof-pressure-scaling-claim-pack:v1"
 CLAIM_BOUNDARY = (
     "BOUNDED_SCALE_SYNTHESIS_FOR_STARK_NATIVE_TRANSFORMER_PROOF_PRESSURE;"
@@ -111,8 +111,8 @@ OPEN_FOLLOWUPS = (
     {
         "id": "d64_d128_d256_grid",
         "status": "OPEN_NEEDED",
-        "reason": "Issue #715 asked for d64/d128/d256 where feasible, but the checked attention route matrix currently covers d8/d16/d32 attention rows plus d128 MLP-side surfaces.",
-        "go_gate": "add source-backed d64/d128/d256 attention route rows without changing the claim boundary",
+        "reason": "Issue #715 asked for d64/d128/d256 where feasible. The checked attention route matrix now has d64 seq16/seq32 two-head and four-head rows, but d128/d256 attention rows and d64 typed component-grid accounting are still missing.",
+        "go_gate": "add source-backed d128/d256 attention route rows and typed d64 component accounting without changing the claim boundary",
     },
     {
         "id": "seq64_attention_row",
@@ -144,6 +144,7 @@ MUTATION_NAMES = (
     "route_matrix_profile_count_drift",
     "route_matrix_ratio_drift",
     "d32_seq32_raw_saving_drift",
+    "d64_seq16_head_growth_drift",
     "summary_route_growth_drift",
     "attention_grid_row_loses_saving",
     "native_single_saving_drift",
@@ -565,15 +566,21 @@ def build_route_matrix_signal(route_payload: dict[str, Any]) -> dict[str, Any]:
     d32_seq8 = _row_by_id(rows, "d32_two_head_seq8")
     d32_seq16 = _row_by_id(rows, "d32_two_head_seq16")
     d32_seq32 = _row_by_id(rows, "d32_two_head_seq32")
+    d64_seq16_two_head = _row_by_id(rows, "d64_two_head_seq16")
+    d64_seq16_four_head = _row_by_id(rows, "d64_four_head_seq16")
     aggregate = require_dict(route_payload.get("aggregate_metrics"), "route matrix aggregate")
     axis_summary = require_dict(route_payload.get("axis_summary"), "route matrix axis summary")
     d32_sequence = require_dict(
         axis_summary.get("combined_width_head_sequence_axis_seq32_extension"),
         "d32 route matrix sequence summary",
     )
+    d64_seq16_head_extension = require_dict(
+        axis_summary.get("combined_width_head_sequence_axis_d64_seq16_head_extension"),
+        "d64 seq16 head extension summary",
+    )
 
     return {
-        "status": "GO_14_ROW_RAW_PROOF_ROUTE_MATRIX_WITH_D32_SEQ32_EXTENSION",
+        "status": "GO_21_ROW_RAW_PROOF_ROUTE_MATRIX_WITH_D64_HEAD_AXIS_EXTENSION",
         "profiles_checked": int_field(route_payload.get("profiles_checked"), "route profiles checked"),
         "matched_comparator_profiles": int_field(
             route_payload.get("matched_comparator_profiles"), "route matched profiles"
@@ -632,6 +639,64 @@ def build_route_matrix_signal(route_payload: dict[str, Any]) -> dict[str, Any]:
             "seq16_to_seq32_fused_raw_proof_growth": ratio_string(
                 int_field(d32_seq32.get("fused_proof_size_bytes"), "d32 seq32 fused raw proof bytes"),
                 int_field(d32_seq16.get("fused_proof_size_bytes"), "d32 seq16 fused raw proof bytes"),
+            ),
+        },
+        "d64_seq16_head_extension": {
+            "profile_ids": list(d64_seq16_head_extension.get("profile_ids", [])),
+            "two_head_lookup_claims": int_field(d64_seq16_two_head.get("lookup_claims"), "d64 seq16 two-head lookups"),
+            "four_head_lookup_claims": int_field(
+                d64_seq16_four_head.get("lookup_claims"), "d64 seq16 four-head lookups"
+            ),
+            "two_head_trace_rows": int_field(d64_seq16_two_head.get("trace_rows"), "d64 seq16 two-head trace rows"),
+            "four_head_trace_rows": int_field(
+                d64_seq16_four_head.get("trace_rows"), "d64 seq16 four-head trace rows"
+            ),
+            "two_head_fused_raw_proof_bytes": int_field(
+                d64_seq16_two_head.get("fused_proof_size_bytes"), "d64 seq16 two-head fused raw proof bytes"
+            ),
+            "four_head_fused_raw_proof_bytes": int_field(
+                d64_seq16_four_head.get("fused_proof_size_bytes"), "d64 seq16 four-head fused raw proof bytes"
+            ),
+            "four_head_source_plus_sidecar_raw_proof_bytes": int_field(
+                d64_seq16_four_head.get("source_plus_sidecar_raw_proof_bytes"),
+                "d64 seq16 four-head split raw proof bytes",
+            ),
+            "four_head_raw_saving_bytes": int_field(
+                d64_seq16_four_head.get("fused_saves_vs_source_plus_sidecar_bytes"),
+                "d64 seq16 four-head raw saving",
+            ),
+            "four_head_fused_to_split_ratio": d64_seq16_four_head.get("fused_to_source_plus_sidecar_ratio"),
+            "two_to_four_lookup_claim_growth": ratio_string(
+                int_field(d64_seq16_four_head.get("lookup_claims"), "d64 seq16 four-head lookups"),
+                int_field(d64_seq16_two_head.get("lookup_claims"), "d64 seq16 two-head lookups"),
+            ),
+            "two_to_four_trace_row_growth": ratio_string(
+                int_field(d64_seq16_four_head.get("trace_rows"), "d64 seq16 four-head trace rows"),
+                int_field(d64_seq16_two_head.get("trace_rows"), "d64 seq16 two-head trace rows"),
+            ),
+            "two_to_four_fused_raw_proof_growth": ratio_string(
+                int_field(d64_seq16_four_head.get("fused_proof_size_bytes"), "d64 seq16 four-head fused bytes"),
+                int_field(d64_seq16_two_head.get("fused_proof_size_bytes"), "d64 seq16 two-head fused bytes"),
+            ),
+            "two_to_four_split_raw_proof_growth": ratio_string(
+                int_field(
+                    d64_seq16_four_head.get("source_plus_sidecar_raw_proof_bytes"),
+                    "d64 seq16 four-head split bytes",
+                ),
+                int_field(
+                    d64_seq16_two_head.get("source_plus_sidecar_raw_proof_bytes"),
+                    "d64 seq16 two-head split bytes",
+                ),
+            ),
+            "two_to_four_saving_growth": ratio_string(
+                int_field(
+                    d64_seq16_four_head.get("fused_saves_vs_source_plus_sidecar_bytes"),
+                    "d64 seq16 four-head saving",
+                ),
+                int_field(
+                    d64_seq16_two_head.get("fused_saves_vs_source_plus_sidecar_bytes"),
+                    "d64 seq16 two-head saving",
+                ),
             ),
         },
     }
@@ -862,6 +927,18 @@ def build_summary(
         "d32_seq8_to_seq32_fused_raw_proof_growth": require_dict(
             route_signal.get("d32_two_head_sequence_ladder"), "d32 route signal"
         )["seq8_to_seq32_fused_raw_proof_growth"],
+        "d64_seq16_two_to_four_lookup_growth": require_dict(
+            route_signal.get("d64_seq16_head_extension"), "d64 seq16 route signal"
+        )["two_to_four_lookup_claim_growth"],
+        "d64_seq16_two_to_four_fused_raw_proof_growth": require_dict(
+            route_signal.get("d64_seq16_head_extension"), "d64 seq16 route signal"
+        )["two_to_four_fused_raw_proof_growth"],
+        "d64_seq16_four_head_raw_saving_bytes": int_field(
+            require_dict(route_signal.get("d64_seq16_head_extension"), "d64 seq16 route signal").get(
+                "four_head_raw_saving_bytes"
+            ),
+            "d64 seq16 four-head saving",
+        ),
         "seq32_attention_typed_growth_vs_d8_single_head": require_dict(
             scale_signal.get("seq32_vs_d8_single_head"), "seq32 signal"
         )["typed_byte_growth"],
@@ -962,6 +1039,9 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
     def mutate_d32_seq32_raw_saving(item: dict[str, Any]) -> None:
         item["route_matrix_signal"]["d32_two_head_sequence_ladder"]["seq32_raw_saving_bytes"] = 26_325
 
+    def mutate_d64_seq16_head_growth(item: dict[str, Any]) -> None:
+        item["route_matrix_signal"]["d64_seq16_head_extension"]["two_to_four_fused_raw_proof_growth"] = "1.000000"
+
     def mutate_summary_route_growth(item: dict[str, Any]) -> None:
         item["summary"]["d32_seq8_to_seq32_lookup_growth"] = "1.000000"
 
@@ -1012,6 +1092,7 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
         ("route_matrix_profile_count_drift", mutate_route_profile_count),
         ("route_matrix_ratio_drift", mutate_route_ratio),
         ("d32_seq32_raw_saving_drift", mutate_d32_seq32_raw_saving),
+        ("d64_seq16_head_growth_drift", mutate_d64_seq16_head_growth),
         ("summary_route_growth_drift", mutate_summary_route_growth),
         ("attention_grid_row_loses_saving", mutate_attention_saving),
         ("native_single_saving_drift", mutate_native_saving),
@@ -1146,27 +1227,27 @@ def validate_scale_signal(payload: dict[str, Any]) -> None:
 
 def validate_route_matrix_signal(payload: dict[str, Any]) -> None:
     signal = require_dict(payload.get("route_matrix_signal"), "route matrix signal")
-    if signal.get("status") != "GO_14_ROW_RAW_PROOF_ROUTE_MATRIX_WITH_D32_SEQ32_EXTENSION":
+    if signal.get("status") != "GO_21_ROW_RAW_PROOF_ROUTE_MATRIX_WITH_D64_HEAD_AXIS_EXTENSION":
         raise ProofPressureScalingClaimPackError("route matrix status drift")
-    if signal.get("profiles_checked") != 14 or signal.get("matched_comparator_profiles") != 14:
+    if signal.get("profiles_checked") != 21 or signal.get("matched_comparator_profiles") != 21:
         raise ProofPressureScalingClaimPackError("route matrix profile count drift")
-    if signal.get("widths") != [8, 16, 32]:
+    if signal.get("widths") != [8, 16, 32, 64]:
         raise ProofPressureScalingClaimPackError("route matrix width coverage drift")
     if signal.get("head_counts") != [1, 2, 4, 8, 16]:
         raise ProofPressureScalingClaimPackError("route matrix head coverage drift")
     if signal.get("steps_per_head") != [8, 16, 32]:
         raise ProofPressureScalingClaimPackError("route matrix sequence coverage drift")
-    if signal.get("total_lookup_claims") != 5_300 or signal.get("total_trace_rows") != 8_000:
+    if signal.get("total_lookup_claims") != 14_084 or signal.get("total_trace_rows") != 22_848:
         raise ProofPressureScalingClaimPackError("route matrix work total drift")
-    if signal.get("fused_raw_proof_bytes_total") != 1_145_173:
+    if signal.get("fused_raw_proof_bytes_total") != 2_519_786:
         raise ProofPressureScalingClaimPackError("route matrix fused total drift")
-    if signal.get("source_plus_sidecar_raw_proof_bytes_total") != 1_411_498:
+    if signal.get("source_plus_sidecar_raw_proof_bytes_total") != 2_993_464:
         raise ProofPressureScalingClaimPackError("route matrix split total drift")
-    if signal.get("raw_proof_savings_bytes_total") != 266_325:
+    if signal.get("raw_proof_savings_bytes_total") != 473_678:
         raise ProofPressureScalingClaimPackError("route matrix raw saving total drift")
     if signal.get("min_fused_to_split_ratio") != 0.676723:
         raise ProofPressureScalingClaimPackError("route matrix min ratio drift")
-    if signal.get("max_fused_to_split_ratio") != 0.919259:
+    if signal.get("max_fused_to_split_ratio") != 0.925421:
         raise ProofPressureScalingClaimPackError("route matrix max ratio drift")
     ladder = require_dict(signal.get("d32_two_head_sequence_ladder"), "d32 route ladder")
     if ladder.get("profile_ids") != ["d32_two_head_seq8", "d32_two_head_seq16", "d32_two_head_seq32"]:
@@ -1197,6 +1278,33 @@ def validate_route_matrix_signal(payload: dict[str, Any]) -> None:
         raise ProofPressureScalingClaimPackError("d32 seq16 to seq32 trace growth drift")
     if ladder.get("seq16_to_seq32_fused_raw_proof_growth") != "1.132817":
         raise ProofPressureScalingClaimPackError("d32 seq16 to seq32 fused raw growth drift")
+    d64_head = require_dict(signal.get("d64_seq16_head_extension"), "d64 seq16 head extension")
+    if d64_head.get("profile_ids") != ["d64_two_head_seq16", "d64_four_head_seq16"]:
+        raise ProofPressureScalingClaimPackError("d64 seq16 head extension profile drift")
+    if d64_head.get("two_head_lookup_claims") != 336 or d64_head.get("four_head_lookup_claims") != 672:
+        raise ProofPressureScalingClaimPackError("d64 seq16 lookup drift")
+    if d64_head.get("two_head_trace_rows") != 512 or d64_head.get("four_head_trace_rows") != 1_024:
+        raise ProofPressureScalingClaimPackError("d64 seq16 trace row drift")
+    if d64_head.get("two_head_fused_raw_proof_bytes") != 238_504:
+        raise ProofPressureScalingClaimPackError("d64 seq16 two-head fused raw proof drift")
+    if d64_head.get("four_head_fused_raw_proof_bytes") != 237_596:
+        raise ProofPressureScalingClaimPackError("d64 seq16 four-head fused raw proof drift")
+    if d64_head.get("four_head_source_plus_sidecar_raw_proof_bytes") != 260_685:
+        raise ProofPressureScalingClaimPackError("d64 seq16 four-head split raw proof drift")
+    if d64_head.get("four_head_raw_saving_bytes") != 23_089:
+        raise ProofPressureScalingClaimPackError("d64 seq16 four-head saving drift")
+    if d64_head.get("four_head_fused_to_split_ratio") != 0.91143:
+        raise ProofPressureScalingClaimPackError("d64 seq16 four-head ratio drift")
+    if d64_head.get("two_to_four_lookup_claim_growth") != "2.000000":
+        raise ProofPressureScalingClaimPackError("d64 seq16 lookup growth drift")
+    if d64_head.get("two_to_four_trace_row_growth") != "2.000000":
+        raise ProofPressureScalingClaimPackError("d64 seq16 trace growth drift")
+    if d64_head.get("two_to_four_fused_raw_proof_growth") != "0.996193":
+        raise ProofPressureScalingClaimPackError("d64 seq16 fused raw growth drift")
+    if d64_head.get("two_to_four_split_raw_proof_growth") != "1.011485":
+        raise ProofPressureScalingClaimPackError("d64 seq16 split raw growth drift")
+    if d64_head.get("two_to_four_saving_growth") != "1.201238":
+        raise ProofPressureScalingClaimPackError("d64 seq16 saving growth drift")
 
 
 def validate_external_status(payload: dict[str, Any]) -> None:
@@ -1266,9 +1374,9 @@ def validate_payload(payload: dict[str, Any], *, check_mutations: bool = True) -
         raise ProofPressureScalingClaimPackError("proof-size comparable external row drift")
     if summary.get("current_best_inner_policy_bound_typed_bytes") != 39_516:
         raise ProofPressureScalingClaimPackError("best boundary summary drift")
-    if summary.get("attention_route_rows_checked") != 14:
+    if summary.get("attention_route_rows_checked") != 21:
         raise ProofPressureScalingClaimPackError("summary route row count drift")
-    if summary.get("attention_raw_proof_savings_bytes_total") != 266_325:
+    if summary.get("attention_raw_proof_savings_bytes_total") != 473_678:
         raise ProofPressureScalingClaimPackError("summary raw saving drift")
     if summary.get("d32_seq32_raw_saving_bytes") != 26_326:
         raise ProofPressureScalingClaimPackError("summary d32 seq32 saving drift")
@@ -1280,6 +1388,15 @@ def validate_payload(payload: dict[str, Any], *, check_mutations: bool = True) -
         "seq8_to_seq32_fused_raw_proof_growth"
     ):
         raise ProofPressureScalingClaimPackError("summary d32 fused raw growth drift")
+    d64_head = require_dict(route_signal.get("d64_seq16_head_extension"), "d64 seq16 head extension")
+    if summary.get("d64_seq16_two_to_four_lookup_growth") != d64_head.get("two_to_four_lookup_claim_growth"):
+        raise ProofPressureScalingClaimPackError("summary d64 lookup growth drift")
+    if summary.get("d64_seq16_two_to_four_fused_raw_proof_growth") != d64_head.get(
+        "two_to_four_fused_raw_proof_growth"
+    ):
+        raise ProofPressureScalingClaimPackError("summary d64 fused raw growth drift")
+    if summary.get("d64_seq16_four_head_raw_saving_bytes") != d64_head.get("four_head_raw_saving_bytes"):
+        raise ProofPressureScalingClaimPackError("summary d64 saving drift")
     validate_source_artifacts(payload)
     if payload.get("payload_commitment") != payload_commitment(payload):
         raise ProofPressureScalingClaimPackError("payload commitment drift")

@@ -53,60 +53,61 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 42. `docs/engineering/zkai-attention-kv-stwo-native-d32-two-head-fused-softmax-table-gate-2026-05-20.md`
 43. `docs/engineering/zkai-attention-kv-stwo-native-d32-two-head-longseq-fused-softmax-table-gate-2026-05-21.md`
 44. `docs/engineering/zkai-attention-kv-stwo-native-d32-two-head-seq32-fused-softmax-table-gate-2026-05-21.md`
-45. `docs/engineering/zkai-attention-kv-stwo-native-d64-two-head-seq32-fused-softmax-table-gate-2026-05-21.md`
-46. `docs/engineering/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05-09.md`
-47. `docs/engineering/zkai-attention-kv-fused-softmax-table-microprofile-2026-05-10.md`
-48. `docs/engineering/zkai-attention-kv-fused-softmax-table-section-delta-2026-05-10.md`
-49. `docs/engineering/zkai-attention-kv-stwo-fine-grained-component-schema-2026-05-10.md`
-50. `docs/engineering/zkai-attention-kv-stwo-controlled-component-grid-2026-05-10.md`
-51. `docs/engineering/zkai-attention-kv-proof-route-selector-2026-05-05.md`
-52. `docs/engineering/zkai-attention-derived-d128-rmsnorm-public-row-2026-05-13.md`
-53. `docs/engineering/zkai-attention-derived-d128-projection-boundary-2026-05-13.md`
-54. `docs/engineering/zkai-attention-derived-d128-activation-swiglu-2026-05-13.md`
-55. `docs/engineering/zkai-attention-derived-d128-down-projection-2026-05-13.md`
-56. `docs/engineering/zkai-attention-derived-d128-residual-add-2026-05-13.md`
-57. `docs/engineering/zkai-attention-derived-d128-block-statement-chain-2026-05-13.md`
-58. `docs/engineering/zkai-attention-derived-d128-statement-chain-compression-2026-05-13.md`
-59. `docs/engineering/zkai-attention-derived-d128-outer-proof-route-2026-05-13.md`
-60. `docs/engineering/zkai-attention-derived-d128-snark-statement-receipt-2026-05-14.md`
-61. `docs/engineering/zkai-one-block-executable-package-accounting-2026-05-14.md`
-62. `docs/engineering/zkai-native-d128-block-proof-object-route-2026-05-14.md`
-63. `docs/engineering/zkai-native-d128-compressed-outer-statement-binary-accounting-2026-05-14.md`
-64. `docs/engineering/zkai-native-d128-verifier-execution-compression-budget-2026-05-15.md`
-65. `docs/engineering/zkai-d128-component-compact-preprocessed-reprove-2026-05-15.md`
-66. `docs/engineering/zkai-d128-gate-value-compact-preprocessed-probe-2026-05-15.md`
-67. `docs/engineering/zkai-d128-rmsnorm-mlp-fused-proof-2026-05-15.md`
-68. `docs/engineering/zkai-d128-attention-rmsnorm-mlp-boundary-2026-05-15.md`
-69. `docs/engineering/zkai-d128-value-adapter-policy-frontier-2026-05-15.md`
-70. `docs/engineering/zkai-attention-derived-d128-native-mlp-proof-route-2026-05-15.md`
-71. `docs/engineering/zkai-attention-derived-d128-mlp-fusion-attribution-2026-05-16.md`
-72. `docs/engineering/zkai-d128-attention-mlp-boundary-frontier-2026-05-16.md`
-73. `docs/engineering/zkai-native-attention-mlp-single-proof-route-2026-05-16.md`
-74. `docs/engineering/zkai-native-attention-mlp-single-proof-object-2026-05-16.md`
-75. `docs/engineering/zkai-native-attention-mlp-lifting-ablation-2026-05-16.md`
-76. `docs/engineering/zkai-native-attention-mlp-adapter-air-frontier-2026-05-16.md`
-77. `docs/engineering/zkai-attention-derived-d128-native-gate-value-projection-2026-05-16.md`
-78. `docs/engineering/zkai-attention-derived-d128-native-activation-swiglu-2026-05-16.md`
-79. `docs/engineering/zkai-attention-derived-d128-native-down-projection-2026-05-16.md`
-80. `docs/engineering/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05-17.md`
-81. `docs/engineering/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05-17.md`
-82. `docs/engineering/zkai-gkr-dense-sidecar-baseline-2026-05-17.md`
-83. `docs/engineering/zkai-jolt-atlas-lookup-tensor-comparison-2026-05-17.md`
-84. `docs/engineering/zkai-tablero-hybrid-zkml-boundary-2026-05-17.md`
-85. `docs/engineering/zkai-claim-audit-comparison-artifacts-2026-05-17.md`
-86. `docs/engineering/zkai-hybrid-proof-pressure-selector-2026-05-17.md`
-87. `docs/engineering/zkai-gkr-d128-projection-scaling-preflight-2026-05-17.md`
-88. `docs/engineering/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05-18.md`
-89. `docs/engineering/zkai-seq32-derived-d128-native-mlp-surface-2026-05-18.md`
-90. `docs/engineering/zkai-seq32-value-compatible-boundary-frontier-2026-05-18.md`
-91. `docs/engineering/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05-19.md`
-92. `docs/engineering/zkai-bounded-stwo-query-policy-hook-2026-05-19.md`
-93. `docs/engineering/zkai-stwo-query-preview-split-prototype-2026-05-19.md`
-94. `docs/engineering/zkai-stwo-query-grinding-budget-2026-05-19.md`
-95. `docs/engineering/zkai-stwo-attempt-domain-binding-2026-05-19.md`
-96. `docs/engineering/zkai-stwo-inner-attempt-domain-statement-2026-05-19.md`
-97. `docs/engineering/reproducibility.md`
-98. `git status --short --branch`
+45. `docs/engineering/zkai-attention-kv-stwo-native-d64-four-head-longseq-fused-softmax-table-gate-2026-05-22.md`
+46. `docs/engineering/zkai-attention-kv-stwo-native-d64-two-head-seq32-fused-softmax-table-gate-2026-05-21.md`
+47. `docs/engineering/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05-09.md`
+48. `docs/engineering/zkai-attention-kv-fused-softmax-table-microprofile-2026-05-10.md`
+49. `docs/engineering/zkai-attention-kv-fused-softmax-table-section-delta-2026-05-10.md`
+50. `docs/engineering/zkai-attention-kv-stwo-fine-grained-component-schema-2026-05-10.md`
+51. `docs/engineering/zkai-attention-kv-stwo-controlled-component-grid-2026-05-10.md`
+52. `docs/engineering/zkai-attention-kv-proof-route-selector-2026-05-05.md`
+53. `docs/engineering/zkai-attention-derived-d128-rmsnorm-public-row-2026-05-13.md`
+54. `docs/engineering/zkai-attention-derived-d128-projection-boundary-2026-05-13.md`
+55. `docs/engineering/zkai-attention-derived-d128-activation-swiglu-2026-05-13.md`
+56. `docs/engineering/zkai-attention-derived-d128-down-projection-2026-05-13.md`
+57. `docs/engineering/zkai-attention-derived-d128-residual-add-2026-05-13.md`
+58. `docs/engineering/zkai-attention-derived-d128-block-statement-chain-2026-05-13.md`
+59. `docs/engineering/zkai-attention-derived-d128-statement-chain-compression-2026-05-13.md`
+60. `docs/engineering/zkai-attention-derived-d128-outer-proof-route-2026-05-13.md`
+61. `docs/engineering/zkai-attention-derived-d128-snark-statement-receipt-2026-05-14.md`
+62. `docs/engineering/zkai-one-block-executable-package-accounting-2026-05-14.md`
+63. `docs/engineering/zkai-native-d128-block-proof-object-route-2026-05-14.md`
+64. `docs/engineering/zkai-native-d128-compressed-outer-statement-binary-accounting-2026-05-14.md`
+65. `docs/engineering/zkai-native-d128-verifier-execution-compression-budget-2026-05-15.md`
+66. `docs/engineering/zkai-d128-component-compact-preprocessed-reprove-2026-05-15.md`
+67. `docs/engineering/zkai-d128-gate-value-compact-preprocessed-probe-2026-05-15.md`
+68. `docs/engineering/zkai-d128-rmsnorm-mlp-fused-proof-2026-05-15.md`
+69. `docs/engineering/zkai-d128-attention-rmsnorm-mlp-boundary-2026-05-15.md`
+70. `docs/engineering/zkai-d128-value-adapter-policy-frontier-2026-05-15.md`
+71. `docs/engineering/zkai-attention-derived-d128-native-mlp-proof-route-2026-05-15.md`
+72. `docs/engineering/zkai-attention-derived-d128-mlp-fusion-attribution-2026-05-16.md`
+73. `docs/engineering/zkai-d128-attention-mlp-boundary-frontier-2026-05-16.md`
+74. `docs/engineering/zkai-native-attention-mlp-single-proof-route-2026-05-16.md`
+75. `docs/engineering/zkai-native-attention-mlp-single-proof-object-2026-05-16.md`
+76. `docs/engineering/zkai-native-attention-mlp-lifting-ablation-2026-05-16.md`
+77. `docs/engineering/zkai-native-attention-mlp-adapter-air-frontier-2026-05-16.md`
+78. `docs/engineering/zkai-attention-derived-d128-native-gate-value-projection-2026-05-16.md`
+79. `docs/engineering/zkai-attention-derived-d128-native-activation-swiglu-2026-05-16.md`
+80. `docs/engineering/zkai-attention-derived-d128-native-down-projection-2026-05-16.md`
+81. `docs/engineering/zkai-native-attention-mlp-rmsnorm-input-fused-adapter-2026-05-17.md`
+82. `docs/engineering/zkai-native-attention-mlp-adapter-opening-geometry-budget-2026-05-17.md`
+83. `docs/engineering/zkai-gkr-dense-sidecar-baseline-2026-05-17.md`
+84. `docs/engineering/zkai-jolt-atlas-lookup-tensor-comparison-2026-05-17.md`
+85. `docs/engineering/zkai-tablero-hybrid-zkml-boundary-2026-05-17.md`
+86. `docs/engineering/zkai-claim-audit-comparison-artifacts-2026-05-17.md`
+87. `docs/engineering/zkai-hybrid-proof-pressure-selector-2026-05-17.md`
+88. `docs/engineering/zkai-gkr-d128-projection-scaling-preflight-2026-05-17.md`
+89. `docs/engineering/zkai-native-attention-mlp-rmsnorm-post-tail-layout-2026-05-18.md`
+90. `docs/engineering/zkai-seq32-derived-d128-native-mlp-surface-2026-05-18.md`
+91. `docs/engineering/zkai-seq32-value-compatible-boundary-frontier-2026-05-18.md`
+92. `docs/engineering/zkai-native-seq32-attention-mlp-predecommit-opening-policy-2026-05-19.md`
+93. `docs/engineering/zkai-bounded-stwo-query-policy-hook-2026-05-19.md`
+94. `docs/engineering/zkai-stwo-query-preview-split-prototype-2026-05-19.md`
+95. `docs/engineering/zkai-stwo-query-grinding-budget-2026-05-19.md`
+96. `docs/engineering/zkai-stwo-attempt-domain-binding-2026-05-19.md`
+97. `docs/engineering/zkai-stwo-inner-attempt-domain-statement-2026-05-19.md`
+98. `docs/engineering/reproducibility.md`
+99. `git status --short --branch`
 
 ## Current lane split
 
@@ -120,6 +121,26 @@ proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
 
 Latest proof-pressure route extension: issue `#715` now has the
+`d64_four_head_seq16` native Stwo fused Softmax-table row. The matched split
+frontier is `232,991` source proof bytes plus `27,694` LogUp sidecar bytes
+(`260,685` total). The fused proof is `237,596` bytes, saving `23,089` bytes
+(`0.911430x`) against the matched split frontier. It is `4,605` bytes larger
+than the source arithmetic proof alone, so the honest claim is
+source-plus-sidecar fusion saving, not source-only compression. Holding d64 and
+seq16 fixed from two heads to four heads, lookup claims grow `2.000000x` and
+trace rows grow `2.000000x`, while fused proof bytes move to `0.996193x`,
+matched split bytes grow `1.011485x`, and fused savings grow `1.201238x`.
+The route matrix is now `21` matched rows, `14,084` lookup claims, `2,519,786`
+fused proof bytes versus `2,993,464` split proof bytes, and `473,678`
+aggregate saved bytes. The fuller grid is now `21 / 60` proved and `39 / 60`
+missing; the next selector target is `d64_h4_seq64`, with `d64_h2_seq64` as
+the lower-risk sequence-axis fallback. This is not exact Softmax, not full
+transformer inference, not recursion or PCD, not production zkML readiness, not
+a NANOZK comparison, not timing evidence, and not a model-faithful d64
+four-head trace. See
+`docs/engineering/zkai-attention-kv-stwo-native-d64-four-head-longseq-fused-softmax-table-gate-2026-05-22.md`.
+
+Previous proof-pressure route extension: issue `#715` has the
 `d64_four_head_seq32` native Stwo fused Softmax-table row. The matched split
 frontier is `254,145` source proof bytes plus `34,147` LogUp sidecar bytes
 (`288,292` total). The fused proof is `255,889` bytes, saving `32,403` bytes
@@ -130,9 +151,8 @@ seq32 fixed from two heads to four heads, lookup claims grow `2.000000x` and
 trace rows grow `2.000000x`, while fused proof bytes grow only `1.010393x` and
 the LogUp sidecar shrinks to `0.938104x`. The route matrix is now `20` matched
 rows, `13,412` lookup claims, `2,282,190` fused proof bytes versus `2,732,779`
-split proof bytes, and `450,589` aggregate saved bytes. The fuller grid is now
-`20 / 60` proved and `40 / 60` missing; the next low-risk rows are
-`d64_four_head_seq16` and `d64_two_head_seq64`. This is not exact Softmax, not
+split proof bytes, and `450,589` aggregate saved bytes. The fuller grid was
+`20 / 60` proved and `40 / 60` missing after this row. This is not exact Softmax, not
 full transformer inference, not recursion or PCD, not production zkML readiness,
 not a NANOZK comparison, not timing evidence, and not a model-faithful d64
 four-head trace. See

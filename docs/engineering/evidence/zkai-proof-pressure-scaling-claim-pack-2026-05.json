@@ -291,6 +291,11 @@
       "rejected": true
     },
     {
+      "error": "d64 seq16 fused raw growth drift",
+      "name": "d64_seq16_head_growth_drift",
+      "rejected": true
+    },
+    {
       "error": "summary d32 lookup growth drift",
       "name": "summary_route_growth_drift",
       "rejected": true
@@ -356,8 +361,8 @@
       "rejected": true
     }
   ],
-  "mutations_checked": 18,
-  "mutations_rejected": 18,
+  "mutations_checked": 19,
+  "mutations_rejected": 19,
   "non_claims": [
     "not a d64/d128/d256 attention grid",
     "not a seq64 proof row",
@@ -372,9 +377,9 @@
   ],
   "open_followups": [
     {
-      "go_gate": "add source-backed d64/d128/d256 attention route rows without changing the claim boundary",
+      "go_gate": "add source-backed d128/d256 attention route rows and typed d64 component accounting without changing the claim boundary",
       "id": "d64_d128_d256_grid",
-      "reason": "Issue #715 asked for d64/d128/d256 where feasible, but the checked attention route matrix currently covers d8/d16/d32 attention rows plus d128 MLP-side surfaces.",
+      "reason": "Issue #715 asked for d64/d128/d256 where feasible. The checked attention route matrix now has d64 seq16/seq32 two-head and four-head rows, but d128/d256 attention rows and d64 typed component-grid accounting are still missing.",
       "status": "OPEN_NEEDED"
     },
     {
@@ -390,8 +395,8 @@
       "status": "OPEN_NEEDED"
     }
   ],
-  "payload_commitment": "blake2b-256:96684dbdb5a2db5326b6ad4a6146968532e4c1c45f3b009a2a805ecfa60399e8",
-  "result": "FOURTEEN_ATTENTION_ROUTE_ROWS_SCALE_RAW_PROOF_PRESSURE_AND_SEQ32_D128_BOUNDARY_SAVES_7672_TYPED_BYTES",
+  "payload_commitment": "blake2b-256:36a3c091bf88e43dd821f0c537624a6644c78996b0f0c97b3fff639aec45265c",
+  "result": "TWENTY_ONE_ATTENTION_ROUTE_ROWS_SCALE_RAW_PROOF_PRESSURE_AND_SEQ32_D128_BOUNDARY_SAVES_7672_TYPED_BYTES",
   "route_matrix_signal": {
     "d32_two_head_sequence_ladder": {
       "profile_ids": [
@@ -413,7 +418,27 @@
       "seq8_to_seq32_lookup_claim_growth": "11.384615",
       "seq8_to_seq32_trace_row_growth": "16.000000"
     },
-    "fused_raw_proof_bytes_total": 1145173,
+    "d64_seq16_head_extension": {
+      "four_head_fused_raw_proof_bytes": 237596,
+      "four_head_fused_to_split_ratio": 0.91143,
+      "four_head_lookup_claims": 672,
+      "four_head_raw_saving_bytes": 23089,
+      "four_head_source_plus_sidecar_raw_proof_bytes": 260685,
+      "four_head_trace_rows": 1024,
+      "profile_ids": [
+        "d64_two_head_seq16",
+        "d64_four_head_seq16"
+      ],
+      "two_head_fused_raw_proof_bytes": 238504,
+      "two_head_lookup_claims": 336,
+      "two_head_trace_rows": 512,
+      "two_to_four_fused_raw_proof_growth": "0.996193",
+      "two_to_four_lookup_claim_growth": "2.000000",
+      "two_to_four_saving_growth": "1.201238",
+      "two_to_four_split_raw_proof_growth": "1.011485",
+      "two_to_four_trace_row_growth": "2.000000"
+    },
+    "fused_raw_proof_bytes_total": 2519786,
     "head_counts": [
       1,
       2,
@@ -421,24 +446,25 @@
       8,
       16
     ],
-    "matched_comparator_profiles": 14,
-    "max_fused_to_split_ratio": 0.919259,
+    "matched_comparator_profiles": 21,
+    "max_fused_to_split_ratio": 0.925421,
     "min_fused_to_split_ratio": 0.676723,
-    "profiles_checked": 14,
-    "raw_proof_savings_bytes_total": 266325,
-    "source_plus_sidecar_raw_proof_bytes_total": 1411498,
-    "status": "GO_14_ROW_RAW_PROOF_ROUTE_MATRIX_WITH_D32_SEQ32_EXTENSION",
+    "profiles_checked": 21,
+    "raw_proof_savings_bytes_total": 473678,
+    "source_plus_sidecar_raw_proof_bytes_total": 2993464,
+    "status": "GO_21_ROW_RAW_PROOF_ROUTE_MATRIX_WITH_D64_HEAD_AXIS_EXTENSION",
     "steps_per_head": [
       8,
       16,
       32
     ],
-    "total_lookup_claims": 5300,
-    "total_trace_rows": 8000,
+    "total_lookup_claims": 14084,
+    "total_trace_rows": 22848,
     "widths": [
       8,
       16,
-      32
+      32,
+      64
     ]
   },
   "scale_signal": {
@@ -505,14 +531,14 @@
     {
       "id": "attention_route_matrix",
       "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
-      "sha256": "cb2601042c1ae8fbbc081d0962b278f7aff4a7db633adbfbdb2b7124b7f03dc1",
-      "size_bytes": 37412
+      "sha256": "53242cf13d0df40430917b351b8248872a2f2a1b28934c9e0f4902edc7e70122",
+      "size_bytes": 62975
     },
     {
       "id": "fuller_crossing_grid",
       "path": "docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json",
-      "sha256": "cabd3e0294e293f56d2b542ded040c8bde20fe2bec1bc5280ba85968a7bc84c1",
-      "size_bytes": 41340
+      "sha256": "e740e97e5ff5aa116743aef8a53bbd5b77aa47b5a16a688132ce483db4760ab1",
+      "size_bytes": 52654
     },
     {
       "id": "native_seq32_d128_single_proof",
@@ -582,8 +608,8 @@
     }
   ],
   "summary": {
-    "attention_raw_proof_savings_bytes_total": 266325,
-    "attention_route_rows_checked": 14,
+    "attention_raw_proof_savings_bytes_total": 473678,
+    "attention_route_rows_checked": 21,
     "attention_rows_checked": 10,
     "attention_rows_with_positive_typed_saving": 10,
     "attention_typed_savings_bytes_total": 51288,
@@ -593,6 +619,9 @@
     "d32_seq32_raw_saving_bytes": 26326,
     "d32_seq8_to_seq32_fused_raw_proof_growth": "1.193955",
     "d32_seq8_to_seq32_lookup_growth": "11.384615",
+    "d64_seq16_four_head_raw_saving_bytes": 23089,
+    "d64_seq16_two_to_four_fused_raw_proof_growth": "0.996193",
+    "d64_seq16_two_to_four_lookup_growth": "2.000000",
     "open_followup_count": 3,
     "proof_size_comparable_external_rows": 0,
     "seq32_attention_typed_growth_vs_d8_single_head": "1.264401",

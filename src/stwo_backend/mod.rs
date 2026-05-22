@@ -66,6 +66,12 @@ mod attention_kv_native_d32_two_head_seq32_softmax_table_lookup_proof;
 #[cfg(feature = "stwo-backend")]
 mod attention_kv_native_d32_two_head_softmax_table_lookup_proof;
 #[cfg(feature = "stwo-backend")]
+mod attention_kv_native_d64_four_head_longseq_bounded_softmax_table_proof;
+#[cfg(feature = "stwo-backend")]
+mod attention_kv_native_d64_four_head_longseq_fused_softmax_table_proof;
+#[cfg(feature = "stwo-backend")]
+mod attention_kv_native_d64_four_head_longseq_softmax_table_lookup_proof;
+#[cfg(feature = "stwo-backend")]
 mod attention_kv_native_d64_four_head_seq32_bounded_softmax_table_proof;
 #[cfg(feature = "stwo-backend")]
 mod attention_kv_native_d64_four_head_seq32_fused_softmax_table_proof;
@@ -693,6 +699,32 @@ pub use attention_kv_native_d32_two_head_softmax_table_lookup_proof::{
     zkai_attention_kv_native_d32_two_head_softmax_table_lookup_source_input_from_json_str,
     ZKAI_ATTENTION_KV_NATIVE_D32_TWO_HEAD_SOFTMAX_TABLE_LOOKUP_MAX_ENVELOPE_JSON_BYTES,
     ZKAI_ATTENTION_KV_NATIVE_D32_TWO_HEAD_SOFTMAX_TABLE_LOOKUP_TARGET_ID,
+};
+#[cfg(feature = "stwo-backend")]
+pub use attention_kv_native_d64_four_head_longseq_bounded_softmax_table_proof::{
+    prove_zkai_attention_kv_native_d64_four_head_longseq_bounded_softmax_table_envelope,
+    verify_zkai_attention_kv_native_d64_four_head_longseq_bounded_softmax_table_envelope,
+    zkai_attention_kv_native_d64_four_head_longseq_bounded_softmax_table_envelope_from_json_slice,
+    zkai_attention_kv_native_d64_four_head_longseq_bounded_softmax_table_input_from_json_str,
+    ZKAI_ATTENTION_KV_NATIVE_D64_FOUR_HEAD_LONGSEQ_BOUNDED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BYTES,
+    ZKAI_ATTENTION_KV_NATIVE_D64_FOUR_HEAD_LONGSEQ_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES,
+};
+#[cfg(feature = "stwo-backend")]
+pub use attention_kv_native_d64_four_head_longseq_fused_softmax_table_proof::{
+    prove_zkai_attention_kv_native_d64_four_head_longseq_fused_softmax_table_envelope,
+    verify_zkai_attention_kv_native_d64_four_head_longseq_fused_softmax_table_envelope,
+    zkai_attention_kv_native_d64_four_head_longseq_fused_softmax_table_envelope_from_json_slice,
+    zkai_attention_kv_native_d64_four_head_longseq_fused_softmax_table_source_input_from_json_str,
+    ZKAI_ATTENTION_KV_NATIVE_D64_FOUR_HEAD_LONGSEQ_FUSED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BYTES,
+};
+#[cfg(feature = "stwo-backend")]
+pub use attention_kv_native_d64_four_head_longseq_softmax_table_lookup_proof::{
+    prove_zkai_attention_kv_native_d64_four_head_longseq_softmax_table_lookup_envelope,
+    verify_zkai_attention_kv_native_d64_four_head_longseq_softmax_table_lookup_envelope,
+    zkai_attention_kv_native_d64_four_head_longseq_softmax_table_lookup_envelope_from_json_slice,
+    zkai_attention_kv_native_d64_four_head_longseq_softmax_table_lookup_source_input_from_json_str,
+    ZKAI_ATTENTION_KV_NATIVE_D64_FOUR_HEAD_LONGSEQ_SOFTMAX_TABLE_LOOKUP_MAX_ENVELOPE_JSON_BYTES,
+    ZKAI_ATTENTION_KV_NATIVE_D64_FOUR_HEAD_LONGSEQ_SOFTMAX_TABLE_LOOKUP_TARGET_ID,
 };
 #[cfg(feature = "stwo-backend")]
 pub use attention_kv_native_d64_four_head_seq32_bounded_softmax_table_proof::{

@@ -1,37 +1,37 @@
 {
   "candidate_order": [
     {
-      "go_gate": "source, sidecar, and fused native proof rows exist and fused beats matched split with source-bound d64 artifacts",
+      "go_gate": "source, sidecar, and fused native proof rows exist and fused beats matched split with source-bound d64 seq64 artifacts",
       "head_count": 4,
       "key_width": 64,
-      "no_go_gate": "the seq16 head-axis row loses the fused saving or contradicts the seq32 head-axis signal",
+      "no_go_gate": "seq64 breaks artifact limits or fused bytes grow roughly with lookup work",
       "priority": 1,
-      "profile_id": "d64_h4_seq16",
-      "selector_status": "NEXT_D64_HEAD_AXIS_MIDPOINT",
-      "steps_per_head": 16,
-      "why_this_row": "checks whether the d64 two-to-four-head amortization at seq32 also holds at seq16"
-    },
-    {
-      "go_gate": "fused and split rows quantify d32-to-d64 width growth under the cheapest attention shape",
-      "head_count": 1,
-      "key_width": 64,
-      "no_go_gate": "proof bytes grow roughly with width and savings shrink versus the d32 single-head row",
-      "priority": 2,
-      "profile_id": "d64_h1_seq8",
-      "selector_status": "CHEAP_WIDTH_SLOPE_ROW",
-      "steps_per_head": 8,
-      "why_this_row": "isolates width pressure before spending on seq32"
+      "profile_id": "d64_h4_seq64",
+      "selector_status": "NEXT_D64_FOUR_HEAD_SEQUENCE_EXTENSION",
+      "steps_per_head": 64,
+      "why_this_row": "checks whether the d64 four-head amortization that held at seq16 and seq32 survives a seq64 stress row"
     },
     {
       "go_gate": "lookup and trace work grow faster than fused bytes while fused remains smaller than split",
       "head_count": 2,
       "key_width": 64,
       "no_go_gate": "seq64 breaks artifact limits or fused bytes grow roughly with the new lookup work",
-      "priority": 3,
+      "priority": 2,
       "profile_id": "d64_h2_seq64",
-      "selector_status": "D64_SEQUENCE_EXTENSION_ROW",
+      "selector_status": "D64_TWO_HEAD_SEQUENCE_EXTENSION_ROW",
       "steps_per_head": 64,
-      "why_this_row": "tests whether the d64 seq16-to-seq32 amortization continues under a longer sequence"
+      "why_this_row": "separates d64 sequence pressure from the four-head sequence crossing"
+    },
+    {
+      "go_gate": "fused and split rows quantify d32-to-d64 width growth under a narrow attention shape",
+      "head_count": 1,
+      "key_width": 64,
+      "no_go_gate": "proof bytes grow roughly with width and savings shrink versus nearby d32 rows",
+      "priority": 3,
+      "profile_id": "d64_h1_seq16",
+      "selector_status": "D64_SINGLE_HEAD_WIDTH_SLOPE_ROW",
+      "steps_per_head": 16,
+      "why_this_row": "isolates d64 width pressure without adding another head axis"
     },
     {
       "go_gate": "d64 rows are source-backed and the d128 row keeps a positive fused-vs-split saving",
@@ -60,7 +60,7 @@
   "current_signal": {
     "accounting_triplet_signal": {
       "attention_json_bytes_total": 629466,
-      "attention_raw_proof_savings_bytes_total": 266325,
+      "attention_raw_proof_savings_bytes_total": 473678,
       "attention_typed_bytes_total": 234296,
       "attention_typed_rows": 10,
       "attention_typed_savings_bytes_total": 51288,
@@ -78,7 +78,7 @@
       "status": "CARRIES_TYPED_JSON_AND_BINARY_RAW_CONTEXT_FROM_CLAIM_PACK;RAW_ROUTE_MATRIX_WIDTH_SELECTOR_REMAINS_SEPARATE"
     },
     "all_checked_rows_have_positive_fused_saving": true,
-    "checked_attention_route_rows": 20,
+    "checked_attention_route_rows": 21,
     "checked_head_counts": [
       1,
       2,
@@ -89,6 +89,7 @@
     "checked_requested_profile_ids": [
       "d64_h2_seq16",
       "d64_h2_seq32",
+      "d64_h4_seq16",
       "d64_h4_seq32"
     ],
     "checked_sequences": [
@@ -116,6 +117,15 @@
       "split_raw_proof_growth": 1.106226,
       "trace_row_growth": 4.0
     },
+    "d64_two_to_four_head_seq16": {
+      "fused_raw_proof_growth": 0.996193,
+      "lookup_claim_growth": 2.0,
+      "saving_growth": 1.201238,
+      "sidecar_raw_proof_growth": 1.0243,
+      "source_raw_proof_growth": 1.009983,
+      "split_raw_proof_growth": 1.011485,
+      "trace_row_growth": 2.0
+    },
     "d64_two_to_four_head_seq32": {
       "fused_raw_proof_growth": 1.010393,
       "lookup_claim_growth": 2.0,
@@ -137,21 +147,21 @@
       "split_raw_proof_growth": 1.800524
     },
     "fuller_grid_cells": 60,
-    "fuller_grid_missing_cells": 40,
-    "fuller_grid_proved_cells": 20,
+    "fuller_grid_missing_cells": 39,
+    "fuller_grid_proved_cells": 21,
     "fully_missing_requested_widths": [
       128,
       256
     ],
-    "raw_fused_bytes_total": 2282190,
-    "raw_saving_bytes_total": 450589,
-    "raw_split_bytes_total": 2732779
+    "raw_fused_bytes_total": 2519786,
+    "raw_saving_bytes_total": 473678,
+    "raw_split_bytes_total": 2993464
   },
   "decision": "GO_WIDE_GRID_SELECTOR_KEEP_PARTIAL_D64_AND_D128_D256_AS_FALSIFICATION_TARGETS",
   "interpretation": {
-    "human_read": "The current evidence says the lookup-heavy sequence direction is promising, but width is the stress test. The first d64 rows kept fused smaller than split, and the d64 two-to-four-head seq32 row doubled lookup and trace work while fused proof bytes grew only about 1.01x. D128 and D256 are still not victory laps; they are the next way to check whether the paper claim survives model width.",
-    "paper_relevance": "A paper-grade result needs the fused-vs-split saving to survive beyond isolated rows. The selector therefore promotes a d64 four-head seq16 midpoint and keeps d128/d256 gated.",
-    "research_recommendation": "Do d64_h4_seq16 first if the goal is to test the d64 head-axis mechanism. Do d64_h2_seq64 if the goal is the next sequence-extension stress test."
+    "human_read": "The current evidence says the lookup-heavy sequence direction is promising, but width is the stress test. The d64 rows kept fused smaller than split, the d64 two-to-four-head seq32 row doubled lookup and trace work while fused proof bytes grew only about 1.01x, and the d64 two-to-four-head seq16 row doubled lookup and trace work while fused proof bytes slightly decreased. D128 and D256 are still not victory laps; they are the next way to check whether the paper claim survives model width.",
+    "paper_relevance": "A paper-grade result needs the fused-vs-split saving to survive beyond isolated rows. The selector therefore promotes d64 seq64 stress rows and keeps d128/d256 gated.",
+    "research_recommendation": "Do d64_h4_seq64 first if the goal is to stress the strongest current d64 head-axis signal. Do d64_h2_seq64 first if resource limits make the two-head sequence extension safer."
   },
   "issue": 715,
   "mutation_result": {
@@ -223,7 +233,7 @@
         "rejected": true
       },
       {
-        "error": "d64 head-axis signal drift",
+        "error": "d64 seq16 head-axis signal drift",
         "name": "d64_head_extra_metric_drift",
         "rejected": true
       },
@@ -286,13 +296,13 @@
     "not production zkML readiness",
     "does not widen the claim beyond checked d8, d16, d32, and partial d64 attention rows"
   ],
-  "payload_commitment": "blake2b-256:797237481ae09845538419ce616a306875c1577d1bd74fe311ed705bc216d8d8",
+  "payload_commitment": "blake2b-256:b5accf201e3dd8bd62e84ebe1d0495dfc24c0ee6fa802567eb83e2f2b0dfae5e",
   "requested_grid_signal": {
     "fully_missing_requested_widths": [
       128,
       256
     ],
-    "missing_requested_cell_count": 24,
+    "missing_requested_cell_count": 23,
     "requested_cell_count": 27,
     "requested_head_counts": [
       1,
@@ -346,7 +356,7 @@
         "head_count": 4,
         "key_width": 64,
         "profile_id": "d64_h4_seq16",
-        "selector_status": "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW",
+        "selector_status": "SOURCE_BACKED_ATTENTION_ROUTE_ROW",
         "steps_per_head": 16
       },
       {
@@ -501,10 +511,11 @@
       256
     ],
     "selector_status": "PARTIAL_D64_SOURCE_BACKED_D128_D256_MISSING",
-    "source_backed_requested_cell_count": 3,
+    "source_backed_requested_cell_count": 4,
     "source_backed_requested_profile_ids": [
       "d64_h2_seq16",
       "d64_h2_seq32",
+      "d64_h4_seq16",
       "d64_h4_seq32"
     ]
   },
@@ -514,20 +525,20 @@
     {
       "id": "fused_softmax_route_matrix",
       "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
-      "sha256": "15603b95d79fbbe27c1aed2bbaf1553a89fe7875abf7bb4c1e2bf90d6fde395b",
-      "size_bytes": 59756
+      "sha256": "53242cf13d0df40430917b351b8248872a2f2a1b28934c9e0f4902edc7e70122",
+      "size_bytes": 62975
     },
     {
       "id": "fuller_crossing_grid",
       "path": "docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json",
-      "sha256": "cc7a7f9f45836f8a2c58a8c4cb61ce84eb8292d03f6756c2c02748bc9aacf163",
-      "size_bytes": 52563
+      "sha256": "e740e97e5ff5aa116743aef8a53bbd5b77aa47b5a16a688132ce483db4760ab1",
+      "size_bytes": 52654
     },
     {
       "id": "proof_pressure_claim_pack",
       "path": "docs/engineering/evidence/zkai-proof-pressure-scaling-claim-pack-2026-05.json",
-      "sha256": "369da58f91fd9575b81c4287d1b2cb8a8bdcc5e1af1a600c23c5d24e65c2cdc1",
-      "size_bytes": 23080
+      "sha256": "300009378bc7eff12d8ae238f46f9c30ad50c82a454ddc78ed661f18031361e0",
+      "size_bytes": 24287
     }
   ],
   "timing_policy": "proof_existence_and_byte_accounting_only_not_public_benchmark",
