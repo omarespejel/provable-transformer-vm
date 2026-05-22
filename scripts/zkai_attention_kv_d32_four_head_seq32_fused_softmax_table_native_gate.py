@@ -206,10 +206,13 @@ def reject_symlinked_output_path(path: pathlib.Path, label: str) -> None:
     candidate = path if path.is_absolute() else pathlib.Path.cwd() / path
     if candidate.is_symlink():
         raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError(f"{label} must not be a symlink: {path}")
-    if candidate.parent.exists() and candidate.parent.is_symlink():
-        raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError(
-            f"{label} parent must not be a symlink: {candidate.parent}"
-        )
+    current = pathlib.Path(candidate.anchor)
+    for part in candidate.parts[1:-1]:
+        current = current / part
+        if current.is_symlink():
+            raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError(
+                f"{label} ancestor must not be a symlink: {current}"
+            )
 
 
 def load_script_module(path: pathlib.Path, module_name: str) -> ModuleType:
