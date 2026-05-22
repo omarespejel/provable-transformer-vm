@@ -183,16 +183,22 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "wide row smuggling"):
             gate.validate_payload(payload, self.expected_source_artifacts)
 
+    def test_validate_rejects_requested_selector_status_drift(self):
+        payload = copy.deepcopy(self.payload)
+        payload["requested_grid_signal"]["selector_status"] = "DRIFTED_STATUS"
+        with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "requested selector status drift"):
+            gate.validate_payload(payload, self.expected_source_artifacts)
+
     def test_validate_rejects_requested_source_id_drift(self):
         payload = copy.deepcopy(self.payload)
         payload["requested_grid_signal"]["source_backed_requested_profile_ids"] = [
             "d64_h1_seq16",
             "d64_h2_seq16",
             "d64_h2_seq32",
-                "d64_h2_seq64",
-                "d64_h4_seq16",
-                "d64_h4_seq32",
-            ]
+            "d64_h2_seq64",
+            "d64_h4_seq16",
+            "d64_h4_seq32",
+        ]
         with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "source-backed requested profile IDs drift"):
             gate.validate_payload(payload, self.expected_source_artifacts)
 
@@ -200,6 +206,12 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         payload = copy.deepcopy(self.payload)
         payload["requested_grid_signal"]["requested_rows"][0]["selector_status"] = "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW"
         with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "requested row status drift"):
+            gate.validate_payload(payload, self.expected_source_artifacts)
+
+    def test_validate_rejects_candidate_text_drift(self):
+        payload = copy.deepcopy(self.payload)
+        payload["candidate_order"][0]["why_this_row"] = "drifted narrative"
+        with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "candidate order drift"):
             gate.validate_payload(payload, self.expected_source_artifacts)
 
     def test_validate_rejects_payload_commitment_drift(self):

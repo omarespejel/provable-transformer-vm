@@ -222,6 +222,11 @@
         "rejected": true
       },
       {
+        "error": "requested selector status drift",
+        "name": "requested_selector_status_drift",
+        "rejected": true
+      },
+      {
         "error": "source-backed requested profile IDs drift",
         "name": "requested_source_ids_drift",
         "rejected": true
@@ -282,6 +287,11 @@
         "rejected": true
       },
       {
+        "error": "candidate order drift",
+        "name": "candidate_text_drift",
+        "rejected": true
+      },
+      {
         "error": "validation command drift",
         "name": "validation_command_drift",
         "rejected": true
@@ -305,6 +315,7 @@
       "requested_widths_drift",
       "requested_head_counts_drift",
       "requested_sequences_drift",
+      "requested_selector_status_drift",
       "requested_source_ids_drift",
       "requested_row_status_drift",
       "current_row_count_drift",
@@ -317,12 +328,13 @@
       "d64_head_extra_metric_drift",
       "accounting_triplet_drift",
       "candidate_order_drift",
+      "candidate_text_drift",
       "validation_command_drift",
       "non_claim_removed",
       "payload_commitment_drift"
     ],
-    "mutations_checked": 22,
-    "mutations_rejected": 22
+    "mutations_checked": 24,
+    "mutations_rejected": 24
   },
   "non_claims": [
     "not a complete d64, d128, or d256 attention proof result",
@@ -333,7 +345,7 @@
     "not production zkML readiness",
     "does not widen the claim beyond checked d8, d16, d32, partial d64, and one d128 attention row"
   ],
-  "payload_commitment": "blake2b-256:de1e25c5bba1cbbe5b051e8c51a408066a17745e3a894a2ed70431f154901395",
+  "payload_commitment": "blake2b-256:c4b9fe6beada424946f3ed2f5076f9fb60499ee1dc9470ca434ba3cef8003957",
   "requested_grid_signal": {
     "fully_missing_requested_widths": [
       256

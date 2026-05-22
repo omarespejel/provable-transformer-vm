@@ -593,6 +593,10 @@ def fixture_input_steps() -> list[dict[str, Any]]:
                     "new_value": list(base["new_value"]),
                 })
                 continue
+            # This d128 row is intentionally seq32-compatible today, so this
+            # branch is inactive. It stays as explicit scaffolding for a later
+            # generated longer-sequence route rather than silently changing the
+            # checked source-backed d128 fixture.
             base = per_head[head_index][local_step - SOURCE_SEQUENCE_LENGTH]
             extended.append({
                 "head_index": head_index,

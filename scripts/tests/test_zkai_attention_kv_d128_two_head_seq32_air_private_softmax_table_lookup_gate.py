@@ -8,6 +8,15 @@ from scripts import zkai_attention_kv_d128_two_head_seq32_air_private_softmax_ta
 
 
 class AttentionKvD128TwoHeadSeq32AirPrivateSoftmaxTableLookupGateTests(unittest.TestCase):
+    def evidence_tempdir(self):
+        return tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-d128-lookup-gate-test-")
+
+    def symlink_or_skip(self, link_path, target_path):
+        try:
+            link_path.symlink_to(target_path, target_is_directory=True)
+        except (OSError, NotImplementedError) as err:
+            self.skipTest(f"symlink creation unavailable: {err}")
+
     def strip_mutation_summary(self, payload):
         payload = copy.deepcopy(payload)
         for key in ("mutation_cases", "mutations_checked", "mutations_rejected", "all_mutations_rejected"):
@@ -171,9 +180,39 @@ class AttentionKvD128TwoHeadSeq32AirPrivateSoftmaxTableLookupGateTests(unittest.
     def test_write_json_validates_before_writing(self):
         payload = gate.build_payload()
         payload["lookup_receipt"]["lookup_proof_size_bytes"] += 1
-        with tempfile.TemporaryDirectory() as tmp:
+        with self.evidence_tempdir() as tmp:
             with self.assertRaisesRegex(gate.AttentionKvAirPrivateSoftmaxTableLookupGateError, "lookup_receipt drift"):
                 gate.write_json(payload, gate.pathlib.Path(tmp) / "bad.json")
+
+    def test_write_json_and_tsv_round_trip_inside_evidence_dir(self):
+        payload = gate.build_payload()
+        with self.evidence_tempdir() as tmp:
+            tmp_path = gate.pathlib.Path(tmp)
+            json_path = tmp_path / "lookup-gate.json"
+            tsv_path = tmp_path / "lookup-gate.tsv"
+            gate.write_json(payload, json_path)
+            gate.write_tsv(payload, tsv_path)
+            self.assertEqual(json.loads(json_path.read_text(encoding="utf-8"))["schema"], gate.SCHEMA)
+            tsv = tsv_path.read_text(encoding="utf-8")
+            self.assertIn(gate.DECISION, tsv)
+            self.assertIn("35010", tsv)
+
+    def test_write_outputs_reject_absolute_outside_evidence_dir(self):
+        payload = gate.build_payload()
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(gate.AttentionKvAirPrivateSoftmaxTableLookupGateError, "stay inside evidence dir"):
+                gate.write_json(payload, gate.pathlib.Path(tmp) / "lookup-gate.json")
+
+    def test_write_outputs_reject_symlink_escape_inside_evidence_dir(self):
+        payload = gate.build_payload()
+        with self.evidence_tempdir() as evidence_tmp, tempfile.TemporaryDirectory() as outside_tmp:
+            link_path = gate.pathlib.Path(evidence_tmp) / "escape"
+            self.symlink_or_skip(link_path, gate.pathlib.Path(outside_tmp))
+            with self.assertRaisesRegex(
+                gate.AttentionKvAirPrivateSoftmaxTableLookupGateError,
+                "symlink components|stay inside evidence dir",
+            ):
+                gate.write_tsv(payload, link_path / "lookup-gate.tsv")
 
 
 if __name__ == "__main__":
