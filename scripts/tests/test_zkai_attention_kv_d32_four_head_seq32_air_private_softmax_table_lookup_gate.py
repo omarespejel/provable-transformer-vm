@@ -172,8 +172,28 @@ class AttentionKvD32FourHeadSeq32AirPrivateSoftmaxTableLookupGateTests(unittest.
         payload = gate.build_payload()
         payload["lookup_receipt"]["lookup_proof_size_bytes"] += 1
         with tempfile.TemporaryDirectory() as tmp:
+            bad_json = gate.pathlib.Path(tmp) / "bad.json"
+            bad_tsv = gate.pathlib.Path(tmp) / "bad.tsv"
             with self.assertRaisesRegex(gate.AttentionKvAirPrivateSoftmaxTableLookupGateError, "lookup_receipt drift"):
-                gate.write_json(payload, gate.pathlib.Path(tmp) / "bad.json")
+                gate.write_json(payload, bad_json)
+            with self.assertRaisesRegex(gate.AttentionKvAirPrivateSoftmaxTableLookupGateError, "lookup_receipt drift"):
+                gate.write_tsv(payload, bad_tsv)
+            self.assertFalse(bad_json.exists())
+            self.assertFalse(bad_tsv.exists())
+
+    def test_write_helpers_reject_symlink_targets(self):
+        payload = gate.build_payload()
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = gate.pathlib.Path(tmp)
+            real_target = tmp_path / "real.json"
+            real_target.write_text("{}", encoding="utf-8")
+            symlink_target = tmp_path / "linked.json"
+            try:
+                symlink_target.symlink_to(real_target)
+            except OSError as err:
+                self.skipTest(f"symlink creation unavailable: {err}")
+            with self.assertRaisesRegex(gate.AttentionKvAirPrivateSoftmaxTableLookupGateError, "refusing to write json"):
+                gate.write_json(payload, symlink_target)
 
 
 if __name__ == "__main__":

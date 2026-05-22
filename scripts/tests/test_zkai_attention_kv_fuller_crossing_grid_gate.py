@@ -133,6 +133,12 @@ class AttentionKvFullerCrossingGridGateTests(unittest.TestCase):
         with self.assertRaisesRegex(gate.FullerCrossingGridGateError, "checked result drift"):
             gate.validate_result(bad)
 
+        bad = copy.deepcopy(self.result)
+        proved = next(row for row in bad["grid_rows"] if row["cell_id"] == "d32_h4_seq32")
+        proved["fused_proof_size_bytes"] += 1
+        with self.assertRaisesRegex(gate.FullerCrossingGridGateError, "checked result drift"):
+            gate.validate_result(bad)
+
         for key in ("mutation_results", "mutations_checked", "mutations_rejected"):
             with self.subTest(key=key):
                 bad = copy.deepcopy(self.result)

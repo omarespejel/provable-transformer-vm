@@ -15,6 +15,7 @@ import copy
 import hashlib
 import importlib.util
 import json
+import os
 import pathlib
 import subprocess
 import tempfile
@@ -799,14 +800,96 @@ def to_tsv(payload: dict[str, Any]) -> str:
 
 def write_json(payload: dict[str, Any], path: pathlib.Path) -> None:
     validate_payload(payload)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    safe_write_text(path, json.dumps(payload, indent=2, sort_keys=True) + "\n", label="json")
 
 
 def write_tsv(payload: dict[str, Any], path: pathlib.Path) -> None:
     validate_payload(payload)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(to_tsv(payload), encoding="utf-8")
+    safe_write_text(path, to_tsv(payload), label="tsv")
+
+
+def fsync_parent_dir(path: pathlib.Path) -> None:
+    flags = getattr(os, "O_RDONLY", 0)
+    if hasattr(os, "O_DIRECTORY"):
+        flags |= os.O_DIRECTORY
+    try:
+        fd = os.open(path.parent, flags)
+    except OSError as err:
+        raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+            f"failed to open artifact parent directory for fsync {path.parent}: {err}"
+        ) from err
+    try:
+        os.fsync(fd)
+    except OSError as err:
+        raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+            f"failed to fsync artifact parent directory {path.parent}: {err}"
+        ) from err
+    finally:
+        os.close(fd)
+
+
+def reject_symlinked_output_path(path: pathlib.Path, label: str) -> None:
+    candidate = path if path.is_absolute() else pathlib.Path.cwd() / path
+    if candidate.is_symlink():
+        raise AttentionKvAirPrivateSoftmaxTableLookupGateError(f"refusing to write {label} through symlink: {path}")
+    current = pathlib.Path(candidate.anchor)
+    for part in candidate.parts[1:-1]:
+        current = current / part
+        if current.is_symlink():
+            raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+                f"refusing to write {label} through symlinked parent: {current}"
+            )
+
+
+def ensure_parent_dir_without_symlinks(path: pathlib.Path, label: str) -> None:
+    reject_symlinked_output_path(path, label)
+    candidate = path if path.is_absolute() else pathlib.Path.cwd() / path
+    current = pathlib.Path(candidate.anchor)
+    for part in candidate.parent.parts[1:]:
+        current = current / part
+        if current.is_symlink():
+            raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+                f"refusing to create {label} under symlinked parent: {current}"
+            )
+        try:
+            current.mkdir(exist_ok=True)
+        except OSError as err:
+            raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+                f"failed to create parent directory {current} for {label}: {err}"
+            ) from err
+        if current.is_symlink():
+            raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+                f"refusing to create {label} under symlinked parent: {current}"
+            )
+        if not current.is_dir():
+            raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+                f"artifact parent path is not a directory for {label}: {current}"
+            )
+
+
+def safe_write_text(path: pathlib.Path, text: str, *, label: str) -> None:
+    ensure_parent_dir_without_symlinks(path, label)
+    reject_symlinked_output_path(path, label)
+    temp_name: pathlib.Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            "w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as tmp:
+            tmp.write(text)
+            tmp.flush()
+            os.fsync(tmp.fileno())
+            temp_name = pathlib.Path(tmp.name)
+        os.replace(temp_name, path)
+        fsync_parent_dir(path)
+    except OSError as err:
+        if temp_name is not None:
+            temp_name.unlink(missing_ok=True)
+        raise AttentionKvAirPrivateSoftmaxTableLookupGateError(f"failed to write {label} artifact {path}: {err}") from err
 
 
 def main() -> None:
