@@ -4,7 +4,7 @@
 This gate is intentionally derived from the checked route matrix. It does not
 generate new proofs. Its job is to make the missing width/head/sequence
 crossings explicit, so the evidence frontier is auditable without promoting the
-current 24 proved rows into a full factorial proof claim.
+current proved rows into a full factorial proof claim.
 """
 
 from __future__ import annotations
@@ -37,8 +37,8 @@ ISSUE = 7
 SOURCE_ISSUE = matrix.ISSUE
 DECISION = "GO_CHECKED_FULLER_CROSSING_GRID_WITH_FULL_PROOF_GRID_NO_GO"
 ROUTE_ID = "local_stwo_attention_kv_fuller_width_head_sequence_crossing_grid"
-GRID_STATUS = "GO_80_CELL_WIDTH_HEAD_SEQUENCE_STATUS_GRID_FROM_CHECKED_ROUTE_MATRIX"
-FULL_PROOF_GRID_STATUS = "NO_GO_56_OF_80_GRID_CELLS_DO_NOT_HAVE_NATIVE_FUSED_PROOFS"
+GRID_STATUS = "GO_100_CELL_WIDTH_HEAD_SEQUENCE_STATUS_GRID_FROM_CHECKED_ROUTE_MATRIX"
+FULL_PROOF_GRID_STATUS = "NO_GO_75_OF_100_GRID_CELLS_DO_NOT_HAVE_NATIVE_FUSED_PROOFS"
 CLAIM_BOUNDARY = (
     "ENGINEERING_STATUS_GRID_FOR_CHECKED_NATIVE_STWO_FUSED_BOUNDED_SOFTMAX_TABLE_ROUTES_"
     "MAPS_PROVED_AND_MISSING_WIDTH_HEAD_SEQUENCE_CELLS_NOT_A_FULL_FACTORIAL_PROOF_GRID_"
@@ -47,7 +47,7 @@ CLAIM_BOUNDARY = (
 TIMING_POLICY = "status_grid_only_not_timing_not_public_benchmark"
 PROVED_STATUS = "PROVED_NATIVE_FUSED_WITH_MATCHED_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR"
 MISSING_STATUS = "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR"
-WIDTHS = (8, 16, 32, 64)
+WIDTHS = (8, 16, 32, 64, 128)
 HEAD_COUNTS = (1, 2, 4, 8, 16)
 STEPS_PER_HEAD = (8, 16, 32, 64)
 GRID_CELL_COUNT = len(WIDTHS) * len(HEAD_COUNTS) * len(STEPS_PER_HEAD)
@@ -76,6 +76,7 @@ EXPECTED_PROVED_KEYS = (
     (64, 2, 64),
     (64, 4, 32),
     (64, 4, 64),
+    (128, 2, 32),
 )
 EXPECTED_PROVED_PROFILE_IDS = (
     "d8_single_head_seq8",
@@ -102,6 +103,7 @@ EXPECTED_PROVED_PROFILE_IDS = (
     "d64_two_head_seq64",
     "d64_four_head_seq32",
     "d64_four_head_seq64",
+    "d128_two_head_seq32",
 )
 VALIDATION_COMMANDS = (
     "python3.10 scripts/zkai_attention_kv_fuller_crossing_grid_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.tsv",
@@ -111,24 +113,32 @@ VALIDATION_COMMANDS = (
 )
 GO_CRITERIA = (
     "the upstream fused Softmax-table route matrix validates locally",
-    "exactly 24 checked route cells are marked proved and exactly 56 cells are marked missing",
+    "exactly 25 checked route cells are marked proved and exactly 75 cells are marked missing",
     "every proved cell has matched source-plus-LogUp-sidecar comparator evidence from the route matrix",
     "missing cells carry no proof-byte, ratio, or evidence-path claims",
 )
 NO_GO_CRITERIA = (
-    "full factorial proof-grid claim: 56 of 80 grid cells are missing native fused proofs",
-    "new crossing proof claim: this slice adds only the d64/single-head/seq16 width-sequence anchor row",
+    "full factorial proof-grid claim: 75 of 100 grid cells are missing native fused proofs",
+    "new crossing proof claim: this slice adds only the d128/two-head/seq32 width-frontier row",
     "timing or public benchmark claim: this gate records status only",
     "real-valued Softmax or full-inference claim: the upstream kernel is bounded integer Softmax-table/floor division",
 )
 NEXT_LOW_RISK_PROFILES = (
     {
-        "profile_id": "d32_four_head_seq64",
-        "key_width": 32,
-        "head_count": 4,
+        "profile_id": "d128_two_head_seq64",
+        "key_width": 128,
+        "head_count": 2,
         "steps_per_head": 64,
-        "reason": "tests whether the d32 four-head seq32 saving strengthens under another sequence-axis extension",
+        "reason": "tests whether the positive d128 seq32 width frontier survives sequence pressure",
         "go_condition": "source, sidecar, fused, and mutation gates all validate under local-only proof accounting",
+    },
+    {
+        "profile_id": "d128_single_head_seq16",
+        "key_width": 128,
+        "head_count": 1,
+        "steps_per_head": 16,
+        "reason": "anchors d128 width pressure with lower lookup load if seq64 proves too heavy",
+        "go_condition": "source, sidecar, fused, and mutation gates validate with a positive fused-vs-split saving",
     },
 )
 NON_CLAIMS = (

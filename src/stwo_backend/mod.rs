@@ -6,6 +6,12 @@ mod arithmetic_subset_prover;
 #[cfg(feature = "stwo-backend")]
 mod attention_kv_native_bounded_weighted_proof;
 #[cfg(feature = "stwo-backend")]
+mod attention_kv_native_d128_two_head_seq32_bounded_softmax_table_proof;
+#[cfg(feature = "stwo-backend")]
+mod attention_kv_native_d128_two_head_seq32_fused_softmax_table_proof;
+#[cfg(feature = "stwo-backend")]
+mod attention_kv_native_d128_two_head_seq32_softmax_table_lookup_proof;
+#[cfg(feature = "stwo-backend")]
 mod attention_kv_native_d16_bounded_softmax_table_proof;
 #[cfg(feature = "stwo-backend")]
 mod attention_kv_native_d16_fused_softmax_table_proof;
@@ -283,6 +289,32 @@ pub use attention_kv_native_bounded_weighted_proof::{
     ZKAI_ATTENTION_KV_NATIVE_BOUNDED_WEIGHTED_STATEMENT_VERSION,
     ZKAI_ATTENTION_KV_NATIVE_BOUNDED_WEIGHTED_TARGET_ID,
     ZKAI_ATTENTION_KV_NATIVE_BOUNDED_WEIGHTED_VERIFIER_DOMAIN,
+};
+#[cfg(feature = "stwo-backend")]
+pub use attention_kv_native_d128_two_head_seq32_bounded_softmax_table_proof::{
+    prove_zkai_attention_kv_native_d128_two_head_seq32_bounded_softmax_table_envelope,
+    verify_zkai_attention_kv_native_d128_two_head_seq32_bounded_softmax_table_envelope,
+    zkai_attention_kv_native_d128_two_head_seq32_bounded_softmax_table_envelope_from_json_slice,
+    zkai_attention_kv_native_d128_two_head_seq32_bounded_softmax_table_input_from_json_str,
+    ZKAI_ATTENTION_KV_NATIVE_D128_TWO_HEAD_SEQ32_BOUNDED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BYTES,
+    ZKAI_ATTENTION_KV_NATIVE_D128_TWO_HEAD_SEQ32_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES,
+};
+#[cfg(feature = "stwo-backend")]
+pub use attention_kv_native_d128_two_head_seq32_fused_softmax_table_proof::{
+    prove_zkai_attention_kv_native_d128_two_head_seq32_fused_softmax_table_envelope,
+    verify_zkai_attention_kv_native_d128_two_head_seq32_fused_softmax_table_envelope,
+    zkai_attention_kv_native_d128_two_head_seq32_fused_softmax_table_envelope_from_json_slice,
+    zkai_attention_kv_native_d128_two_head_seq32_fused_softmax_table_source_input_from_json_str,
+    ZKAI_ATTENTION_KV_NATIVE_D128_TWO_HEAD_SEQ32_FUSED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BYTES,
+};
+#[cfg(feature = "stwo-backend")]
+pub use attention_kv_native_d128_two_head_seq32_softmax_table_lookup_proof::{
+    prove_zkai_attention_kv_native_d128_two_head_seq32_softmax_table_lookup_envelope,
+    verify_zkai_attention_kv_native_d128_two_head_seq32_softmax_table_lookup_envelope,
+    zkai_attention_kv_native_d128_two_head_seq32_softmax_table_lookup_envelope_from_json_slice,
+    zkai_attention_kv_native_d128_two_head_seq32_softmax_table_lookup_source_input_from_json_str,
+    ZKAI_ATTENTION_KV_NATIVE_D128_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_MAX_ENVELOPE_JSON_BYTES,
+    ZKAI_ATTENTION_KV_NATIVE_D128_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_TARGET_ID,
 };
 #[cfg(feature = "stwo-backend")]
 pub use attention_kv_native_d16_bounded_softmax_table_proof::{
