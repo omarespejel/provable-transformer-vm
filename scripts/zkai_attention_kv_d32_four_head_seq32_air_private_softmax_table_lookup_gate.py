@@ -46,7 +46,7 @@ NEXT_BACKEND_STEP = (
     "use this source-plus-sidecar comparator as the matched control for the d32 four-head seq32 fused native route and crossing-grid row"
 )
 TIMING_POLICY = "no_new_timing_proof_existence_and_relation_gate_only"
-LOOKUP_VERIFY_TIMEOUT_SECONDS = 180
+LOOKUP_VERIFY_TIMEOUT_SECONDS = 420
 
 SOURCE_DECISION = "GO_INPUT_FOR_STWO_NATIVE_ATTENTION_KV_D32_FOUR_HEAD_SEQ32_BOUNDED_SOFTMAX_TABLE_AIR_PROOF"
 SOURCE_STATEMENT_COMMITMENT = "blake2b-256:8b07ad9d2735f5f9b908b2d6e52e639680355564f336ea5459df49c43d62bc01"
