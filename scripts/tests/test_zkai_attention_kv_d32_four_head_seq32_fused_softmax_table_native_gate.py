@@ -25,6 +25,12 @@ class AttentionKvD32FourHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestC
         cls.fused_envelope = gate.read_bounded_json(gate.FUSED_ENVELOPE_JSON, gate.MAX_FUSED_ENVELOPE_JSON_BYTES, "fused envelope")
         cls.payload = gate.run_gate()
 
+    def symlink_or_skip(self, link_path, target_path, *, target_is_directory=False):
+        try:
+            link_path.symlink_to(target_path, target_is_directory=target_is_directory)
+        except OSError as err:
+            self.skipTest(f"symlink creation unavailable: {err}")
+
     def test_gate_records_fused_go_and_byte_delta(self):
         payload = self.payload
         self.assertEqual(payload["decision"], gate.DECISION)
@@ -259,7 +265,7 @@ class AttentionKvD32FourHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestC
                 gate.expect_artifact_size(raw + b" ", expected_size, label)
 
     def test_write_json_and_tsv_round_trip(self):
-        with tempfile.TemporaryDirectory() as tmp_dir:
+        with tempfile.TemporaryDirectory(dir=gate.ROOT) as tmp_dir:
             tmp_path = gate.pathlib.Path(tmp_dir)
             json_path = tmp_path / "gate.json"
             tsv_path = tmp_path / "gate.tsv"
@@ -269,30 +275,43 @@ class AttentionKvD32FourHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestC
             self.assertIn(gate.DECISION, tsv_path.read_text(encoding="utf-8"))
             self.assertIn("154670", tsv_path.read_text(encoding="utf-8"))
 
+    @unittest.skipUnless(hasattr(gate.pathlib.Path, "symlink_to"), "symlink support required")
     def test_input_helpers_reject_symlink_paths(self):
-        with tempfile.TemporaryDirectory() as tmp_dir:
+        with tempfile.TemporaryDirectory(dir=gate.ROOT) as tmp_dir:
             tmp_path = gate.pathlib.Path(tmp_dir)
             script_target = tmp_path / "script_target.py"
             script_target.write_text("VALUE = 1\n", encoding="utf-8")
             script_link = tmp_path / "script_link.py"
-            script_link.symlink_to(script_target)
+            self.symlink_or_skip(script_link, script_target)
             with self.assertRaisesRegex(gate.AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError, "symlink"):
                 gate.load_script_module(script_link, "linked_script")
 
             artifact_target = tmp_path / "artifact_target.json"
             artifact_target.write_text("{}", encoding="utf-8")
             artifact_link = tmp_path / "artifact_link.json"
-            artifact_link.symlink_to(artifact_target)
+            self.symlink_or_skip(artifact_link, artifact_target)
             with self.assertRaisesRegex(gate.AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError, "symlink"):
                 gate.read_bounded_bytes(artifact_link, 1024, "linked artifact")
 
+            real_parent = tmp_path / "real_parent"
+            real_parent.mkdir()
+            (real_parent / "script.py").write_text("VALUE = 1\n", encoding="utf-8")
+            (real_parent / "artifact.json").write_text("{}", encoding="utf-8")
+            link_parent = tmp_path / "link_parent"
+            self.symlink_or_skip(link_parent, real_parent, target_is_directory=True)
+            with self.assertRaisesRegex(gate.AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError, "symlink"):
+                gate.load_script_module(link_parent / "script.py", "linked_parent_script")
+            with self.assertRaisesRegex(gate.AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError, "symlink"):
+                gate.read_bounded_bytes(link_parent / "artifact.json", 1024, "linked parent artifact")
+
+    @unittest.skipUnless(hasattr(gate.pathlib.Path, "symlink_to"), "symlink support required")
     def test_write_helpers_reject_symlink_targets(self):
-        with tempfile.TemporaryDirectory() as tmp_dir:
+        with tempfile.TemporaryDirectory(dir=gate.ROOT) as tmp_dir:
             tmp_path = gate.pathlib.Path(tmp_dir)
             json_target = tmp_path / "target.json"
             json_target.write_text("original-json\n", encoding="utf-8")
             json_link = tmp_path / "link.json"
-            json_link.symlink_to(json_target)
+            self.symlink_or_skip(json_link, json_target)
             with self.assertRaisesRegex(gate.AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError, "symlink"):
                 gate.write_json(json_link, self.payload)
             self.assertEqual(json_target.read_text(encoding="utf-8"), "original-json\n")
@@ -300,10 +319,19 @@ class AttentionKvD32FourHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestC
             tsv_target = tmp_path / "target.tsv"
             tsv_target.write_text("original-tsv\n", encoding="utf-8")
             tsv_link = tmp_path / "link.tsv"
-            tsv_link.symlink_to(tsv_target)
+            self.symlink_or_skip(tsv_link, tsv_target)
             with self.assertRaisesRegex(gate.AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError, "symlink"):
                 gate.write_tsv(tsv_link, self.payload)
             self.assertEqual(tsv_target.read_text(encoding="utf-8"), "original-tsv\n")
+
+            real_parent = tmp_path / "real_output_parent"
+            real_parent.mkdir()
+            link_parent = tmp_path / "linked_output_parent"
+            self.symlink_or_skip(link_parent, real_parent, target_is_directory=True)
+            with self.assertRaisesRegex(gate.AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError, "symlink"):
+                gate.write_json(link_parent / "nested" / "gate.json", self.payload)
+            with self.assertRaisesRegex(gate.AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError, "symlink"):
+                gate.write_tsv(link_parent / "nested" / "gate.tsv", self.payload)
 
     def test_write_json_rejects_metric_drift(self):
         payload = copy.deepcopy(self.payload)
@@ -362,7 +390,7 @@ class AttentionKvD32FourHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestC
             gate.validate_result(payload)
 
     def test_write_json_failure_preserves_existing_artifact(self):
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(dir=gate.ROOT) as tmp:
             path = gate.pathlib.Path(tmp) / "gate.json"
             gate.write_json(path, self.payload)
             original = path.read_text(encoding="utf-8")
