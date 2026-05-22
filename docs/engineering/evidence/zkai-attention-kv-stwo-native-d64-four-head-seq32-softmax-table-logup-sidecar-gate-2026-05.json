@@ -15,7 +15,7 @@
   },
   "fused_comparator": {
     "comparison_scope": "raw proof bytes only; no timing, no full inference, no real-valued Softmax claim",
-    "fused_envelope_size_bytes": 21506429,
+    "fused_envelope_size_bytes": 21506508,
     "fused_proof_size_bytes": 255889,
     "fused_saves_vs_source_plus_sidecar_bytes": 32403,
     "fused_to_source_plus_sidecar_ratio": "0.887604",
