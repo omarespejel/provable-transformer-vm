@@ -14,6 +14,7 @@ import csv
 import hashlib
 import importlib.util
 import json
+import os
 import pathlib
 import subprocess
 import tempfile
@@ -188,7 +189,31 @@ class AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError(ValueError):
     pass
 
 
+def reject_symlinked_path(path: pathlib.Path, label: str) -> None:
+    candidate = path if path.is_absolute() else pathlib.Path.cwd() / path
+    if candidate.is_symlink():
+        raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError(f"{label} must not be a symlink: {path}")
+    current = pathlib.Path(candidate.anchor)
+    for part in candidate.parts[1:-1]:
+        current = current / part
+        if current.is_symlink():
+            raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError(
+                f"{label} parent must not be a symlink: {current}"
+            )
+
+
+def reject_symlinked_output_path(path: pathlib.Path, label: str) -> None:
+    candidate = path if path.is_absolute() else pathlib.Path.cwd() / path
+    if candidate.is_symlink():
+        raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError(f"{label} must not be a symlink: {path}")
+    if candidate.parent.exists() and candidate.parent.is_symlink():
+        raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError(
+            f"{label} parent must not be a symlink: {candidate.parent}"
+        )
+
+
 def load_script_module(path: pathlib.Path, module_name: str) -> ModuleType:
+    reject_symlinked_path(path, f"{module_name} script")
     spec = importlib.util.spec_from_file_location(module_name, path)
     if spec is None or spec.loader is None:
         raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError(f"failed to load {module_name}: {path}")
@@ -206,6 +231,7 @@ SOURCE_INPUT_MODULE = load_script_module(
 
 
 def read_bounded_bytes(path: pathlib.Path, max_bytes: int, label: str) -> bytes:
+    reject_symlinked_path(path, label)
     if not path.is_file():
         raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError(f"missing {label}: {path}")
     size = path.stat().st_size
@@ -1051,55 +1077,133 @@ def validate_result(result: dict[str, Any]) -> None:
             raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError("mutation result rejection drift")
 
 
+def fsync_parent_dir(path: pathlib.Path) -> None:
+    flags = os.O_RDONLY
+    if hasattr(os, "O_DIRECTORY"):
+        flags |= os.O_DIRECTORY
+    try:
+        fd = os.open(path.parent, flags)
+    except OSError as err:
+        raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError(
+            f"failed to open artifact parent directory for fsync {path.parent}: {err}"
+        ) from err
+    try:
+        os.fsync(fd)
+    except OSError as err:
+        raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError(
+            f"failed to fsync artifact parent directory {path.parent}: {err}"
+        ) from err
+    finally:
+        os.close(fd)
+
+
+def ensure_parent_dir_without_symlinks(path: pathlib.Path, label: str) -> None:
+    candidate = path if path.is_absolute() else pathlib.Path.cwd() / path
+    reject_symlinked_output_path(candidate, label)
+    try:
+        candidate.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as err:
+        raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError(
+            f"failed to create parent directory {candidate.parent} for {label}: {err}"
+        ) from err
+    reject_symlinked_output_path(candidate, label)
+    if not candidate.parent.is_dir():
+        raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError(
+            f"artifact parent path is not a directory for {label}: {candidate.parent}"
+        )
+
+
+def safe_write_text(path: pathlib.Path, text: str, *, label: str) -> pathlib.Path:
+    ensure_parent_dir_without_symlinks(path, label)
+    reject_symlinked_output_path(path, label)
+    temp_name: pathlib.Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            "w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as tmp:
+            tmp.write(text)
+            tmp.flush()
+            os.fsync(tmp.fileno())
+            temp_name = pathlib.Path(tmp.name)
+        return temp_name
+    except OSError as err:
+        if temp_name is not None:
+            temp_name.unlink(missing_ok=True)
+        raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError(
+            f"failed to write temporary artifact for {label}: {err}"
+        ) from err
+
+
+def replace_temp_output(temp_name: pathlib.Path, path: pathlib.Path, label: str) -> None:
+    reject_symlinked_output_path(path, label)
+    try:
+        os.replace(temp_name, path)
+        fsync_parent_dir(path)
+    except OSError as err:
+        temp_name.unlink(missing_ok=True)
+        raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError(
+            f"failed to replace artifact for {label}: {err}"
+        ) from err
+
+
 def write_json(path: pathlib.Path, result: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
     validate_result(result)
-    with tempfile.NamedTemporaryFile(
-        "w",
-        encoding="utf-8",
-        dir=path.parent,
-        prefix=f".{path.name}.",
-        suffix=".tmp",
-        delete=False,
-    ) as handle:
-        tmp_path = pathlib.Path(handle.name)
-        handle.write(json.dumps(result, indent=2, sort_keys=True) + "\n")
+    tmp_path = safe_write_text(path, json.dumps(result, indent=2, sort_keys=True) + "\n", label="json output")
     try:
         validate_result(json.loads(tmp_path.read_text(encoding="utf-8")))
-        tmp_path.replace(path)
+        replace_temp_output(tmp_path, path, "json output")
     except Exception:
         tmp_path.unlink(missing_ok=True)
         raise
 
 
 def write_tsv(path: pathlib.Path, result: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
     validate_result(result)
     row = {column: result[column] for column in TSV_COLUMNS}
     expected_row = {column: str(value) for column, value in row.items()}
-    with tempfile.NamedTemporaryFile(
-        "w",
-        encoding="utf-8",
-        newline="",
-        dir=path.parent,
-        prefix=f".{path.name}.",
-        suffix=".tmp",
-        delete=False,
-    ) as handle:
-        tmp_path = pathlib.Path(handle.name)
-        writer = csv.DictWriter(
-            handle, fieldnames=TSV_COLUMNS, delimiter="\t", lineterminator="\n"
-        )
-        writer.writeheader()
-        writer.writerow(row)
+    ensure_parent_dir_without_symlinks(path, "tsv output")
+    reject_symlinked_output_path(path, "tsv output")
+    tmp_path: pathlib.Path | None = None
     try:
+        with tempfile.NamedTemporaryFile(
+            "w",
+            encoding="utf-8",
+            newline="",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            tmp_path = pathlib.Path(handle.name)
+            writer = csv.DictWriter(
+                handle, fieldnames=TSV_COLUMNS, delimiter="\t", lineterminator="\n"
+            )
+            writer.writeheader()
+            writer.writerow(row)
+            handle.flush()
+            os.fsync(handle.fileno())
+    except OSError as err:
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
+        raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError(
+            f"failed to write temporary artifact for tsv output: {err}"
+        ) from err
+    try:
+        if tmp_path is None:
+            raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError("missing TSV temporary artifact")
         with tmp_path.open("r", encoding="utf-8", newline="") as handle:
             rows = list(csv.DictReader(handle, delimiter="\t"))
         if rows != [expected_row]:
             raise AttentionKvD32FourHeadSeq32FusedSoftmaxTableGateError("TSV round-trip drift")
-        tmp_path.replace(path)
+        replace_temp_output(tmp_path, path, "tsv output")
     except Exception:
-        tmp_path.unlink(missing_ok=True)
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
         raise
 
 
