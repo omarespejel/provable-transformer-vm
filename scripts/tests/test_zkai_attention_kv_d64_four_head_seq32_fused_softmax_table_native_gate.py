@@ -344,7 +344,7 @@ class AttentionKvD64FourHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestC
     def test_write_json_rejects_metric_drift(self):
         payload = copy.deepcopy(self.payload)
         payload["fused_proof_size_bytes"] += 1
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-d64-h4-fused-test-") as tmp:
             with self.assertRaisesRegex(
                 gate.AttentionKvD64FourHeadSeq32FusedSoftmaxTableGateError,
                 "result drift for fused_proof_size_bytes",
@@ -354,7 +354,7 @@ class AttentionKvD64FourHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestC
     def test_write_json_rejects_published_identity_drift(self):
         payload = copy.deepcopy(self.payload)
         payload["route_id"] = "different-route"
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-d64-h4-fused-test-") as tmp:
             with self.assertRaisesRegex(
                 gate.AttentionKvD64FourHeadSeq32FusedSoftmaxTableGateError,
                 "result drift for route_id",
@@ -364,7 +364,7 @@ class AttentionKvD64FourHeadSeq32FusedSoftmaxTableNativeGateTests(unittest.TestC
     def test_write_json_rejects_mutation_result_shape_drift(self):
         payload = copy.deepcopy(self.payload)
         payload["mutation_results"][0]["rejected"] = False
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-d64-h4-fused-test-") as tmp:
             with self.assertRaisesRegex(
                 gate.AttentionKvD64FourHeadSeq32FusedSoftmaxTableGateError,
                 "mutation result rejection drift",
