@@ -34,6 +34,7 @@ MAX_SOURCE_INPUT_JSON_BYTES = 16_777_216
 MAX_SOURCE_ENVELOPE_JSON_BYTES = 16_777_216
 MAX_SIDECAR_ENVELOPE_JSON_BYTES = 16_777_216
 MAX_FUSED_ENVELOPE_JSON_BYTES = 16_777_216
+NATIVE_VERIFY_TIMEOUT_SECONDS = 420
 FUSED_VERIFY_TIMEOUT_SECONDS = 420
 
 SCHEMA = "zkai-attention-kv-stwo-native-d32-four-head-seq32-fused-softmax-table-gate-v1"
@@ -406,7 +407,7 @@ def verify_envelope_bytes_with_native_cli(
             text=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=FUSED_VERIFY_TIMEOUT_SECONDS,
+            timeout=NATIVE_VERIFY_TIMEOUT_SECONDS,
             check=False,
         )
     except (OSError, subprocess.TimeoutExpired) as err:
