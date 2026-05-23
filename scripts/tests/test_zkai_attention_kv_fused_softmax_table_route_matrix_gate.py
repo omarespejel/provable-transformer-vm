@@ -50,6 +50,21 @@ class AttentionKvFusedSoftmaxTableRouteMatrixGateTests(unittest.TestCase):
             },
         )
 
+    def test_local_only_d128_seq64_rejects_partial_artifact_state(self):
+        profile = next(profile for profile in gate.PROFILES if profile.profile_id == "d128_four_head_seq64")
+        gate_result = gate.read_json(profile.gate_json, "d128 four-head seq64 gate result")
+        local_paths = gate.d128_four_head_seq64_local_artifact_paths(profile)
+        original_is_file = gate.pathlib.Path.is_file
+
+        def fake_is_file(path):
+            if path in local_paths:
+                return path == local_paths[0]
+            return original_is_file(path)
+
+        with mock.patch.object(gate.pathlib.Path, "is_file", fake_is_file):
+            with self.assertRaisesRegex(gate.FusedSoftmaxTableRouteMatrixGateError, "partial local artifact state"):
+                gate.validate_existing_gate(profile, gate_result)
+
     def test_route_rows_match_expected_dimensions_and_existing_gate_metrics(self):
         rows = {row["profile_id"]: row for row in self.result["route_rows"]}
 

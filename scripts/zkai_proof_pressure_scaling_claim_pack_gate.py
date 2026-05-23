@@ -49,6 +49,9 @@ TSV_OUT = EVIDENCE_DIR / "zkai-proof-pressure-scaling-claim-pack-2026-05.tsv"
 
 CONTROLLED_GRID_PATH = EVIDENCE_DIR / "zkai-attention-kv-stwo-controlled-component-grid-2026-05.json"
 ROUTE_MATRIX_PATH = EVIDENCE_DIR / "zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json"
+D128_FOUR_HEAD_SEQ64_LARGE_ARTIFACTS_PATH = (
+    EVIDENCE_DIR / "zkai-attention-kv-stwo-native-d128-four-head-seq64-large-artifacts-2026-05.json"
+)
 FULLER_CROSSING_GRID_PATH = EVIDENCE_DIR / "zkai-attention-kv-fuller-crossing-grid-2026-05.json"
 NATIVE_SINGLE_PATH = EVIDENCE_DIR / "zkai-native-seq32-attention-mlp-single-proof-2026-05.json"
 STATEMENT_ONLY_PATH = EVIDENCE_DIR / "zkai-stwo-statement-only-attempt-transcript-gate-2026-05.json"
@@ -190,6 +193,7 @@ LOCAL_RECORD_STREAM_STATUS = "LOCAL_RECORD_STREAM_ACCOUNTING_NOT_UPSTREAM_STWO_S
 EXPECTED_SOURCE_ARTIFACT_IDS = (
     "controlled_component_grid",
     "attention_route_matrix",
+    "d128_four_head_seq64_large_artifacts_manifest",
     "fuller_crossing_grid",
     "native_seq32_d128_single_proof",
     "statement_only_attempt_transcript",
@@ -375,6 +379,51 @@ def validate_timing_payload(payload: dict[str, Any]) -> None:
         raise ProofPressureScalingClaimPackError("median timing target drift")
 
 
+def validate_d128_four_head_seq64_large_artifacts_manifest(payload: dict[str, Any]) -> None:
+    if payload.get("schema") != "zkai-attention-kv-stwo-native-d128-four-head-seq64-large-artifacts-v1":
+        raise ProofPressureScalingClaimPackError("d128 four-head seq64 manifest schema drift")
+    if payload.get("issue") != 715:
+        raise ProofPressureScalingClaimPackError("d128 four-head seq64 manifest issue drift")
+    if "LOCAL_GENERATED_ARTIFACTS_NOT_TRACKED" not in string_field(payload.get("status"), "manifest status"):
+        raise ProofPressureScalingClaimPackError("d128 four-head seq64 manifest status drift")
+    if payload.get("source_statement_commitment") != "blake2b-256:9f7564f82bd44833784ef83bbe84058838b3abef13cf5db61444546e6d169953":
+        raise ProofPressureScalingClaimPackError("d128 four-head seq64 manifest source commitment drift")
+    artifacts = require_list(payload.get("artifacts"), "d128 four-head seq64 manifest artifacts")
+    expected = {
+        "source_input_json": (
+            "docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.json",
+            117_957_319,
+        ),
+        "source_proof_envelope": (
+            "docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.envelope.json",
+            140_928_819,
+        ),
+        "sidecar_proof_envelope": (
+            "docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-proof-2026-05.envelope.json",
+            137_403_230,
+        ),
+        "fused_proof_envelope": (
+            "docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-fused-softmax-table-proof-2026-05.envelope.json",
+            140_976_246,
+        ),
+    }
+    seen = set()
+    for artifact_any in artifacts:
+        artifact = require_dict(artifact_any, "d128 four-head seq64 manifest artifact")
+        artifact_id = string_field(artifact.get("id"), "manifest artifact id")
+        if artifact_id not in expected or artifact_id in seen:
+            raise ProofPressureScalingClaimPackError("d128 four-head seq64 manifest artifact id drift")
+        seen.add(artifact_id)
+        expected_path, expected_size = expected[artifact_id]
+        if artifact.get("path") != expected_path or artifact.get("size_bytes") != expected_size:
+            raise ProofPressureScalingClaimPackError("d128 four-head seq64 manifest artifact metadata drift")
+        digest = string_field(artifact.get("sha256"), "manifest artifact sha256")
+        if len(digest) != 64 or any(ch not in "0123456789abcdef" for ch in digest):
+            raise ProofPressureScalingClaimPackError("d128 four-head seq64 manifest digest drift")
+    if seen != set(expected):
+        raise ProofPressureScalingClaimPackError("d128 four-head seq64 manifest artifact set drift")
+
+
 def load_checked_payloads() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     sources: dict[str, dict[str, Any]] = {}
 
@@ -384,6 +433,12 @@ def load_checked_payloads() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
 
     route_payload, source = read_json_source(ROUTE_MATRIX_PATH, "attention_route_matrix")
     route_matrix.validate_result(route_payload)
+    sources[source["id"]] = source
+
+    large_manifest, source = read_json_source(
+        D128_FOUR_HEAD_SEQ64_LARGE_ARTIFACTS_PATH, "d128_four_head_seq64_large_artifacts_manifest"
+    )
+    validate_d128_four_head_seq64_large_artifacts_manifest(large_manifest)
     sources[source["id"]] = source
 
     fuller_payload, source = read_json_source(FULLER_CROSSING_GRID_PATH, "fuller_crossing_grid")
@@ -437,6 +492,7 @@ def load_checked_payloads() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     payloads = {
         "controlled": controlled_payload,
         "route_matrix": route_payload,
+        "d128_four_seq64_large_artifacts": large_manifest,
         "fuller_grid": fuller_payload,
         "native": native_payload,
         "statement": statement_payload,
