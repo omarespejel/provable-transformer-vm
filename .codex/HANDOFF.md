@@ -3286,7 +3286,7 @@ New paper-facing artifacts:
   `docs/engineering/evidence/zkai-proof-pressure-main-evidence-2026-05.json`
   and `.tsv`.
 - Figure:
-  `docs/engineering/evidence/zkai-proof-pressure-work-proof-time-growth-2026-05.svg`.
+  `docs/engineering/evidence/zkai-proof-pressure-work-proof-growth-2026-05.svg`.
 - d64 timing:
   `docs/engineering/evidence/zkai-attention-kv-d64-sequence-median-timing-raw-2026-05.json`.
 - d256 timing:

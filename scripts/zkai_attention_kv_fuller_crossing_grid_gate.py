@@ -33,7 +33,7 @@ JSON_OUT = EVIDENCE_DIR / "zkai-attention-kv-fuller-crossing-grid-2026-05.json"
 TSV_OUT = EVIDENCE_DIR / "zkai-attention-kv-fuller-crossing-grid-2026-05.tsv"
 
 SCHEMA = "zkai-attention-kv-fuller-width-head-sequence-crossing-grid-v1"
-ISSUE = 7
+ISSUE = 715
 SOURCE_ISSUE = matrix.ISSUE
 DECISION = "GO_CHECKED_FULLER_CROSSING_GRID_WITH_FULL_PROOF_GRID_NO_GO"
 ROUTE_ID = "local_stwo_attention_kv_fuller_width_head_sequence_crossing_grid"

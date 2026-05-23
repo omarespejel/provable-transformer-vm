@@ -57,7 +57,7 @@ from drifting into a speed benchmark.
 - Main evidence TSV:
   `docs/engineering/evidence/zkai-proof-pressure-main-evidence-2026-05.tsv`
 - Figure:
-  `docs/engineering/evidence/zkai-proof-pressure-work-proof-time-growth-2026-05.svg`
+  `docs/engineering/evidence/zkai-proof-pressure-work-proof-growth-2026-05.svg`
 - d64 timing:
   `docs/engineering/evidence/zkai-attention-kv-d64-sequence-median-timing-raw-2026-05.json`
 - d256 timing:
@@ -66,7 +66,7 @@ from drifting into a speed benchmark.
 ## Validation
 
 ```bash
-python3.10 scripts/zkai_proof_pressure_main_evidence_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-main-evidence-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-main-evidence-2026-05.tsv --write-svg docs/engineering/evidence/zkai-proof-pressure-work-proof-time-growth-2026-05.svg
+python3.10 scripts/zkai_proof_pressure_main_evidence_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-main-evidence-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-main-evidence-2026-05.tsv --write-svg docs/engineering/evidence/zkai-proof-pressure-work-proof-growth-2026-05.svg
 python3.10 -m py_compile scripts/zkai_proof_pressure_main_evidence_gate.py scripts/tests/test_zkai_proof_pressure_main_evidence_gate.py
 python3.10 -m unittest scripts.tests.test_zkai_proof_pressure_main_evidence_gate
 cargo +nightly-2025-07-14 test --locked --release --features stwo-backend --bin zkai_attention_kv_d64_sequence_median_timing
