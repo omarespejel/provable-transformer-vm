@@ -1,0 +1,182 @@
+{
+  "clock": "std_time_instant_elapsed_as_micros",
+  "comparisons": {
+    "fused_minus_source_plus_sidecar_prove_median_us": 283714,
+    "fused_minus_source_plus_sidecar_verify_median_us": 171542,
+    "fused_prove_median_us": 2226893,
+    "fused_to_source_plus_sidecar_prove_median_ratio": 1.146005,
+    "fused_to_source_plus_sidecar_verify_median_ratio": 1.14139,
+    "fused_verify_median_us": 1384798,
+    "source_plus_sidecar_prove_median_us": 1943179,
+    "source_plus_sidecar_verify_median_us": 1213256
+  },
+  "decision": "GO_D256_TWO_HEAD_SEQ32_ENGINEERING_LOCAL_MEDIAN_OF_5_TIMING_CAPTURED",
+  "generated_proof_bytes": {
+    "fused_runs": [
+      821398,
+      821398,
+      821398,
+      821398,
+      821398
+    ],
+    "sidecar_runs": [
+      34914,
+      34914,
+      34914,
+      34914,
+      34914
+    ],
+    "source_runs": [
+      816627,
+      816627,
+      816627,
+      816627,
+      816627
+    ]
+  },
+  "host_metadata": {
+    "arch": "aarch64",
+    "cargo_profile": "release",
+    "family": "unix",
+    "logical_cpus": 12,
+    "os": "macos",
+    "privacy_policy": "hostnames_usernames_and_absolute_local_paths_are_not_recorded"
+  },
+  "issue": 715,
+  "non_claims": [
+    "not a public benchmark",
+    "not an external-system timing comparison",
+    "not hardware-normalized performance evidence",
+    "not production throughput evidence",
+    "not GitHub Actions evidence",
+    "not a full transformer block benchmark"
+  ],
+  "sample_count": 5,
+  "schema": "zkai-attention-kv-d256-two-head-seq32-median-timing-cli-v1",
+  "source_artifacts": [
+    {
+      "bytes": 31265839,
+      "id": "source_input",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-proof-2026-05.json",
+      "sha256": "4c0da5ceb12ca01b4d785c25093b47cd17286b1edf37fb9c1ecad59f4c007e5d"
+    },
+    {
+      "bytes": 42930889,
+      "id": "source_envelope",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-proof-2026-05.envelope.json",
+      "sha256": "cfcdccaa503a160efb019c529de6901953ebbaa71951c3b3fe0fb5a29b1928af"
+    },
+    {
+      "bytes": 36679145,
+      "id": "sidecar_envelope",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d256-two-head-seq32-softmax-table-logup-sidecar-proof-2026-05.envelope.json",
+      "sha256": "c4151989f0309a493ebf0794754f21778c0a50b39f57db7b71b3d9c636ccb13a"
+    },
+    {
+      "bytes": 42972102,
+      "id": "fused_envelope",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d256-two-head-seq32-fused-softmax-table-proof-2026-05.envelope.json",
+      "sha256": "7fa516c2a13eb6e3bf971489f96545d805b72f8d6130c0f47f13cec8eb4e8944"
+    }
+  ],
+  "target": {
+    "fused_proof_bytes": 821398,
+    "head_count": 2,
+    "key_width": 256,
+    "lookup_claims": 1184,
+    "profile_id": "d256_two_head_seq32",
+    "sidecar_proof_bytes": 34914,
+    "source_plus_sidecar_raw_proof_bytes": 851541,
+    "source_proof_bytes": 816627,
+    "statement_commitment": "blake2b-256:be89d181dd43a0dce9f47d1165533945c7334e71e5b185a99e3a4565044f1864",
+    "steps_per_head": 32,
+    "trace_rows": 2048,
+    "value_width": 256
+  },
+  "timing_policy": "median_of_5_in_process_std_time_instant_microsecond_capture_engineering_only",
+  "timing_scope": "existing_typed_source_input_prove_functions_plus_existing_typed_envelope_verify_functions",
+  "timings": [
+    {
+      "max_us": 1810935,
+      "median_us": 1676184,
+      "metric": "source_prove_existing_input_us",
+      "min_us": 1650564,
+      "runs_us": [
+        1677505,
+        1810935,
+        1650564,
+        1658140,
+        1676184
+      ]
+    },
+    {
+      "max_us": 269583,
+      "median_us": 266995,
+      "metric": "sidecar_prove_existing_input_us",
+      "min_us": 261313,
+      "runs_us": [
+        266995,
+        261313,
+        263078,
+        268417,
+        269583
+      ]
+    },
+    {
+      "max_us": 2458629,
+      "median_us": 2226893,
+      "metric": "fused_prove_existing_input_us",
+      "min_us": 2215444,
+      "runs_us": [
+        2232564,
+        2224364,
+        2215444,
+        2458629,
+        2226893
+      ]
+    },
+    {
+      "max_us": 973470,
+      "median_us": 923887,
+      "metric": "source_verify_existing_envelope_us",
+      "min_us": 887444,
+      "runs_us": [
+        960519,
+        887444,
+        899198,
+        923887,
+        973470
+      ]
+    },
+    {
+      "max_us": 337806,
+      "median_us": 289369,
+      "metric": "sidecar_verify_existing_envelope_us",
+      "min_us": 271875,
+      "runs_us": [
+        337806,
+        271875,
+        317020,
+        289369,
+        280980
+      ]
+    },
+    {
+      "max_us": 1829721,
+      "median_us": 1384798,
+      "metric": "fused_verify_existing_envelope_us",
+      "min_us": 1356601,
+      "runs_us": [
+        1829721,
+        1362967,
+        1520103,
+        1356601,
+        1384798
+      ]
+    }
+  ],
+  "validation_commands": [
+    "cargo +nightly-2025-07-14 run --locked --release --features stwo-backend --bin zkai_attention_kv_d256_two_head_seq32_median_timing -- --evidence-dir docs/engineering/evidence --runs 5 > docs/engineering/evidence/zkai-attention-kv-d256-two-head-seq32-median-timing-raw-2026-05.json",
+    "cargo +nightly-2025-07-14 test --locked --release --features stwo-backend --bin zkai_attention_kv_d256_two_head_seq32_median_timing"
+  ]
+}

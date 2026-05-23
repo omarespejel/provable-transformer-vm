@@ -1,14 +1,14 @@
 {
   "aggregate_metrics": {
-    "matched_fused_proof_size_bytes_total": 5576234,
-    "matched_fused_savings_bytes_total": 736740,
-    "matched_source_plus_sidecar_raw_proof_bytes_total": 6312974,
-    "max_fused_proof_size_bytes": 495854,
-    "max_matched_fused_to_source_plus_sidecar_ratio": 0.957286,
+    "matched_fused_proof_size_bytes_total": 6397632,
+    "matched_fused_savings_bytes_total": 766883,
+    "matched_source_plus_sidecar_raw_proof_bytes_total": 7164515,
+    "max_fused_proof_size_bytes": 821398,
+    "max_matched_fused_to_source_plus_sidecar_ratio": 0.964602,
     "min_matched_fused_to_source_plus_sidecar_ratio": 0.676723,
-    "total_fused_proof_size_bytes": 5576234,
-    "total_lookup_claims": 44468,
-    "total_trace_rows": 78656
+    "total_fused_proof_size_bytes": 6397632,
+    "total_lookup_claims": 45652,
+    "total_trace_rows": 80704
   },
   "axis_summary": {
     "combined_width_head_axis_seq8": {
@@ -354,6 +354,63 @@
         176473
       ],
       "trace_rows": [
+        2048,
+        2048
+      ]
+    },
+    "combined_width_head_sequence_axis_d256_seq32_width_stress": {
+      "d128_to_d256_fused_proof_size_ratio": 1.842162,
+      "d128_to_d256_key_width_ratio": 2.0,
+      "d128_to_d256_lookup_claim_ratio": 1.0,
+      "d128_to_d256_savings_ratio": 0.930684,
+      "d128_to_d256_sidecar_proof_size_ratio": 0.997258,
+      "d128_to_d256_source_plus_sidecar_ratio": 1.780438,
+      "d128_to_d256_source_proof_size_ratio": 1.842296,
+      "d128_to_d256_trace_row_ratio": 1.0,
+      "fused_proof_size_bytes": [
+        253257,
+        445888,
+        821398
+      ],
+      "fused_to_source_plus_sidecar_ratios": [
+        0.888303,
+        0.932282,
+        0.964602
+      ],
+      "held_constant": "head_count_2_steps_per_head_32_bounded_softmax_table_kernel_with_width_axis_extended_to_d256",
+      "key_widths": [
+        64,
+        128,
+        256
+      ],
+      "lookup_claims": [
+        1184,
+        1184,
+        1184
+      ],
+      "matched_comparator_status": "GO_MATCHED_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR_RECORDED",
+      "profile_ids": [
+        "d64_two_head_seq32",
+        "d128_two_head_seq32",
+        "d256_two_head_seq32"
+      ],
+      "sidecar_proof_size_bytes": [
+        36400,
+        35010,
+        34914
+      ],
+      "source_plus_sidecar_raw_proof_bytes": [
+        285102,
+        478276,
+        851541
+      ],
+      "source_proof_size_bytes": [
+        248702,
+        443266,
+        816627
+      ],
+      "trace_rows": [
+        2048,
         2048,
         2048
       ]
@@ -1118,7 +1175,7 @@
   "decision": "GO_NATIVE_STWO_FUSED_SOFTMAX_TABLE_CONTROLLED_ROUTE_MATRIX",
   "issue": 505,
   "kernel_scope": "bounded_integer_softmax_table_floor_division_kernel_with_fused_attention_arithmetic_and_logup_membership",
-  "matched_comparator_profiles": 29,
+  "matched_comparator_profiles": 30,
   "mutation_results": [
     {
       "error": "result drift for decision",
@@ -1321,6 +1378,11 @@
       "rejected": true
     },
     {
+      "error": "d256_two_head_seq32 key width drift",
+      "name": "d256_two_head_seq32_width_stress_metric_smuggling",
+      "rejected": true
+    },
+    {
       "error": "axis summary drift",
       "name": "axis_summary_width_ratio_drift",
       "rejected": true
@@ -1456,13 +1518,18 @@
       "rejected": true
     },
     {
+      "error": "axis summary drift",
+      "name": "axis_summary_d256_seq32_width_stress_ratio_drift",
+      "rejected": true
+    },
+    {
       "error": "unknown result keys: ['unexpected']",
       "name": "unknown_field_injection",
       "rejected": true
     }
   ],
-  "mutations_checked": 68,
-  "mutations_rejected": 68,
+  "mutations_checked": 70,
+  "mutations_rejected": 70,
   "no_comparator_profiles": [],
   "profile_ids": [
     "d8_single_head_seq8",
@@ -1493,9 +1560,10 @@
     "d128_two_head_seq32",
     "d128_two_head_seq64",
     "d128_four_head_seq32",
-    "d128_four_head_seq64"
+    "d128_four_head_seq64",
+    "d256_two_head_seq32"
   ],
-  "profiles_checked": 29,
+  "profiles_checked": 30,
   "route_id": "local_stwo_attention_kv_fused_softmax_table_controlled_route_matrix",
   "route_rows": [
     {
@@ -2425,6 +2493,38 @@
       "table_rows": 9,
       "trace_rows": 16384,
       "value_width": 128
+    },
+    {
+      "axis_role": "combined_width_head_sequence_axis_d256_seq32_width_stress",
+      "decision": "GO_NATIVE_STWO_FUSED_ATTENTION_ARITHMETIC_AND_SOFTMAX_TABLE_LOGUP_MEMBERSHIP",
+      "evidence_json": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d256-two-head-seq32-fused-softmax-table-gate-2026-05.json",
+      "fused_envelope_size_bytes": 42972102,
+      "fused_issue": 715,
+      "fused_over_source_proof_bytes": 4771,
+      "fused_proof_size_bytes": 821398,
+      "fused_saves_vs_source_plus_sidecar_bytes": 30143,
+      "fused_to_source_plus_sidecar_ratio": 0.964602,
+      "head_count": 2,
+      "key_width": 256,
+      "label": "d256 two-head seq32 fused Softmax-table route",
+      "lookup_claims": 1184,
+      "matched_source_sidecar_status": "GO_MATCHED_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR_RECORDED",
+      "mutations_checked": 30,
+      "mutations_rejected": 30,
+      "profile_id": "d256_two_head_seq32",
+      "route_id": "local_stwo_attention_kv_d256_two_head_seq32_fused_bounded_softmax_table_logup_proof",
+      "score_rows": 1184,
+      "sidecar_issue": 715,
+      "sidecar_proof_size_bytes": 34914,
+      "source_envelope_size_bytes": 42930889,
+      "source_input_json": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-proof-2026-05.json",
+      "source_issue": 715,
+      "source_plus_sidecar_raw_proof_bytes": 851541,
+      "source_proof_size_bytes": 816627,
+      "steps_per_head": 32,
+      "table_rows": 9,
+      "trace_rows": 2048,
+      "value_width": 256
     }
   ],
   "schema": "zkai-attention-kv-fused-softmax-table-route-matrix-v1",

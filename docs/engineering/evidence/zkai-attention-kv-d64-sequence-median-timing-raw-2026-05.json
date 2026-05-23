@@ -1,0 +1,683 @@
+{
+  "clock": "std_time_instant_elapsed_as_micros",
+  "decision": "GO_D64_SEQUENCE_ENGINEERING_LOCAL_MEDIAN_OF_5_TIMING_CAPTURED",
+  "host_metadata": {
+    "arch": "aarch64",
+    "cargo_profile": "release",
+    "family": "unix",
+    "logical_cpus": 12,
+    "os": "macos",
+    "privacy_policy": "hostnames_usernames_and_absolute_local_paths_are_not_recorded"
+  },
+  "issue": 715,
+  "non_claims": [
+    "not a public benchmark",
+    "not an external-system timing comparison",
+    "not hardware-normalized performance evidence",
+    "not production throughput evidence",
+    "not GitHub Actions evidence",
+    "not a full transformer block benchmark"
+  ],
+  "profiles": [
+    {
+      "comparisons": {
+        "fused_minus_source_plus_sidecar_prove_median_us": 43475,
+        "fused_minus_source_plus_sidecar_verify_median_us": 38173,
+        "fused_prove_median_us": 484914,
+        "fused_to_source_plus_sidecar_prove_median_ratio": 1.098485,
+        "fused_to_source_plus_sidecar_verify_median_ratio": 1.145032,
+        "fused_verify_median_us": 301377,
+        "source_plus_sidecar_prove_median_us": 441439,
+        "source_plus_sidecar_verify_median_us": 263204
+      },
+      "fused_proof_bytes": 253257,
+      "fused_saves_vs_source_plus_sidecar_bytes": 31845,
+      "fused_to_source_plus_sidecar_ratio": 0.888303,
+      "generated_proof_bytes": {
+        "fused_runs": [
+          253257,
+          253257,
+          253257,
+          253257,
+          253257
+        ],
+        "sidecar_runs": [
+          36400,
+          36400,
+          36400,
+          36400,
+          36400
+        ],
+        "source_runs": [
+          248702,
+          248702,
+          248702,
+          248702,
+          248702
+        ]
+      },
+      "head_count": 2,
+      "key_width": 64,
+      "lookup_claims": 1184,
+      "profile_id": "d64_two_head_seq32",
+      "sidecar_proof_bytes": 36400,
+      "source_artifacts": [
+        {
+          "bytes": 8344317,
+          "id": "source_input",
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-two-head-seq32-bounded-softmax-table-proof-2026-05.json",
+          "sha256": "38e5e287cfb31eaa7a7e7e17ecec662495cf818cc24e5553c8ce13b16aa0b0b8"
+        },
+        {
+          "bytes": 11675115,
+          "id": "source_envelope",
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-two-head-seq32-bounded-softmax-table-proof-2026-05.envelope.json",
+          "sha256": "15f57569b3b4241d2550a2c1b13093fd8b1a1f351354a5f4628038155249c078"
+        },
+        {
+          "bytes": 9978658,
+          "id": "sidecar_envelope",
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-two-head-seq32-softmax-table-logup-sidecar-proof-2026-05.envelope.json",
+          "sha256": "fb0ddfcf9531e4317cbb0e850ed066ba1020ebedbe7a8367b78d5288bf0c005e"
+        },
+        {
+          "bytes": 11714596,
+          "id": "fused_envelope",
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-two-head-seq32-fused-softmax-table-proof-2026-05.envelope.json",
+          "sha256": "959a39024712f5c0d99a7fb37457012374678da4023321ca3b8fbd73310adf72"
+        }
+      ],
+      "source_plus_sidecar_raw_proof_bytes": 285102,
+      "source_proof_bytes": 248702,
+      "statement_commitment": "blake2b-256:e8b693ec2447a681ced82ab852a909d71bdf546db53b260cec8eb5f399c0990b",
+      "steps_per_head": 32,
+      "timings": [
+        {
+          "max_us": 377408,
+          "median_us": 352319,
+          "metric": "source_prove_existing_input_us",
+          "min_us": 346929,
+          "runs_us": [
+            352440,
+            352319,
+            346929,
+            350225,
+            377408
+          ]
+        },
+        {
+          "max_us": 124415,
+          "median_us": 89120,
+          "metric": "sidecar_prove_existing_input_us",
+          "min_us": 74688,
+          "runs_us": [
+            74688,
+            78411,
+            124415,
+            89120,
+            90608
+          ]
+        },
+        {
+          "max_us": 524343,
+          "median_us": 484914,
+          "metric": "fused_prove_existing_input_us",
+          "min_us": 477281,
+          "runs_us": [
+            524343,
+            489552,
+            479840,
+            484914,
+            477281
+          ]
+        },
+        {
+          "max_us": 194394,
+          "median_us": 193851,
+          "metric": "source_verify_existing_envelope_us",
+          "min_us": 192815,
+          "runs_us": [
+            192815,
+            193894,
+            193026,
+            193851,
+            194394
+          ]
+        },
+        {
+          "max_us": 69592,
+          "median_us": 69353,
+          "metric": "sidecar_verify_existing_envelope_us",
+          "min_us": 69189,
+          "runs_us": [
+            69189,
+            69592,
+            69353,
+            69415,
+            69337
+          ]
+        },
+        {
+          "max_us": 305467,
+          "median_us": 301377,
+          "metric": "fused_verify_existing_envelope_us",
+          "min_us": 297111,
+          "runs_us": [
+            305467,
+            301377,
+            298003,
+            301959,
+            297111
+          ]
+        }
+      ],
+      "trace_rows": 2048,
+      "value_width": 64
+    },
+    {
+      "comparisons": {
+        "fused_minus_source_plus_sidecar_prove_median_us": 187594,
+        "fused_minus_source_plus_sidecar_verify_median_us": 47832,
+        "fused_prove_median_us": 1949288,
+        "fused_to_source_plus_sidecar_prove_median_ratio": 1.106485,
+        "fused_to_source_plus_sidecar_verify_median_ratio": 1.0416,
+        "fused_verify_median_us": 1197640,
+        "source_plus_sidecar_prove_median_us": 1761694,
+        "source_plus_sidecar_verify_median_us": 1149808
+      },
+      "fused_proof_bytes": 272636,
+      "fused_saves_vs_source_plus_sidecar_bytes": 34334,
+      "fused_to_source_plus_sidecar_ratio": 0.888152,
+      "generated_proof_bytes": {
+        "fused_runs": [
+          272636,
+          272636,
+          272636,
+          272636,
+          272636
+        ],
+        "sidecar_runs": [
+          42567,
+          42567,
+          42567,
+          42567,
+          42567
+        ],
+        "source_runs": [
+          264403,
+          264403,
+          264403,
+          264403,
+          264403
+        ]
+      },
+      "head_count": 2,
+      "key_width": 64,
+      "lookup_claims": 4416,
+      "profile_id": "d64_two_head_seq64",
+      "sidecar_proof_bytes": 42567,
+      "source_artifacts": [
+        {
+          "bytes": 30636041,
+          "id": "source_input",
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-two-head-seq64-bounded-softmax-table-proof-2026-05.json",
+          "sha256": "c5871a45333385dcb896c6719acdc3722391ed41b09f9b0f8e8048ff9e07300b"
+        },
+        {
+          "bytes": 37654209,
+          "id": "source_envelope",
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-two-head-seq64-bounded-softmax-table-proof-2026-05.envelope.json",
+          "sha256": "376363c9099de9eb9c69498d1ea8dec73764783db84ef27a6da642782a405cc9"
+        },
+        {
+          "bytes": 35881481,
+          "id": "sidecar_envelope",
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-two-head-seq64-softmax-table-logup-sidecar-proof-2026-05.envelope.json",
+          "sha256": "be7875e926f103fe92d05dbe6ab8cf0813bfe8bfed376567edf40467549137ea"
+        },
+        {
+          "bytes": 37723328,
+          "id": "fused_envelope",
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-two-head-seq64-fused-softmax-table-proof-2026-05.envelope.json",
+          "sha256": "a13403074e4c210935c139b8fd6e73f8fece74011bcca81934f94ce5637d2796"
+        }
+      ],
+      "source_plus_sidecar_raw_proof_bytes": 306970,
+      "source_proof_bytes": 264403,
+      "statement_commitment": "blake2b-256:cfa3e6a544faaf8f4aeb0801418836153dbe19e140936e99d65ab795a9fd9e70",
+      "steps_per_head": 64,
+      "timings": [
+        {
+          "max_us": 1522298,
+          "median_us": 1489186,
+          "metric": "source_prove_existing_input_us",
+          "min_us": 1477697,
+          "runs_us": [
+            1522298,
+            1477697,
+            1483304,
+            1491413,
+            1489186
+          ]
+        },
+        {
+          "max_us": 279976,
+          "median_us": 272508,
+          "metric": "sidecar_prove_existing_input_us",
+          "min_us": 270900,
+          "runs_us": [
+            273442,
+            270900,
+            271777,
+            272508,
+            279976
+          ]
+        },
+        {
+          "max_us": 1998537,
+          "median_us": 1949288,
+          "metric": "fused_prove_existing_input_us",
+          "min_us": 1926742,
+          "runs_us": [
+            1926742,
+            1949288,
+            1998537,
+            1941826,
+            1955289
+          ]
+        },
+        {
+          "max_us": 896977,
+          "median_us": 888114,
+          "metric": "source_verify_existing_envelope_us",
+          "min_us": 879572,
+          "runs_us": [
+            879572,
+            887184,
+            888114,
+            891414,
+            896977
+          ]
+        },
+        {
+          "max_us": 270551,
+          "median_us": 261694,
+          "metric": "sidecar_verify_existing_envelope_us",
+          "min_us": 259630,
+          "runs_us": [
+            260517,
+            263141,
+            270551,
+            261694,
+            259630
+          ]
+        },
+        {
+          "max_us": 1206814,
+          "median_us": 1197640,
+          "metric": "fused_verify_existing_envelope_us",
+          "min_us": 1191146,
+          "runs_us": [
+            1197640,
+            1203001,
+            1206814,
+            1191146,
+            1192810
+          ]
+        }
+      ],
+      "trace_rows": 8192,
+      "value_width": 64
+    },
+    {
+      "comparisons": {
+        "fused_minus_source_plus_sidecar_prove_median_us": 109843,
+        "fused_minus_source_plus_sidecar_verify_median_us": 72650,
+        "fused_prove_median_us": 962475,
+        "fused_to_source_plus_sidecar_prove_median_ratio": 1.128828,
+        "fused_to_source_plus_sidecar_verify_median_ratio": 1.137672,
+        "fused_verify_median_us": 600352,
+        "source_plus_sidecar_prove_median_us": 852632,
+        "source_plus_sidecar_verify_median_us": 527702
+      },
+      "fused_proof_bytes": 255889,
+      "fused_saves_vs_source_plus_sidecar_bytes": 32403,
+      "fused_to_source_plus_sidecar_ratio": 0.887604,
+      "generated_proof_bytes": {
+        "fused_runs": [
+          255889,
+          255889,
+          255889,
+          255889,
+          255889
+        ],
+        "sidecar_runs": [
+          34147,
+          34147,
+          34147,
+          34147,
+          34147
+        ],
+        "source_runs": [
+          254145,
+          254145,
+          254145,
+          254145,
+          254145
+        ]
+      },
+      "head_count": 4,
+      "key_width": 64,
+      "lookup_claims": 2368,
+      "profile_id": "d64_four_head_seq32",
+      "sidecar_proof_bytes": 34147,
+      "source_artifacts": [
+        {
+          "bytes": 16775185,
+          "id": "source_input",
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-four-head-seq32-bounded-softmax-table-proof-2026-05.json",
+          "sha256": "65cb63576de65594aa275b78ae7674b276294e0e298f536c5041987c287d5418"
+        },
+        {
+          "bytes": 21489297,
+          "id": "source_envelope",
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-four-head-seq32-bounded-softmax-table-proof-2026-05.envelope.json",
+          "sha256": "425386b27d5269152038dcf9f8737ff0e9a36fc04919bf2ae32a63929603e79c"
+        },
+        {
+          "bytes": 19731274,
+          "id": "sidecar_envelope",
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-four-head-seq32-softmax-table-logup-sidecar-proof-2026-05.envelope.json",
+          "sha256": "fefe480cba5cd90dcf0c36b0121e875b5757d4663cc143d658d979fd60c02458"
+        },
+        {
+          "bytes": 21506508,
+          "id": "fused_envelope",
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-four-head-seq32-fused-softmax-table-proof-2026-05.envelope.json",
+          "sha256": "e3deeb319f593f295ec125bd80ec0a64e9e192276d021bb86dca496547560716"
+        }
+      ],
+      "source_plus_sidecar_raw_proof_bytes": 288292,
+      "source_proof_bytes": 254145,
+      "statement_commitment": "blake2b-256:c808ebf201c3371d6598812755963d28ce64005c8b09161ccfbdeae101f346a3",
+      "steps_per_head": 32,
+      "timings": [
+        {
+          "max_us": 716984,
+          "median_us": 703674,
+          "metric": "source_prove_existing_input_us",
+          "min_us": 696434,
+          "runs_us": [
+            716984,
+            696987,
+            703674,
+            708756,
+            696434
+          ]
+        },
+        {
+          "max_us": 149453,
+          "median_us": 148958,
+          "metric": "sidecar_prove_existing_input_us",
+          "min_us": 147385,
+          "runs_us": [
+            147385,
+            149453,
+            148273,
+            148958,
+            149363
+          ]
+        },
+        {
+          "max_us": 971286,
+          "median_us": 962475,
+          "metric": "fused_prove_existing_input_us",
+          "min_us": 955016,
+          "runs_us": [
+            962475,
+            968817,
+            960522,
+            971286,
+            955016
+          ]
+        },
+        {
+          "max_us": 390763,
+          "median_us": 387328,
+          "metric": "source_verify_existing_envelope_us",
+          "min_us": 385862,
+          "runs_us": [
+            389740,
+            387328,
+            385862,
+            390763,
+            386753
+          ]
+        },
+        {
+          "max_us": 140634,
+          "median_us": 140374,
+          "metric": "sidecar_verify_existing_envelope_us",
+          "min_us": 138446,
+          "runs_us": [
+            138446,
+            140627,
+            140374,
+            140634,
+            138763
+          ]
+        },
+        {
+          "max_us": 602378,
+          "median_us": 600352,
+          "metric": "fused_verify_existing_envelope_us",
+          "min_us": 599792,
+          "runs_us": [
+            602378,
+            599792,
+            600850,
+            599901,
+            600352
+          ]
+        }
+      ],
+      "trace_rows": 4096,
+      "value_width": 64
+    },
+    {
+      "comparisons": {
+        "fused_minus_source_plus_sidecar_prove_median_us": 228976,
+        "fused_minus_source_plus_sidecar_verify_median_us": 89545,
+        "fused_prove_median_us": 3789696,
+        "fused_to_source_plus_sidecar_prove_median_ratio": 1.064306,
+        "fused_to_source_plus_sidecar_verify_median_ratio": 1.039073,
+        "fused_verify_median_us": 2381255,
+        "source_plus_sidecar_prove_median_us": 3560720,
+        "source_plus_sidecar_verify_median_us": 2291710
+      },
+      "fused_proof_bytes": 276503,
+      "fused_saves_vs_source_plus_sidecar_bytes": 39282,
+      "fused_to_source_plus_sidecar_ratio": 0.875605,
+      "generated_proof_bytes": {
+        "fused_runs": [
+          276503,
+          276503,
+          276503,
+          276503,
+          276503
+        ],
+        "sidecar_runs": [
+          43147,
+          43147,
+          43147,
+          43147,
+          43147
+        ],
+        "source_runs": [
+          272638,
+          272638,
+          272638,
+          272638,
+          272638
+        ]
+      },
+      "head_count": 4,
+      "key_width": 64,
+      "lookup_claims": 8832,
+      "profile_id": "d64_four_head_seq64",
+      "sidecar_proof_bytes": 43147,
+      "source_artifacts": [
+        {
+          "bytes": 61628126,
+          "id": "source_input",
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-four-head-seq64-bounded-softmax-table-proof-2026-05.json",
+          "sha256": "b5a4d5900b46e8892c182e044be2aca65d658d99dcf2bd566e8ea4f48a487ecd"
+        },
+        {
+          "bytes": 73613598,
+          "id": "source_envelope",
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-four-head-seq64-bounded-softmax-table-proof-2026-05.envelope.json",
+          "sha256": "955de60217be05dd5bf61d51990f6f553050feb87c9051be22cc53869071fcca"
+        },
+        {
+          "bytes": 71779632,
+          "id": "sidecar_envelope",
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-four-head-seq64-softmax-table-logup-sidecar-proof-2026-05.envelope.json",
+          "sha256": "64cb8b285340eed5e5dcb059fcdb2adb5f1952a2ddea999b8065899c98f1a835"
+        },
+        {
+          "bytes": 73647778,
+          "id": "fused_envelope",
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-four-head-seq64-fused-softmax-table-proof-2026-05.envelope.json",
+          "sha256": "641bcd4c8b29ad8098b47a4ec293b6972913ad0ceee9548229a219bd3bea7000"
+        }
+      ],
+      "source_plus_sidecar_raw_proof_bytes": 315785,
+      "source_proof_bytes": 272638,
+      "statement_commitment": "blake2b-256:c4118c9f0b1b07ce8474121a63717b1a410e86bdcc155d57a4c9765e4255c333",
+      "steps_per_head": 64,
+      "timings": [
+        {
+          "max_us": 3021966,
+          "median_us": 3004011,
+          "metric": "source_prove_existing_input_us",
+          "min_us": 2981573,
+          "runs_us": [
+            3010582,
+            3021966,
+            3004011,
+            3001502,
+            2981573
+          ]
+        },
+        {
+          "max_us": 565645,
+          "median_us": 556709,
+          "metric": "sidecar_prove_existing_input_us",
+          "min_us": 554957,
+          "runs_us": [
+            555849,
+            565645,
+            554957,
+            562004,
+            556709
+          ]
+        },
+        {
+          "max_us": 3853217,
+          "median_us": 3789696,
+          "metric": "fused_prove_existing_input_us",
+          "min_us": 3775730,
+          "runs_us": [
+            3853217,
+            3789594,
+            3789696,
+            3817134,
+            3775730
+          ]
+        },
+        {
+          "max_us": 1769989,
+          "median_us": 1754132,
+          "metric": "source_verify_existing_envelope_us",
+          "min_us": 1747400,
+          "runs_us": [
+            1747400,
+            1754132,
+            1769989,
+            1748585,
+            1765075
+          ]
+        },
+        {
+          "max_us": 560194,
+          "median_us": 537578,
+          "metric": "sidecar_verify_existing_envelope_us",
+          "min_us": 536070,
+          "runs_us": [
+            560194,
+            536070,
+            538592,
+            537578,
+            536077
+          ]
+        },
+        {
+          "max_us": 2423781,
+          "median_us": 2381255,
+          "metric": "fused_verify_existing_envelope_us",
+          "min_us": 2368254,
+          "runs_us": [
+            2383578,
+            2381255,
+            2423781,
+            2368254,
+            2371364
+          ]
+        }
+      ],
+      "trace_rows": 16384,
+      "value_width": 64
+    }
+  ],
+  "sample_count": 5,
+  "schema": "zkai-attention-kv-d64-sequence-median-timing-cli-v1",
+  "sequence_growth": [
+    {
+      "from_profile_id": "d64_two_head_seq32",
+      "from_steps_per_head": 32,
+      "fused_prove_median_growth": 4.019863,
+      "fused_raw_proof_growth": 1.076519,
+      "fused_verify_median_growth": 3.973893,
+      "head_count": 2,
+      "lookup_claim_growth": 3.72973,
+      "split_prove_median_growth": 3.990798,
+      "split_raw_proof_growth": 1.076702,
+      "split_verify_median_growth": 4.368505,
+      "to_profile_id": "d64_two_head_seq64",
+      "to_steps_per_head": 64,
+      "trace_row_growth": 4.0
+    },
+    {
+      "from_profile_id": "d64_four_head_seq32",
+      "from_steps_per_head": 32,
+      "fused_prove_median_growth": 3.937449,
+      "fused_raw_proof_growth": 1.080558,
+      "fused_verify_median_growth": 3.966431,
+      "head_count": 4,
+      "lookup_claim_growth": 3.72973,
+      "split_prove_median_growth": 4.176151,
+      "split_raw_proof_growth": 1.095365,
+      "split_verify_median_growth": 4.342811,
+      "to_profile_id": "d64_four_head_seq64",
+      "to_steps_per_head": 64,
+      "trace_row_growth": 4.0
+    }
+  ],
+  "timing_policy": "median_of_5_in_process_std_time_instant_microsecond_capture_engineering_only",
+  "timing_scope": "existing_typed_source_input_prove_functions_plus_existing_typed_envelope_verify_functions",
+  "validation_commands": [
+    "cargo +nightly-2025-07-14 run --locked --release --features stwo-backend --bin zkai_attention_kv_d64_sequence_median_timing -- --evidence-dir docs/engineering/evidence --runs 5 > docs/engineering/evidence/zkai-attention-kv-d64-sequence-median-timing-raw-2026-05.json",
+    "cargo +nightly-2025-07-14 test --locked --release --features stwo-backend --bin zkai_attention_kv_d64_sequence_median_timing"
+  ]
+}

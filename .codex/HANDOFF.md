@@ -3256,24 +3256,41 @@ Stwo statement-only attempt transcript reproducibility metadata:
   `just gate-fast`;
   `just gate`.
 
-Current proof-pressure wide-grid selector: issue `#715` has a checked
-`d128_h1_seq16` width-anchor GO. The fused native proof is `380,342` raw bytes
-against the matched source-plus-sidecar frontier of `397,313` raw bytes, saving
-`16,971` bytes at `168` lookup claims and `256` trace rows. The d64 to d128
-single-head seq16 width-anchor signal is: lookup `1.000000x`, trace
-`1.000000x`, fused raw proof `1.599924x`, split raw proof `1.561918x`, and
-saving `1.019279x`. This is a useful anchor, not the strongest amortization
-row, and not a full-block, timing, NANOZK, or exact-Softmax claim.
+Current proof-pressure issue #715 state: the d256 two-head seq32 width-stress
+row is checked. The fused native proof is `821,398` raw bytes against the
+matched source-plus-sidecar frontier of `851,541` raw bytes, saving `30,143`
+bytes at `1,184` lookup claims and `2,048` trace rows. The d128 to d256
+two-head seq32 width signal is: lookup `1.000000x`, trace `1.000000x`, fused
+raw proof `1.842162x`, split raw proof `1.780438x`, and saving `0.930684x`.
+This is a proof-size GO, not a timing GO.
 
-The route matrix now records `29` checked attention route rows, `12`
-source-backed requested grid cells, `15` missing requested cells, and `736,740`
-aggregate raw proof-byte savings. The fuller grid is `29 / 100` proved cells
-and `71 / 100` missing cells. The next selector target is `d256_h2_seq32` as
-the width stress test before scoped block work. Source artifact SHA-256 values
-are route matrix `849c64e8bd176e35bfbf06433dc10c0645fed7a985cf3358db784c7b9aafdafb`,
-fuller grid `23d2f27b1238a5a73296f596895843d5cdeb9db542d7f05f41049cea1a3d2a33`,
-and claim pack `d0c3d4a015c969736a5ba3154c240e5fd5d4b12a12a1e69c422d2ba36770fe82`.
-Issue update pending for this PR branch.
+The route matrix now records `30` checked attention route rows, `13`
+source-backed requested grid cells, `14` missing requested cells, and `766,883`
+aggregate raw proof-byte savings. The fuller grid is `30 / 120` proved cells
+and `90 / 120` missing cells. The wide selector now promotes `d256_h2_seq64`
+as the next sequence decision gate. Source artifact SHA-256 values are route
+matrix `f8da6eb33454011e3ef20b7b80cdcce4ff9086764d7b4a3868c684046b434701`,
+fuller grid `e4d0cfa99753d7fd64364361ba2550d474d8dd8857c86f3f08efd5d5993ac0ed`,
+and claim pack `ac787ee307eff902ca3cb095001445ac22ba81952b51f6bd90f0870bc27022d6`.
+
+Median timing has a useful caveat: d64 seq32 to seq64 keeps fused proof bytes
+near `1.08x` growth while lookup and trace work grow about `4x`, but local
+median prove and verify time also grow near the work axis. The d256 seq32 fused
+proof is slower than split in median-of-5 local release timing: prove
+`1.146005x`, verify `1.141390x`. The paper claim should stay about boundary
+selection and proof-size amortization, not prover speed.
+
+New paper-facing artifacts:
+
+- Main evidence:
+  `docs/engineering/evidence/zkai-proof-pressure-main-evidence-2026-05.json`
+  and `.tsv`.
+- Figure:
+  `docs/engineering/evidence/zkai-proof-pressure-work-proof-time-growth-2026-05.svg`.
+- d64 timing:
+  `docs/engineering/evidence/zkai-attention-kv-d64-sequence-median-timing-raw-2026-05.json`.
+- d256 timing:
+  `docs/engineering/evidence/zkai-attention-kv-d256-two-head-seq32-median-timing-raw-2026-05.json`.
 
 Previous proof-pressure wide-grid selector: issue `#715` has a checked
 selector artifact for the requested `d64`/`d128`/`d256` scaling agenda. This is

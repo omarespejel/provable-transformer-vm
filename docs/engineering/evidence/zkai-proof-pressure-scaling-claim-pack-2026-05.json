@@ -341,6 +341,11 @@
       "rejected": true
     },
     {
+      "error": "d256 seq32 raw saving drift",
+      "name": "d256_seq32_width_stress_signal_drift",
+      "rejected": true
+    },
+    {
       "error": "summary d128 single-head saving drift",
       "name": "summary_d128_single_head_seq16_signal_drift",
       "rejected": true
@@ -348,6 +353,11 @@
     {
       "error": "summary d128 four-head seq64 saving drift",
       "name": "summary_d128_four_head_seq64_signal_drift",
+      "rejected": true
+    },
+    {
+      "error": "summary d256 seq32 saving drift",
+      "name": "summary_d256_seq32_width_stress_signal_drift",
       "rejected": true
     },
     {
@@ -411,8 +421,8 @@
       "rejected": true
     }
   ],
-  "mutations_checked": 29,
-  "mutations_rejected": 29,
+  "mutations_checked": 31,
+  "mutations_rejected": 31,
   "non_claims": [
     "not a d64/d128/d256 attention grid",
     "not a complete seq64 grid",
@@ -427,9 +437,9 @@
   ],
   "open_followups": [
     {
-      "go_gate": "add a d256 attention route row or typed d64/d128 component accounting without changing the claim boundary",
+      "go_gate": "add a d256 seq64 attention route row or typed d64/d128/d256 component accounting without changing the claim boundary",
       "id": "d64_d128_d256_grid",
-      "reason": "Issue #715 asked for d64/d128/d256 where feasible. The checked attention route matrix now has source-backed d128 single-head seq16, two-head seq32, two-head seq64, four-head seq32, and four-head seq64 rows, but d256 attention rows and d64/d128 typed component-grid accounting are still missing.",
+      "reason": "Issue #715 asked for d64/d128/d256 where feasible. The checked attention route matrix now has one d256 two-head seq32 width-stress row, but d256 seq64 and d64/d128/d256 typed component-grid accounting are still missing.",
       "status": "OPEN_NEEDED"
     },
     {
@@ -445,8 +455,8 @@
       "status": "OPEN_NEEDED"
     }
   ],
-  "payload_commitment": "blake2b-256:6f1ecca43d354d9b6858ef1acc0cb652e649c620c9de815e7e810e4daa79d7d0",
-  "result": "TWENTY_NINE_ATTENTION_ROUTE_ROWS_SCALE_RAW_PROOF_PRESSURE_WITH_D128_SINGLE_HEAD_ANCHOR_AND_D128_FOUR_HEAD_SEQ64_POSITIVE",
+  "payload_commitment": "blake2b-256:598c3b0c06fa229c70b73795600a966590d84bbc24c5491ddb7f12836b526ade",
+  "result": "THIRTY_ATTENTION_ROUTE_ROWS_SCALE_RAW_PROOF_PRESSURE_WITH_D256_WIDTH_STRESS_POINT",
   "route_matrix_signal": {
     "d128_four_head_seq32_head_frontier": {
       "four_head_fused_raw_proof_bytes": 465630,
@@ -605,6 +615,69 @@
         "d128_two_head_seq64"
       ]
     },
+    "d256_two_head_seq32_width_stress": {
+      "d128_to_d256_fused_raw_proof_growth": "1.842162",
+      "d128_to_d256_key_width_growth": "2.000000",
+      "d128_to_d256_lookup_claim_growth": "1.000000",
+      "d128_to_d256_saving_growth": "0.930684",
+      "d128_to_d256_sidecar_raw_proof_growth": "0.997258",
+      "d128_to_d256_source_raw_proof_growth": "1.842296",
+      "d128_to_d256_split_raw_proof_growth": "1.780438",
+      "d128_to_d256_trace_row_growth": "1.000000",
+      "d256_fused_raw_proof_bytes": 821398,
+      "d256_fused_to_split_ratio": 0.964602,
+      "d256_lookup_claims": 1184,
+      "d256_raw_saving_bytes": 30143,
+      "d256_sidecar_raw_proof_bytes": 34914,
+      "d256_source_plus_sidecar_raw_proof_bytes": 851541,
+      "d256_source_raw_proof_bytes": 816627,
+      "d256_trace_rows": 2048,
+      "fused_proof_size_bytes": [
+        253257,
+        445888,
+        821398
+      ],
+      "fused_to_source_plus_sidecar_ratios": [
+        0.888303,
+        0.932282,
+        0.964602
+      ],
+      "key_widths": [
+        64,
+        128,
+        256
+      ],
+      "lookup_claims": [
+        1184,
+        1184,
+        1184
+      ],
+      "profile_ids": [
+        "d64_two_head_seq32",
+        "d128_two_head_seq32",
+        "d256_two_head_seq32"
+      ],
+      "sidecar_proof_size_bytes": [
+        36400,
+        35010,
+        34914
+      ],
+      "source_plus_sidecar_raw_proof_bytes": [
+        285102,
+        478276,
+        851541
+      ],
+      "source_proof_size_bytes": [
+        248702,
+        443266,
+        816627
+      ],
+      "trace_rows": [
+        2048,
+        2048,
+        2048
+      ]
+    },
     "d32_two_head_sequence_ladder": {
       "profile_ids": [
         "d32_two_head_seq8",
@@ -723,7 +796,7 @@
       "seq64_source_raw_proof_bytes": 264403,
       "seq64_trace_rows": 8192
     },
-    "fused_raw_proof_bytes_total": 5576234,
+    "fused_raw_proof_bytes_total": 6397632,
     "head_counts": [
       1,
       2,
@@ -731,27 +804,28 @@
       8,
       16
     ],
-    "matched_comparator_profiles": 29,
-    "max_fused_to_split_ratio": 0.957286,
+    "matched_comparator_profiles": 30,
+    "max_fused_to_split_ratio": 0.964602,
     "min_fused_to_split_ratio": 0.676723,
-    "profiles_checked": 29,
-    "raw_proof_savings_bytes_total": 736740,
-    "source_plus_sidecar_raw_proof_bytes_total": 6312974,
-    "status": "GO_29_ROW_RAW_PROOF_ROUTE_MATRIX_WITH_D128_SINGLE_HEAD_ANCHOR_AND_D128_FOUR_HEAD_SEQ64_DECISION_GATE",
+    "profiles_checked": 30,
+    "raw_proof_savings_bytes_total": 766883,
+    "source_plus_sidecar_raw_proof_bytes_total": 7164515,
+    "status": "GO_30_ROW_RAW_PROOF_ROUTE_MATRIX_WITH_D256_SEQ32_WIDTH_STRESS_POINT",
     "steps_per_head": [
       8,
       16,
       32,
       64
     ],
-    "total_lookup_claims": 44468,
-    "total_trace_rows": 78656,
+    "total_lookup_claims": 45652,
+    "total_trace_rows": 80704,
     "widths": [
       8,
       16,
       32,
       64,
-      128
+      128,
+      256
     ]
   },
   "scale_signal": {
@@ -818,8 +892,8 @@
     {
       "id": "attention_route_matrix",
       "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
-      "sha256": "849c64e8bd176e35bfbf06433dc10c0645fed7a985cf3358db784c7b9aafdafb",
-      "size_bytes": 89478
+      "sha256": "f8da6eb33454011e3ef20b7b80cdcce4ff9086764d7b4a3868c684046b434701",
+      "size_bytes": 92871
     },
     {
       "id": "d128_four_head_seq64_large_artifacts_manifest",
@@ -830,8 +904,8 @@
     {
       "id": "fuller_crossing_grid",
       "path": "docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json",
-      "sha256": "23d2f27b1238a5a73296f596895843d5cdeb9db542d7f05f41049cea1a3d2a33",
-      "size_bytes": 82479
+      "sha256": "e4d0cfa99753d7fd64364361ba2550d474d8dd8857c86f3f08efd5d5993ac0ed",
+      "size_bytes": 97305
     },
     {
       "id": "native_seq32_d128_single_proof",
@@ -901,8 +975,8 @@
     }
   ],
   "summary": {
-    "attention_raw_proof_savings_bytes_total": 736740,
-    "attention_route_rows_checked": 29,
+    "attention_raw_proof_savings_bytes_total": 766883,
+    "attention_route_rows_checked": 30,
     "attention_rows_checked": 10,
     "attention_rows_with_positive_typed_saving": 10,
     "attention_typed_savings_bytes_total": 51288,
@@ -920,6 +994,10 @@
     "d128_seq32_two_to_four_lookup_growth": "2.000000",
     "d128_seq64_raw_saving_bytes": 40317,
     "d128_single_head_seq16_raw_saving_bytes": 16971,
+    "d128_to_d256_seq32_fused_raw_proof_growth": "1.842162",
+    "d128_to_d256_seq32_lookup_growth": "1.000000",
+    "d128_to_d256_seq32_trace_row_growth": "1.000000",
+    "d256_seq32_raw_saving_bytes": 30143,
     "d32_seq32_raw_saving_bytes": 26326,
     "d32_seq8_to_seq32_fused_raw_proof_growth": "1.193955",
     "d32_seq8_to_seq32_lookup_growth": "11.384615",

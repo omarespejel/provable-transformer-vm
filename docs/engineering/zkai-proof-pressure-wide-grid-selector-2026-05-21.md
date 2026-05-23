@@ -15,15 +15,16 @@ question first:
 
 ## Result
 
-`GO_WIDE_GRID_SELECTOR_PROMOTE_D128_SINGLE_HEAD_ANCHOR_AND_D256_WIDTH_STRESS`
+`GO_WIDE_GRID_SELECTOR_PROMOTE_D256_SEQ64_DECISION_GATE`
 
-The current checked route matrix covers `29` source-backed attention rows over
-`d8`, `d16`, `d32`, partial `d64`, and partial `d128`. It contains the new
-`d128_h1_seq16` anchor, d128 two-head `seq32` and `seq64`, and d128 four-head
-`seq32` and `seq64`. It still does not contain `d256` attention route rows.
+The current checked route matrix covers `30` source-backed attention rows over
+`d8`, `d16`, `d32`, partial `d64`, partial `d128`, and one `d256` row. It
+contains the d128 single-head `seq16` anchor, d128 two-head `seq32` and
+`seq64`, d128 four-head `seq32` and `seq64`, and the new d256 two-head
+`seq32` width-stress row.
 
-The selector therefore promotes `d256_h2_seq32` as the next width stress test.
-This is a falsification target, not a measured result.
+The selector therefore promotes `d256_h2_seq64` as the next sequence decision
+gate. This is a falsification target, not a measured result.
 
 ## Why This Matters
 
@@ -47,11 +48,13 @@ Width is the stress test:
 | two-head `seq32`, `d64` to `d128` | `1.000000x` | `1.760615x` | `1.017051x` |
 | two-head `seq64`, `d64` to `d128` | `1.000000x` | `1.767448x` | `1.174259x` |
 | single-head `seq16`, `d64` to `d128` | `1.000000x` | `1.599924x` | `1.019279x` |
+| two-head `seq32`, `d128` to `d256` | `1.000000x` | `1.842162x` | `0.930684x` |
 
 Human read: sequence and head-axis pressure can make lookup work grow much
 faster than proof bytes. Width still grows proof bytes without adding lookup
-claims. The d128 single-head anchor is positive but modest, so the next useful
-question is whether the signal survives a d256 width stress point.
+claims. The d256 seq32 row is still positive on raw proof bytes, but local
+median timing is not a speed win. The next useful question is whether the
+d256 row keeps sequence-axis amortization at `seq64`.
 
 Accounting guardrail: the selector carries typed, JSON, and binary/raw context
 from the claim pack separately from the raw route-matrix signal.
@@ -60,17 +63,18 @@ from the claim pack separately from the raw route-matrix signal.
 |---|---:|---:|---:|---|
 | attention controlled grid totals | `234,296` | `629,466` | not available for those rows | typed/JSON only |
 | statement-only seq32+d128 row | `39,516` | `113,388` | `1,084` | local record-stream accounting |
-| route matrix raw saving | not comparable | not comparable | `736,740` saved | raw proof-byte route signal |
+| route matrix raw saving | not comparable | not comparable | `766,883` saved | raw proof-byte route signal |
 
 ## Selected Attack Order
 
-1. `d256_h2_seq32`
-   - Next width stress row.
-   - Tests whether the positive d128 frontier survives a harder width point
-     before scoped block work.
-   - GO if source, sidecar, and fused rows exist and fused beats matched split.
-   - NO-GO if copy-per-width engineering dominates research signal or d256
-     pressure loses the boundary saving.
+1. `d256_h2_seq64`
+   - Next d256 sequence decision row.
+   - Tests whether the d256 width-stress row keeps the sequence-axis
+     amortization already seen at d64 and d128.
+   - GO if source, sidecar, fused, mutation, and accounting gates validate and
+     fused beats matched split, or if a clean NO-GO explains the boundary.
+   - NO-GO if d256 sequence pressure loses the boundary saving or requires
+     special-casing that hides the proof-pressure signal.
 
 ## Evidence
 
@@ -94,7 +98,7 @@ git diff --check
 
 ## Correctness Guards
 
-The gate rejects `29 / 29` mutations:
+The gate rejects `30 / 30` mutations:
 
 - decision drift
 - claim-boundary overclaim
@@ -115,6 +119,7 @@ The gate rejects `29 / 29` mutations:
 - d128 head-frontier signal drift
 - d128 four-head sequence-frontier signal drift
 - d128 seq64 width-frontier signal drift
+- d256 width-stress signal drift
 - width-pressure-signal drift
 - d64 single-head anchor signal drift
 - d128 single-head width-anchor signal drift
