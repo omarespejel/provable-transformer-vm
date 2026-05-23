@@ -33,7 +33,7 @@ But d256 timing is not a speed win in local median-of-5 release timing:
 
 | row | fused prove ratio | fused verify ratio |
 |---|---:|---:|
-| d256 two-head seq32 versus split | `1.146005x` | `1.141390x` |
+| d256 two-head seq32 versus split | `1.154002x` | `1.198076x` |
 
 ## Interpretation
 
@@ -62,6 +62,8 @@ from drifting into a speed benchmark.
   `docs/engineering/evidence/zkai-attention-kv-d64-sequence-median-timing-raw-2026-05.json`
 - d256 timing:
   `docs/engineering/evidence/zkai-attention-kv-d256-two-head-seq32-median-timing-raw-2026-05.json`
+- Slope table:
+  `docs/engineering/zkai-proof-pressure-slope-table-2026-05-24.md`
 
 ## Validation
 

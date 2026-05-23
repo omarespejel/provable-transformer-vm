@@ -1,0 +1,264 @@
+{
+  "all_mutations_rejected": true,
+  "claim_boundary": "PAPER_FACING_SLOPE_TABLE_FOR_ATTENTION_PROOF_PRESSURE;PROOF_SIZE_AND_BOUNDARY_SELECTION_SIGNAL_ONLY;NOT_FULL_BLOCK_NOT_SPEED_CLAIM_NOT_EXTERNAL_COMPARISON",
+  "decision": "GO_PAPER_SLOPE_TABLE_WITH_SCOPED_BLOCK_NEXT_GATE",
+  "issue": 715,
+  "mutation_results": [
+    {
+      "error": "source artifact identity drift",
+      "name": "route_matrix_row_count_drift",
+      "rejected": true
+    },
+    {
+      "error": "source artifact identity drift",
+      "name": "main_evidence_row_count_drift",
+      "rejected": true
+    },
+    {
+      "error": "sequence work-growth drift",
+      "name": "d64_sequence_growth_drift",
+      "rejected": true
+    },
+    {
+      "error": "sequence fused proof growth drift",
+      "name": "d128_sequence_growth_drift",
+      "rejected": true
+    },
+    {
+      "error": "d64 head-axis fused proof drift",
+      "name": "d64_head_axis_drift",
+      "rejected": true
+    },
+    {
+      "error": "summary d256 timing drift",
+      "name": "d256_width_timing_drift",
+      "rejected": true
+    },
+    {
+      "error": "non-claims drift",
+      "name": "non_claim_removed",
+      "rejected": true
+    },
+    {
+      "error": "full block overclaim",
+      "name": "full_block_overclaim",
+      "rejected": true
+    }
+  ],
+  "mutations_checked": 8,
+  "mutations_rejected": 8,
+  "non_claims": [
+    "not a full transformer block proof",
+    "not a public proving-speed benchmark",
+    "not an external zkML comparison",
+    "not a NANOZK proof-size win",
+    "not a claim that width scaling is free",
+    "not production throughput evidence"
+  ],
+  "rows": [
+    {
+      "axis": "head",
+      "from_profile_id": "d64_single_head_seq16",
+      "fused_proof_growth": 0.999457,
+      "fused_prove_growth": null,
+      "fused_verify_growth": null,
+      "lookup_growth": 4.0,
+      "outcome": "GO_HEAD_AXIS_LOOKUP_PRESSURE_AMORTIZED",
+      "row_id": "d64_h1_to_h4_seq16_head_axis",
+      "saving_growth": 1.386727,
+      "split_proof_growth": 1.024806,
+      "target_fused_proof_bytes": 237596,
+      "target_fused_to_split_ratio": 0.91143,
+      "target_saving_bytes": 23089,
+      "target_split_proof_bytes": 260685,
+      "to_profile_id": "d64_four_head_seq16",
+      "trace_growth": 4.0,
+      "width_growth": 1.0
+    },
+    {
+      "axis": "sequence",
+      "from_profile_id": "d64_two_head_seq32",
+      "fused_proof_growth": 1.076519,
+      "fused_prove_growth": 4.019863,
+      "fused_verify_growth": 3.973893,
+      "lookup_growth": 3.72973,
+      "outcome": "GO_SEQUENCE_AXIS_LOOKUP_PRESSURE_AMORTIZED_WITH_TIMING_CAVEAT",
+      "row_id": "d64_h2_seq32_to_seq64_sequence_axis",
+      "saving_growth": 1.07816,
+      "split_proof_growth": 1.076702,
+      "target_fused_proof_bytes": 272636,
+      "target_fused_to_split_ratio": 0.888152,
+      "target_saving_bytes": 34334,
+      "target_split_proof_bytes": 306970,
+      "to_profile_id": "d64_two_head_seq64",
+      "trace_growth": 4.0,
+      "width_growth": 1.0
+    },
+    {
+      "axis": "sequence",
+      "from_profile_id": "d64_four_head_seq32",
+      "fused_proof_growth": 1.080558,
+      "fused_prove_growth": 3.937449,
+      "fused_verify_growth": 3.966431,
+      "lookup_growth": 3.72973,
+      "outcome": "GO_SEQUENCE_AXIS_LOOKUP_PRESSURE_AMORTIZED_WITH_TIMING_CAVEAT",
+      "row_id": "d64_h4_seq32_to_seq64_sequence_axis",
+      "saving_growth": 1.212295,
+      "split_proof_growth": 1.095365,
+      "target_fused_proof_bytes": 276503,
+      "target_fused_to_split_ratio": 0.875605,
+      "target_saving_bytes": 39282,
+      "target_split_proof_bytes": 315785,
+      "to_profile_id": "d64_four_head_seq64",
+      "trace_growth": 4.0,
+      "width_growth": 1.0
+    },
+    {
+      "axis": "sequence",
+      "from_profile_id": "d128_two_head_seq32",
+      "fused_proof_growth": 1.080697,
+      "fused_prove_growth": null,
+      "fused_verify_growth": null,
+      "lookup_growth": 3.72973,
+      "outcome": "GO_SEQUENCE_AXIS_PROOF_SIZE_ONLY_TIMING_NOT_MEASURED",
+      "row_id": "d128_h2_seq32_to_seq64_sequence_axis",
+      "saving_growth": 1.244813,
+      "split_proof_growth": 1.091811,
+      "target_fused_proof_bytes": 481870,
+      "target_fused_to_split_ratio": 0.922792,
+      "target_saving_bytes": 40317,
+      "target_split_proof_bytes": 522187,
+      "to_profile_id": "d128_two_head_seq64",
+      "trace_growth": 4.0,
+      "width_growth": 1.0
+    },
+    {
+      "axis": "sequence",
+      "from_profile_id": "d128_four_head_seq32",
+      "fused_proof_growth": 1.06491,
+      "fused_prove_growth": null,
+      "fused_verify_growth": null,
+      "lookup_growth": 3.72973,
+      "outcome": "GO_SEQUENCE_AXIS_PROOF_SIZE_ONLY_TIMING_NOT_MEASURED",
+      "row_id": "d128_h4_seq32_to_seq64_sequence_axis",
+      "saving_growth": 1.114797,
+      "split_proof_growth": 1.068793,
+      "target_fused_proof_bytes": 495854,
+      "target_fused_to_split_ratio": 0.91881,
+      "target_saving_bytes": 43816,
+      "target_split_proof_bytes": 539670,
+      "to_profile_id": "d128_four_head_seq64",
+      "trace_growth": 4.0,
+      "width_growth": 1.0
+    },
+    {
+      "axis": "width",
+      "from_profile_id": "d64_single_head_seq16",
+      "fused_proof_growth": 1.599924,
+      "fused_prove_growth": null,
+      "fused_verify_growth": null,
+      "lookup_growth": 1.0,
+      "outcome": "CAUTION_WIDTH_AXIS_PROOF_BYTES_GROW_BUT_FUSED_STILL_BEATS_SPLIT",
+      "row_id": "d64_to_d128_h1_seq16_width_axis",
+      "saving_growth": 1.019279,
+      "split_proof_growth": 1.561918,
+      "target_fused_proof_bytes": 380342,
+      "target_fused_to_split_ratio": 0.957286,
+      "target_saving_bytes": 16971,
+      "target_split_proof_bytes": 397313,
+      "to_profile_id": "d128_single_head_seq16",
+      "trace_growth": 1.0,
+      "width_growth": 2.0
+    },
+    {
+      "axis": "width",
+      "from_profile_id": "d64_two_head_seq32",
+      "fused_proof_growth": 1.760615,
+      "fused_prove_growth": null,
+      "fused_verify_growth": null,
+      "lookup_growth": 1.0,
+      "outcome": "CAUTION_WIDTH_AXIS_PROOF_BYTES_GROW_BUT_FUSED_STILL_BEATS_SPLIT",
+      "row_id": "d64_to_d128_h2_seq32_width_axis",
+      "saving_growth": 1.017051,
+      "split_proof_growth": 1.677561,
+      "target_fused_proof_bytes": 445888,
+      "target_fused_to_split_ratio": 0.932282,
+      "target_saving_bytes": 32388,
+      "target_split_proof_bytes": 478276,
+      "to_profile_id": "d128_two_head_seq32",
+      "trace_growth": 1.0,
+      "width_growth": 2.0
+    },
+    {
+      "axis": "width",
+      "from_profile_id": "d128_two_head_seq32",
+      "fused_proof_growth": 1.842162,
+      "fused_prove_growth": null,
+      "fused_verify_growth": null,
+      "lookup_growth": 1.0,
+      "outcome": "CAUTION_WIDTH_AXIS_SAVING_WEAKENS_AND_TIMING_IS_NOT_A_SPEED_WIN",
+      "row_id": "d128_to_d256_h2_seq32_width_axis",
+      "saving_growth": 0.930684,
+      "split_proof_growth": 1.780438,
+      "target_fused_proof_bytes": 821398,
+      "target_fused_to_split_ratio": 0.964602,
+      "target_saving_bytes": 30143,
+      "target_split_proof_bytes": 851541,
+      "to_profile_id": "d256_two_head_seq32",
+      "trace_growth": 1.0,
+      "width_growth": 2.0
+    }
+  ],
+  "schema": "zkai-proof-pressure-slope-table-v1",
+  "source_artifacts": [
+    {
+      "id": "route_matrix",
+      "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
+      "sha256": "f8da6eb33454011e3ef20b7b80cdcce4ff9086764d7b4a3868c684046b434701",
+      "size_bytes": 92871
+    },
+    {
+      "id": "main_evidence",
+      "path": "docs/engineering/evidence/zkai-proof-pressure-main-evidence-2026-05.json",
+      "sha256": "698e07150c77821ef705b4858e9fcbac0f4de4037afd1bd6628b8546901e085c",
+      "size_bytes": 6821
+    },
+    {
+      "id": "d64_sequence_median_timing",
+      "path": "docs/engineering/evidence/zkai-attention-kv-d64-sequence-median-timing-raw-2026-05.json",
+      "sha256": "6a752b68149ba2a80d28ed14b829c0e2975193530bc6d2de1f02384ed3135702",
+      "size_bytes": 20998
+    },
+    {
+      "id": "d256_seq32_median_timing",
+      "path": "docs/engineering/evidence/zkai-attention-kv-d256-two-head-seq32-median-timing-raw-2026-05.json",
+      "sha256": "39f5392cdb060e9c7d8274ee2603120680cf9cb8f09d5675a69710a107cd5d81",
+      "size_bytes": 5388
+    }
+  ],
+  "summary": {
+    "d256_width_fused_prove_ratio": 1.154002,
+    "d256_width_fused_to_split_ratio": 0.964602,
+    "d256_width_fused_verify_ratio": 1.198076,
+    "d256_width_saving_bytes": 30143,
+    "head_axis_d64_seq16_fused_proof_growth": 0.999457,
+    "head_axis_d64_seq16_lookup_growth": 4.0,
+    "head_rows": 1,
+    "interpretation": "sequence and head lookup pressure amortize in proof bytes; width pressure remains costly",
+    "recommended_next_gate": "scoped_d128_seq32_transformer_block_boundary_preflight; d256_seq64_remains_a_stress_test_not_the_primary_paper_gate",
+    "row_count": 8,
+    "sequence_fused_proof_growth_max": 1.080697,
+    "sequence_fused_proof_growth_min": 1.06491,
+    "sequence_lookup_growth": 3.72973,
+    "sequence_rows": 4,
+    "sequence_trace_growth": 4.0,
+    "width_rows": 3
+  },
+  "timing_policy": "reuse_d64_and_d256_median_of_5_release_timing_as_engineering_caveat_only",
+  "validation_commands": [
+    "python3.10 scripts/zkai_proof_pressure_slope_table_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-slope-table-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-slope-table-2026-05.tsv --write-md docs/engineering/zkai-proof-pressure-slope-table-2026-05-24.md",
+    "python3.10 -m py_compile scripts/zkai_proof_pressure_slope_table_gate.py scripts/tests/test_zkai_proof_pressure_slope_table_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_proof_pressure_slope_table_gate",
+    "git diff --check"
+  ]
+}

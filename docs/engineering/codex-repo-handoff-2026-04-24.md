@@ -3399,7 +3399,7 @@ rows. From d128 two-head seq32 to d256 two-head seq32, lookup claims and trace
 rows stay `1.000000x`, while fused raw proof bytes grow `1.842162x`.
 
 This is a proof-size GO, not a timing GO. The d256 median-of-5 local release
-timing has fused slower than split: prove `1.146005x`, verify `1.141390x`.
+timing has fused slower than split: prove `1.154002x`, verify `1.198076x`.
 The d64 sequence timing rows show the same caveat at a different angle:
 seq32-to-seq64 lookup and trace work grow about `4x`, fused proof bytes grow
 about `1.08x`, but local prove and verify time grow near the work axis.
@@ -3417,3 +3417,33 @@ Updated source-of-truth artifacts:
 Non-claims remain: not full transformer inference, not a full transformer block
 proof, not exact real-valued Softmax, not a public proving-speed benchmark, not
 a NANOZK comparison, and not production zkML readiness.
+
+## 2026-05-24 Proof-Pressure Slope Table
+
+Issue `#715` now has a generated paper-facing slope table over the checked
+d64, d128, and d256 attention rows. It binds the route matrix, main evidence,
+d64 sequence timing, and d256 timing artifacts. The strong signal is
+lookup-heavy sequence and head pressure: seq32-to-seq64 rows grow lookup claims
+`3.729730x` and trace rows `4.000000x`, while fused proof bytes grow only
+`1.064910x` to `1.080697x`; the d64 seq16 one-head-to-four-head row grows
+lookup and trace work `4.000000x` while fused proof bytes move `0.999457x`.
+
+The caution is the width axis. The d256 row still saves `30,143` raw proof
+bytes against the matched split frontier, but d128-to-d256 fused proof bytes
+grow `1.842162x`, the saving weakens to `0.930684x`, and local d256 timing is
+not a speed win. The slope-table recommendation is a scoped d128 seq32
+transformer block-boundary preflight next; `d256_h2_seq64` remains a stress
+test rather than the primary paper gate.
+
+Artifacts:
+
+- `docs/engineering/zkai-proof-pressure-slope-table-2026-05-24.md`
+- `docs/engineering/evidence/zkai-proof-pressure-slope-table-2026-05.json`
+- `docs/engineering/evidence/zkai-proof-pressure-slope-table-2026-05.tsv`
+- `scripts/zkai_proof_pressure_slope_table_gate.py`
+- `scripts/tests/test_zkai_proof_pressure_slope_table_gate.py`
+
+Non-claims remain: not a full transformer block proof, not a public
+proving-speed benchmark, not an external zkML comparison, not a NANOZK
+proof-size win, not a claim that width scaling is free, and not production
+throughput evidence.

@@ -157,8 +157,9 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 151. `docs/engineering/zkai-attention-kv-stwo-native-d128-four-head-seq32-fused-softmax-table-gate-2026-05-23.md`
 152. `docs/engineering/zkai-attention-kv-stwo-native-d128-four-head-seq64-fused-softmax-table-gate-2026-05-23.md`
 153. `docs/engineering/zkai-native-seq32-attention-mlp-median-timing-2026-05.md`
-154. `docs/engineering/reproducibility.md`
-155. `git status --short --branch`
+154. `docs/engineering/zkai-proof-pressure-slope-table-2026-05-24.md`
+155. `docs/engineering/reproducibility.md`
+156. `git status --short --branch`
 
 ## What this repository is now
 

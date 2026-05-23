@@ -1,8 +1,8 @@
 # HANDOFF
 
-Last refreshed: 2026-05-23
+Last refreshed: 2026-05-24
 Repository: `/Users/espejelomar/StarkNet/provable-transformer-vm`
-Mainline reference at refresh: `982e73b8d1c4e3e1e55ad3576108582e7a80d419`
+Mainline reference at refresh: `b47bf8aea2f5ec4fe75c77264bef24d12f72f045`
 
 ## Immediate orientation
 
@@ -19,6 +19,19 @@ truth under `.codex/research/`. Fresh agents should read
 before opening or executing frontier issues. The north star is STARK-native
 proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
+
+Latest proof-pressure synthesis: issue `#715` now has a generated paper-facing
+slope table over the checked d64, d128, and d256 attention rows. The strong
+signal is lookup-heavy sequence and head pressure: seq32-to-seq64 rows grow
+lookup claims `3.729730x` and trace rows `4.000000x`, while fused proof bytes
+grow only `1.064910x` to `1.080697x`; the d64 seq16 one-head-to-four-head row
+grows lookup and trace work `4.000000x` while fused proof bytes move
+`0.999457x`. The caution is width: d64 to d128 and d128 to d256 keep positive
+fused-vs-split savings, but proof bytes grow with width, and d256 timing is not
+a speed win. The recommended next paper gate is a scoped d128 seq32 transformer
+block-boundary preflight; `d256_h2_seq64` remains a stress test, not the
+primary paper gate. See
+`docs/engineering/zkai-proof-pressure-slope-table-2026-05-24.md`.
 
 Latest proof-pressure route extension: issue `#715` now has the
 `d128_single_head_seq16` native Stwo fused Softmax-table anchor row. The
@@ -3277,7 +3290,7 @@ Median timing has a useful caveat: d64 seq32 to seq64 keeps fused proof bytes
 near `1.08x` growth while lookup and trace work grow about `4x`, but local
 median prove and verify time also grow near the work axis. The d256 seq32 fused
 proof is slower than split in median-of-5 local release timing: prove
-`1.146005x`, verify `1.141390x`. The paper claim should stay about boundary
+`1.154002x`, verify `1.198076x`. The paper claim should stay about boundary
 selection and proof-size amortization, not prover speed.
 
 New paper-facing artifacts:
