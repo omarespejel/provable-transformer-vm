@@ -152,6 +152,7 @@ fn run_with_args(mut args: Vec<std::ffi::OsString>) -> Result<String, String> {
                 "source_statement_commitment": envelope.fused_summary.source_statement_commitment,
                 "lookup_claims": envelope.fused_summary.lookup_claims,
                 "table_rows": envelope.fused_summary.table_rows,
+                "fusion_status": envelope.fused_summary.fusion_status,
                 "verified": true,
             })
             .to_string())
@@ -197,8 +198,7 @@ fn read_bounded_file(path: &Path, max_bytes: usize, label: &str) -> Result<Vec<u
             max_bytes
         ));
     }
-    let file = fs::File::open(path)
-        .map_err(|error| format!("failed to open {} {}: {error}", label, path.display()))?;
+    let file = open_regular_file_without_following_symlinks(path, label)?;
     let metadata = file.metadata().map_err(|error| {
         format!(
             "failed to stat opened {} {}: {error}",
@@ -230,6 +230,35 @@ fn read_bounded_file(path: &Path, max_bytes: usize, label: &str) -> Result<Vec<u
         ));
     }
     Ok(raw)
+}
+
+#[cfg(feature = "stwo-backend")]
+fn open_regular_file_without_following_symlinks(
+    path: &Path,
+    label: &str,
+) -> Result<fs::File, String> {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+
+        fs::OpenOptions::new()
+            .read(true)
+            .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK)
+            .open(path)
+            .map_err(|error| {
+                format!(
+                    "failed to open {} {} without following symlinks: io_kind={:?}: {error}",
+                    label,
+                    path.display(),
+                    error.kind()
+                )
+            })
+    }
+    #[cfg(not(unix))]
+    {
+        fs::File::open(path)
+            .map_err(|error| format!("failed to open {} {}: {error}", label, path.display()))
+    }
 }
 
 #[cfg(feature = "stwo-backend")]
@@ -287,13 +316,36 @@ fn atomic_write_file(path: &Path, bytes: &[u8], label: &str) -> Result<(), Strin
             path.display()
         ));
     }
+    if let Err(error) = sync_parent_directory(parent, label, path) {
+        eprintln!("warning: {error}");
+    }
+    Ok(())
+}
+
+#[cfg(all(feature = "stwo-backend", unix))]
+fn sync_parent_directory(parent: &Path, label: &str, path: &Path) -> Result<(), String> {
+    fs::File::open(parent)
+        .and_then(|directory| directory.sync_all())
+        .map_err(|error| {
+            format!(
+                "failed to sync output parent {} for {} {}: {error}",
+                parent.display(),
+                label,
+                path.display()
+            )
+        })
+}
+
+#[cfg(all(feature = "stwo-backend", not(unix)))]
+fn sync_parent_directory(_parent: &Path, _label: &str, _path: &Path) -> Result<(), String> {
     Ok(())
 }
 
 #[cfg(all(test, feature = "stwo-backend"))]
 mod tests {
     use super::{
-        atomic_write_file, read_bounded_file, require_verified, run_with_args,
+        atomic_write_file, open_regular_file_without_following_symlinks, read_bounded_file,
+        require_verified, run_with_args,
         ZKAI_ATTENTION_KV_NATIVE_D128_TWO_HEAD_SEQ32_FUSED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BYTES,
     };
     use std::{
@@ -353,6 +405,9 @@ mod tests {
         let error =
             read_bounded_file(&link, 1024, "fixture").expect_err("symlinks must be rejected");
         assert!(error.contains("is a symlink"));
+        let no_follow_error = open_regular_file_without_following_symlinks(&link, "fixture")
+            .expect_err("open helper must reject symlinks");
+        assert!(no_follow_error.contains("without following symlinks"));
 
         fs::remove_dir_all(&dir).expect("remove temp dir");
     }
