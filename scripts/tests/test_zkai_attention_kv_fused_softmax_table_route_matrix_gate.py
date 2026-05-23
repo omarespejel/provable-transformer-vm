@@ -25,6 +25,31 @@ class AttentionKvFusedSoftmaxTableRouteMatrixGateTests(unittest.TestCase):
         self.assertEqual(result["mutations_checked"], len(gate.EXPECTED_MUTATION_NAMES))
         self.assertEqual(result["mutations_rejected"], len(gate.EXPECTED_MUTATION_NAMES))
 
+    def test_local_only_d128_seq64_dimensions_fallback_is_manifest_bound(self):
+        profile = next(profile for profile in gate.PROFILES if profile.profile_id == "d128_four_head_seq64")
+        gate_result = gate.read_json(profile.gate_json, "d128 four-head seq64 gate result")
+        original_is_file = gate.pathlib.Path.is_file
+
+        def fake_is_file(path):
+            if path == profile.source_input_json:
+                return False
+            return original_is_file(path)
+
+        with mock.patch.object(gate.pathlib.Path, "is_file", fake_is_file):
+            dims = gate.route_dimensions(profile, gate_result)
+
+        self.assertEqual(
+            dims,
+            {
+                "key_width": 128,
+                "value_width": 128,
+                "head_count": 4,
+                "steps_per_head": 64,
+                "score_rows": 8832,
+                "trace_rows": 16384,
+            },
+        )
+
     def test_route_rows_match_expected_dimensions_and_existing_gate_metrics(self):
         rows = {row["profile_id"]: row for row in self.result["route_rows"]}
 
@@ -729,6 +754,24 @@ class AttentionKvFusedSoftmaxTableRouteMatrixGateTests(unittest.TestCase):
         self.assertEqual(d128_seq64_width["d64_to_d128_fused_proof_size_ratio"], 1.767448)
         self.assertEqual(d128_seq64_width["d64_to_d128_source_plus_sidecar_ratio"], 1.701101)
         self.assertEqual(d128_seq64_width["d64_to_d128_savings_ratio"], 1.174259)
+
+        d128_four_head_sequence = summary["combined_width_head_sequence_axis_d128_four_head_sequence_frontier"]
+        self.assertEqual(d128_four_head_sequence["profile_ids"], ["d128_four_head_seq32", "d128_four_head_seq64"])
+        self.assertEqual(d128_four_head_sequence["steps_per_head"], [32, 64])
+        self.assertEqual(d128_four_head_sequence["lookup_claims"], [2368, 8832])
+        self.assertEqual(d128_four_head_sequence["trace_rows"], [4096, 16384])
+        self.assertEqual(d128_four_head_sequence["source_proof_size_bytes"], [463410, 490307])
+        self.assertEqual(d128_four_head_sequence["sidecar_proof_size_bytes"], [41524, 49363])
+        self.assertEqual(d128_four_head_sequence["fused_proof_size_bytes"], [465630, 495854])
+        self.assertEqual(d128_four_head_sequence["source_plus_sidecar_raw_proof_bytes"], [504934, 539670])
+        self.assertEqual(d128_four_head_sequence["fused_to_source_plus_sidecar_ratios"], [0.92216, 0.91881])
+        self.assertEqual(d128_four_head_sequence["seq32_to_seq64_lookup_claim_ratio"], 3.72973)
+        self.assertEqual(d128_four_head_sequence["seq32_to_seq64_trace_row_ratio"], 4.0)
+        self.assertEqual(d128_four_head_sequence["seq32_to_seq64_source_proof_size_ratio"], 1.058041)
+        self.assertEqual(d128_four_head_sequence["seq32_to_seq64_sidecar_proof_size_ratio"], 1.188782)
+        self.assertEqual(d128_four_head_sequence["seq32_to_seq64_fused_proof_size_ratio"], 1.06491)
+        self.assertEqual(d128_four_head_sequence["seq32_to_seq64_source_plus_sidecar_ratio"], 1.068793)
+        self.assertEqual(d128_four_head_sequence["seq32_to_seq64_savings_ratio"], 1.114797)
 
     def test_aggregate_metrics_are_checked(self):
         metrics = self.result["aggregate_metrics"]

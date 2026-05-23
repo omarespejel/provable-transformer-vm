@@ -152,6 +152,8 @@ MUTATION_NAMES = (
     "d128_sequence_frontier_signal_drift",
     "d128_head_frontier_signal_drift",
     "d128_seq64_width_frontier_signal_drift",
+    "d128_four_head_seq64_decision_gate_signal_drift",
+    "summary_d128_four_head_seq64_signal_drift",
     "attention_grid_row_loses_saving",
     "native_single_saving_drift",
     "statement_only_saving_drift",
@@ -1790,6 +1792,12 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
     def mutate_d128_seq64_width_frontier_signal(item: dict[str, Any]) -> None:
         item["route_matrix_signal"]["d128_two_head_seq64_width_frontier"]["d128_raw_saving_bytes"] = 40_316
 
+    def mutate_d128_four_head_seq64_decision_gate_signal(item: dict[str, Any]) -> None:
+        item["route_matrix_signal"]["d128_four_head_seq64_decision_gate"]["seq64_raw_saving_bytes"] = 43_815
+
+    def mutate_summary_d128_four_head_seq64_signal(item: dict[str, Any]) -> None:
+        item["summary"]["d128_four_head_seq64_raw_saving_bytes"] = 43_815
+
     def mutate_attention_saving(item: dict[str, Any]) -> None:
         row = next(row for row in item["fused_vs_split_rows"] if row["row_id"] == "d8_two_head_seq32")
         row["typed_saving_bytes"] = 0
@@ -1845,6 +1853,8 @@ def mutation_cases(payload: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
         ("d128_sequence_frontier_signal_drift", mutate_d128_sequence_frontier_signal),
         ("d128_head_frontier_signal_drift", mutate_d128_head_frontier_signal),
         ("d128_seq64_width_frontier_signal_drift", mutate_d128_seq64_width_frontier_signal),
+        ("d128_four_head_seq64_decision_gate_signal_drift", mutate_d128_four_head_seq64_decision_gate_signal),
+        ("summary_d128_four_head_seq64_signal_drift", mutate_summary_d128_four_head_seq64_signal),
         ("attention_grid_row_loses_saving", mutate_attention_saving),
         ("native_single_saving_drift", mutate_native_saving),
         ("statement_only_saving_drift", mutate_statement_saving),

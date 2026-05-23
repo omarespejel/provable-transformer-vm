@@ -3328,6 +3328,7 @@ Proof-pressure wide-grid selector reproducibility metadata:
    surface as a second-boundary reproduction; if that question matters, move it
    to the experimental lane or a boundary that actually removes replay
    dependencies.
+
 ## 2026-05-23 d128_four_head_seq64 Decision Gate
 
 Issue `#715` has a checked `d128_h4_seq64` GO row. The fused native proof is

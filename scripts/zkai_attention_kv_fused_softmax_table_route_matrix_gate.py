@@ -56,6 +56,9 @@ from scripts import zkai_attention_kv_two_head_seq32_fused_softmax_table_native_
 EVIDENCE_DIR = ROOT / "docs" / "engineering" / "evidence"
 JSON_OUT = EVIDENCE_DIR / "zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json"
 TSV_OUT = EVIDENCE_DIR / "zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.tsv"
+D128_FOUR_HEAD_SEQ64_LARGE_ARTIFACTS_JSON = (
+    EVIDENCE_DIR / "zkai-attention-kv-stwo-native-d128-four-head-seq64-large-artifacts-2026-05.json"
+)
 
 SCHEMA = "zkai-attention-kv-fused-softmax-table-route-matrix-v1"
 ISSUE = 505
@@ -137,6 +140,7 @@ EXPECTED_MUTATION_NAMES = (
     "d128_two_head_seq32_width_frontier_metric_smuggling",
     "d128_two_head_seq64_sequence_frontier_metric_smuggling",
     "d128_four_head_seq32_head_frontier_metric_smuggling",
+    "d128_four_head_seq64_decision_gate_metric_smuggling",
     "axis_summary_width_ratio_drift",
     "axis_summary_width_extension_ratio_drift",
     "axis_summary_head_axis_ratio_drift",
@@ -162,6 +166,7 @@ EXPECTED_MUTATION_NAMES = (
     "axis_summary_d128_sequence_frontier_ratio_drift",
     "axis_summary_d128_seq32_head_frontier_ratio_drift",
     "axis_summary_d128_seq64_width_frontier_ratio_drift",
+    "axis_summary_d128_four_head_sequence_frontier_ratio_drift",
     "unknown_field_injection",
 )
 
@@ -563,7 +568,56 @@ def read_json(path: pathlib.Path, label: str) -> Any:
         raise FusedSoftmaxTableRouteMatrixGateError(f"{label} is not JSON: {err}") from err
 
 
+def d128_four_head_seq64_local_artifact_paths(profile: Profile) -> tuple[pathlib.Path, ...]:
+    if profile.profile_id != "d128_four_head_seq64":
+        return ()
+    module = profile.gate_module
+    return (
+        module.SOURCE_INPUT_JSON,
+        module.SOURCE_ENVELOPE_JSON,
+        module.SIDECAR_ENVELOPE_JSON,
+        module.FUSED_ENVELOPE_JSON,
+    )
+
+
+def validate_d128_four_head_seq64_light_gate(profile: Profile, gate_result: dict[str, Any]) -> None:
+    validate_local_only_manifest_source(profile)
+    module = profile.gate_module
+    exact = {
+        "issue": module.ISSUE,
+        "source_issue": module.SOURCE_ISSUE,
+        "sidecar_issue": module.SIDECAR_ISSUE,
+        "decision": module.DECISION,
+        "route_id": module.ROUTE_ID,
+        "claim_boundary": module.CLAIM_BOUNDARY,
+        "lookup_claims": module.SOURCE_SCORE_ROWS,
+        "trace_rows": module.SOURCE_TRACE_ROWS,
+        "table_rows": module.SOURCE_TABLE_ROWS,
+        "source_proof_size_bytes": module.SOURCE_PROOF_SIZE_BYTES,
+        "source_envelope_size_bytes": module.SOURCE_ENVELOPE_SIZE_BYTES,
+        "sidecar_proof_size_bytes": module.SIDECAR_PROOF_SIZE_BYTES,
+        "source_plus_sidecar_raw_proof_bytes": module.SOURCE_PLUS_SIDECAR_RAW_PROOF_BYTES,
+        "fused_proof_size_bytes": module.FUSED_PROOF_SIZE_BYTES,
+        "fused_envelope_size_bytes": module.FUSED_ENVELOPE_SIZE_BYTES,
+        "fused_over_source_proof_bytes": module.FUSED_OVER_SOURCE_PROOF_BYTES,
+        "fused_saves_vs_source_plus_sidecar_bytes": module.FUSED_SAVES_VS_SOURCE_PLUS_SIDECAR_BYTES,
+        "mutations_checked": len(module.EXPECTED_MUTATION_NAMES),
+        "mutations_rejected": len(module.EXPECTED_MUTATION_NAMES),
+    }
+    for key, expected in exact.items():
+        if gate_result.get(key) != expected:
+            raise FusedSoftmaxTableRouteMatrixGateError(f"{profile.profile_id} gate result drift for {key}")
+    if round(float(gate_result.get("fused_to_source_plus_sidecar_ratio", 0.0)), 6) != round(
+        module.FUSED_TO_SOURCE_PLUS_SIDECAR_RATIO, 6
+    ):
+        raise FusedSoftmaxTableRouteMatrixGateError(f"{profile.profile_id} fused ratio drift")
+
+
 def validate_existing_gate(profile: Profile, gate_result: dict[str, Any]) -> None:
+    local_artifact_paths = d128_four_head_seq64_local_artifact_paths(profile)
+    if local_artifact_paths and not all(path.is_file() for path in local_artifact_paths):
+        validate_d128_four_head_seq64_light_gate(profile, gate_result)
+        return
     module = profile.gate_module
     signature = inspect.signature(module.validate_result)
     if len(signature.parameters) == 1:
@@ -657,6 +711,65 @@ def source_dimensions(source_input: dict[str, Any]) -> dict[str, int]:
     }
 
 
+def expected_dimensions(profile: Profile, gate_result: dict[str, Any]) -> dict[str, int]:
+    return {
+        "key_width": profile.expected_key_width,
+        "value_width": profile.expected_value_width,
+        "head_count": profile.expected_head_count,
+        "steps_per_head": profile.expected_steps_per_head,
+        "score_rows": int(gate_result["lookup_claims"]),
+        "trace_rows": int(gate_result["trace_rows"]),
+    }
+
+
+def validate_local_only_manifest_source(profile: Profile) -> None:
+    if profile.profile_id != "d128_four_head_seq64":
+        raise FusedSoftmaxTableRouteMatrixGateError(
+            f"missing {profile.profile_id} source input: {profile.source_input_json}"
+        )
+    manifest = read_json(D128_FOUR_HEAD_SEQ64_LARGE_ARTIFACTS_JSON, "d128 four-head seq64 large-artifacts manifest")
+    if manifest.get("schema") != "zkai-attention-kv-stwo-native-d128-four-head-seq64-large-artifacts-v1":
+        raise FusedSoftmaxTableRouteMatrixGateError("d128 four-head seq64 manifest schema drift")
+    if manifest.get("issue") != 715:
+        raise FusedSoftmaxTableRouteMatrixGateError("d128 four-head seq64 manifest issue drift")
+    if "LOCAL_GENERATED_ARTIFACTS_NOT_TRACKED" not in str(manifest.get("status", "")):
+        raise FusedSoftmaxTableRouteMatrixGateError("d128 four-head seq64 manifest status drift")
+    artifacts = manifest.get("artifacts")
+    if not isinstance(artifacts, list):
+        raise FusedSoftmaxTableRouteMatrixGateError("d128 four-head seq64 manifest artifacts drift")
+    source_entries = [item for item in artifacts if isinstance(item, dict) and item.get("id") == "source_input_json"]
+    if len(source_entries) != 1:
+        raise FusedSoftmaxTableRouteMatrixGateError("d128 four-head seq64 manifest source entry drift")
+    source_entry = source_entries[0]
+    if source_entry.get("path") != str(profile.source_input_json.relative_to(ROOT)):
+        raise FusedSoftmaxTableRouteMatrixGateError("d128 four-head seq64 manifest source path drift")
+    if int(source_entry.get("size_bytes", 0)) <= 100_000_000:
+        raise FusedSoftmaxTableRouteMatrixGateError("d128 four-head seq64 manifest source size drift")
+    sha256 = source_entry.get("sha256")
+    if not isinstance(sha256, str) or len(sha256) != 64 or any(ch not in "0123456789abcdef" for ch in sha256):
+        raise FusedSoftmaxTableRouteMatrixGateError("d128 four-head seq64 manifest source digest drift")
+
+
+def route_dimensions(profile: Profile, gate_result: dict[str, Any]) -> dict[str, int]:
+    expected = expected_dimensions(profile, gate_result)
+    if profile.source_input_json.is_file():
+        dims = source_dimensions(read_json(profile.source_input_json, f"{profile.profile_id} source input"))
+        if dims != expected:
+            raise FusedSoftmaxTableRouteMatrixGateError(
+                f"{profile.profile_id} dimension drift: got {dims}, expected {expected}"
+            )
+        return dims
+    validate_local_only_manifest_source(profile)
+    module = profile.gate_module
+    if getattr(module, "SOURCE_HEAD_COUNT", profile.expected_head_count) != profile.expected_head_count:
+        raise FusedSoftmaxTableRouteMatrixGateError(f"{profile.profile_id} local-only source head count drift")
+    if getattr(module, "SOURCE_SCORE_ROWS", expected["score_rows"]) != expected["score_rows"]:
+        raise FusedSoftmaxTableRouteMatrixGateError(f"{profile.profile_id} local-only score row drift")
+    if getattr(module, "SOURCE_TRACE_ROWS", expected["trace_rows"]) != expected["trace_rows"]:
+        raise FusedSoftmaxTableRouteMatrixGateError(f"{profile.profile_id} local-only trace row drift")
+    return expected
+
+
 def ratio(numerator: int, denominator: int) -> float:
     if denominator <= 0:
         raise FusedSoftmaxTableRouteMatrixGateError("ratio denominator must be positive")
@@ -666,20 +779,7 @@ def ratio(numerator: int, denominator: int) -> float:
 def build_route_row(profile: Profile) -> dict[str, Any]:
     gate_result = read_json(profile.gate_json, f"{profile.profile_id} gate result")
     validate_existing_gate(profile, gate_result)
-    source_input = read_json(profile.source_input_json, f"{profile.profile_id} source input")
-    dims = source_dimensions(source_input)
-    expected_dims = {
-        "key_width": profile.expected_key_width,
-        "value_width": profile.expected_value_width,
-        "head_count": profile.expected_head_count,
-        "steps_per_head": profile.expected_steps_per_head,
-        "score_rows": int(gate_result["lookup_claims"]),
-        "trace_rows": int(gate_result["trace_rows"]),
-    }
-    if dims != expected_dims:
-        raise FusedSoftmaxTableRouteMatrixGateError(
-            f"{profile.profile_id} dimension drift: got {dims}, expected {expected_dims}"
-        )
+    dims = route_dimensions(profile, gate_result)
 
     source_proof = int(gate_result["source_proof_size_bytes"])
     source_plus_sidecar = int(gate_result.get("source_plus_sidecar_raw_proof_bytes") or 0)
@@ -2121,6 +2221,10 @@ def mutation_cases() -> tuple[tuple[str, Any], ...]:
             lambda v: row_by_id(v["route_rows"], "d128_four_head_seq32").__setitem__("head_count", 2),
         ),
         (
+            "d128_four_head_seq64_decision_gate_metric_smuggling",
+            lambda v: row_by_id(v["route_rows"], "d128_four_head_seq64").__setitem__("steps_per_head", 32),
+        ),
+        (
             "axis_summary_width_ratio_drift",
             lambda v: v["axis_summary"]["width_axis_d8_to_d16"].__setitem__("fused_proof_size_ratio", 1.0),
         ),
@@ -2265,6 +2369,12 @@ def mutation_cases() -> tuple[tuple[str, Any], ...]:
             lambda v: v["axis_summary"][
                 "combined_width_head_sequence_axis_d128_seq64_width_frontier"
             ].__setitem__("d64_to_d128_fused_proof_size_ratio", 1.0),
+        ),
+        (
+            "axis_summary_d128_four_head_sequence_frontier_ratio_drift",
+            lambda v: v["axis_summary"][
+                "combined_width_head_sequence_axis_d128_four_head_sequence_frontier"
+            ].__setitem__("seq32_to_seq64_fused_proof_size_ratio", 1.0),
         ),
         ("unknown_field_injection", lambda v: v.__setitem__("unexpected", "claim smuggling")),
     )

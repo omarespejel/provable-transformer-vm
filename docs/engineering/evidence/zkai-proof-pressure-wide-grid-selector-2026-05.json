@@ -397,7 +397,7 @@
     "not production zkML readiness",
     "does not widen the claim beyond checked d8, d16, d32, partial d64, and partial d128 attention rows"
   ],
-  "payload_commitment": "blake2b-256:16f1b1c5d3886c8e50280fd13d2444d7d217bafff0fb7cd50f5ce9d346e21677",
+  "payload_commitment": "blake2b-256:9a3ca4aa5709c295116183e4a0b78e7d1d934ed2a936b279a76726780c956721",
   "requested_grid_signal": {
     "fully_missing_requested_widths": [
       256
@@ -632,8 +632,8 @@
     {
       "id": "fused_softmax_route_matrix",
       "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
-      "sha256": "a580e3730c92d4d674eba350cf03f3d08aef8be3c116ff1de69086378dc5ac1c",
-      "size_bytes": 85893
+      "sha256": "2a2f22ed1d349fe9244c6600d16bd2f0abda46c811452c551e78a089d31da5ca",
+      "size_bytes": 86206
     },
     {
       "id": "fuller_crossing_grid",
@@ -644,8 +644,8 @@
     {
       "id": "proof_pressure_claim_pack",
       "path": "docs/engineering/evidence/zkai-proof-pressure-scaling-claim-pack-2026-05.json",
-      "sha256": "3443ed52aaa50a59dab4092f0b1ec4678e629a4f516d89c442ef1622dcd474cc",
-      "size_bytes": 35082
+      "sha256": "851df2621fb5a3324f3963b40f02381b6741a7f1c1b807150d63dae96fb339b1",
+      "size_bytes": 35390
     }
   ],
   "timing_policy": "proof_existence_and_byte_accounting_only_not_public_benchmark",
