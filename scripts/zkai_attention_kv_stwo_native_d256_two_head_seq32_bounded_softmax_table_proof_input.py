@@ -970,6 +970,7 @@ def build_payload() -> dict[str, Any]:
 
 
 def write_json(payload: dict[str, Any], path: pathlib.Path) -> None:
+    validate_payload(payload)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
@@ -1007,6 +1008,7 @@ def to_tsv(payload: dict[str, Any]) -> str:
 
 
 def write_tsv(payload: dict[str, Any], path: pathlib.Path) -> None:
+    validate_payload(payload)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(to_tsv(payload), encoding="utf-8")
 

@@ -200,6 +200,23 @@ class AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputTests(unittest.TestCase
                     gate.main()
             self.assertEqual(ctx.exception.code, 2)
 
+    def test_writers_validate_payload_before_writing(self):
+        payload = gate.build_payload()
+        payload["score_row_count"] += 1
+        with tempfile.TemporaryDirectory() as tmp:
+            out = gate.pathlib.Path(tmp) / "bad.json"
+            with self.assertRaisesRegex(
+                gate.AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError,
+                "score_row_count",
+            ):
+                gate.write_json(payload, out)
+            self.assertFalse(out.exists())
+            with self.assertRaisesRegex(
+                gate.AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError,
+                "score_row_count",
+            ):
+                gate.write_tsv(payload, gate.pathlib.Path(tmp) / "bad.tsv")
+
 
 if __name__ == "__main__":
     unittest.main()

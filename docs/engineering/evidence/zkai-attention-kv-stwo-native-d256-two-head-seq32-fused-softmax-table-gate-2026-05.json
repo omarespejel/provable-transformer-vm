@@ -180,7 +180,7 @@
   "non_fused_status": "GO_MATCHED_D256_TWO_HEAD_SEQ32_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR_RECORDED",
   "route_id": "local_stwo_attention_kv_d256_two_head_seq32_fused_bounded_softmax_table_logup_proof",
   "schema": "zkai-attention-kv-stwo-native-d256-two-head-seq32-fused-softmax-table-gate-v1",
-  "sidecar_envelope_size_bytes": 36679145,
+  "sidecar_envelope_size_bytes": 36679243,
   "sidecar_issue": 715,
   "sidecar_proof_size_bytes": 34914,
   "source_envelope_size_bytes": 42930889,

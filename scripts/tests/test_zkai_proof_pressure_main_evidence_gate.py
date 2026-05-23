@@ -16,6 +16,9 @@ class ProofPressureMainEvidenceGateTests(unittest.TestCase):
         self.assertEqual(self.payload["decision"], gate.DECISION)
         self.assertIn("TIMING_IS_ENGINEERING_LOCAL", self.payload["claim_boundary"])
         self.assertEqual(self.payload["summary"]["row_count"], 5)
+        self.assertEqual(self.payload["mutations_checked"], len(gate.MUTATION_NAMES))
+        self.assertEqual(self.payload["mutations_rejected"], len(gate.MUTATION_NAMES))
+        self.assertTrue(self.payload["all_mutations_rejected"])
         rows = {row["row_id"]: row for row in self.payload["rows"]}
         h2 = rows["d64_h2_seq32_to_seq64"]
         self.assertEqual(h2["lookup_growth"], 3.72973)
@@ -59,6 +62,33 @@ class ProofPressureMainEvidenceGateTests(unittest.TestCase):
         payload["non_claims"].remove("not a public proving-speed benchmark")
         with self.assertRaisesRegex(gate.ProofPressureMainEvidenceError, "non-claims"):
             gate.validate_payload(payload)
+
+        payload = json.loads(json.dumps(self.payload))
+        payload["rows"][0]["unexpected"] = True
+        with self.assertRaisesRegex(gate.ProofPressureMainEvidenceError, "field drift"):
+            gate.validate_payload(payload)
+
+    def test_individual_mutations_reject(self) -> None:
+        for name in gate.MUTATION_NAMES:
+            mutated = gate.mutate_payload(self.payload, name)
+            with self.assertRaises(gate.ProofPressureMainEvidenceError, msg=name):
+                gate.validate_payload(mutated, require_mutations=False)
+
+    def test_output_paths_reject_same_path_and_symlink_parent(self) -> None:
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-main-evidence-test-") as tmp:
+            tmp_path = gate.pathlib.Path(tmp)
+            same = tmp_path / "same"
+            with self.assertRaisesRegex(gate.ProofPressureMainEvidenceError, "different files"):
+                gate.reject_same_output_paths((same, same, tmp_path / "other.svg"))
+        with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-main-evidence-test-") as inside:
+            with tempfile.TemporaryDirectory() as outside:
+                link = gate.pathlib.Path(inside) / "link"
+                try:
+                    link.symlink_to(outside, target_is_directory=True)
+                except OSError as err:
+                    self.skipTest(f"symlink unavailable: {err}")
+                with self.assertRaisesRegex(gate.ProofPressureMainEvidenceError, "inside evidence dir|symlink"):
+                    gate.write_json(link / "escape.json", self.payload)
 
 
 if __name__ == "__main__":

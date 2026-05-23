@@ -64,6 +64,7 @@ SOURCE_TRACE_ROWS = 2048
 SOURCE_TABLE_ROWS = 9
 
 LOOKUP_PROOF_VERSION = "stwo-attention-kv-d256-two-head-seq32-softmax-table-logup-sidecar-proof-v1"
+LOOKUP_BACKEND_VERSION = "stwo-attention-kv-d256-two-head-seq32-softmax-table-logup-sidecar-v1"
 LOOKUP_STATEMENT_VERSION = "zkai-attention-kv-stwo-native-d256-two-head-seq32-softmax-table-logup-sidecar-statement-v1"
 LOOKUP_SEMANTIC_SCOPE = "d256_two_head_seq32_bounded_softmax_table_membership_constrained_by_native_stwo_logup_sidecar"
 LOOKUP_VERIFIER_DOMAIN = "ptvm:zkai:attention-kv-stwo-native-d256-two-head-seq32-softmax-table-logup-sidecar:v1"
@@ -71,7 +72,7 @@ LOOKUP_TARGET_ID = "attention-kv-d256-two-head-seq32-causal-mask-bounded-softmax
 LOOKUP_RELATION = "AttentionKvD256TwoHeadSeq32SoftmaxTableLookupRelation"
 LOOKUP_RELATION_WIDTH = 2
 LOOKUP_PROOF_SIZE_BYTES = 34_914
-LOOKUP_ENVELOPE_SIZE_BYTES = 36_679_145
+LOOKUP_ENVELOPE_SIZE_BYTES = 36_679_243
 LOOKUP_PROOF_COMMITMENTS = 4
 LOOKUP_TRACE_COMMITMENTS = 3
 LOOKUP_TABLE_MULTIPLICITIES = (
@@ -290,7 +291,13 @@ def verify_lookup_envelope_bytes_with_native_cli(envelope_bytes: bytes, label: s
     cache_key = (digest, len(envelope_bytes))
     if cache_key in _LOOKUP_VERIFY_CACHE:
         return
-    with tempfile.NamedTemporaryFile("wb", suffix=".json", delete=False) as tmp:
+    with tempfile.NamedTemporaryFile(
+        "wb",
+        dir=EVIDENCE_DIR,
+        prefix=".d256-lookup-native-verify.",
+        suffix=".json",
+        delete=False,
+    ) as tmp:
         tmp.write(envelope_bytes)
         tmp_path = pathlib.Path(tmp.name)
     command = [
@@ -393,6 +400,7 @@ def validate_lookup_envelope(envelope: Any, source_input: dict[str, Any], envelo
     allowed = {
         "proof_backend",
         "proof_backend_version",
+        "proof_schema_version",
         "statement_version",
         "semantic_scope",
         "decision",
@@ -406,7 +414,8 @@ def validate_lookup_envelope(envelope: Any, source_input: dict[str, Any], envelo
     if envelope.get("proof_backend") != "stwo":
         raise AttentionKvAirPrivateSoftmaxTableLookupGateError("lookup proof backend drift")
     expected_scalars = {
-        "proof_backend_version": LOOKUP_PROOF_VERSION,
+        "proof_backend_version": LOOKUP_BACKEND_VERSION,
+        "proof_schema_version": LOOKUP_PROOF_VERSION,
         "statement_version": LOOKUP_STATEMENT_VERSION,
         "semantic_scope": LOOKUP_SEMANTIC_SCOPE,
         "decision": "GO_NATIVE_STWO_AIR_CONSTRAINED_SOFTMAX_TABLE_LOOKUP_RELATION_SIDECAR",
@@ -443,7 +452,9 @@ def validate_lookup_envelope(envelope: Any, source_input: dict[str, Any], envelo
     stark_proof = parse_lookup_proof(envelope["proof"])
     return {
         "proof_backend": envelope["proof_backend"],
-        "proof_version": envelope["proof_backend_version"],
+        "proof_backend_version": envelope["proof_backend_version"],
+        "proof_schema_version": envelope["proof_schema_version"],
+        "proof_version": envelope["proof_schema_version"],
         "statement_version": envelope["statement_version"],
         "semantic_scope": envelope["semantic_scope"],
         "verifier_domain": envelope["verifier_domain"],
@@ -694,6 +705,8 @@ def validate_payload(payload: Any, *, allow_missing_mutation_summary: bool = Fal
         raise AttentionKvAirPrivateSoftmaxTableLookupGateError("lookup_receipt must be an object")
     expected_receipt = {
         "proof_backend": "stwo",
+        "proof_backend_version": LOOKUP_BACKEND_VERSION,
+        "proof_schema_version": LOOKUP_PROOF_VERSION,
         "proof_version": LOOKUP_PROOF_VERSION,
         "statement_version": LOOKUP_STATEMENT_VERSION,
         "semantic_scope": LOOKUP_SEMANTIC_SCOPE,
@@ -880,11 +893,21 @@ def atomic_write_text(path: pathlib.Path, text: str, label: str) -> None:
         raise AttentionKvAirPrivateSoftmaxTableLookupGateError(f"failed to write {label} {path}: {err}") from err
 
 
+def reject_same_output_paths(left: pathlib.Path, right: pathlib.Path) -> None:
+    left_checked = checked_output_path(left)
+    right_checked = checked_output_path(right)
+    if left_checked == right_checked:
+        raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+            "--write-json and --write-tsv must point to different files"
+        )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--write-json", type=pathlib.Path, default=JSON_OUT)
     parser.add_argument("--write-tsv", type=pathlib.Path, default=TSV_OUT)
     args = parser.parse_args()
+    reject_same_output_paths(args.write_json, args.write_tsv)
     payload = build_payload()
     write_json(payload, args.write_json)
     write_tsv(payload, args.write_tsv)

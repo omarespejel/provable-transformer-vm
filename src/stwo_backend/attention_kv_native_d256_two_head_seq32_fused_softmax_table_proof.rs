@@ -29,8 +29,10 @@ use super::attention_kv_native_d256_two_head_seq32_bounded_softmax_table_proof::
     zkai_attention_kv_native_d256_two_head_seq32_bounded_softmax_table_input_from_json_str,
     AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableScoreRow,
     ZkAiAttentionKvNativeD256TwoHeadSeq32BoundedSoftmaxTableProofInput,
+    ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_BOUNDED_SOFTMAX_TABLE_CHECKED_PROOF_BYTES,
     ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES,
 };
+use super::attention_kv_native_d256_two_head_seq32_softmax_table_lookup_proof::ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_CHECKED_PROOF_BYTES;
 use super::logup_utils::selector_masked_lookup_fraction_terms as masked_lookup_fraction_terms;
 use crate::error::{Result, VmError};
 use crate::proof::StarkProofBackend;
@@ -57,7 +59,9 @@ pub const ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_FUSED_SOFTMAX_TABLE_MAX_P
 const ISSUE: usize = 715;
 const SOURCE_ISSUE: usize = 715;
 const SIDECAR_ISSUE: usize = 715;
-const SOURCE_PLUS_SIDECAR_RAW_PROOF_BYTES: usize = 816_627 + 34_914;
+const SOURCE_PLUS_SIDECAR_RAW_PROOF_BYTES: usize =
+    ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_BOUNDED_SOFTMAX_TABLE_CHECKED_PROOF_BYTES
+        + ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_CHECKED_PROOF_BYTES;
 const FUSION_STATUS: &str =
     "GO_ONE_NATIVE_STWO_PROOF_OBJECT_WITH_ATTENTION_ARITHMETIC_AND_LOGUP_MEMBERSHIP";
 const NON_FUSED_STATUS: &str =
@@ -1257,6 +1261,11 @@ mod tests {
         assert_eq!(total, input.score_rows.len());
         assert_eq!(summary.source_issue, SOURCE_ISSUE);
         assert_eq!(summary.fusion_status, FUSION_STATUS);
+        assert_eq!(
+            summary.source_plus_sidecar_raw_proof_bytes,
+            ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_BOUNDED_SOFTMAX_TABLE_CHECKED_PROOF_BYTES
+                + ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_CHECKED_PROOF_BYTES
+        );
     }
 
     #[test]

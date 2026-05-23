@@ -7,6 +7,7 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 import pathlib
 import sys
 import tempfile
@@ -67,6 +68,45 @@ MUTATION_NAMES = (
     "d256_timing_decision_drift",
     "evidence_row_smuggling",
     "non_claim_removed",
+)
+EXPECTED_ROW_IDS = (
+    "d64_h2_seq32_to_seq64",
+    "d64_h4_seq32_to_seq64",
+    "d128_h2_seq32_to_seq64",
+    "d128_h4_seq32_to_seq64",
+    "d128_to_d256_h2_seq32_width_stress",
+)
+BASE_ROW_KEYS = {
+    "row_id",
+    "row_kind",
+    "from_profile_id",
+    "to_profile_id",
+    "lookup_growth",
+    "trace_growth",
+    "fused_proof_growth",
+    "split_proof_growth",
+    "fused_prove_growth",
+    "split_prove_growth",
+    "fused_verify_growth",
+    "split_verify_growth",
+    "fused_proof_bytes",
+    "split_proof_bytes",
+    "saving_bytes",
+    "fused_to_split_ratio",
+    "timing_status",
+    "interpretation",
+}
+WIDTH_ROW_EXTRA_KEYS = {
+    "d256_fused_to_split_prove_ratio",
+    "d256_fused_to_split_verify_ratio",
+}
+SEQUENCE_ROW_EXTRA_KEYS = {
+    "source_profile",
+}
+EXPECTED_SOURCE_ARTIFACTS = (
+    ("route_matrix", "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json"),
+    ("d64_sequence_median_timing", "docs/engineering/evidence/zkai-attention-kv-d64-sequence-median-timing-raw-2026-05.json"),
+    ("d256_seq32_median_timing", "docs/engineering/evidence/zkai-attention-kv-d256-two-head-seq32-median-timing-raw-2026-05.json"),
 )
 
 
@@ -266,20 +306,54 @@ def build_payload() -> dict[str, Any]:
             "timing_caveat": "local median timing grows near the work axis, so this is not a speed breakthrough",
         },
         "non_claims": list(NON_CLAIMS),
-        "mutations_checked": len(MUTATION_NAMES),
-        "mutations_rejected": len(MUTATION_NAMES),
-        "all_mutations_rejected": True,
     }
+    validate_payload(payload, require_mutations=False)
+    mutation_results = evaluate_mutations(payload)
+    payload["mutation_results"] = mutation_results
+    payload["mutations_checked"] = len(mutation_results)
+    payload["mutations_rejected"] = sum(1 for row in mutation_results if row["rejected"])
+    payload["all_mutations_rejected"] = payload["mutations_rejected"] == len(MUTATION_NAMES)
     validate_payload(payload)
     return payload
 
 
-def validate_payload(payload: dict[str, Any]) -> None:
+def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True) -> None:
     if payload.get("schema") != SCHEMA or payload.get("decision") != DECISION:
         raise ProofPressureMainEvidenceError("payload identity drift")
+    source_artifacts = payload.get("source_artifacts")
+    if not isinstance(source_artifacts, list) or len(source_artifacts) != len(EXPECTED_SOURCE_ARTIFACTS):
+        raise ProofPressureMainEvidenceError("source artifact drift")
+    for artifact, expected in zip(source_artifacts, EXPECTED_SOURCE_ARTIFACTS, strict=True):
+        expected_id, expected_path = expected
+        if artifact.get("id") != expected_id or artifact.get("path") != expected_path:
+            raise ProofPressureMainEvidenceError("source artifact identity drift")
+        if not isinstance(artifact.get("sha256"), str) or len(artifact["sha256"]) != 64:
+            raise ProofPressureMainEvidenceError("source artifact digest drift")
+        if not isinstance(artifact.get("size_bytes"), int) or artifact["size_bytes"] <= 0:
+            raise ProofPressureMainEvidenceError("source artifact size drift")
     rows = payload.get("rows")
     if not isinstance(rows, list) or len(rows) != 5:
         raise ProofPressureMainEvidenceError("evidence row smuggling")
+    if [row.get("row_id") for row in rows if isinstance(row, dict)] != list(EXPECTED_ROW_IDS):
+        raise ProofPressureMainEvidenceError("evidence row identity drift")
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ProofPressureMainEvidenceError("evidence row type drift")
+        allowed = set(BASE_ROW_KEYS)
+        if row.get("row_kind") == "width_axis":
+            allowed.update(WIDTH_ROW_EXTRA_KEYS)
+        if row.get("row_kind") == "sequence_axis":
+            allowed.update(SEQUENCE_ROW_EXTRA_KEYS)
+        if set(row) != allowed:
+            raise ProofPressureMainEvidenceError(f"evidence row field drift: {row.get('row_id')}")
+        for key in ("lookup_growth", "trace_growth", "fused_proof_growth", "split_proof_growth"):
+            if not isinstance(row.get(key), (int, float)) or row[key] <= 0:
+                raise ProofPressureMainEvidenceError(f"evidence row metric drift: {row.get('row_id')} {key}")
+        for key in ("fused_proof_bytes", "split_proof_bytes", "saving_bytes"):
+            if not isinstance(row.get(key), int) or row[key] <= 0:
+                raise ProofPressureMainEvidenceError(f"evidence row byte drift: {row.get('row_id')} {key}")
+        if row["split_proof_bytes"] - row["fused_proof_bytes"] != row["saving_bytes"]:
+            raise ProofPressureMainEvidenceError(f"evidence row saving drift: {row.get('row_id')}")
     by_id = {row.get("row_id"): row for row in rows}
     d64_h2 = by_id.get("d64_h2_seq32_to_seq64")
     if not isinstance(d64_h2, dict) or d64_h2.get("lookup_growth") != 3.72973:
@@ -298,10 +372,54 @@ def validate_payload(payload: dict[str, Any]) -> None:
         raise ProofPressureMainEvidenceError("d256 timing caveat drift")
     if payload.get("non_claims") != list(NON_CLAIMS):
         raise ProofPressureMainEvidenceError("non-claims drift")
-    if payload.get("mutations_checked") != len(MUTATION_NAMES) or payload.get("mutations_rejected") != len(
-        MUTATION_NAMES
-    ):
-        raise ProofPressureMainEvidenceError("mutation count drift")
+    if require_mutations:
+        results = payload.get("mutation_results")
+        if not isinstance(results, list) or [row.get("name") for row in results] != list(MUTATION_NAMES):
+            raise ProofPressureMainEvidenceError("mutation result drift")
+        if not all(row.get("rejected") is True and isinstance(row.get("error"), str) and row["error"] for row in results):
+            raise ProofPressureMainEvidenceError("mutation rejection drift")
+        if payload.get("mutations_checked") != len(MUTATION_NAMES) or payload.get("mutations_rejected") != len(
+            MUTATION_NAMES
+        ):
+            raise ProofPressureMainEvidenceError("mutation count drift")
+        if payload.get("all_mutations_rejected") is not True:
+            raise ProofPressureMainEvidenceError("mutation summary drift")
+
+
+def mutate_payload(payload: dict[str, Any], name: str) -> dict[str, Any]:
+    mutated = json.loads(json.dumps(payload))
+    mutated.pop("mutation_results", None)
+    mutated.pop("mutations_checked", None)
+    mutated.pop("mutations_rejected", None)
+    mutated.pop("all_mutations_rejected", None)
+    if name == "route_matrix_aggregate_drift":
+        mutated["source_artifacts"][0]["id"] = "wrong_route_matrix"
+    elif name == "d64_timing_sample_count_drift":
+        mutated["source_artifacts"][1]["path"] = "docs/engineering/evidence/wrong.json"
+    elif name == "d64_sequence_growth_drift":
+        mutated["rows"][0]["lookup_growth"] = 3.0
+    elif name == "d256_timing_decision_drift":
+        mutated["rows"][4]["d256_fused_to_split_prove_ratio"] = 0.5
+    elif name == "evidence_row_smuggling":
+        mutated["rows"].append({"row_id": "fake"})
+    elif name == "non_claim_removed":
+        mutated["non_claims"].pop()
+    else:
+        raise ProofPressureMainEvidenceError(f"unknown mutation: {name}")
+    return mutated
+
+
+def evaluate_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    results = []
+    for name in MUTATION_NAMES:
+        mutated = mutate_payload(payload, name)
+        try:
+            validate_payload(mutated, require_mutations=False)
+        except ProofPressureMainEvidenceError as err:
+            results.append({"name": name, "rejected": True, "error": str(err)})
+        else:
+            results.append({"name": name, "rejected": False, "error": "accepted mutated payload"})
+    return results
 
 
 def write_json(path: pathlib.Path, payload: dict[str, Any]) -> None:
@@ -376,14 +494,47 @@ def write_svg(path: pathlib.Path, payload: dict[str, Any]) -> None:
 
 
 def validate_output_path(path: pathlib.Path) -> None:
+    checked_output_path(path)
+
+
+def checked_output_path(path: pathlib.Path) -> pathlib.Path:
     if not path.is_absolute():
         path = ROOT / path
+    path = path.expanduser()
     try:
         path.relative_to(EVIDENCE_DIR)
     except ValueError as err:
         raise ProofPressureMainEvidenceError("output must stay inside evidence dir") from err
+    if path.exists() and path.is_symlink():
+        raise ProofPressureMainEvidenceError("output path must not be a symlink")
     if not path.parent.is_dir():
         raise ProofPressureMainEvidenceError("output parent missing")
+    reject_symlink_components(path.parent)
+    resolved_parent = path.parent.resolve(strict=True)
+    try:
+        resolved_parent.relative_to(EVIDENCE_DIR.resolve(strict=True))
+    except ValueError as err:
+        raise ProofPressureMainEvidenceError("output must stay inside evidence dir") from err
+    return path
+
+
+def reject_symlink_components(path: pathlib.Path) -> None:
+    relative = path.relative_to(EVIDENCE_DIR)
+    current = EVIDENCE_DIR
+    for part in relative.parts:
+        current = current / part
+        try:
+            if current.is_symlink():
+                raise ProofPressureMainEvidenceError(f"output path symlink component: {current}")
+        except OSError as err:
+            raise ProofPressureMainEvidenceError(f"failed to inspect output path component: {current}") from err
+
+
+def reject_same_output_paths(paths: tuple[pathlib.Path, ...]) -> None:
+    checked = [checked_output_path(path) for path in paths]
+    normalized = [os.fspath(path.resolve(strict=False)) for path in checked]
+    if len(set(normalized)) != len(normalized):
+        raise ProofPressureMainEvidenceError("output paths must point to different files")
 
 
 def atomic_write(path: pathlib.Path, text: str) -> None:
@@ -399,6 +550,7 @@ def main() -> None:
     parser.add_argument("--write-tsv", type=pathlib.Path, default=TSV_OUT)
     parser.add_argument("--write-svg", type=pathlib.Path, default=SVG_OUT)
     args = parser.parse_args()
+    reject_same_output_paths((args.write_json, args.write_tsv, args.write_svg))
     payload = build_payload()
     write_json(args.write_json, payload)
     write_tsv(args.write_tsv, payload)

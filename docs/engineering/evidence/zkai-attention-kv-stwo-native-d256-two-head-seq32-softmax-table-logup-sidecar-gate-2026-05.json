@@ -4,13 +4,13 @@
   "decision": "GO_NATIVE_STWO_AIR_CONSTRAINED_D256_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_RELATION_SIDECAR",
   "fixed_d64_two_head_comparison": {
     "claim_count_ratio": "1.000000",
-    "envelope_size_ratio": "3.675759",
+    "envelope_size_ratio": "3.675769",
     "fixed_d64_two_head_lookup_claims": 1184,
     "fixed_d64_two_head_lookup_envelope_size_bytes": 9978658,
     "fixed_d64_two_head_lookup_proof_size_bytes": 36400,
     "proof_size_ratio": "0.959176",
     "seq32_lookup_claims": 1184,
-    "seq32_lookup_envelope_size_bytes": 36679145,
+    "seq32_lookup_envelope_size_bytes": 36679243,
     "seq32_lookup_proof_size_bytes": 34914
   },
   "fused_comparator": {
@@ -28,13 +28,15 @@
   "issue": 715,
   "lookup_receipt": {
     "lookup_claims": 1184,
-    "lookup_envelope_size_bytes": 36679145,
+    "lookup_envelope_size_bytes": 36679243,
     "lookup_proof_commitments": 4,
     "lookup_proof_size_bytes": 34914,
     "lookup_relation": "AttentionKvD256TwoHeadSeq32SoftmaxTableLookupRelation",
     "lookup_relation_width": 2,
     "lookup_trace_commitments": 3,
     "proof_backend": "stwo",
+    "proof_backend_version": "stwo-attention-kv-d256-two-head-seq32-softmax-table-logup-sidecar-v1",
+    "proof_schema_version": "stwo-attention-kv-d256-two-head-seq32-softmax-table-logup-sidecar-proof-v1",
     "proof_version": "stwo-attention-kv-d256-two-head-seq32-softmax-table-logup-sidecar-proof-v1",
     "score_gap_clip": 8,
     "score_rows": 1184,
