@@ -817,7 +817,7 @@ def reject_symlink_components(path: pathlib.Path, label: str) -> None:
     parts = path.parts[1:] if path.anchor else path.parts
     for part in parts:
         current = current / part
-        if current.exists() and current.is_symlink():
+        if current.is_symlink():
             raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
                 f"output path must not contain symlink components: {label}: {current}"
             )
@@ -846,8 +846,10 @@ def checked_output_path(path: pathlib.Path) -> pathlib.Path:
             f"output path must not contain symlink components: {candidate}"
         )
     reject_symlink_components(candidate.parent, "candidate parent")
-    candidate.parent.mkdir(parents=True, exist_ok=True)
-    reject_symlink_components(candidate.parent, "candidate parent")
+    if not candidate.parent.is_dir():
+        raise AttentionKvAirPrivateSoftmaxTableLookupGateError(
+            f"output parent must already exist inside evidence dir: {candidate.parent}"
+        )
     return candidate
 
 

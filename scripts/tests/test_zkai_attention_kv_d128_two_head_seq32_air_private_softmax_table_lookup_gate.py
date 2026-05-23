@@ -214,6 +214,17 @@ class AttentionKvD128TwoHeadSeq32AirPrivateSoftmaxTableLookupGateTests(unittest.
             ):
                 gate.write_tsv(payload, link_path / "lookup-gate.tsv")
 
+    def test_write_outputs_reject_missing_parent_without_creating_it(self):
+        payload = gate.build_payload()
+        with self.evidence_tempdir() as evidence_tmp:
+            missing_parent = gate.pathlib.Path(evidence_tmp) / "missing"
+            with self.assertRaisesRegex(
+                gate.AttentionKvAirPrivateSoftmaxTableLookupGateError,
+                "output parent must already exist",
+            ):
+                gate.write_json(payload, missing_parent / "lookup-gate.json")
+            self.assertFalse(missing_parent.exists())
+
 
 if __name__ == "__main__":
     unittest.main()
