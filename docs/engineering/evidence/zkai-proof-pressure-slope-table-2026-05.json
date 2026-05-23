@@ -15,6 +15,11 @@
       "rejected": true
     },
     {
+      "error": "source artifact digest drift",
+      "name": "source_digest_drift",
+      "rejected": true
+    },
+    {
       "error": "sequence work-growth drift",
       "name": "d64_sequence_growth_drift",
       "rejected": true
@@ -30,8 +35,13 @@
       "rejected": true
     },
     {
-      "error": "summary d256 timing drift",
+      "error": "summary d256_width_fused_prove_ratio drift",
       "name": "d256_width_timing_drift",
+      "rejected": true
+    },
+    {
+      "error": "slope row outcome drift",
+      "name": "outcome_overclaim",
       "rejected": true
     },
     {
@@ -45,8 +55,8 @@
       "rejected": true
     }
   ],
-  "mutations_checked": 8,
-  "mutations_rejected": 8,
+  "mutations_checked": 10,
+  "mutations_rejected": 10,
   "non_claims": [
     "not a full transformer block proof",
     "not a public proving-speed benchmark",

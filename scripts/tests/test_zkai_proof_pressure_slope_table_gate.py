@@ -25,6 +25,9 @@ class ProofPressureSlopeTableGateTests(unittest.TestCase):
         self.assertEqual(self.payload["summary"]["d256_width_fused_prove_ratio"], 1.154002)
         self.assertEqual(self.payload["summary"]["d256_width_fused_verify_ratio"], 1.198076)
         self.assertIn("scoped_d128_seq32_transformer_block_boundary_preflight", self.payload["summary"]["recommended_next_gate"])
+        self.assertEqual(self.payload["mutations_checked"], len(gate.MUTATION_NAMES))
+        sources = {artifact["id"]: artifact for artifact in self.payload["source_artifacts"]}
+        self.assertEqual(sources["route_matrix"]["sha256"], gate.EXPECTED_SOURCE_DIGESTS["route_matrix"])
 
     def test_binds_key_rows(self) -> None:
         rows = {row["row_id"]: row for row in self.payload["rows"]}
@@ -33,6 +36,7 @@ class ProofPressureSlopeTableGateTests(unittest.TestCase):
         self.assertEqual(head["trace_growth"], 4.0)
         self.assertEqual(head["fused_proof_growth"], 0.999457)
         self.assertEqual(head["target_saving_bytes"], 23089)
+        self.assertEqual(head["outcome"], gate.EXPECTED_OUTCOMES["d64_h1_to_h4_seq16_head_axis"])
 
         d128_seq = rows["d128_h4_seq32_to_seq64_sequence_axis"]
         self.assertEqual(d128_seq["lookup_growth"], 3.72973)
@@ -47,6 +51,7 @@ class ProofPressureSlopeTableGateTests(unittest.TestCase):
         self.assertEqual(d256["fused_proof_growth"], 1.842162)
         self.assertEqual(d256["saving_growth"], 0.930684)
         self.assertEqual(d256["target_fused_to_split_ratio"], 0.964602)
+        self.assertEqual(d256["outcome"], gate.EXPECTED_OUTCOMES["d128_to_d256_h2_seq32_width_axis"])
 
     def test_individual_mutations_reject(self) -> None:
         for name in gate.MUTATION_NAMES:
@@ -80,9 +85,27 @@ class ProofPressureSlopeTableGateTests(unittest.TestCase):
             same = gate.pathlib.Path(tmp) / "same"
             with self.assertRaisesRegex(gate.ProofPressureSlopeTableError, "different files"):
                 gate.reject_same_output_paths((same, same, gate.pathlib.Path(tmp) / "other.md"))
+            same_rel = same.relative_to(gate.ROOT)
+            with self.assertRaisesRegex(gate.ProofPressureSlopeTableError, "different files"):
+                gate.checked_output_paths(same_rel, same, gate.MD_OUT)
         with tempfile.TemporaryDirectory() as tmp:
+            outside = gate.pathlib.Path(tmp)
+            absolute_cases = (
+                (gate.write_json, outside / "escape.json"),
+                (gate.write_tsv, outside / "escape.tsv"),
+                (gate.write_md, outside / "escape.md"),
+            )
+            for writer, path in absolute_cases:
+                with self.assertRaisesRegex(gate.ProofPressureSlopeTableError, "inside"):
+                    writer(path, self.payload)
+        traversal_cases = (
+            (gate.write_json, gate.EVIDENCE_DIR.relative_to(gate.ROOT) / ".." / "escape.json"),
+            (gate.write_tsv, gate.EVIDENCE_DIR.relative_to(gate.ROOT) / ".." / "escape.tsv"),
+            (gate.write_md, gate.DOCS_DIR.relative_to(gate.ROOT) / ".." / "escape.md"),
+        )
+        for writer, path in traversal_cases:
             with self.assertRaisesRegex(gate.ProofPressureSlopeTableError, "inside"):
-                gate.write_json(gate.pathlib.Path(tmp) / "escape.json", self.payload)
+                writer(path, self.payload)
 
 
 if __name__ == "__main__":

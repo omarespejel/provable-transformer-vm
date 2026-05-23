@@ -79,16 +79,40 @@ SOURCE_ARTIFACTS = (
     ("d64_sequence_median_timing", D64_TIMING_PATH),
     ("d256_seq32_median_timing", D256_TIMING_PATH),
 )
+EXPECTED_SOURCE_DIGESTS = {
+    "route_matrix": "f8da6eb33454011e3ef20b7b80cdcce4ff9086764d7b4a3868c684046b434701",
+    "main_evidence": "698e07150c77821ef705b4858e9fcbac0f4de4037afd1bd6628b8546901e085c",
+    "d64_sequence_median_timing": "6a752b68149ba2a80d28ed14b829c0e2975193530bc6d2de1f02384ed3135702",
+    "d256_seq32_median_timing": "39f5392cdb060e9c7d8274ee2603120680cf9cb8f09d5675a69710a107cd5d81",
+}
+EXPECTED_SOURCE_SIZES = {
+    "route_matrix": 92_871,
+    "main_evidence": 6_821,
+    "d64_sequence_median_timing": 20_998,
+    "d256_seq32_median_timing": 5_388,
+}
 MUTATION_NAMES = (
     "route_matrix_row_count_drift",
     "main_evidence_row_count_drift",
+    "source_digest_drift",
     "d64_sequence_growth_drift",
     "d128_sequence_growth_drift",
     "d64_head_axis_drift",
     "d256_width_timing_drift",
+    "outcome_overclaim",
     "non_claim_removed",
     "full_block_overclaim",
 )
+EXPECTED_OUTCOMES = {
+    "d64_h1_to_h4_seq16_head_axis": "GO_HEAD_AXIS_LOOKUP_PRESSURE_AMORTIZED",
+    "d64_h2_seq32_to_seq64_sequence_axis": "GO_SEQUENCE_AXIS_LOOKUP_PRESSURE_AMORTIZED_WITH_TIMING_CAVEAT",
+    "d64_h4_seq32_to_seq64_sequence_axis": "GO_SEQUENCE_AXIS_LOOKUP_PRESSURE_AMORTIZED_WITH_TIMING_CAVEAT",
+    "d128_h2_seq32_to_seq64_sequence_axis": "GO_SEQUENCE_AXIS_PROOF_SIZE_ONLY_TIMING_NOT_MEASURED",
+    "d128_h4_seq32_to_seq64_sequence_axis": "GO_SEQUENCE_AXIS_PROOF_SIZE_ONLY_TIMING_NOT_MEASURED",
+    "d64_to_d128_h1_seq16_width_axis": "CAUTION_WIDTH_AXIS_PROOF_BYTES_GROW_BUT_FUSED_STILL_BEATS_SPLIT",
+    "d64_to_d128_h2_seq32_width_axis": "CAUTION_WIDTH_AXIS_PROOF_BYTES_GROW_BUT_FUSED_STILL_BEATS_SPLIT",
+    "d128_to_d256_h2_seq32_width_axis": "CAUTION_WIDTH_AXIS_SAVING_WEAKENS_AND_TIMING_IS_NOT_A_SPEED_WIN",
+}
 OUTCOME_LABELS = {
     "GO_HEAD_AXIS_LOOKUP_PRESSURE_AMORTIZED": "Go: head-axis lookup pressure amortized",
     "GO_SEQUENCE_AXIS_LOOKUP_PRESSURE_AMORTIZED_WITH_TIMING_CAVEAT": (
@@ -103,6 +127,24 @@ OUTCOME_LABELS = {
     "CAUTION_WIDTH_AXIS_SAVING_WEAKENS_AND_TIMING_IS_NOT_A_SPEED_WIN": (
         "Caution: width saving weakens and timing is not a speed win"
     ),
+}
+EXPECTED_SUMMARY = {
+    "row_count": 8,
+    "sequence_rows": 4,
+    "width_rows": 3,
+    "head_rows": 1,
+    "sequence_lookup_growth": 3.72973,
+    "sequence_trace_growth": 4.0,
+    "sequence_fused_proof_growth_min": 1.06491,
+    "sequence_fused_proof_growth_max": 1.080697,
+    "head_axis_d64_seq16_lookup_growth": 4.0,
+    "head_axis_d64_seq16_fused_proof_growth": 0.999457,
+    "d256_width_saving_bytes": 30_143,
+    "d256_width_fused_to_split_ratio": 0.964602,
+    "d256_width_fused_prove_ratio": 1.154002,
+    "d256_width_fused_verify_ratio": 1.198076,
+    "interpretation": "sequence and head lookup pressure amortize in proof bytes; width pressure remains costly",
+    "recommended_next_gate": NEXT_GATE,
 }
 
 
@@ -226,7 +268,7 @@ def build_rows(route: dict[str, Any], main_evidence: dict[str, Any]) -> list[dic
             axis="head",
             from_profile_id="d64_single_head_seq16",
             to_profile_id="d64_four_head_seq16",
-            outcome="GO_HEAD_AXIS_LOOKUP_PRESSURE_AMORTIZED",
+            outcome=EXPECTED_OUTCOMES["d64_h1_to_h4_seq16_head_axis"],
         ),
         pair_row(
             route,
@@ -234,7 +276,7 @@ def build_rows(route: dict[str, Any], main_evidence: dict[str, Any]) -> list[dic
             axis="sequence",
             from_profile_id="d64_two_head_seq32",
             to_profile_id="d64_two_head_seq64",
-            outcome="GO_SEQUENCE_AXIS_LOOKUP_PRESSURE_AMORTIZED_WITH_TIMING_CAVEAT",
+            outcome=EXPECTED_OUTCOMES["d64_h2_seq32_to_seq64_sequence_axis"],
             timing_row=d64_h2,
         ),
         pair_row(
@@ -243,7 +285,7 @@ def build_rows(route: dict[str, Any], main_evidence: dict[str, Any]) -> list[dic
             axis="sequence",
             from_profile_id="d64_four_head_seq32",
             to_profile_id="d64_four_head_seq64",
-            outcome="GO_SEQUENCE_AXIS_LOOKUP_PRESSURE_AMORTIZED_WITH_TIMING_CAVEAT",
+            outcome=EXPECTED_OUTCOMES["d64_h4_seq32_to_seq64_sequence_axis"],
             timing_row=d64_h4,
         ),
         pair_row(
@@ -252,7 +294,7 @@ def build_rows(route: dict[str, Any], main_evidence: dict[str, Any]) -> list[dic
             axis="sequence",
             from_profile_id="d128_two_head_seq32",
             to_profile_id="d128_two_head_seq64",
-            outcome="GO_SEQUENCE_AXIS_PROOF_SIZE_ONLY_TIMING_NOT_MEASURED",
+            outcome=EXPECTED_OUTCOMES["d128_h2_seq32_to_seq64_sequence_axis"],
         ),
         pair_row(
             route,
@@ -260,7 +302,7 @@ def build_rows(route: dict[str, Any], main_evidence: dict[str, Any]) -> list[dic
             axis="sequence",
             from_profile_id="d128_four_head_seq32",
             to_profile_id="d128_four_head_seq64",
-            outcome="GO_SEQUENCE_AXIS_PROOF_SIZE_ONLY_TIMING_NOT_MEASURED",
+            outcome=EXPECTED_OUTCOMES["d128_h4_seq32_to_seq64_sequence_axis"],
         ),
         pair_row(
             route,
@@ -268,7 +310,7 @@ def build_rows(route: dict[str, Any], main_evidence: dict[str, Any]) -> list[dic
             axis="width",
             from_profile_id="d64_single_head_seq16",
             to_profile_id="d128_single_head_seq16",
-            outcome="CAUTION_WIDTH_AXIS_PROOF_BYTES_GROW_BUT_FUSED_STILL_BEATS_SPLIT",
+            outcome=EXPECTED_OUTCOMES["d64_to_d128_h1_seq16_width_axis"],
         ),
         pair_row(
             route,
@@ -276,7 +318,7 @@ def build_rows(route: dict[str, Any], main_evidence: dict[str, Any]) -> list[dic
             axis="width",
             from_profile_id="d64_two_head_seq32",
             to_profile_id="d128_two_head_seq32",
-            outcome="CAUTION_WIDTH_AXIS_PROOF_BYTES_GROW_BUT_FUSED_STILL_BEATS_SPLIT",
+            outcome=EXPECTED_OUTCOMES["d64_to_d128_h2_seq32_width_axis"],
         ),
         pair_row(
             route,
@@ -284,7 +326,7 @@ def build_rows(route: dict[str, Any], main_evidence: dict[str, Any]) -> list[dic
             axis="width",
             from_profile_id="d128_two_head_seq32",
             to_profile_id="d256_two_head_seq32",
-            outcome="CAUTION_WIDTH_AXIS_SAVING_WEAKENS_AND_TIMING_IS_NOT_A_SPEED_WIN",
+            outcome=EXPECTED_OUTCOMES["d128_to_d256_h2_seq32_width_axis"],
         ),
     ]
 
@@ -293,18 +335,12 @@ def validate_rows(rows: list[dict[str, Any]]) -> None:
     if len(rows) != 8:
         raise ProofPressureSlopeTableError("slope row count drift")
     by_id = {row["row_id"]: row for row in rows}
-    expected = {
-        "d64_h1_to_h4_seq16_head_axis",
-        "d64_h2_seq32_to_seq64_sequence_axis",
-        "d64_h4_seq32_to_seq64_sequence_axis",
-        "d128_h2_seq32_to_seq64_sequence_axis",
-        "d128_h4_seq32_to_seq64_sequence_axis",
-        "d64_to_d128_h1_seq16_width_axis",
-        "d64_to_d128_h2_seq32_width_axis",
-        "d128_to_d256_h2_seq32_width_axis",
-    }
+    expected = set(EXPECTED_OUTCOMES)
     if set(by_id) != expected:
         raise ProofPressureSlopeTableError("slope row identity drift")
+    for row_id, outcome in EXPECTED_OUTCOMES.items():
+        if by_id[row_id].get("outcome") != outcome:
+            raise ProofPressureSlopeTableError("slope row outcome drift")
     if by_id["d64_h1_to_h4_seq16_head_axis"]["lookup_growth"] != 4.0:
         raise ProofPressureSlopeTableError("d64 head-axis lookup drift")
     if by_id["d64_h1_to_h4_seq16_head_axis"]["fused_proof_growth"] != 0.999457:
@@ -397,19 +433,22 @@ def validate_payload(payload: dict[str, Any], *, require_mutations: bool = True)
     for artifact, (artifact_id, path) in zip(source_artifacts, SOURCE_ARTIFACTS, strict=True):
         if artifact.get("id") != artifact_id or artifact.get("path") != path.relative_to(ROOT).as_posix():
             raise ProofPressureSlopeTableError("source artifact identity drift")
-        if not isinstance(artifact.get("sha256"), str) or len(artifact["sha256"]) != 64:
+        if artifact.get("sha256") != EXPECTED_SOURCE_DIGESTS[artifact_id]:
             raise ProofPressureSlopeTableError("source artifact digest drift")
+        if artifact.get("size_bytes") != EXPECTED_SOURCE_SIZES[artifact_id]:
+            raise ProofPressureSlopeTableError("source artifact size drift")
     rows = payload.get("rows")
     if not isinstance(rows, list):
         raise ProofPressureSlopeTableError("rows missing")
     validate_rows(rows)
     summary = payload.get("summary")
-    if not isinstance(summary, dict) or summary.get("recommended_next_gate") != NEXT_GATE:
-        raise ProofPressureSlopeTableError("summary next-gate drift")
-    if summary.get("sequence_fused_proof_growth_max") != 1.080697:
-        raise ProofPressureSlopeTableError("summary sequence slope drift")
-    if summary.get("d256_width_fused_prove_ratio") != 1.154002:
-        raise ProofPressureSlopeTableError("summary d256 timing drift")
+    if not isinstance(summary, dict):
+        raise ProofPressureSlopeTableError("summary missing")
+    if set(summary) != set(EXPECTED_SUMMARY):
+        raise ProofPressureSlopeTableError("summary key drift")
+    for key, expected in EXPECTED_SUMMARY.items():
+        if summary.get(key) != expected:
+            raise ProofPressureSlopeTableError(f"summary {key} drift")
     if require_mutations:
         results = payload.get("mutation_results")
         if not isinstance(results, list) or [row.get("name") for row in results] != list(MUTATION_NAMES):
@@ -431,6 +470,8 @@ def mutate_payload(payload: dict[str, Any], name: str) -> dict[str, Any]:
         mutated["source_artifacts"][0]["id"] = "wrong_route_matrix"
     elif name == "main_evidence_row_count_drift":
         mutated["source_artifacts"][1]["path"] = "docs/engineering/evidence/wrong.json"
+    elif name == "source_digest_drift":
+        mutated["source_artifacts"][0]["sha256"] = "0" * 64
     elif name == "d64_sequence_growth_drift":
         rows["d64_h2_seq32_to_seq64_sequence_axis"]["lookup_growth"] = 3.0
     elif name == "d128_sequence_growth_drift":
@@ -439,6 +480,8 @@ def mutate_payload(payload: dict[str, Any], name: str) -> dict[str, Any]:
         rows["d64_h1_to_h4_seq16_head_axis"]["fused_proof_growth"] = 1.01
     elif name == "d256_width_timing_drift":
         mutated["summary"]["d256_width_fused_prove_ratio"] = 0.9
+    elif name == "outcome_overclaim":
+        rows["d128_to_d256_h2_seq32_width_axis"]["outcome"] = "GO_WIDTH_AXIS_FREE"
     elif name == "non_claim_removed":
         mutated["non_claims"].pop()
     elif name == "full_block_overclaim":
@@ -485,6 +528,20 @@ def reject_same_output_paths(paths: tuple[pathlib.Path, ...]) -> None:
     normalized = [os.fspath(path.resolve(strict=False)) for path in paths]
     if len(set(normalized)) != len(normalized):
         raise ProofPressureSlopeTableError("output paths must point to different files")
+
+
+def checked_output_paths(
+    json_path: pathlib.Path,
+    tsv_path: pathlib.Path,
+    md_path: pathlib.Path,
+) -> tuple[pathlib.Path, pathlib.Path, pathlib.Path]:
+    checked = (
+        checked_output_path(json_path, EVIDENCE_DIR),
+        checked_output_path(tsv_path, EVIDENCE_DIR),
+        checked_output_path(md_path, DOCS_DIR),
+    )
+    reject_same_output_paths(checked)
+    return checked
 
 
 def atomic_write(path: pathlib.Path, text: str) -> None:
@@ -630,11 +687,11 @@ def main() -> None:
     parser.add_argument("--write-tsv", type=pathlib.Path, default=TSV_OUT)
     parser.add_argument("--write-md", type=pathlib.Path, default=MD_OUT)
     args = parser.parse_args()
-    reject_same_output_paths((args.write_json, args.write_tsv, args.write_md))
+    json_path, tsv_path, md_path = checked_output_paths(args.write_json, args.write_tsv, args.write_md)
     payload = build_payload()
-    write_json(args.write_json, payload)
-    write_tsv(args.write_tsv, payload)
-    write_md(args.write_md, payload)
+    write_json(json_path, payload)
+    write_tsv(tsv_path, payload)
+    write_md(md_path, payload)
     print(json.dumps(payload["summary"], indent=2, sort_keys=True))
 
 
