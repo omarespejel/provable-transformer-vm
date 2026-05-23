@@ -24,14 +24,14 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
     def test_records_wide_grid_as_falsification_target_not_result(self):
         payload = self.payload
         self.assertEqual(payload["decision"], gate.DECISION)
-        self.assertIn("D128_HAS_ONE_SOURCE_BACKED_SEQ32_ROW", payload["claim_boundary"])
+        self.assertIn("D128_HAS_TWO_SOURCE_BACKED_TWO_HEAD_ROWS", payload["claim_boundary"])
         requested = payload["requested_grid_signal"]
         self.assertEqual(requested["requested_widths"], [64, 128, 256])
         self.assertEqual(requested["requested_head_counts"], [1, 2, 4])
         self.assertEqual(requested["requested_sequences"], [16, 32, 64])
         self.assertEqual(requested["requested_cell_count"], 27)
-        self.assertEqual(requested["source_backed_requested_cell_count"], 8)
-        self.assertEqual(requested["missing_requested_cell_count"], 19)
+        self.assertEqual(requested["source_backed_requested_cell_count"], 9)
+        self.assertEqual(requested["missing_requested_cell_count"], 18)
         self.assertEqual(
             requested["source_backed_requested_profile_ids"],
             [
@@ -43,10 +43,11 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
                 "d64_h4_seq32",
                 "d64_h4_seq64",
                 "d128_h2_seq32",
+                "d128_h2_seq64",
             ],
         )
         self.assertEqual(requested["fully_missing_requested_widths"], [256])
-        self.assertEqual(requested["selector_status"], "PARTIAL_D64_AND_ONE_D128_SOURCE_BACKED_D256_MISSING")
+        self.assertEqual(requested["selector_status"], "PARTIAL_D64_AND_TWO_D128_SOURCE_BACKED_D256_MISSING")
         status_by_id = {row["profile_id"]: row["selector_status"] for row in requested["requested_rows"]}
         self.assertEqual(status_by_id["d64_h2_seq16"], "SOURCE_BACKED_ATTENTION_ROUTE_ROW")
         self.assertEqual(status_by_id["d64_h2_seq32"], "SOURCE_BACKED_ATTENTION_ROUTE_ROW")
@@ -56,16 +57,16 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         self.assertEqual(status_by_id["d64_h4_seq64"], "SOURCE_BACKED_ATTENTION_ROUTE_ROW")
         self.assertEqual(status_by_id["d64_h1_seq16"], "SOURCE_BACKED_ATTENTION_ROUTE_ROW")
         self.assertEqual(status_by_id["d128_h2_seq32"], "SOURCE_BACKED_ATTENTION_ROUTE_ROW")
-        self.assertEqual(status_by_id["d128_h2_seq64"], "MISSING_SOURCE_BACKED_ATTENTION_ROUTE_ROW")
+        self.assertEqual(status_by_id["d128_h2_seq64"], "SOURCE_BACKED_ATTENTION_ROUTE_ROW")
 
     def test_binds_current_route_matrix_signal(self):
         current = self.payload["current_signal"]
-        self.assertEqual(current["checked_attention_route_rows"], 25)
+        self.assertEqual(current["checked_attention_route_rows"], 26)
         self.assertEqual(current["checked_widths"], [8, 16, 32, 64, 128])
         self.assertEqual(current["checked_sequences"], [8, 16, 32, 64])
-        self.assertEqual(current["raw_fused_bytes_total"], 3752538)
-        self.assertEqual(current["raw_split_bytes_total"], 4348870)
-        self.assertEqual(current["raw_saving_bytes_total"], 596332)
+        self.assertEqual(current["raw_fused_bytes_total"], 4234408)
+        self.assertEqual(current["raw_split_bytes_total"], 4871057)
+        self.assertEqual(current["raw_saving_bytes_total"], 636649)
         self.assertEqual(
             current["checked_requested_profile_ids"],
             [
@@ -77,6 +78,7 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
                 "d64_h4_seq32",
                 "d64_h4_seq64",
                 "d128_h2_seq32",
+                "d128_h2_seq64",
             ],
         )
         self.assertEqual(current["fully_missing_requested_widths"], [256])
@@ -141,12 +143,28 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         self.assertEqual(d128_width["fused_raw_proof_growth"], 1.760615)
         self.assertEqual(d128_width["split_raw_proof_growth"], 1.677561)
         self.assertEqual(d128_width["saving_growth"], 1.017051)
+        d128_sequence = current["d128_two_head_seq32_to_seq64"]
+        self.assertEqual(d128_sequence["lookup_claim_growth"], 3.72973)
+        self.assertEqual(d128_sequence["trace_row_growth"], 4.0)
+        self.assertEqual(d128_sequence["source_raw_proof_growth"], 1.075591)
+        self.assertEqual(d128_sequence["sidecar_raw_proof_growth"], 1.297172)
+        self.assertEqual(d128_sequence["fused_raw_proof_growth"], 1.080697)
+        self.assertEqual(d128_sequence["split_raw_proof_growth"], 1.091811)
+        self.assertEqual(d128_sequence["saving_growth"], 1.244813)
+        d128_seq64_width = current["d64_to_d128_two_head_seq64_width_frontier"]
+        self.assertEqual(d128_seq64_width["lookup_claim_growth"], 1.0)
+        self.assertEqual(d128_seq64_width["trace_row_growth"], 1.0)
+        self.assertEqual(d128_seq64_width["source_raw_proof_growth"], 1.803206)
+        self.assertEqual(d128_seq64_width["sidecar_raw_proof_growth"], 1.066883)
+        self.assertEqual(d128_seq64_width["fused_raw_proof_growth"], 1.767448)
+        self.assertEqual(d128_seq64_width["split_raw_proof_growth"], 1.701101)
+        self.assertEqual(d128_seq64_width["saving_growth"], 1.174259)
         accounting = current["accounting_triplet_signal"]
         self.assertEqual(accounting["attention_typed_rows"], 10)
         self.assertEqual(accounting["attention_typed_bytes_total"], 234296)
         self.assertEqual(accounting["attention_typed_savings_bytes_total"], 51288)
         self.assertEqual(accounting["attention_json_bytes_total"], 629466)
-        self.assertEqual(accounting["attention_raw_proof_savings_bytes_total"], 596332)
+        self.assertEqual(accounting["attention_raw_proof_savings_bytes_total"], 636649)
         self.assertEqual(accounting["binary_raw_available_rows"], 2)
         self.assertEqual(accounting["binary_raw_missing_rows"], 10)
         self.assertEqual(accounting["current_best_inner_policy_bound_row"]["typed_bytes"], 39516)
@@ -154,13 +172,13 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
     def test_selects_d128_first_after_single_head_anchor_landed(self):
         candidates = self.payload["candidate_order"]
         self.assertEqual([row["profile_id"] for row in candidates], [
-            "d128_h2_seq64",
+            "d128_h4_seq32",
             "d128_h1_seq16",
             "d256_h2_seq32",
         ])
         first = candidates[0]
-        self.assertEqual(first["selector_status"], "NEXT_D128_SEQUENCE_FRONTIER_AFTER_D128_SEQ32_GO")
-        self.assertIn("d128 seq32", first["why_this_row"])
+        self.assertEqual(first["selector_status"], "NEXT_D128_HEAD_AXIS_AFTER_D128_SEQ64_GO")
+        self.assertIn("d128 two-head rows", first["why_this_row"])
 
     def test_all_declared_mutations_reject(self):
         mutation = self.payload["mutation_result"]
@@ -179,7 +197,7 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
 
     def test_validate_rejects_wide_row_smuggling(self):
         payload = copy.deepcopy(self.payload)
-        payload["requested_grid_signal"]["source_backed_requested_cell_count"] = 9
+        payload["requested_grid_signal"]["source_backed_requested_cell_count"] = 10
         with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "wide row smuggling"):
             gate.validate_payload(payload, self.expected_source_artifacts)
 
@@ -269,8 +287,8 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
             gate.write_tsv(tsv_path, self.payload, self.expected_source_artifacts)
             self.assertEqual(json.loads(json_path.read_text(encoding="utf-8"))["schema"], gate.SCHEMA)
             tsv = tsv_path.read_text(encoding="utf-8")
-            self.assertIn("d128_h2_seq64", tsv)
-            self.assertIn("NEXT_D128_SEQUENCE_FRONTIER_AFTER_D128_SEQ32_GO", tsv)
+            self.assertIn("d128_h4_seq32", tsv)
+            self.assertIn("NEXT_D128_HEAD_AXIS_AFTER_D128_SEQ64_GO", tsv)
 
     def test_write_outputs_reject_absolute_outside_evidence_dir(self):
         with tempfile.TemporaryDirectory() as tmp:

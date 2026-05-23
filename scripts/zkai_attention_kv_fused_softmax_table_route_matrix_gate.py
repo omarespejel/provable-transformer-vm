@@ -42,6 +42,7 @@ from scripts import zkai_attention_kv_d64_two_head_longseq_fused_softmax_table_n
 from scripts import zkai_attention_kv_d64_two_head_seq32_fused_softmax_table_native_gate as d64_two_head_seq32_fused
 from scripts import zkai_attention_kv_d64_two_head_seq64_fused_softmax_table_native_gate as d64_two_head_seq64_fused
 from scripts import zkai_attention_kv_d128_two_head_seq32_fused_softmax_table_native_gate as d128_two_head_seq32_fused
+from scripts import zkai_attention_kv_d128_two_head_seq64_fused_softmax_table_native_gate as d128_two_head_seq64_fused
 from scripts import zkai_attention_kv_d8_fused_softmax_table_native_gate as d8_fused
 from scripts import zkai_attention_kv_eight_head_fused_softmax_table_native_gate as eight_head_fused
 from scripts import zkai_attention_kv_four_head_fused_softmax_table_native_gate as four_head_fused
@@ -132,6 +133,7 @@ EXPECTED_MUTATION_NAMES = (
     "d64_four_head_seq32_falsification_axis_metric_smuggling",
     "d64_four_head_seq64_decision_gate_metric_smuggling",
     "d128_two_head_seq32_width_frontier_metric_smuggling",
+    "d128_two_head_seq64_sequence_frontier_metric_smuggling",
     "axis_summary_width_ratio_drift",
     "axis_summary_width_extension_ratio_drift",
     "axis_summary_head_axis_ratio_drift",
@@ -154,6 +156,8 @@ EXPECTED_MUTATION_NAMES = (
     "axis_summary_d64_sequence_extension_ratio_drift",
     "axis_summary_d64_four_head_sequence_extension_ratio_drift",
     "axis_summary_d128_seq32_width_frontier_ratio_drift",
+    "axis_summary_d128_sequence_frontier_ratio_drift",
+    "axis_summary_d128_seq64_width_frontier_ratio_drift",
     "unknown_field_injection",
 )
 
@@ -503,6 +507,19 @@ PROFILES = (
         expected_steps_per_head=32,
         comparator_required=True,
     ),
+    Profile(
+        profile_id="d128_two_head_seq64",
+        axis_role="combined_width_head_sequence_axis_d128_seq64_sequence_frontier",
+        label="d128 two-head seq64 fused Softmax-table route",
+        gate_module=d128_two_head_seq64_fused,
+        gate_json=d128_two_head_seq64_fused.JSON_OUT,
+        source_input_json=d128_two_head_seq64_fused.SOURCE_INPUT_JSON,
+        expected_key_width=128,
+        expected_value_width=128,
+        expected_head_count=2,
+        expected_steps_per_head=64,
+        comparator_required=True,
+    ),
 )
 PROFILE_IDS = tuple(profile.profile_id for profile in PROFILES)
 
@@ -714,6 +731,7 @@ def build_axis_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     d64_four_seq32 = row_by_id(rows, "d64_four_head_seq32")
     d64_four_seq64 = row_by_id(rows, "d64_four_head_seq64")
     d128_two_seq32 = row_by_id(rows, "d128_two_head_seq32")
+    d128_two_seq64 = row_by_id(rows, "d128_two_head_seq64")
     return {
         "width_axis_d8_to_d16": {
             "held_constant": "single_head_seq8_score_rows_52_trace_rows_64",
@@ -1691,6 +1709,102 @@ def build_axis_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             ),
             "matched_comparator_status": d128_two_seq32["matched_source_sidecar_status"],
         },
+        "combined_width_head_sequence_axis_d128_sequence_frontier": {
+            "held_constant": "key_width_128_head_count_2_bounded_softmax_table_kernel_with_sequence_axis_extended",
+            "profile_ids": ["d128_two_head_seq32", "d128_two_head_seq64"],
+            "steps_per_head": [d128_two_seq32["steps_per_head"], d128_two_seq64["steps_per_head"]],
+            "lookup_claims": [d128_two_seq32["lookup_claims"], d128_two_seq64["lookup_claims"]],
+            "trace_rows": [d128_two_seq32["trace_rows"], d128_two_seq64["trace_rows"]],
+            "source_proof_size_bytes": [
+                d128_two_seq32["source_proof_size_bytes"],
+                d128_two_seq64["source_proof_size_bytes"],
+            ],
+            "sidecar_proof_size_bytes": [
+                d128_two_seq32["sidecar_proof_size_bytes"],
+                d128_two_seq64["sidecar_proof_size_bytes"],
+            ],
+            "fused_proof_size_bytes": [
+                d128_two_seq32["fused_proof_size_bytes"],
+                d128_two_seq64["fused_proof_size_bytes"],
+            ],
+            "source_plus_sidecar_raw_proof_bytes": [
+                d128_two_seq32["source_plus_sidecar_raw_proof_bytes"],
+                d128_two_seq64["source_plus_sidecar_raw_proof_bytes"],
+            ],
+            "fused_to_source_plus_sidecar_ratios": [
+                d128_two_seq32["fused_to_source_plus_sidecar_ratio"],
+                d128_two_seq64["fused_to_source_plus_sidecar_ratio"],
+            ],
+            "seq32_to_seq64_steps_ratio": ratio(d128_two_seq64["steps_per_head"], d128_two_seq32["steps_per_head"]),
+            "seq32_to_seq64_lookup_claim_ratio": ratio(d128_two_seq64["lookup_claims"], d128_two_seq32["lookup_claims"]),
+            "seq32_to_seq64_trace_row_ratio": ratio(d128_two_seq64["trace_rows"], d128_two_seq32["trace_rows"]),
+            "seq32_to_seq64_source_proof_size_ratio": ratio(
+                d128_two_seq64["source_proof_size_bytes"], d128_two_seq32["source_proof_size_bytes"]
+            ),
+            "seq32_to_seq64_sidecar_proof_size_ratio": ratio(
+                d128_two_seq64["sidecar_proof_size_bytes"], d128_two_seq32["sidecar_proof_size_bytes"]
+            ),
+            "seq32_to_seq64_fused_proof_size_ratio": ratio(
+                d128_two_seq64["fused_proof_size_bytes"], d128_two_seq32["fused_proof_size_bytes"]
+            ),
+            "seq32_to_seq64_source_plus_sidecar_ratio": ratio(
+                d128_two_seq64["source_plus_sidecar_raw_proof_bytes"],
+                d128_two_seq32["source_plus_sidecar_raw_proof_bytes"],
+            ),
+            "seq32_to_seq64_savings_ratio": ratio(
+                d128_two_seq64["fused_saves_vs_source_plus_sidecar_bytes"],
+                d128_two_seq32["fused_saves_vs_source_plus_sidecar_bytes"],
+            ),
+            "matched_comparator_status": d128_two_seq64["matched_source_sidecar_status"],
+        },
+        "combined_width_head_sequence_axis_d128_seq64_width_frontier": {
+            "held_constant": "head_count_2_steps_per_head_64_bounded_softmax_table_kernel_with_width_axis_extended",
+            "profile_ids": ["d64_two_head_seq64", "d128_two_head_seq64"],
+            "key_widths": [d64_two_seq64["key_width"], d128_two_seq64["key_width"]],
+            "lookup_claims": [d64_two_seq64["lookup_claims"], d128_two_seq64["lookup_claims"]],
+            "trace_rows": [d64_two_seq64["trace_rows"], d128_two_seq64["trace_rows"]],
+            "source_proof_size_bytes": [
+                d64_two_seq64["source_proof_size_bytes"],
+                d128_two_seq64["source_proof_size_bytes"],
+            ],
+            "sidecar_proof_size_bytes": [
+                d64_two_seq64["sidecar_proof_size_bytes"],
+                d128_two_seq64["sidecar_proof_size_bytes"],
+            ],
+            "fused_proof_size_bytes": [
+                d64_two_seq64["fused_proof_size_bytes"],
+                d128_two_seq64["fused_proof_size_bytes"],
+            ],
+            "source_plus_sidecar_raw_proof_bytes": [
+                d64_two_seq64["source_plus_sidecar_raw_proof_bytes"],
+                d128_two_seq64["source_plus_sidecar_raw_proof_bytes"],
+            ],
+            "fused_to_source_plus_sidecar_ratios": [
+                d64_two_seq64["fused_to_source_plus_sidecar_ratio"],
+                d128_two_seq64["fused_to_source_plus_sidecar_ratio"],
+            ],
+            "d64_to_d128_key_width_ratio": ratio(d128_two_seq64["key_width"], d64_two_seq64["key_width"]),
+            "d64_to_d128_lookup_claim_ratio": ratio(d128_two_seq64["lookup_claims"], d64_two_seq64["lookup_claims"]),
+            "d64_to_d128_trace_row_ratio": ratio(d128_two_seq64["trace_rows"], d64_two_seq64["trace_rows"]),
+            "d64_to_d128_source_proof_size_ratio": ratio(
+                d128_two_seq64["source_proof_size_bytes"], d64_two_seq64["source_proof_size_bytes"]
+            ),
+            "d64_to_d128_sidecar_proof_size_ratio": ratio(
+                d128_two_seq64["sidecar_proof_size_bytes"], d64_two_seq64["sidecar_proof_size_bytes"]
+            ),
+            "d64_to_d128_fused_proof_size_ratio": ratio(
+                d128_two_seq64["fused_proof_size_bytes"], d64_two_seq64["fused_proof_size_bytes"]
+            ),
+            "d64_to_d128_source_plus_sidecar_ratio": ratio(
+                d128_two_seq64["source_plus_sidecar_raw_proof_bytes"],
+                d64_two_seq64["source_plus_sidecar_raw_proof_bytes"],
+            ),
+            "d64_to_d128_savings_ratio": ratio(
+                d128_two_seq64["fused_saves_vs_source_plus_sidecar_bytes"],
+                d64_two_seq64["fused_saves_vs_source_plus_sidecar_bytes"],
+            ),
+            "matched_comparator_status": d128_two_seq64["matched_source_sidecar_status"],
+        },
     }
 
 
@@ -1867,6 +1981,10 @@ def mutation_cases() -> tuple[tuple[str, Any], ...]:
             lambda v: row_by_id(v["route_rows"], "d128_two_head_seq32").__setitem__("key_width", 64),
         ),
         (
+            "d128_two_head_seq64_sequence_frontier_metric_smuggling",
+            lambda v: row_by_id(v["route_rows"], "d128_two_head_seq64").__setitem__("steps_per_head", 32),
+        ),
+        (
             "axis_summary_width_ratio_drift",
             lambda v: v["axis_summary"]["width_axis_d8_to_d16"].__setitem__("fused_proof_size_ratio", 1.0),
         ),
@@ -1992,6 +2110,18 @@ def mutation_cases() -> tuple[tuple[str, Any], ...]:
             "axis_summary_d128_seq32_width_frontier_ratio_drift",
             lambda v: v["axis_summary"][
                 "combined_width_head_sequence_axis_d128_seq32_width_frontier"
+            ].__setitem__("d64_to_d128_fused_proof_size_ratio", 1.0),
+        ),
+        (
+            "axis_summary_d128_sequence_frontier_ratio_drift",
+            lambda v: v["axis_summary"][
+                "combined_width_head_sequence_axis_d128_sequence_frontier"
+            ].__setitem__("seq32_to_seq64_fused_proof_size_ratio", 1.0),
+        ),
+        (
+            "axis_summary_d128_seq64_width_frontier_ratio_drift",
+            lambda v: v["axis_summary"][
+                "combined_width_head_sequence_axis_d128_seq64_width_frontier"
             ].__setitem__("d64_to_d128_fused_proof_size_ratio", 1.0),
         ),
         ("unknown_field_injection", lambda v: v.__setitem__("unexpected", "claim smuggling")),
