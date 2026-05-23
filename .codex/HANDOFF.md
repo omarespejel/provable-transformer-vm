@@ -21,6 +21,25 @@ proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
 
 Latest proof-pressure route extension: issue `#715` now has the
+`d128_single_head_seq16` native Stwo fused Softmax-table anchor row. The
+matched split frontier is `374,261` source proof bytes plus `23,052` LogUp
+sidecar bytes (`397,313` total). The fused proof is `380,342` bytes, saving
+`16,971` bytes (`0.957286x`) against the matched split frontier. It is `6,081`
+bytes larger than the source arithmetic proof alone, so the honest claim is
+source-plus-sidecar fusion saving, not source-only compression. Holding one
+head and seq16 fixed from d64 to d128, lookup claims and trace rows stay
+`1.000000x`, while fused proof bytes grow `1.599924x`, matched split bytes
+grow `1.561918x`, and fused savings grow `1.019279x`. The route matrix is now
+`29` matched rows, `44,468` lookup claims, `5,576,234` fused proof bytes versus
+`6,312,974` split proof bytes, and `736,740` aggregate saved bytes. The fuller
+grid is now `29 / 100` proved and `71 / 100` missing; the next selector target
+is `d256_h2_seq32` as the width stress test before scoped block work. This is
+not exact Softmax, not full transformer inference, not recursion or PCD, not
+production zkML readiness, not a NANOZK comparison, not timing evidence, and
+not a model-faithful d128 single-head trace. See
+`docs/engineering/zkai-attention-kv-stwo-native-d128-single-head-seq16-fused-softmax-table-gate-2026-05-23.md`.
+
+Previous proof-pressure route extension: issue `#715` has the
 `d128_four_head_seq64` native Stwo fused Softmax-table row. The matched split
 frontier is `490,307` source proof bytes plus `49,363` LogUp sidecar bytes
 (`539,670` total). The fused proof is `495,854` bytes, saving `43,816` bytes
@@ -3238,24 +3257,23 @@ Stwo statement-only attempt transcript reproducibility metadata:
   `just gate`.
 
 Current proof-pressure wide-grid selector: issue `#715` has a checked
-`d128_h4_seq64` decision-gate GO. The fused native proof is `495,854` raw bytes
-against the matched source-plus-sidecar frontier of `539,670` raw bytes, saving
-`43,816` bytes at `8,832` lookup claims and `16,384` trace rows. The d128
-four-head seq32 to seq64 scaling signal is now: lookup `3.729730x`, trace
-`4.000000x`, fused raw proof `1.064910x`, split raw proof `1.068793x`. This is
-not a full-block, timing, NANOZK, or exact-Softmax claim.
+`d128_h1_seq16` width-anchor GO. The fused native proof is `380,342` raw bytes
+against the matched source-plus-sidecar frontier of `397,313` raw bytes, saving
+`16,971` bytes at `168` lookup claims and `256` trace rows. The d64 to d128
+single-head seq16 width-anchor signal is: lookup `1.000000x`, trace
+`1.000000x`, fused raw proof `1.599924x`, split raw proof `1.561918x`, and
+saving `1.019279x`. This is a useful anchor, not the strongest amortization
+row, and not a full-block, timing, NANOZK, or exact-Softmax claim.
 
-The route matrix now records `28` checked attention route rows, `11`
-source-backed requested grid cells, `16` missing requested cells, and `719,769`
-aggregate raw proof-byte savings. The fuller grid is `28 / 100` proved cells
-and `72 / 100` missing cells. The next selector targets are `d128_h1_seq16` as
-a lower-pressure width anchor and `d256_h2_seq32` as the next width stress
-test. Source artifact SHA-256 values are route matrix
-`a580e3730c92d4d674eba350cf03f3d08aef8be3c116ff1de69086378dc5ac1c`, fuller
-grid `d22712eefc097f3c9adae42f8dfa66271d648ba0aaf0d2b4c24d9cb72965927c`, and
-claim pack `3443ed52aaa50a59dab4092f0b1ec4678e629a4f516d89c442ef1622dcd474cc`.
-Issue update:
-`https://github.com/omarespejel/provable-transformer-vm/issues/715#issuecomment-4525363636`.
+The route matrix now records `29` checked attention route rows, `12`
+source-backed requested grid cells, `15` missing requested cells, and `736,740`
+aggregate raw proof-byte savings. The fuller grid is `29 / 100` proved cells
+and `71 / 100` missing cells. The next selector target is `d256_h2_seq32` as
+the width stress test before scoped block work. Source artifact SHA-256 values
+are route matrix `849c64e8bd176e35bfbf06433dc10c0645fed7a985cf3358db784c7b9aafdafb`,
+fuller grid `23d2f27b1238a5a73296f596895843d5cdeb9db542d7f05f41049cea1a3d2a33`,
+and claim pack `d0c3d4a015c969736a5ba3154c240e5fd5d4b12a12a1e69c422d2ba36770fe82`.
+Issue update pending for this PR branch.
 
 Previous proof-pressure wide-grid selector: issue `#715` has a checked
 selector artifact for the requested `d64`/`d128`/`d256` scaling agenda. This is
@@ -3278,21 +3296,19 @@ Proof-pressure wide-grid selector reproducibility metadata:
 
 - Gate schema: `zkai-proof-pressure-wide-grid-selector-v1`.
 - Decision:
-  `GO_WIDE_GRID_SELECTOR_KEEP_D64_D128_D256_AS_FALSIFICATION_TARGETS`.
+  `GO_WIDE_GRID_SELECTOR_PROMOTE_D128_SINGLE_HEAD_ANCHOR_AND_D256_WIDTH_STRESS`.
 - Evidence paths:
   `docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.json`
   and
   `docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.tsv`.
 - Source artifacts:
   route matrix SHA-256
-  `cb2601042c1ae8fbbc081d0962b278f7aff4a7db633adbfbdb2b7124b7f03dc1`,
+  `849c64e8bd176e35bfbf06433dc10c0645fed7a985cf3358db784c7b9aafdafb`,
   fuller grid SHA-256
-  `cabd3e0294e293f56d2b542ded040c8bde20fe2bec1bc5280ba85968a7bc84c1`,
+  `23d2f27b1238a5a73296f596895843d5cdeb9db542d7f05f41049cea1a3d2a33`,
   claim pack SHA-256
-  `369da58f91fd9575b81c4287d1b2cb8a8bdcc5e1af1a600c23c5d24e65c2cdc1`.
-- Payload commitment:
-  `blake2b-256:704956740739b33714dfc769c1480a9440bc87c1d4204dfb229424a57b9af212`.
-- Step counts: `13` Python mutation cases and `20` Python unit tests.
+  `d0c3d4a015c969736a5ba3154c240e5fd5d4b12a12a1e69c422d2ba36770fe82`.
+- Step counts: `29` Python mutation cases and `24` Python unit tests.
 - Output-path hardening now rejects `..` traversal plus symlinked
   evidence-root ancestors, candidate parent components, and output components
   before resolving paths. This closes the PR `#723` review blocker around

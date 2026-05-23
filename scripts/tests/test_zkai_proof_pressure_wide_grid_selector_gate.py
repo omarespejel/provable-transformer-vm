@@ -24,14 +24,14 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
     def test_records_wide_grid_as_falsification_target_not_result(self):
         payload = self.payload
         self.assertEqual(payload["decision"], gate.DECISION)
-        self.assertIn("D128_HAS_TWO_TWO_HEAD_ROWS_AND_TWO_FOUR_HEAD_ROWS", payload["claim_boundary"])
+        self.assertIn("D128_HAS_SINGLE_HEAD_TWO_TWO_HEAD_ROWS_AND_TWO_FOUR_HEAD_ROWS", payload["claim_boundary"])
         requested = payload["requested_grid_signal"]
         self.assertEqual(requested["requested_widths"], [64, 128, 256])
         self.assertEqual(requested["requested_head_counts"], [1, 2, 4])
         self.assertEqual(requested["requested_sequences"], [16, 32, 64])
         self.assertEqual(requested["requested_cell_count"], 27)
-        self.assertEqual(requested["source_backed_requested_cell_count"], 11)
-        self.assertEqual(requested["missing_requested_cell_count"], 16)
+        self.assertEqual(requested["source_backed_requested_cell_count"], 12)
+        self.assertEqual(requested["missing_requested_cell_count"], 15)
         self.assertEqual(
             requested["source_backed_requested_profile_ids"],
             [
@@ -42,6 +42,7 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
                 "d64_h4_seq16",
                 "d64_h4_seq32",
                 "d64_h4_seq64",
+                "d128_h1_seq16",
                 "d128_h2_seq32",
                 "d128_h2_seq64",
                 "d128_h4_seq32",
@@ -49,7 +50,7 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
             ],
         )
         self.assertEqual(requested["fully_missing_requested_widths"], [256])
-        self.assertEqual(requested["selector_status"], "PARTIAL_D64_AND_FOUR_D128_SOURCE_BACKED_D256_MISSING")
+        self.assertEqual(requested["selector_status"], "PARTIAL_D64_AND_FIVE_D128_SOURCE_BACKED_D256_MISSING")
         status_by_id = {row["profile_id"]: row["selector_status"] for row in requested["requested_rows"]}
         self.assertEqual(status_by_id["d64_h2_seq16"], "SOURCE_BACKED_ATTENTION_ROUTE_ROW")
         self.assertEqual(status_by_id["d64_h2_seq32"], "SOURCE_BACKED_ATTENTION_ROUTE_ROW")
@@ -58,6 +59,7 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         self.assertEqual(status_by_id["d64_h4_seq32"], "SOURCE_BACKED_ATTENTION_ROUTE_ROW")
         self.assertEqual(status_by_id["d64_h4_seq64"], "SOURCE_BACKED_ATTENTION_ROUTE_ROW")
         self.assertEqual(status_by_id["d64_h1_seq16"], "SOURCE_BACKED_ATTENTION_ROUTE_ROW")
+        self.assertEqual(status_by_id["d128_h1_seq16"], "SOURCE_BACKED_ATTENTION_ROUTE_ROW")
         self.assertEqual(status_by_id["d128_h2_seq32"], "SOURCE_BACKED_ATTENTION_ROUTE_ROW")
         self.assertEqual(status_by_id["d128_h2_seq64"], "SOURCE_BACKED_ATTENTION_ROUTE_ROW")
         self.assertEqual(status_by_id["d128_h4_seq32"], "SOURCE_BACKED_ATTENTION_ROUTE_ROW")
@@ -65,12 +67,12 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
 
     def test_binds_current_route_matrix_signal(self):
         current = self.payload["current_signal"]
-        self.assertEqual(current["checked_attention_route_rows"], 28)
+        self.assertEqual(current["checked_attention_route_rows"], 29)
         self.assertEqual(current["checked_widths"], [8, 16, 32, 64, 128])
         self.assertEqual(current["checked_sequences"], [8, 16, 32, 64])
-        self.assertEqual(current["raw_fused_bytes_total"], 5195892)
-        self.assertEqual(current["raw_split_bytes_total"], 5915661)
-        self.assertEqual(current["raw_saving_bytes_total"], 719769)
+        self.assertEqual(current["raw_fused_bytes_total"], 5576234)
+        self.assertEqual(current["raw_split_bytes_total"], 6312974)
+        self.assertEqual(current["raw_saving_bytes_total"], 736740)
         self.assertEqual(
             current["checked_requested_profile_ids"],
             [
@@ -81,6 +83,7 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
                 "d64_h4_seq16",
                 "d64_h4_seq32",
                 "d64_h4_seq64",
+                "d128_h1_seq16",
                 "d128_h2_seq32",
                 "d128_h2_seq64",
                 "d128_h4_seq32",
@@ -125,6 +128,14 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         self.assertEqual(d64_single_head_seq16["fused_raw_proof_growth"], 0.999457)
         self.assertEqual(d64_single_head_seq16["split_raw_proof_growth"], 1.024806)
         self.assertEqual(d64_single_head_seq16["saving_growth"], 1.386727)
+        d128_single_head_seq16 = current["d64_to_d128_single_head_seq16_width_anchor"]
+        self.assertEqual(d128_single_head_seq16["lookup_claim_growth"], 1.0)
+        self.assertEqual(d128_single_head_seq16["trace_row_growth"], 1.0)
+        self.assertEqual(d128_single_head_seq16["source_raw_proof_growth"], 1.617272)
+        self.assertEqual(d128_single_head_seq16["sidecar_raw_proof_growth"], 1.004007)
+        self.assertEqual(d128_single_head_seq16["fused_raw_proof_growth"], 1.599924)
+        self.assertEqual(d128_single_head_seq16["split_raw_proof_growth"], 1.561918)
+        self.assertEqual(d128_single_head_seq16["saving_growth"], 1.019279)
         d64_head = current["d64_two_to_four_head_seq32"]
         self.assertEqual(d64_head["lookup_claim_growth"], 2.0)
         self.assertEqual(d64_head["trace_row_growth"], 2.0)
@@ -178,20 +189,17 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
         self.assertEqual(accounting["attention_typed_bytes_total"], 234296)
         self.assertEqual(accounting["attention_typed_savings_bytes_total"], 51288)
         self.assertEqual(accounting["attention_json_bytes_total"], 629466)
-        self.assertEqual(accounting["attention_raw_proof_savings_bytes_total"], 719769)
+        self.assertEqual(accounting["attention_raw_proof_savings_bytes_total"], 736740)
         self.assertEqual(accounting["binary_raw_available_rows"], 2)
         self.assertEqual(accounting["binary_raw_missing_rows"], 10)
         self.assertEqual(accounting["current_best_inner_policy_bound_row"]["typed_bytes"], 39516)
 
     def test_selects_next_width_targets_after_d128_four_head_seq64_landed(self):
         candidates = self.payload["candidate_order"]
-        self.assertEqual([row["profile_id"] for row in candidates], [
-            "d128_h1_seq16",
-            "d256_h2_seq32",
-        ])
+        self.assertEqual([row["profile_id"] for row in candidates], ["d256_h2_seq32"])
         first = candidates[0]
-        self.assertEqual(first["selector_status"], "D128_LOW_PRESSURE_WIDTH_ANCHOR_FALLBACK")
-        self.assertIn("four-head seq64 decision gate", first["why_this_row"])
+        self.assertEqual(first["selector_status"], "NEXT_WIDTH_STRESS_TEST_AFTER_D128_FOUR_HEAD_SEQ64_GO")
+        self.assertIn("harder width point", first["why_this_row"])
 
     def test_all_declared_mutations_reject(self):
         mutation = self.payload["mutation_result"]
@@ -210,7 +218,7 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
 
     def test_validate_rejects_wide_row_smuggling(self):
         payload = copy.deepcopy(self.payload)
-        payload["requested_grid_signal"]["source_backed_requested_cell_count"] = 12
+        payload["requested_grid_signal"]["source_backed_requested_cell_count"] = 13
         with self.assertRaisesRegex(gate.ProofPressureWideGridSelectorError, "wide row smuggling"):
             gate.validate_payload(payload, self.expected_source_artifacts)
 
@@ -300,8 +308,8 @@ class ProofPressureWideGridSelectorGateTests(unittest.TestCase):
             gate.write_tsv(tsv_path, self.payload, self.expected_source_artifacts)
             self.assertEqual(json.loads(json_path.read_text(encoding="utf-8"))["schema"], gate.SCHEMA)
             tsv = tsv_path.read_text(encoding="utf-8")
-            self.assertIn("d128_h1_seq16", tsv)
-            self.assertIn("D128_LOW_PRESSURE_WIDTH_ANCHOR_FALLBACK", tsv)
+            self.assertIn("d256_h2_seq32", tsv)
+            self.assertIn("NEXT_WIDTH_STRESS_TEST_AFTER_D128_FOUR_HEAD_SEQ64_GO", tsv)
 
     def test_write_outputs_reject_absolute_outside_evidence_dir(self):
         with tempfile.TemporaryDirectory() as tmp:

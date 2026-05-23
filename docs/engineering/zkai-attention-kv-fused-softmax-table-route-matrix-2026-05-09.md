@@ -13,9 +13,9 @@ real-valued Softmax, full inference, recursion, PCD, or a public benchmark.
 
 `GO_NATIVE_STWO_FUSED_SOFTMAX_TABLE_CONTROLLED_ROUTE_MATRIX`
 
-The route matrix now has matched source-plus-LogUp-sidecar comparators for all
-`20` checked profile rows and rejects `51 / 51` matrix drift, provenance drift,
-and overclaim mutations.
+The route matrix now has matched source-plus-LogUp-sidecar comparators for
+`29` checked profile rows and rejects route-matrix drift, provenance drift, and
+overclaim mutations.
 
 Machine-readable evidence:
 
@@ -43,44 +43,51 @@ Machine-readable evidence:
 | `d32_four_head_seq16` | 32 | 4 | 16 | 672 | 1,024 | 142,334 | 170,018 | 27,684 | 0.837170 |
 | `d32_two_head_seq32` | 32 | 2 | 32 | 1,184 | 2,048 | 150,147 | 176,473 | 26,326 | 0.850821 |
 | `d32_four_head_seq32` | 32 | 4 | 32 | 2,368 | 4,096 | 154,670 | 192,937 | 38,267 | 0.801661 |
+| `d64_single_head_seq16` | 64 | 1 | 16 | 168 | 256 | 237,725 | 254,375 | 16,650 | 0.934545 |
 | `d64_two_head_seq16` | 64 | 2 | 16 | 336 | 512 | 238,504 | 257,725 | 19,221 | 0.925421 |
+| `d64_four_head_seq16` | 64 | 4 | 16 | 672 | 1,024 | 237,596 | 260,685 | 23,089 | 0.911430 |
 | `d64_two_head_seq32` | 64 | 2 | 32 | 1,184 | 2,048 | 253,257 | 285,102 | 31,845 | 0.888303 |
+| `d64_two_head_seq64` | 64 | 2 | 64 | 4,416 | 8,192 | 272,636 | 306,970 | 34,334 | 0.888152 |
 | `d64_four_head_seq32` | 64 | 4 | 32 | 2,368 | 4,096 | 255,889 | 288,292 | 32,403 | 0.887604 |
+| `d64_four_head_seq64` | 64 | 4 | 64 | 8,832 | 16,384 | 276,503 | 315,785 | 39,282 | 0.875605 |
+| `d128_single_head_seq16` | 128 | 1 | 16 | 168 | 256 | 380,342 | 397,313 | 16,971 | 0.957286 |
+| `d128_two_head_seq32` | 128 | 2 | 32 | 1,184 | 2,048 | 445,888 | 478,276 | 32,388 | 0.932282 |
+| `d128_two_head_seq64` | 128 | 2 | 64 | 4,416 | 8,192 | 481,870 | 522,187 | 40,317 | 0.922792 |
+| `d128_four_head_seq32` | 128 | 4 | 32 | 2,368 | 4,096 | 465,630 | 504,934 | 39,304 | 0.922160 |
+| `d128_four_head_seq64` | 128 | 4 | 64 | 8,832 | 16,384 | 495,854 | 539,670 | 43,816 | 0.918810 |
 
 ## Current Signal
 
 The strongest evidence is still structural amortization, not a full zkML
 benchmark.
 
-At fixed `d16` and two heads, moving from `seq16` to `seq32` grows checked
-lookup work from `336` to `1,184` claims (`3.523810x`) and trace rows from
-`512` to `2,048` (`4.000000x`). The fused proof grows from `84,868` to
-`92,363` bytes (`1.088314x`).
+Sequence pressure is the clearest signal. At fixed `d128` and four heads,
+moving from `seq32` to `seq64` grows lookup claims `3.729730x` and trace rows
+`4.000000x`, while fused proof bytes grow only `1.064910x`. At fixed `d64` and
+four heads, the same sequence jump grows fused proof bytes `1.080558x`.
 
-At fixed `d64` and two heads, moving from `seq16` to `seq32` grows the same
-lookup and trace axes while fused proof bytes grow `1.061856x`.
+Head pressure is also favorable. At fixed `d64` and `seq16`, moving from one
+head to four heads grows lookup claims and trace rows `4.000000x`, while fused
+proof bytes move to `0.999457x`. At fixed `d128` and `seq32`, moving from two
+heads to four heads doubles lookup claims and trace rows, while fused proof
+bytes grow `1.044276x`.
 
-At fixed `d64` and `seq32`, moving from two heads to four heads doubles lookup
-claims and trace rows, while fused proof bytes grow only `1.010393x`. The
-sidecar proof bytes even shrink from `36,400` to `34,147`; that is useful
-evidence that the expensive proof plumbing is not scaling linearly with the
-lookup work on this axis.
-
-That is the proof-pressure signal worth attacking: sequence-driven lookup work
-is growing much faster than the fused proof object. Width is different. At
-fixed `seq32`, widening from `d16` to `d32` grows fused proof bytes
-`1.625618x`, and widening from `d32` to `d64` grows them `1.686727x`.
+Width is the harder axis. At fixed one head and `seq16`, moving from `d64` to
+`d128` keeps lookup claims and trace rows fixed while fused proof bytes grow
+`1.599924x`. The `d128_single_head_seq16` row still saves `16,971` bytes
+against split, but the saving is modest. This is why the next selector target
+is `d256_h2_seq32`: it stress-tests width before scoped block work.
 
 ## Aggregate Read
 
-Across the `20` checked rows:
+Across the `29` checked rows:
 
-- total lookup claims: `13,412`;
-- total trace rows: `21,824`;
-- total matched source-plus-sidecar proof bytes: `2,732,779`;
-- total fused proof bytes: `2,282,190`;
-- total fused savings against matched source-plus-sidecar: `450,589` bytes;
-- matched fused ratios range from `0.676723` to `0.925421`.
+- total lookup claims: `44,468`;
+- total trace rows: `78,656`;
+- total matched source-plus-sidecar proof bytes: `6,312,974`;
+- total fused proof bytes: `5,576,234`;
+- total fused savings against matched source-plus-sidecar: `736,740` bytes;
+- matched fused ratios range from `0.676723` to `0.957286`.
 
 ## Open Issue #715 Gates
 
@@ -89,10 +96,8 @@ family. It does not complete the full proof-pressure scaling issue.
 
 Still open:
 
-- no `d128` or `d256` attention row is checked in this matrix;
-- the `d64` grid is still partial;
-- no typed or binary/raw proof-size accounting is attached to these attention
-  rows yet;
+- no `d256` attention row is checked in this matrix;
+- the `d64` and `d128` grids are still partial;
 - no same-surface external baseline row is included;
 - no timing claim is attached;
 - no full transformer block or model-faithful Softmax claim is attached.
@@ -102,9 +107,9 @@ Still open:
 This may be cited internally as:
 
 > In the checked native Stwo bounded Softmax-table attention family, every one
-> of the `20` matched fused routes beats its source-plus-LogUp-sidecar
-> comparator, and the `seq16` to `seq32` plus two-to-four-head rows show lookup
-> work growing much faster than fused proof bytes at fixed width.
+> of the `29` matched fused routes beats its source-plus-LogUp-sidecar
+> comparator. The strongest slope signal is on lookup-heavy sequence and head
+> axes; width is the next falsification target.
 
 Do not cite it as:
 

@@ -9,15 +9,14 @@ Issue: <https://github.com/omarespejel/provable-transformer-vm/issues/715>
 This note pins the current bounded evidence for the next paper path. It is a
 claim pack over checked artifacts, not a new proof-generation route.
 
-Issue #715 stays open after this claim-pack slice. The `d128_h4_seq32`
-decision gate is now checked, but the full d64/d128/d256 grid, the
-`d128_h4_seq64` sequence jump, d256 rows, and one matched external baseline
-are still follow-up work.
+Issue #715 stays open after this claim-pack slice. The d64 and d128 attention
+rows now give useful slope evidence, but d256 rows and one matched external
+baseline are still follow-up work.
 
 ## Result
 
-The checked attention evidence now has two bounded views. The older typed
-component grid still gives the strictest typed accounting signal:
+The checked attention evidence has two bounded views. The older typed component
+grid still gives the strictest typed accounting signal:
 
 | metric | value |
 |---|---:|
@@ -31,45 +30,45 @@ component grid still gives the strictest typed accounting signal:
 | d8 single-head typed bytes per lookup claim | `348.538462` |
 | d8 two-head seq32 typed bytes per lookup claim | `19.354730` |
 
-The newer route matrix adds raw proof-byte evidence across `27` matched
+The newer route matrix adds raw proof-byte evidence across `29` matched
 source-plus-sidecar rows:
 
 | metric | value |
 |---|---:|
-| checked route rows | `27` |
-| total lookup claims | `35,468` |
-| total trace rows | `62,016` |
-| fused raw proof bytes | `4,700,038` |
-| source plus sidecar raw proof bytes | `5,375,991` |
-| aggregate raw proof-byte saving | `675,953` bytes |
-| d32 two-head seq32 fused proof bytes | `150,147` |
-| d32 two-head seq32 source plus sidecar bytes | `176,473` |
-| d32 two-head seq32 raw saving | `26,326` bytes |
-| d64 four-head seq64 fused proof bytes | `276,503` |
-| d64 four-head seq64 source plus sidecar bytes | `315,785` |
-| d64 four-head seq64 raw saving | `39,282` bytes |
-| d128 four-head seq32 fused proof bytes | `465,630` |
-| d128 four-head seq32 source plus sidecar bytes | `504,934` |
-| d128 four-head seq32 raw saving | `39,304` bytes |
+| checked route rows | `29` |
+| total lookup claims | `44,468` |
+| total trace rows | `78,656` |
+| fused raw proof bytes | `5,576,234` |
+| source plus sidecar raw proof bytes | `6,312,974` |
+| aggregate raw proof-byte saving | `736,740` bytes |
+| d128 single-head seq16 fused proof bytes | `380,342` |
+| d128 single-head seq16 source plus sidecar bytes | `397,313` |
+| d128 single-head seq16 raw saving | `16,971` bytes |
+| d128 four-head seq64 fused proof bytes | `495,854` |
+| d128 four-head seq64 source plus sidecar bytes | `539,670` |
+| d128 four-head seq64 raw saving | `43,816` bytes |
 
-The d32 two-head sequence ladder is the new useful signal:
+The useful slope signals are:
 
 | comparison | lookup growth | trace-row growth | fused raw proof-byte growth |
 |---|---:|---:|---:|
-| seq8 to seq32 | `11.384615x` | `16.000000x` | `1.193955x` |
-| seq16 to seq32 | `3.523810x` | `4.000000x` | `1.132817x` |
+| d32 two-head seq8 to seq32 | `11.384615x` | `16.000000x` | `1.193955x` |
+| d64 four-head seq32 to seq64 | `3.729730x` | `4.000000x` | `1.080558x` |
+| d128 two-head seq32 to seq64 | `3.729730x` | `4.000000x` | `1.080697x` |
+| d128 four-head seq32 to seq64 | `3.729730x` | `4.000000x` | `1.064910x` |
+| d64 seq16 one head to four heads | `4.000000x` | `4.000000x` | `0.999457x` |
+| d128 seq32 two heads to four heads | `2.000000x` | `2.000000x` | `1.044276x` |
 
-The d64 four-head sequence ladder is now the decision-gate signal:
+The width-anchor signal is intentionally more modest:
 
-| comparison | lookup growth | trace-row growth | fused raw proof-byte growth |
-|---|---:|---:|---:|
-| seq32 to seq64 | `3.729730x` | `4.000000x` | `1.080558x` |
+| comparison | lookup growth | trace-row growth | fused raw proof-byte growth | saving growth |
+|---|---:|---:|---:|---:|
+| d64 to d128 single-head seq16 | `1.000000x` | `1.000000x` | `1.599924x` | `1.019279x` |
 
-The new d128 head-axis signal is:
-
-| comparison | lookup growth | trace-row growth | fused raw proof-byte growth |
-|---|---:|---:|---:|
-| two heads to four heads at d128 seq32 | `2.000000x` | `2.000000x` | `1.044276x` |
+This matters because it keeps the paper claim honest. Lookup-heavy sequence and
+head pressure are where fusion looks strongest. Width pressure grows proof
+bytes without adding lookup claims, so `d256_h2_seq32` is the next real
+falsification target.
 
 The current seq32+d128 boundary rows are:
 
@@ -92,8 +91,8 @@ claim remains bounded to the controlled component grid.
 | object | evidence | context |
 |---|---|---|
 | attention grid | `docs/engineering/evidence/zkai-attention-kv-stwo-controlled-component-grid-2026-05.json` | `10` local checked Stwo attention/table profiles; proof-size accounting only |
-| attention route matrix | `docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json` | `27` matched source-plus-sidecar route rows; raw JSON proof bytes only |
-| fuller crossing grid | `docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json` | integrity-checked coverage manifest; not promoted into the claim-pack scale result |
+| attention route matrix | `docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json` | `29` matched source-plus-sidecar route rows; raw JSON proof bytes only |
+| fuller crossing grid | `docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json` | `29 / 100` source-backed cells; not promoted into a full-grid claim |
 | native seq32+d128 single proof | `docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.json` and `.envelope.json` | backend `stwo`, version `stwo-native-seq32-attention-mlp-single-proof-object-native-adapter-v1` |
 | statement-only probe B | `docs/engineering/evidence/zkai-stwo-statement-only-attempt-transcript-gate-2026-05.json` and `zkai-native-seq32-attention-mlp-rmsnorm-adjacent-label-probe-b-statement-only-transcript-2026-05.envelope.json` | backend `stwo`, version `stwo-native-seq32-attention-mlp-single-proof-object-rmsnorm-input-fused-adjacent-fixed-v1`; attempt policy stays statement-bound |
 | local binary accounting | `docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-binary-accounting-2026-05.json`, `zkai-native-seq32-attention-mlp-statement-only-attempt-accounting-2026-05.json`, `zkai-attention-kv-stwo-binary-typed-proof-accounting-2026-05.json`, `zkai-seq32-derived-d128-rmsnorm-mlp-fused-binary-accounting-2026-05.json` | local typed and record-stream accounting; no upstream Stwo serialization claim |
@@ -101,18 +100,15 @@ claim remains bounded to the controlled component grid.
 
 ## Interpretation
 
-The interesting signal is still the same, but now it is packaged in a stricter
+The interesting signal is still the same, but it is now packaged in a stricter
 way. In the typed grid, lookup/table work grows much faster than typed proof
-bytes. In the raw route matrix, the d32 two-head ladder repeats the pattern:
-from seq8 to seq32, lookup claims grow `11.384615x` and trace rows grow
-`16.000000x`, while fused raw proof bytes grow only `1.193955x`. The d64
-four-head seq64 decision row keeps the same shape under a heavier sequence
-stress: from seq32 to seq64, lookup claims grow `3.729730x` and trace rows grow
-`4.000000x`, while fused raw proof bytes grow only `1.080558x`. The new d128
-four-head seq32 row adds the d128 head-axis check: lookup claims and trace rows
-double while fused raw proof bytes grow only `1.044276x`. The current seq32+d128
-native boundary still beats the matched local two-proof frontier after
-statement binding is kept inside the proof-facing object.
+bytes. In the raw route matrix, the d64 and d128 sequence rows repeat the same
+shape: lookup claims grow `3.729730x` and trace rows grow `4.000000x`, while
+fused raw proof bytes grow only about `1.06x` to `1.08x`.
+
+The new d128 single-head seq16 row is a useful counterweight. It still saves
+bytes against split, but it shows width-only pressure is not where the
+amortization is strongest.
 
 This supports a bounded paper claim:
 
@@ -139,8 +135,8 @@ There are still zero proof-size-comparable external rows.
 
 The claim pack keeps three open follow-ups explicit:
 
-- add source-backed d64/d128/d256 attention-grid rows without widening the claim;
-- add or reject the `d128_h4_seq64` sequence jump;
+- add source-backed d256 attention-grid rows without widening the claim;
+- use `d256_h2_seq32` as the next width stress test;
 - add one real apples-to-apples external baseline, starting with EZKL or a
   zkVM only if the scoped transformer surface and statement policy match.
 
@@ -155,7 +151,7 @@ The claim pack keeps three open follow-ups explicit:
 - Gate tests:
   `scripts/tests/test_zkai_proof_pressure_scaling_claim_pack_gate.py`
 
-The gate rejects `25 / 25` mutation cases covering lookup-growth drift,
+The gate rejects `29 / 29` mutation cases covering lookup-growth drift,
 typed-growth drift, route-matrix row-count drift, route-ratio drift, d32 seq32
 raw-saving drift, d64 and d128 axis-signal drift, route-derived summary drift,
 attention saving drift, native-boundary saving drift, statement-only saving
@@ -177,13 +173,11 @@ python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_single
 python3.10 -m unittest scripts.tests.test_zkai_stwo_statement_only_attempt_transcript_gate
 python3.10 -m unittest scripts.tests.test_zkai_native_seq32_attention_mlp_median_timing_gate
 git diff --check
-just gate-fast
-just gate
 ```
 
 ## Non-Claims
 
-- Not a d64/d128/d256 attention grid.
+- Not a complete d64/d128/d256 attention grid.
 - Not a complete seq64 grid.
 - Not a full transformer block proof.
 - Not a NANOZK proof-size win.

@@ -25,10 +25,10 @@ use stwo_constraint_framework::{
     RelationEntry, TraceLocationAllocator,
 };
 
-use super::attention_kv_native_d128_four_head_seq64_bounded_softmax_table_proof::{
-    zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_input_from_json_str,
-    ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
-    ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES,
+use super::attention_kv_native_d128_single_head_seq16_bounded_softmax_table_proof::{
+    validate_zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_input,
+    zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_input_from_json_str,
+    ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
 };
 #[cfg(test)]
 use super::logup_utils::selector_masked_denominator;
@@ -36,45 +36,46 @@ use super::logup_utils::selector_masked_lookup_fraction_terms as masked_lookup_f
 use crate::error::{Result, VmError};
 use crate::proof::StarkProofBackend;
 
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_PROOF_VERSION: &str =
-    "stwo-attention-kv-d128-four-head-seq64-softmax-table-logup-sidecar-proof-v1";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_STATEMENT_VERSION:
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_PROOF_VERSION: &str =
+    "stwo-attention-kv-d128-single-head-seq16-softmax-table-logup-sidecar-proof-v1";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_STATEMENT_VERSION:
     &str =
-    "zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-statement-v1";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_SEMANTIC_SCOPE: &str =
-    "d128_four_head_seq64_bounded_softmax_table_membership_constrained_by_native_stwo_logup_sidecar";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_DECISION: &str =
+    "zkai-attention-kv-stwo-native-d128-single-head-seq16-softmax-table-logup-sidecar-statement-v1";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_SEMANTIC_SCOPE: &str =
+    "d128_single_head_seq16_bounded_softmax_table_membership_constrained_by_native_stwo_logup_sidecar";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_DECISION: &str =
     "GO_NATIVE_STWO_AIR_CONSTRAINED_SOFTMAX_TABLE_LOOKUP_RELATION_SIDECAR";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_TARGET_ID: &str =
-    "attention-kv-d128-four-head-seq64-causal-mask-bounded-softmax-table-logup-sidecar-v1";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_VERIFIER_DOMAIN: &str =
-    "ptvm:zkai:attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar:v1";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_MAX_ENVELOPE_JSON_BYTES:
-    usize = 268_435_456;
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_MAX_PROOF_BYTES:
-    usize = 1_048_576;
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_TARGET_ID: &str =
+    "attention-kv-d128-single-head-seq16-causal-mask-bounded-softmax-table-logup-sidecar-v1";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_VERIFIER_DOMAIN:
+    &str =
+    "ptvm:zkai:attention-kv-stwo-native-d128-single-head-seq16-softmax-table-logup-sidecar:v1";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_MAX_ENVELOPE_JSON_BYTES: usize =
+    16_777_216;
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_MAX_PROOF_BYTES:
+    usize = 524_288;
 
-const LOG_SIZE: u32 = 14;
-const TRACE_ROW_COUNT: usize = 16384;
+const LOG_SIZE: u32 = 8;
+const TRACE_ROW_COUNT: usize = 256;
 const EXPECTED_TRACE_COMMITMENTS: usize = 3;
 const EXPECTED_PROOF_COMMITMENTS: usize = 4;
 const M31_MODULUS: i64 = (1i64 << 31) - 1;
 
 const PREPROCESSED_TABLE_GAP: &str =
-    "zkai/attention-kv/native-d128-four-head-seq64-softmax-table-logup/table-gap";
+    "zkai/attention-kv/native-d128-single-head-seq16-softmax-table-logup/table-gap";
 const PREPROCESSED_TABLE_WEIGHT: &str =
-    "zkai/attention-kv/native-d128-four-head-seq64-softmax-table-logup/table-weight";
+    "zkai/attention-kv/native-d128-single-head-seq16-softmax-table-logup/table-weight";
 const PREPROCESSED_TABLE_MULTIPLICITY: &str =
-    "zkai/attention-kv/native-d128-four-head-seq64-softmax-table-logup/table-multiplicity";
+    "zkai/attention-kv/native-d128-single-head-seq16-softmax-table-logup/table-multiplicity";
 
-relation!(AttentionKvD128FourHeadSeq64SoftmaxTableLookupRelation, 2);
+relation!(AttentionKvD128SingleHeadSeq16SoftmaxTableLookupRelation, 2);
 
 #[derive(Debug, Clone)]
-struct AttentionKvD128FourHeadSeq64SoftmaxTableLookupEval {
-    lookup_elements: AttentionKvD128FourHeadSeq64SoftmaxTableLookupRelation,
+struct AttentionKvD128SingleHeadSeq16SoftmaxTableLookupEval {
+    lookup_elements: AttentionKvD128SingleHeadSeq16SoftmaxTableLookupRelation,
 }
 
-impl FrameworkEval for AttentionKvD128FourHeadSeq64SoftmaxTableLookupEval {
+impl FrameworkEval for AttentionKvD128SingleHeadSeq16SoftmaxTableLookupEval {
     fn log_size(&self) -> u32 {
         LOG_SIZE
     }
@@ -113,7 +114,7 @@ impl FrameworkEval for AttentionKvD128FourHeadSeq64SoftmaxTableLookupEval {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct AttentionKvD128FourHeadSeq64SoftmaxTableLookupMultiplicity {
+pub struct AttentionKvD128SingleHeadSeq16SoftmaxTableLookupMultiplicity {
     pub gap: usize,
     pub weight: i64,
     pub multiplicity: usize,
@@ -121,14 +122,11 @@ pub struct AttentionKvD128FourHeadSeq64SoftmaxTableLookupMultiplicity {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ZkAiAttentionKvNativeD128FourHeadSeq64SoftmaxTableLookupSummary {
+pub struct ZkAiAttentionKvNativeD128SingleHeadSeq16SoftmaxTableLookupSummary {
     pub source_statement_commitment: String,
     pub source_public_instance_commitment: String,
     pub source_score_row_commitment: String,
-    pub source_final_kv_cache_commitment: String,
-    pub source_outputs_commitment: String,
     pub source_weight_table_commitment: String,
-    pub source_head_count: usize,
     pub score_rows: usize,
     pub trace_rows: usize,
     pub table_rows: usize,
@@ -137,66 +135,69 @@ pub struct ZkAiAttentionKvNativeD128FourHeadSeq64SoftmaxTableLookupSummary {
     pub lookup_relation: String,
     pub lookup_relation_width: usize,
     pub lookup_claims: usize,
-    pub table_multiplicities: Vec<AttentionKvD128FourHeadSeq64SoftmaxTableLookupMultiplicity>,
+    pub table_multiplicities: Vec<AttentionKvD128SingleHeadSeq16SoftmaxTableLookupMultiplicity>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ZkAiAttentionKvNativeD128FourHeadSeq64SoftmaxTableLookupEnvelope {
+pub struct ZkAiAttentionKvNativeD128SingleHeadSeq16SoftmaxTableLookupEnvelope {
     pub proof_backend: StarkProofBackend,
     pub proof_backend_version: String,
     pub statement_version: String,
     pub semantic_scope: String,
     pub decision: String,
+    pub target_id: String,
     pub verifier_domain: String,
-    pub lookup_summary: ZkAiAttentionKvNativeD128FourHeadSeq64SoftmaxTableLookupSummary,
-    pub source_input: ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    pub lookup_summary: ZkAiAttentionKvNativeD128SingleHeadSeq16SoftmaxTableLookupSummary,
+    pub source_input: ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
     pub proof: Vec<u8>,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-struct AttentionKvD128FourHeadSeq64SoftmaxTableLookupProofPayload {
+struct AttentionKvD128SingleHeadSeq16SoftmaxTableLookupProofPayload {
     stark_proof: StarkProof<Blake2sM31MerkleHasher>,
 }
 
 #[derive(Clone)]
 struct LookupBundle {
     log_size: u32,
-    summary: ZkAiAttentionKvNativeD128FourHeadSeq64SoftmaxTableLookupSummary,
+    summary: ZkAiAttentionKvNativeD128SingleHeadSeq16SoftmaxTableLookupSummary,
     preprocessed_trace: ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
     base_trace: ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
 }
 
-pub fn zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_source_input_from_json_str(
+pub fn zkai_attention_kv_native_d128_single_head_seq16_softmax_table_lookup_source_input_from_json_str(
     raw_json: &str,
-) -> Result<ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput> {
-    zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_input_from_json_str(
+) -> Result<ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput> {
+    zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_input_from_json_str(
         raw_json,
     )
 }
 
-pub fn prove_zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_envelope(
-    source_input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
-) -> Result<ZkAiAttentionKvNativeD128FourHeadSeq64SoftmaxTableLookupEnvelope> {
+pub fn prove_zkai_attention_kv_native_d128_single_head_seq16_softmax_table_lookup_envelope(
+    source_input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
+) -> Result<ZkAiAttentionKvNativeD128SingleHeadSeq16SoftmaxTableLookupEnvelope> {
     validate_source_input(source_input)?;
     let bundle = build_lookup_bundle(source_input)?;
     let proof = prove_lookup(&bundle)?;
-    let envelope = ZkAiAttentionKvNativeD128FourHeadSeq64SoftmaxTableLookupEnvelope {
+    let envelope = ZkAiAttentionKvNativeD128SingleHeadSeq16SoftmaxTableLookupEnvelope {
         proof_backend: StarkProofBackend::Stwo,
         proof_backend_version:
-            ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_PROOF_VERSION
+            ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_PROOF_VERSION
                 .to_string(),
         statement_version:
-            ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_STATEMENT_VERSION
+            ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_STATEMENT_VERSION
                 .to_string(),
         semantic_scope:
-            ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_SEMANTIC_SCOPE
+            ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_SEMANTIC_SCOPE
                 .to_string(),
-        decision: ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_DECISION
+        decision: ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_DECISION
+            .to_string(),
+        target_id: ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_TARGET_ID
             .to_string(),
         verifier_domain:
-            ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_VERIFIER_DOMAIN
+            ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_VERIFIER_DOMAIN
                 .to_string(),
         lookup_summary: bundle.summary,
         source_input: source_input.clone(),
@@ -206,34 +207,32 @@ pub fn prove_zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_
     Ok(envelope)
 }
 
-pub fn zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_envelope_from_json_slice(
+pub fn zkai_attention_kv_native_d128_single_head_seq16_softmax_table_lookup_envelope_from_json_slice(
     raw_json: &[u8],
-) -> Result<ZkAiAttentionKvNativeD128FourHeadSeq64SoftmaxTableLookupEnvelope> {
-    if raw_json.len()
-        > ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_MAX_ENVELOPE_JSON_BYTES
-    {
+) -> Result<ZkAiAttentionKvNativeD128SingleHeadSeq16SoftmaxTableLookupEnvelope> {
+    if raw_json.len() > ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_MAX_ENVELOPE_JSON_BYTES {
         return Err(lookup_error(format!(
             "lookup envelope JSON exceeds max size: got {} bytes, limit {} bytes",
             raw_json.len(),
-            ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_MAX_ENVELOPE_JSON_BYTES
+            ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_MAX_ENVELOPE_JSON_BYTES
         )));
     }
-    let envelope: ZkAiAttentionKvNativeD128FourHeadSeq64SoftmaxTableLookupEnvelope =
+    let envelope: ZkAiAttentionKvNativeD128SingleHeadSeq16SoftmaxTableLookupEnvelope =
         serde_json::from_slice(raw_json)
             .map_err(|error| VmError::Serialization(error.to_string()))?;
     validate_envelope(&envelope)?;
     Ok(envelope)
 }
 
-pub fn verify_zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_envelope(
-    envelope: &ZkAiAttentionKvNativeD128FourHeadSeq64SoftmaxTableLookupEnvelope,
+pub fn verify_zkai_attention_kv_native_d128_single_head_seq16_softmax_table_lookup_envelope(
+    envelope: &ZkAiAttentionKvNativeD128SingleHeadSeq16SoftmaxTableLookupEnvelope,
 ) -> Result<bool> {
     validate_envelope(envelope)?;
     verify_lookup(&envelope.source_input, &envelope.proof)
 }
 
 fn validate_envelope(
-    envelope: &ZkAiAttentionKvNativeD128FourHeadSeq64SoftmaxTableLookupEnvelope,
+    envelope: &ZkAiAttentionKvNativeD128SingleHeadSeq16SoftmaxTableLookupEnvelope,
 ) -> Result<()> {
     validate_source_input(&envelope.source_input)?;
     if envelope.proof_backend != StarkProofBackend::Stwo {
@@ -241,27 +240,32 @@ fn validate_envelope(
     }
     expect_eq(
         &envelope.proof_backend_version,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_PROOF_VERSION,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_PROOF_VERSION,
         "lookup proof backend version",
     )?;
     expect_eq(
         &envelope.statement_version,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_STATEMENT_VERSION,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_STATEMENT_VERSION,
         "lookup statement version",
     )?;
     expect_eq(
         &envelope.semantic_scope,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_SEMANTIC_SCOPE,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_SEMANTIC_SCOPE,
         "lookup semantic scope",
     )?;
     expect_eq(
         &envelope.decision,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_DECISION,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_DECISION,
         "lookup decision",
     )?;
     expect_eq(
+        &envelope.target_id,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_TARGET_ID,
+        "lookup target id",
+    )?;
+    expect_eq(
         &envelope.verifier_domain,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_VERIFIER_DOMAIN,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_VERIFIER_DOMAIN,
         "lookup verifier domain",
     )?;
     let expected_summary = lookup_summary(&envelope.source_input)?;
@@ -270,7 +274,7 @@ fn validate_envelope(
     }
     if envelope.proof.is_empty()
         || envelope.proof.len()
-            > ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_MAX_PROOF_BYTES
+            > ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_MAX_PROOF_BYTES
     {
         return Err(lookup_error("lookup proof byte length outside bounded cap"));
     }
@@ -278,29 +282,19 @@ fn validate_envelope(
 }
 
 fn validate_source_input(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
 ) -> Result<()> {
-    let raw =
-        serde_json::to_string(input).map_err(|error| VmError::Serialization(error.to_string()))?;
-    if raw.len()
-        > ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES
-    {
-        return Err(lookup_error(
-            "source input JSON exceeds inherited bounded cap",
-        ));
-    }
-    zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_input_from_json_str(&raw)?;
-    Ok(())
+    validate_zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_input(input)
 }
 
 fn lookup_summary(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
-) -> Result<ZkAiAttentionKvNativeD128FourHeadSeq64SoftmaxTableLookupSummary> {
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
+) -> Result<ZkAiAttentionKvNativeD128SingleHeadSeq16SoftmaxTableLookupSummary> {
     let mut multiplicities = input
         .weight_table
         .iter()
         .map(
-            |entry| AttentionKvD128FourHeadSeq64SoftmaxTableLookupMultiplicity {
+            |entry| AttentionKvD128SingleHeadSeq16SoftmaxTableLookupMultiplicity {
                 gap: entry.gap,
                 weight: entry.weight,
                 multiplicity: 0,
@@ -326,20 +320,17 @@ fn lookup_summary(
             .ok_or_else(|| lookup_error("lookup multiplicity overflow"))?;
     }
     Ok(
-        ZkAiAttentionKvNativeD128FourHeadSeq64SoftmaxTableLookupSummary {
+        ZkAiAttentionKvNativeD128SingleHeadSeq16SoftmaxTableLookupSummary {
             source_statement_commitment: input.statement_commitment.clone(),
             source_public_instance_commitment: input.public_instance_commitment.clone(),
             source_score_row_commitment: input.score_row_commitment.clone(),
-            source_final_kv_cache_commitment: input.final_kv_cache_commitment.clone(),
-            source_outputs_commitment: input.outputs_commitment.clone(),
             source_weight_table_commitment: input.weight_table_commitment.clone(),
-            source_head_count: input.head_count,
             score_rows: input.score_row_count,
             trace_rows: TRACE_ROW_COUNT,
             table_rows: input.weight_table.len(),
             score_gap_clip: input.score_gap_clip,
             weight_policy: input.weight_policy.clone(),
-            lookup_relation: "AttentionKvD128FourHeadSeq64SoftmaxTableLookupRelation".to_string(),
+            lookup_relation: "AttentionKvD128SingleHeadSeq16SoftmaxTableLookupRelation".to_string(),
             lookup_relation_width: 2,
             lookup_claims: input.score_rows.len(),
             table_multiplicities: multiplicities,
@@ -348,7 +339,7 @@ fn lookup_summary(
 }
 
 fn build_lookup_bundle(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
 ) -> Result<LookupBundle> {
     let summary = lookup_summary(input)?;
     if TRACE_ROW_COUNT != 1usize << LOG_SIZE {
@@ -368,8 +359,8 @@ fn build_lookup_bundle(
 }
 
 fn lookup_preprocessed_trace(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
-    summary: &ZkAiAttentionKvNativeD128FourHeadSeq64SoftmaxTableLookupSummary,
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
+    summary: &ZkAiAttentionKvNativeD128SingleHeadSeq16SoftmaxTableLookupSummary,
 ) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
     let domain = CanonicCoset::new(LOG_SIZE).circle_domain();
     let mut gaps = Vec::with_capacity(TRACE_ROW_COUNT);
@@ -413,7 +404,7 @@ fn lookup_preprocessed_trace(
 }
 
 fn lookup_base_trace(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
 ) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
     let domain = CanonicCoset::new(LOG_SIZE).circle_domain();
     let mut gaps = Vec::with_capacity(TRACE_ROW_COUNT);
@@ -451,7 +442,7 @@ fn lookup_base_trace(
 
 fn prove_lookup(bundle: &LookupBundle) -> Result<Vec<u8>> {
     let component =
-        lookup_component(AttentionKvD128FourHeadSeq64SoftmaxTableLookupRelation::dummy());
+        lookup_component(AttentionKvD128SingleHeadSeq16SoftmaxTableLookupRelation::dummy());
     let config = lookup_pcs_config();
     let twiddles = SimdBackend::precompute_twiddles(
         CanonicCoset::new(
@@ -474,7 +465,7 @@ fn prove_lookup(bundle: &LookupBundle) -> Result<Vec<u8>> {
     tree_builder.commit(channel);
 
     mix_lookup_summary(channel, &bundle.summary);
-    let lookup_elements = AttentionKvD128FourHeadSeq64SoftmaxTableLookupRelation::draw(channel);
+    let lookup_elements = AttentionKvD128SingleHeadSeq16SoftmaxTableLookupRelation::draw(channel);
     let (interaction_trace, claimed_sum) = lookup_interaction_trace(
         bundle.log_size,
         &bundle.base_trace,
@@ -497,28 +488,30 @@ fn prove_lookup(bundle: &LookupBundle) -> Result<Vec<u8>> {
             .map_err(|error| {
                 lookup_error(format!("Softmax-table lookup proving failed: {error}"))
             })?;
-    serde_json::to_vec(&AttentionKvD128FourHeadSeq64SoftmaxTableLookupProofPayload { stark_proof })
-        .map_err(|error| VmError::Serialization(error.to_string()))
+    serde_json::to_vec(
+        &AttentionKvD128SingleHeadSeq16SoftmaxTableLookupProofPayload { stark_proof },
+    )
+    .map_err(|error| VmError::Serialization(error.to_string()))
 }
 
 fn verify_lookup(
-    source_input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    source_input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
     proof: &[u8],
 ) -> Result<bool> {
     validate_source_input(source_input)?;
     if proof.is_empty()
         || proof.len()
-            > ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_MAX_PROOF_BYTES
+            > ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_MAX_PROOF_BYTES
     {
         return Err(lookup_error("lookup proof byte length outside bounded cap"));
     }
-    let payload: AttentionKvD128FourHeadSeq64SoftmaxTableLookupProofPayload =
+    let payload: AttentionKvD128SingleHeadSeq16SoftmaxTableLookupProofPayload =
         serde_json::from_slice(proof).map_err(|error| VmError::Serialization(error.to_string()))?;
     let stark_proof = payload.stark_proof;
     let config = validate_pcs_config(stark_proof.config)?;
     let expected_roots = lookup_commitment_roots(source_input, config)?;
     let component_placeholder =
-        lookup_component(AttentionKvD128FourHeadSeq64SoftmaxTableLookupRelation::dummy());
+        lookup_component(AttentionKvD128SingleHeadSeq16SoftmaxTableLookupRelation::dummy());
     let sizes = component_placeholder.trace_log_degree_bounds();
     if sizes.len() != EXPECTED_TRACE_COMMITMENTS {
         return Err(lookup_error(
@@ -546,7 +539,7 @@ fn verify_lookup(
     commitment_scheme.commit(stark_proof.commitments[1], &sizes[1], channel);
     let summary = lookup_summary(source_input)?;
     mix_lookup_summary(channel, &summary);
-    let lookup_elements = AttentionKvD128FourHeadSeq64SoftmaxTableLookupRelation::draw(channel);
+    let lookup_elements = AttentionKvD128SingleHeadSeq16SoftmaxTableLookupRelation::draw(channel);
     let component = lookup_component(lookup_elements);
     commitment_scheme.commit(stark_proof.commitments[2], &sizes[2], channel);
     verify(&[&component], channel, commitment_scheme, stark_proof)
@@ -555,7 +548,7 @@ fn verify_lookup(
 }
 
 fn lookup_commitment_roots(
-    source_input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    source_input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
     config: PcsConfig,
 ) -> Result<
     stwo::core::pcs::TreeVec<
@@ -564,7 +557,7 @@ fn lookup_commitment_roots(
 > {
     let bundle = build_lookup_bundle(source_input)?;
     let component =
-        lookup_component(AttentionKvD128FourHeadSeq64SoftmaxTableLookupRelation::dummy());
+        lookup_component(AttentionKvD128SingleHeadSeq16SoftmaxTableLookupRelation::dummy());
     let twiddles = SimdBackend::precompute_twiddles(
         CanonicCoset::new(
             component.max_constraint_log_degree_bound() + config.fri_config.log_blowup_factor + 1,
@@ -586,7 +579,7 @@ fn lookup_commitment_roots(
     tree_builder.commit(channel);
 
     mix_lookup_summary(channel, &bundle.summary);
-    let lookup_elements = AttentionKvD128FourHeadSeq64SoftmaxTableLookupRelation::draw(channel);
+    let lookup_elements = AttentionKvD128SingleHeadSeq16SoftmaxTableLookupRelation::draw(channel);
     let (interaction_trace, claimed_sum) = lookup_interaction_trace(
         bundle.log_size,
         &bundle.base_trace,
@@ -609,7 +602,7 @@ fn lookup_interaction_trace(
     log_size: u32,
     base_trace: &ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
     preprocessed_trace: &ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
-    lookup_elements: &AttentionKvD128FourHeadSeq64SoftmaxTableLookupRelation,
+    lookup_elements: &AttentionKvD128SingleHeadSeq16SoftmaxTableLookupRelation,
 ) -> (
     ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
     SecureField,
@@ -634,24 +627,46 @@ fn lookup_interaction_trace(
 }
 
 fn lookup_component(
-    lookup_elements: AttentionKvD128FourHeadSeq64SoftmaxTableLookupRelation,
-) -> FrameworkComponent<AttentionKvD128FourHeadSeq64SoftmaxTableLookupEval> {
+    lookup_elements: AttentionKvD128SingleHeadSeq16SoftmaxTableLookupRelation,
+) -> FrameworkComponent<AttentionKvD128SingleHeadSeq16SoftmaxTableLookupEval> {
     FrameworkComponent::new(
         &mut TraceLocationAllocator::new_with_preprocessed_columns(&[
             preprocessed_column_id(PREPROCESSED_TABLE_GAP),
             preprocessed_column_id(PREPROCESSED_TABLE_WEIGHT),
             preprocessed_column_id(PREPROCESSED_TABLE_MULTIPLICITY),
         ]),
-        AttentionKvD128FourHeadSeq64SoftmaxTableLookupEval { lookup_elements },
+        AttentionKvD128SingleHeadSeq16SoftmaxTableLookupEval { lookup_elements },
         SecureField::zero(),
     )
 }
 
 fn mix_lookup_summary(
     channel: &mut Blake2sM31Channel,
-    summary: &ZkAiAttentionKvNativeD128FourHeadSeq64SoftmaxTableLookupSummary,
+    summary: &ZkAiAttentionKvNativeD128SingleHeadSeq16SoftmaxTableLookupSummary,
 ) {
-    channel.mix_u64(summary.source_head_count as u64);
+    channel.mix_u64(6);
+    mix_lookup_summary_str(
+        channel,
+        "source_statement_commitment",
+        &summary.source_statement_commitment,
+    );
+    mix_lookup_summary_str(
+        channel,
+        "source_public_instance_commitment",
+        &summary.source_public_instance_commitment,
+    );
+    mix_lookup_summary_str(
+        channel,
+        "source_score_row_commitment",
+        &summary.source_score_row_commitment,
+    );
+    mix_lookup_summary_str(
+        channel,
+        "source_weight_table_commitment",
+        &summary.source_weight_table_commitment,
+    );
+    mix_lookup_summary_str(channel, "weight_policy", &summary.weight_policy);
+    mix_lookup_summary_str(channel, "lookup_relation", &summary.lookup_relation);
     channel.mix_u64(summary.score_rows as u64);
     channel.mix_u64(summary.trace_rows as u64);
     channel.mix_u64(summary.table_rows as u64);
@@ -663,6 +678,24 @@ fn mix_lookup_summary(
         channel.mix_u64(entry.weight.rem_euclid(M31_MODULUS) as u64);
         channel.mix_u64(entry.multiplicity as u64);
     }
+}
+
+fn mix_lookup_summary_str(channel: &mut Blake2sM31Channel, label: &str, value: &str) {
+    channel.mix_u64(label.len() as u64);
+    channel.mix_u64(value.len() as u64);
+    channel.mix_u32s(&bytes_to_channel_words(label.as_bytes()));
+    channel.mix_u32s(&bytes_to_channel_words(value.as_bytes()));
+}
+
+fn bytes_to_channel_words(bytes: &[u8]) -> Vec<u32> {
+    bytes
+        .chunks(4)
+        .map(|chunk| {
+            let mut word = [0u8; 4];
+            word[..chunk.len()].copy_from_slice(chunk);
+            u32::from_le_bytes(word)
+        })
+        .collect()
 }
 
 fn validate_pcs_config(actual: PcsConfig) -> Result<PcsConfig> {
@@ -712,46 +745,35 @@ fn lookup_error(message: impl Into<String>) -> VmError {
 mod tests {
     use super::*;
 
-    const SOURCE_INPUT_JSON_PATH: &str = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.json"
-    );
-
-    fn source_input() -> ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput {
-        let raw = std::fs::read_to_string(SOURCE_INPUT_JSON_PATH).expect(
-            "local-only d128-four-head seq64 source artifact required for ignored artifact tests",
+    fn source_input() -> ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput {
+        let raw = include_str!(
+            "../../docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-proof-2026-05.json"
         );
-        zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_source_input_from_json_str(
-            &raw,
-        )
-        .expect("source input")
-    }
-
-    macro_rules! require_source_input {
-        () => {
-            source_input()
-        };
+        zkai_attention_kv_native_d128_single_head_seq16_softmax_table_lookup_source_input_from_json_str(raw)
+            .expect("source input")
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_d128_four_head_seq64_softmax_table_lookup_sidecar_round_trips_real_proof() {
-        let input = require_source_input!();
+    fn attention_kv_d128_single_head_seq16_softmax_table_lookup_sidecar_round_trips_real_proof() {
+        let input = source_input();
         let envelope =
-            prove_zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_envelope(
+            prove_zkai_attention_kv_native_d128_single_head_seq16_softmax_table_lookup_envelope(
                 &input,
             )
             .expect("prove lookup sidecar");
         assert_eq!(
             envelope.decision,
-            ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_DECISION
+            ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_DECISION
         );
-        assert_eq!(envelope.lookup_summary.source_head_count, 4);
-        assert_eq!(envelope.lookup_summary.score_rows, 8832);
-        assert_eq!(envelope.lookup_summary.lookup_claims, 8832);
+        assert_eq!(
+            envelope.target_id,
+            ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_SOFTMAX_TABLE_LOOKUP_TARGET_ID
+        );
+        assert_eq!(envelope.lookup_summary.score_rows, 168);
+        assert_eq!(envelope.lookup_summary.lookup_claims, 168);
         assert_eq!(envelope.lookup_summary.table_rows, 9);
         assert!(
-            verify_zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_envelope(
+            verify_zkai_attention_kv_native_d128_single_head_seq16_softmax_table_lookup_envelope(
                 &envelope
             )
             .expect("verify lookup sidecar")
@@ -759,9 +781,8 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_d128_four_head_seq64_softmax_table_lookup_summary_counts_claims() {
-        let input = require_source_input!();
+    fn attention_kv_d128_single_head_seq16_softmax_table_lookup_summary_counts_claims() {
+        let input = source_input();
         let summary = lookup_summary(&input).expect("summary");
         let total: usize = summary
             .table_multiplicities
@@ -776,9 +797,9 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_d128_four_head_seq64_softmax_table_lookup_rejects_empty_table_without_panic() {
-        let mut input = require_source_input!();
+    fn attention_kv_d128_single_head_seq16_softmax_table_lookup_rejects_empty_table_without_panic()
+    {
+        let mut input = source_input();
         let mut summary = lookup_summary(&input).expect("summary");
         input.weight_table.clear();
         summary.table_rows = 0;
@@ -792,10 +813,9 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_d128_four_head_seq64_softmax_table_lookup_rejects_preprocessed_overflow_without_panic(
+    fn attention_kv_d128_single_head_seq16_softmax_table_lookup_rejects_preprocessed_overflow_without_panic(
     ) {
-        let input = require_source_input!();
+        let input = source_input();
         let mut summary = lookup_summary(&input).expect("summary");
         let Some(overflow) = (u32::MAX as usize).checked_add(1) else {
             return;
@@ -810,7 +830,7 @@ mod tests {
     }
 
     #[test]
-    fn attention_kv_d128_four_head_seq64_softmax_table_lookup_masks_inactive_denominators() {
+    fn attention_kv_d128_single_head_seq16_softmax_table_lookup_masks_inactive_denominators() {
         let guarded =
             selector_masked_denominator(PackedSecureField::zero(), PackedSecureField::zero());
         assert!(guarded
@@ -826,7 +846,8 @@ mod tests {
     }
 
     #[test]
-    fn attention_kv_d128_four_head_seq64_softmax_table_lookup_preserves_one_sided_contributions() {
+    fn attention_kv_d128_single_head_seq16_softmax_table_lookup_preserves_one_sided_contributions()
+    {
         let one = PackedSecureField::one();
         let zero = PackedSecureField::zero();
         let claimed_q = PackedSecureField::broadcast(SecureField::from(BaseField::from(7u32)));
@@ -850,17 +871,16 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_d128_four_head_seq64_softmax_table_lookup_rejects_summary_drift() {
-        let input = require_source_input!();
+    fn attention_kv_d128_single_head_seq16_softmax_table_lookup_rejects_summary_drift() {
+        let input = source_input();
         let mut envelope =
-            prove_zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_envelope(
+            prove_zkai_attention_kv_native_d128_single_head_seq16_softmax_table_lookup_envelope(
                 &input,
             )
             .expect("prove lookup sidecar");
         envelope.lookup_summary.lookup_claims += 1;
         let error =
-            verify_zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_envelope(
+            verify_zkai_attention_kv_native_d128_single_head_seq16_softmax_table_lookup_envelope(
                 &envelope,
             )
             .expect_err("summary drift must reject");
@@ -868,17 +888,49 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_d128_four_head_seq64_softmax_table_lookup_rejects_source_weight_drift() {
-        let input = require_source_input!();
+    fn attention_kv_d128_single_head_seq16_softmax_table_lookup_rejects_target_id_drift() {
+        let input = source_input();
         let mut envelope =
-            prove_zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_envelope(
+            prove_zkai_attention_kv_native_d128_single_head_seq16_softmax_table_lookup_envelope(
+                &input,
+            )
+            .expect("prove lookup sidecar");
+        envelope.target_id = "attention-kv-d128-single-head-seq16-forged-target".to_string();
+        let error =
+            verify_zkai_attention_kv_native_d128_single_head_seq16_softmax_table_lookup_envelope(
+                &envelope,
+            )
+            .expect_err("target-id drift must reject");
+        assert!(error.to_string().contains("lookup target id"));
+    }
+
+    #[test]
+    fn attention_kv_d128_single_head_seq16_softmax_table_lookup_transcript_binds_claim_strings() {
+        let input = source_input();
+        let mut bundle = build_lookup_bundle(&input).expect("lookup bundle");
+        bundle.summary.source_statement_commitment = format!("blake2b-256:{}", "aa".repeat(32));
+        let proof = prove_lookup(&bundle).expect("prove relabeled lookup sidecar");
+
+        let error = verify_lookup(&input, &proof).expect_err("relabeled transcript must reject");
+        let message = error.to_string();
+        assert!(
+            message.contains("lookup proof commitment 2")
+                || message.contains("Softmax-table lookup proof rejected"),
+            "{message}"
+        );
+    }
+
+    #[test]
+    fn attention_kv_d128_single_head_seq16_softmax_table_lookup_rejects_source_weight_drift() {
+        let input = source_input();
+        let mut envelope =
+            prove_zkai_attention_kv_native_d128_single_head_seq16_softmax_table_lookup_envelope(
                 &input,
             )
             .expect("prove lookup sidecar");
         envelope.source_input.score_rows[0].attention_weight += 1;
         let error =
-            verify_zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_envelope(
+            verify_zkai_attention_kv_native_d128_single_head_seq16_softmax_table_lookup_envelope(
                 &envelope,
             )
             .expect_err("source drift must reject");
@@ -891,18 +943,17 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_d128_four_head_seq64_softmax_table_lookup_rejects_proof_byte_tamper() {
-        let input = require_source_input!();
+    fn attention_kv_d128_single_head_seq16_softmax_table_lookup_rejects_proof_byte_tamper() {
+        let input = source_input();
         let mut envelope =
-            prove_zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_envelope(
+            prove_zkai_attention_kv_native_d128_single_head_seq16_softmax_table_lookup_envelope(
                 &input,
             )
             .expect("prove lookup sidecar");
         let last = envelope.proof.last_mut().expect("proof byte");
         *last ^= 1;
         let error =
-            verify_zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_envelope(
+            verify_zkai_attention_kv_native_d128_single_head_seq16_softmax_table_lookup_envelope(
                 &envelope,
             )
             .expect_err("proof tamper must reject");
