@@ -55,6 +55,11 @@
       "rejected": true
     },
     {
+      "error": "slope row missing field: row_id=d64_h1_to_h4_seq16_head_axis key=fused_prove_growth",
+      "name": "row_missing_nullable_field",
+      "rejected": true
+    },
+    {
       "error": "non-claims drift",
       "name": "non_claim_removed",
       "rejected": true
@@ -65,8 +70,8 @@
       "rejected": true
     }
   ],
-  "mutations_checked": 12,
-  "mutations_rejected": 12,
+  "mutations_checked": 13,
+  "mutations_rejected": 13,
   "non_claims": [
     "not a full transformer block proof",
     "not a public proving-speed benchmark",
