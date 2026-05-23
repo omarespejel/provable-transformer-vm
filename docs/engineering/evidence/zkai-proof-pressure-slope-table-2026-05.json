@@ -25,17 +25,17 @@
       "rejected": true
     },
     {
-      "error": "slope row lookup_growth drift",
+      "error": "slope row drift: row_id=d64_h2_seq32_to_seq64_sequence_axis key=lookup_growth expected=3.72973 actual=3.0",
       "name": "d64_sequence_growth_drift",
       "rejected": true
     },
     {
-      "error": "slope row fused_proof_growth drift",
+      "error": "slope row drift: row_id=d128_h2_seq32_to_seq64_sequence_axis key=fused_proof_growth expected=1.080697 actual=1.2",
       "name": "d128_sequence_growth_drift",
       "rejected": true
     },
     {
-      "error": "slope row fused_proof_growth drift",
+      "error": "slope row drift: row_id=d64_h1_to_h4_seq16_head_axis key=fused_proof_growth expected=0.999457 actual=1.01",
       "name": "d64_head_axis_drift",
       "rejected": true
     },
@@ -45,12 +45,12 @@
       "rejected": true
     },
     {
-      "error": "slope row outcome drift",
+      "error": "slope row drift: row_id=d128_to_d256_h2_seq32_width_axis key=outcome expected='CAUTION_WIDTH_AXIS_SAVING_WEAKENS_AND_TIMING_IS_NOT_A_SPEED_WIN' actual='GO_WIDTH_AXIS_FREE'",
       "name": "outcome_overclaim",
       "rejected": true
     },
     {
-      "error": "slope row fused_proof_growth drift",
+      "error": "slope row drift: row_id=d64_h2_seq32_to_seq64_sequence_axis key=fused_proof_growth expected=1.076519 actual=1.07",
       "name": "summary_row_mismatch",
       "rejected": true
     },
