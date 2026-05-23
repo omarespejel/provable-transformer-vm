@@ -102,6 +102,7 @@ MUTATION_NAMES = (
     "d256_width_timing_drift",
     "outcome_overclaim",
     "summary_row_mismatch",
+    "row_missing_nullable_field",
     "non_claim_removed",
     "full_block_overclaim",
 )
@@ -489,7 +490,9 @@ def validate_rows(rows: list[dict[str, Any]]) -> None:
     for row_id, expected_values in EXPECTED_ROWS.items():
         row = by_id[row_id]
         for key, expected_value in expected_values.items():
-            actual = row.get(key)
+            if key not in row:
+                raise ProofPressureSlopeTableError(f"slope row missing field: row_id={row_id} key={key}")
+            actual = row[key]
             if actual != expected_value:
                 raise ProofPressureSlopeTableError(
                     f"slope row drift: row_id={row_id} key={key} expected={expected_value!r} actual={actual!r}"
@@ -639,6 +642,8 @@ def mutate_payload(payload: dict[str, Any], name: str) -> dict[str, Any]:
         rows["d128_to_d256_h2_seq32_width_axis"]["outcome"] = "GO_WIDTH_AXIS_FREE"
     elif name == "summary_row_mismatch":
         rows["d64_h2_seq32_to_seq64_sequence_axis"]["fused_proof_growth"] = 1.07
+    elif name == "row_missing_nullable_field":
+        del rows["d64_h1_to_h4_seq16_head_axis"]["fused_prove_growth"]
     elif name == "non_claim_removed":
         mutated["non_claims"].pop()
     elif name == "full_block_overclaim":
