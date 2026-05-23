@@ -70,6 +70,40 @@ The fuller crossing grid is now `28 / 100` proved and `72 / 100` missing.
 The wide-grid selector now promotes `d128_h1_seq16` as the next low-pressure
 d128 width anchor, then `d256_h2_seq32` as the next width stress test.
 
+## Reproducibility Metadata
+
+- timing mode: `proof_existence_and_byte_accounting_only_not_public_benchmark`
+- heads: `4`
+- steps per head: `64`
+- key/value width: `128`
+- lookup/score rows: `8,832`
+- trace rows: `16,384`
+- table rows: `9`
+- source binary:
+  `zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_proof`
+- source backend:
+  `stwo-attention-kv-d128-four-head-seq64-causal-mask-bounded-softmax-table-v1`
+- source proof version:
+  `stwo-attention-kv-d128-four-head-seq64-causal-mask-bounded-softmax-table-air-proof-v1`
+- source statement version:
+  `zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-statement-v1`
+- sidecar binary:
+  `zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_proof`
+- sidecar backend:
+  `attention-kv-d128-four-head-seq64-causal-mask-bounded-softmax-table-logup-sidecar-v1`
+- sidecar proof version:
+  `stwo-attention-kv-d128-four-head-seq64-softmax-table-logup-sidecar-proof-v1`
+- sidecar statement version:
+  `zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-statement-v1`
+- fused binary:
+  `zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_proof`
+- fused backend:
+  `stwo-attention-kv-d128-four-head-seq64-fused-bounded-softmax-table-logup-v1`
+- fused proof version:
+  `stwo-attention-kv-d128-four-head-seq64-fused-bounded-softmax-table-logup-proof-v1`
+- fused statement version:
+  `zkai-attention-kv-stwo-native-d128-four-head-seq64-fused-softmax-table-logup-statement-v1`
+
 ## Large Local Artifacts
 
 The source input and proof envelopes for this row are generated locally but are
@@ -93,9 +127,9 @@ The d128 four-head seq64 route keeps the local-only validation discipline:
 - sidecar gate rejects `28 / 28` mutation cases
 - fused gate rejects `30 / 30` mutation cases
 - the same-size fused proof-byte tamper is rejected by the native verifier
-- route matrix rejects `64 / 64` drift and overclaim mutations
+- route matrix rejects `66 / 66` drift and overclaim mutations
 - fuller grid rejects `18 / 18` drift and overclaim mutations
-- scaling claim pack rejects `25 / 25` drift and overclaim mutations
+- scaling claim pack rejects `27 / 27` drift and overclaim mutations
 - wide-grid selector rejects `28 / 28` drift and overclaim mutations
 - evidence is bound by source commitments, proof-envelope commitments, table
   multiplicities, verifier domains, statement versions, source digests, and
@@ -133,6 +167,7 @@ full issue. The following issue-level gates remain open:
 ## Reproduction
 
 ```bash
+just gate-fast
 python3.10 scripts/zkai_attention_kv_stwo_native_d128_four_head_seq64_bounded_softmax_table_proof_input.py --write-json docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.tsv
 cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_proof -- prove docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.envelope.json
 cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_proof -- verify docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.envelope.json
@@ -142,7 +177,7 @@ cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attent
 cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_proof -- verify docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-fused-softmax-table-proof-2026-05.envelope.json
 python3.10 -m unittest scripts.tests.test_zkai_attention_kv_stwo_native_d128_four_head_seq64_bounded_softmax_table_proof_input
 python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d128_four_head_seq64_air_private_softmax_table_lookup_gate
-python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d128_four_head_seq64_fused_softmax_table_native_gate.ProofPressureD128FourHeadSeq64FusedSoftmaxTableNativeGateTests.test_all_declared_mutations_reject
+python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d128_four_head_seq64_fused_softmax_table_native_gate.AttentionKvD128FourHeadSeq64FusedSoftmaxTableNativeGateTests.test_all_declared_mutations_reject
 python3.10 scripts/zkai_attention_kv_d128_four_head_seq64_air_private_softmax_table_lookup_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-gate-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-gate-2026-05.tsv
 python3.10 scripts/zkai_attention_kv_d128_four_head_seq64_fused_softmax_table_native_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-fused-softmax-table-gate-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-fused-softmax-table-gate-2026-05.tsv
 python3.10 scripts/zkai_attention_kv_fused_softmax_table_route_matrix_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.tsv
@@ -150,4 +185,5 @@ python3.10 scripts/zkai_attention_kv_fuller_crossing_grid_gate.py --write-json d
 python3.10 scripts/zkai_proof_pressure_scaling_claim_pack_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-scaling-claim-pack-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-scaling-claim-pack-2026-05.tsv
 python3.10 scripts/zkai_proof_pressure_wide_grid_selector_gate.py --write-json docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.json --write-tsv docs/engineering/evidence/zkai-proof-pressure-wide-grid-selector-2026-05.tsv
 git diff --check
+just gate
 ```

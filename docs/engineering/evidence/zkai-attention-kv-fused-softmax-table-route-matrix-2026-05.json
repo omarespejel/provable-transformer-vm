@@ -1263,6 +1263,11 @@
       "rejected": true
     },
     {
+      "error": "d128_four_head_seq64 steps per head drift",
+      "name": "d128_four_head_seq64_decision_gate_metric_smuggling",
+      "rejected": true
+    },
+    {
       "error": "axis summary drift",
       "name": "axis_summary_width_ratio_drift",
       "rejected": true
@@ -1388,13 +1393,18 @@
       "rejected": true
     },
     {
+      "error": "axis summary drift",
+      "name": "axis_summary_d128_four_head_sequence_frontier_ratio_drift",
+      "rejected": true
+    },
+    {
       "error": "unknown result keys: ['unexpected']",
       "name": "unknown_field_injection",
       "rejected": true
     }
   ],
-  "mutations_checked": 64,
-  "mutations_rejected": 64,
+  "mutations_checked": 66,
+  "mutations_rejected": 66,
   "no_comparator_profiles": [],
   "profile_ids": [
     "d8_single_head_seq8",

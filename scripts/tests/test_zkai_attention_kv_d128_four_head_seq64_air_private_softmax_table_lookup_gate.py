@@ -46,6 +46,7 @@ class AttentionKvD128FourHeadSeq64AirPrivateSoftmaxTableLookupGateTests(unittest
             if 0 <= candidate <= 255 and len(str(candidate)) == len(str(value)):
                 return candidate
         self.fail(f"no same-digit mutation available for {value}")
+        raise AssertionError("unreachable")
 
     def same_size_tampered_envelope_json(self):
         envelope = json.loads(gate.LOOKUP_ENVELOPE_JSON.read_text(encoding="utf-8"))
