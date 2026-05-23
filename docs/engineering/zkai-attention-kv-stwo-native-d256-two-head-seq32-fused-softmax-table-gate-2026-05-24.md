@@ -37,12 +37,12 @@ Median-of-5 local release timing is a caveat, not a win:
 
 | timing | value |
 |---|---:|
-| split prove median | `1,943,179 us` |
-| fused prove median | `2,226,893 us` |
-| fused prove ratio | `1.146005x` |
-| split verify median | `1,213,256 us` |
-| fused verify median | `1,384,798 us` |
-| fused verify ratio | `1.141390x` |
+| split prove median | `1,667,826 us` |
+| fused prove median | `1,924,674 us` |
+| fused prove ratio | `1.154002x` |
+| split verify median | `1,044,898 us` |
+| fused verify median | `1,251,867 us` |
+| fused verify ratio | `1.198076x` |
 
 ## Interpretation
 
