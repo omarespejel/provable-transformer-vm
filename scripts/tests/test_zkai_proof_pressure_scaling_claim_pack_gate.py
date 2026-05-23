@@ -45,22 +45,25 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         self.assertEqual(signal["axes_checked"]["head_counts"], [1, 2, 4, 8, 16])
         self.assertEqual(signal["axes_checked"]["steps_per_head"], [8, 16, 32])
         self.assertIn("d64/d128/d256", signal["missing_axes"][0])
-        self.assertEqual(route_signal["profiles_checked"], 26)
-        self.assertEqual(route_signal["matched_comparator_profiles"], 26)
+        self.assertEqual(route_signal["profiles_checked"], 27)
+        self.assertEqual(route_signal["matched_comparator_profiles"], 27)
         self.assertEqual(route_signal["widths"], [8, 16, 32, 64, 128])
-        self.assertEqual(route_signal["raw_proof_savings_bytes_total"], 636649)
+        self.assertEqual(route_signal["raw_proof_savings_bytes_total"], 675953)
         self.assertEqual(route_signal["min_fused_to_split_ratio"], 0.676723)
         self.assertEqual(route_signal["max_fused_to_split_ratio"], 0.934545)
         self.assertEqual(route_signal["d32_two_head_sequence_ladder"]["seq32_raw_saving_bytes"], 26326)
         self.assertEqual(route_signal["d128_two_head_seq32_width_frontier"]["d128_raw_saving_bytes"], 32388)
         self.assertEqual(summary["proof_size_comparable_external_rows"], 0)
-        self.assertEqual(summary["attention_route_rows_checked"], 26)
-        self.assertEqual(summary["attention_raw_proof_savings_bytes_total"], 636649)
+        self.assertEqual(summary["attention_route_rows_checked"], 27)
+        self.assertEqual(summary["attention_raw_proof_savings_bytes_total"], 675953)
         self.assertEqual(summary["d128_seq32_raw_saving_bytes"], 32388)
         self.assertEqual(summary["d64_to_d128_seq32_fused_raw_proof_growth"], "1.760615")
         self.assertEqual(summary["d128_seq64_raw_saving_bytes"], 40317)
         self.assertEqual(summary["d128_seq32_to_seq64_lookup_growth"], "3.729730")
         self.assertEqual(summary["d128_seq32_to_seq64_fused_raw_proof_growth"], "1.080697")
+        self.assertEqual(summary["d128_four_head_seq32_raw_saving_bytes"], 39304)
+        self.assertEqual(summary["d128_seq32_two_to_four_lookup_growth"], "2.000000")
+        self.assertEqual(summary["d128_seq32_two_to_four_fused_raw_proof_growth"], "1.044276")
         self.assertEqual(summary["d64_to_d128_seq64_fused_raw_proof_growth"], "1.767448")
         self.assertEqual(summary["open_followup_count"], 3)
 
@@ -76,7 +79,7 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         self.assertEqual(seq32["seq32_split_typed_bytes"], 31712)
         self.assertEqual(seq32["seq32_fused_saving_bytes"], 8796)
 
-    def test_binds_26_row_route_matrix_d32_d64_and_d128_raw_signals(self) -> None:
+    def test_binds_27_row_route_matrix_d32_d64_and_d128_raw_signals(self) -> None:
         route_signal = self.payload["route_matrix_signal"]
         ladder = route_signal["d32_two_head_sequence_ladder"]
         d64_seq16 = route_signal["d64_seq16_head_extension"]
@@ -84,12 +87,13 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         d64_seq64 = route_signal["d64_four_head_seq64_decision_gate"]
         d128_width = route_signal["d128_two_head_seq32_width_frontier"]
         d128_sequence = route_signal["d128_two_head_seq64_sequence_frontier"]
+        d128_head = route_signal["d128_four_head_seq32_head_frontier"]
         d128_seq64_width = route_signal["d128_two_head_seq64_width_frontier"]
 
-        self.assertEqual(route_signal["total_lookup_claims"], 33100)
-        self.assertEqual(route_signal["total_trace_rows"], 57920)
-        self.assertEqual(route_signal["fused_raw_proof_bytes_total"], 4234408)
-        self.assertEqual(route_signal["source_plus_sidecar_raw_proof_bytes_total"], 4871057)
+        self.assertEqual(route_signal["total_lookup_claims"], 35468)
+        self.assertEqual(route_signal["total_trace_rows"], 62016)
+        self.assertEqual(route_signal["fused_raw_proof_bytes_total"], 4700038)
+        self.assertEqual(route_signal["source_plus_sidecar_raw_proof_bytes_total"], 5375991)
         self.assertEqual(ladder["profile_ids"], ["d32_two_head_seq8", "d32_two_head_seq16", "d32_two_head_seq32"])
         self.assertEqual(ladder["seq8_lookup_claims"], 104)
         self.assertEqual(ladder["seq16_lookup_claims"], 336)
@@ -230,6 +234,27 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         self.assertEqual(d128_sequence["seq32_to_seq64_fused_raw_proof_growth"], "1.080697")
         self.assertEqual(d128_sequence["seq32_to_seq64_split_raw_proof_growth"], "1.091811")
         self.assertEqual(d128_sequence["seq32_to_seq64_saving_growth"], "1.244813")
+        self.assertEqual(d128_head["profile_ids"], ["d128_two_head_seq32", "d128_four_head_seq32"])
+        self.assertEqual(d128_head["two_head_lookup_claims"], 1184)
+        self.assertEqual(d128_head["four_head_lookup_claims"], 2368)
+        self.assertEqual(d128_head["two_head_trace_rows"], 2048)
+        self.assertEqual(d128_head["four_head_trace_rows"], 4096)
+        self.assertEqual(d128_head["two_head_source_raw_proof_bytes"], 443266)
+        self.assertEqual(d128_head["four_head_source_raw_proof_bytes"], 463410)
+        self.assertEqual(d128_head["two_head_sidecar_raw_proof_bytes"], 35010)
+        self.assertEqual(d128_head["four_head_sidecar_raw_proof_bytes"], 41524)
+        self.assertEqual(d128_head["two_head_fused_raw_proof_bytes"], 445888)
+        self.assertEqual(d128_head["four_head_fused_raw_proof_bytes"], 465630)
+        self.assertEqual(d128_head["four_head_source_plus_sidecar_raw_proof_bytes"], 504934)
+        self.assertEqual(d128_head["four_head_raw_saving_bytes"], 39304)
+        self.assertEqual(d128_head["four_head_fused_to_split_ratio"], 0.92216)
+        self.assertEqual(d128_head["two_to_four_lookup_claim_growth"], "2.000000")
+        self.assertEqual(d128_head["two_to_four_trace_row_growth"], "2.000000")
+        self.assertEqual(d128_head["two_to_four_source_raw_proof_growth"], "1.045444")
+        self.assertEqual(d128_head["two_to_four_sidecar_raw_proof_growth"], "1.186061")
+        self.assertEqual(d128_head["two_to_four_fused_raw_proof_growth"], "1.044276")
+        self.assertEqual(d128_head["two_to_four_split_raw_proof_growth"], "1.055738")
+        self.assertEqual(d128_head["two_to_four_saving_growth"], "1.213536")
         self.assertEqual(d128_seq64_width["profile_ids"], ["d64_two_head_seq64", "d128_two_head_seq64"])
         self.assertEqual(d128_seq64_width["d64_lookup_claims"], 4416)
         self.assertEqual(d128_seq64_width["d128_lookup_claims"], 4416)
@@ -339,6 +364,10 @@ class ProofPressureScalingClaimPackGateTests(unittest.TestCase):
         payload = self.strip_mutation_summary(self.payload)
         payload["route_matrix_signal"]["d128_two_head_seq32_width_frontier"]["d128_raw_saving_bytes"] = 32387
         self.assert_rejects(payload, "d128 width frontier saving drift")
+
+        payload = self.strip_mutation_summary(self.payload)
+        payload["route_matrix_signal"]["d128_four_head_seq32_head_frontier"]["four_head_raw_saving_bytes"] = 39303
+        self.assert_rejects(payload, "d128 head four-head saving drift")
 
         payload = self.strip_mutation_summary(self.payload)
         payload["summary"]["d32_seq8_to_seq32_lookup_growth"] = "1.000000"

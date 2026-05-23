@@ -15,14 +15,15 @@ question first:
 
 ## Result
 
-`GO_WIDE_GRID_SELECTOR_PROMOTE_D128_HEAD_AXIS_WITH_D256_STILL_FALSIFICATION_TARGET`
+`GO_WIDE_GRID_SELECTOR_PROMOTE_D128_FOUR_HEAD_SEQ64_WITH_D256_STILL_FALSIFICATION_TARGET`
 
-The current checked route matrix covers `26` source-backed attention rows over
-`d8`, `d16`, `d32`, partial `d64`, and two `d128` two-head rows. It contains
-checked d64 two-head and four-head sequence rows through `seq64`, plus
-`d128_h2_seq32` and `d128_h2_seq64`. It still does not contain `d256`
-attention route rows. The selector therefore promotes the next d128 head-axis
-row while keeping d256 as a falsification target, not as a measured result.
+The current checked route matrix covers `27` source-backed attention rows over
+`d8`, `d16`, `d32`, partial `d64`, and partial `d128`. It contains checked d64
+two-head and four-head sequence rows through `seq64`, plus `d128_h2_seq32`,
+`d128_h2_seq64`, and `d128_h4_seq32`. It still does not contain `d256`
+attention route rows. The selector therefore promotes the next d128 four-head
+sequence row while keeping d256 as a falsification target, not as a measured
+result.
 
 ## Why This Matters
 
@@ -37,6 +38,7 @@ The strongest current signal is lookup-heavy sequence scaling:
 | `d128`, two-head, `seq32` to `seq64` | `3.729730x` | `4.000000x` | `1.080697x` |
 | `d64`, `seq16`, two heads to four heads | `2.000000x` | `2.000000x` | `0.996193x` |
 | `d64`, `seq32`, two heads to four heads | `2.000000x` | `2.000000x` | `1.010393x` |
+| `d128`, `seq32`, two heads to four heads | `2.000000x` | `2.000000x` | `1.044276x` |
 
 That is the signal a paper can try to turn into a structural result.
 
@@ -50,9 +52,10 @@ Width is the stress test:
 
 Human read: sequence and head-axis pressure can make lookup work grow much
 faster than proof bytes. Width still grows proof bytes without adding lookup
-claims. The new d128 seq64 row is useful because the sequence signal survives
-one real d128 extension, but width remains the stress test. The next question
-is whether d128 also survives head-axis pressure.
+claims. The d128 seq64 row shows the sequence signal survives one d128
+extension, and the d128 four-head seq32 row shows the head-axis signal survives
+one d128 extension. The next question is whether both pressures survive
+together at `d128_h4_seq64`.
 
 Accounting guardrail: the selector carries typed, JSON, and binary/raw context
 from the claim pack separately from the raw route-matrix signal.
@@ -61,26 +64,26 @@ from the claim pack separately from the raw route-matrix signal.
 |---|---:|---:|---:|---|
 | attention controlled grid totals | `234,296` | `629,466` | not available for those rows | typed/JSON only |
 | statement-only seq32+d128 row | `39,516` | `113,388` | `1,084` | local record-stream accounting |
-| route matrix raw saving | not comparable | not comparable | `636,649` saved | raw proof-byte route signal |
+| route matrix raw saving | not comparable | not comparable | `675,953` saved | raw proof-byte route signal |
 
 ## Selected Attack Order
 
-1. `d128_h4_seq32`
-   - Next d128 head-axis stress row.
-   - Tests whether the positive d128 two-head rows survive a wider head surface
-     before jumping to d256.
+1. `d128_h4_seq64`
+   - Next d128 four-head sequence stress row.
+   - Tests whether the positive d128 four-head seq32 row survives the seq64
+     pressure jump before jumping to d256.
    - GO if source, sidecar, and fused rows exist and fused beats matched split.
-   - NO-GO if d128 four-head proof generation is too heavy, fails mutation
-     guards, or loses the matched fused-vs-split saving.
+   - NO-GO if d128 four-head seq64 proof generation is too heavy, fails
+     mutation guards, or loses the matched fused-vs-split saving.
 
 2. `d128_h1_seq16`
    - Lower-pressure d128 width anchor fallback.
-   - Separates d128 width pressure from head pressure if the four-head row is
-     too heavy.
+   - Separates d128 width pressure from head and sequence pressure if the
+     four-head seq64 row is too heavy.
 
 3. `d256_h2_seq32`
-   - Only after d128 head-axis evidence stays structurally positive or after a
-     generated/generic backend avoids
+   - Only after d128 four-head seq64 evidence stays structurally positive or
+     after a generated/generic backend avoids
      copy-per-width engineering dominating the research.
 
 ## Evidence
@@ -107,7 +110,7 @@ just gate
 
 ## Correctness Guards
 
-The gate rejects `26 / 26` mutations:
+The gate rejects `27 / 27` mutations:
 
 - decision drift
 - claim-boundary overclaim
@@ -124,6 +127,7 @@ The gate rejects `26 / 26` mutations:
 - d64 two-head seq64 signal drift
 - d128 width-frontier signal drift
 - d128 sequence-frontier signal drift
+- d128 head-frontier signal drift
 - d128 seq64 width-frontier signal drift
 - width-pressure-signal drift
 - d64 single-head anchor signal drift
