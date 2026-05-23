@@ -59,13 +59,14 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 48. `docs/engineering/zkai-attention-kv-stwo-native-d64-single-head-longseq-fused-softmax-table-gate-2026-05-23.md`
 49. `docs/engineering/zkai-attention-kv-stwo-native-d128-two-head-seq32-fused-softmax-table-gate-2026-05-23.md`
 50. `docs/engineering/zkai-attention-kv-stwo-native-d128-two-head-seq64-fused-softmax-table-gate-2026-05-23.md`
-51. `docs/engineering/zkai-attention-kv-stwo-native-d64-two-head-seq32-fused-softmax-table-gate-2026-05-21.md`
-52. `docs/engineering/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05-09.md`
-53. `docs/engineering/zkai-attention-kv-fused-softmax-table-microprofile-2026-05-10.md`
-54. `docs/engineering/zkai-attention-kv-fused-softmax-table-section-delta-2026-05-10.md`
-55. `docs/engineering/zkai-attention-kv-stwo-fine-grained-component-schema-2026-05-10.md`
-56. `docs/engineering/zkai-attention-kv-stwo-controlled-component-grid-2026-05-10.md`
-57. `docs/engineering/zkai-attention-kv-proof-route-selector-2026-05-05.md`
+51. `docs/engineering/zkai-attention-kv-stwo-native-d128-four-head-seq32-fused-softmax-table-gate-2026-05-23.md`
+52. `docs/engineering/zkai-attention-kv-stwo-native-d64-two-head-seq32-fused-softmax-table-gate-2026-05-21.md`
+53. `docs/engineering/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05-09.md`
+54. `docs/engineering/zkai-attention-kv-fused-softmax-table-microprofile-2026-05-10.md`
+55. `docs/engineering/zkai-attention-kv-fused-softmax-table-section-delta-2026-05-10.md`
+56. `docs/engineering/zkai-attention-kv-stwo-fine-grained-component-schema-2026-05-10.md`
+57. `docs/engineering/zkai-attention-kv-stwo-controlled-component-grid-2026-05-10.md`
+58. `docs/engineering/zkai-attention-kv-proof-route-selector-2026-05-05.md`
 58. `docs/engineering/zkai-attention-derived-d128-rmsnorm-public-row-2026-05-13.md`
 59. `docs/engineering/zkai-attention-derived-d128-projection-boundary-2026-05-13.md`
 60. `docs/engineering/zkai-attention-derived-d128-activation-swiglu-2026-05-13.md`
@@ -126,6 +127,26 @@ proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
 
 Latest proof-pressure route extension: issue `#715` now has the
+`d128_four_head_seq32` native Stwo fused Softmax-table row. The matched split
+frontier is `463,410` source proof bytes plus `41,524` LogUp sidecar bytes
+(`504,934` total). The fused proof is `465,630` bytes, saving `39,304` bytes
+(`0.922160x`) against the matched split frontier. It is `2,220` bytes larger
+than the source arithmetic proof alone, so the honest claim is
+source-plus-sidecar fusion saving, not source-only compression. Holding d128
+and seq32 fixed from two heads to four heads, lookup claims grow `2.000000x`
+and trace rows grow `2.000000x`, while fused proof bytes grow `1.044276x`,
+matched split bytes grow `1.055738x`, and fused savings grow `1.213536x`. The
+route matrix is now `27` matched rows, `35,468` lookup claims, `4,700,038`
+fused proof bytes versus `5,375,991` split proof bytes, and `675,953`
+aggregate saved bytes. The fuller grid is now `27 / 100` proved and `73 / 100`
+missing; the next selector target is `d128_h4_seq64`, with `d128_h1_seq16` as
+the fallback if the four-head seq64 row is too heavy. This is not exact
+Softmax, not full transformer inference, not recursion or PCD, not production
+zkML readiness, not a NANOZK comparison, not timing evidence, and not a
+model-faithful d128 four-head trace. See
+`docs/engineering/zkai-attention-kv-stwo-native-d128-four-head-seq32-fused-softmax-table-gate-2026-05-23.md`.
+
+Previous proof-pressure route extension: issue `#715` has the
 `d128_two_head_seq64` native Stwo fused Softmax-table row. The matched split
 frontier is `476,773` source proof bytes plus `45,414` LogUp sidecar bytes
 (`522,187` total). The fused proof is `481,870` bytes, saving `40,317` bytes
@@ -137,14 +158,10 @@ trace rows grow `4.000000x`, while fused proof bytes grow `1.080697x`, matched
 split bytes grow `1.091811x`, and fused savings grow `1.244813x`. Holding two
 heads and seq64 fixed from d64 to d128, lookup claims and trace rows stay
 `1.000000x`, while fused proof bytes grow `1.767448x`, matched split bytes grow
-`1.701101x`, and fused savings grow `1.174259x`. The route matrix is now `26`
-matched rows, `33,100` lookup claims, `4,234,408` fused proof bytes versus
-`4,871,057` split proof bytes, and `636,649` aggregate saved bytes. The fuller
-grid is now `26 / 100` proved and `74 / 100` missing; the next selector target
-is `d128_h4_seq32`, with `d128_h1_seq16` as the fallback if the four-head row
-is too heavy. This is not exact Softmax, not full transformer inference, not
-recursion or PCD, not production zkML readiness, not a NANOZK comparison, not
-timing evidence, and not a model-faithful d128 two-head trace. See
+`1.701101x`, and fused savings grow `1.174259x`. This is not exact Softmax,
+not full transformer inference, not recursion or PCD, not production zkML
+readiness, not a NANOZK comparison, not timing evidence, and not a
+model-faithful d128 two-head trace. See
 `docs/engineering/zkai-attention-kv-stwo-native-d128-two-head-seq64-fused-softmax-table-gate-2026-05-23.md`.
 
 Previous proof-pressure route extension: issue `#715` has the
@@ -3169,6 +3186,22 @@ Stwo statement-only attempt transcript reproducibility metadata:
   `git diff --check`;
   `just gate-fast`;
   `just gate`.
+
+Current proof-pressure wide-grid selector: issue `#715` now promotes
+`d128_h4_seq64` after the positive `d128_h4_seq32` head-axis row. This is not a
+wide proof result. It records `27` checked attention route rows, `10` source-
+backed requested grid cells, `17` missing requested cells, `675,953` aggregate
+raw proof-byte savings, and no d256 attention rows. The decision is
+`GO_WIDE_GRID_SELECTOR_PROMOTE_D128_FOUR_HEAD_SEQ64_WITH_D256_STILL_FALSIFICATION_TARGET`.
+The fallback remains `d128_h1_seq16` if the four-head seq64 route is too heavy
+or loses fused-vs-split savings. The selector rejects `27 / 27` mutation cases
+and has `24` Python unit tests. Source artifact SHA-256 values are route matrix
+`1671310d7eaf9e066db6224037a61ac7bf644df4b389afdc1d56306f073d0281`, fuller
+grid `fd1d37bd2df13014b5a66e9e6231e4f572bdd863c15e547a2ea51d7c78cf77eb`,
+and claim pack `e40ddb3ec7cfa7b679b275573296c92b8414a7034be740f20b216e2a69dee1eb`.
+Payload commitment:
+`blake2b-256:d71c7a597e80ad101ea1f5ce6f69c9c2cf8d33ff255dd969b276d5101df3bbc7`.
+See `docs/engineering/zkai-proof-pressure-wide-grid-selector-2026-05-21.md`.
 
 Previous proof-pressure wide-grid selector: issue `#715` has a checked
 selector artifact for the requested `d64`/`d128`/`d256` scaling agenda. This is
