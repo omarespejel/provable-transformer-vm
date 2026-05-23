@@ -489,8 +489,11 @@ def validate_rows(rows: list[dict[str, Any]]) -> None:
     for row_id, expected_values in EXPECTED_ROWS.items():
         row = by_id[row_id]
         for key, expected_value in expected_values.items():
-            if row.get(key) != expected_value:
-                raise ProofPressureSlopeTableError(f"slope row {key} drift")
+            actual = row.get(key)
+            if actual != expected_value:
+                raise ProofPressureSlopeTableError(
+                    f"slope row drift: row_id={row_id} key={key} expected={expected_value!r} actual={actual!r}"
+                )
     if by_id["d64_h1_to_h4_seq16_head_axis"]["lookup_growth"] != 4.0:
         raise ProofPressureSlopeTableError("d64 head-axis lookup drift")
     if by_id["d64_h1_to_h4_seq16_head_axis"]["fused_proof_growth"] != 0.999457:
