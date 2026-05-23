@@ -45,6 +45,8 @@ class ProofPressureMainEvidenceGateTests(unittest.TestCase):
             self.assertEqual(len(rows), 5)
             svg = svg_path.read_text(encoding="utf-8")
             self.assertIn("Work grows fast", svg)
+            self.assertNotIn("fused prove", svg)
+            self.assertNotIn("Time does not", svg)
             self.assertIn("d64 two head seq32", svg)
 
     def test_validate_rejects_overclaim_shapes(self) -> None:

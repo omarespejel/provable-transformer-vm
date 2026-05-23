@@ -22,7 +22,7 @@ D64_TIMING_PATH = EVIDENCE_DIR / "zkai-attention-kv-d64-sequence-median-timing-r
 D256_TIMING_PATH = EVIDENCE_DIR / "zkai-attention-kv-d256-two-head-seq32-median-timing-raw-2026-05.json"
 JSON_OUT = EVIDENCE_DIR / "zkai-proof-pressure-main-evidence-2026-05.json"
 TSV_OUT = EVIDENCE_DIR / "zkai-proof-pressure-main-evidence-2026-05.tsv"
-SVG_OUT = EVIDENCE_DIR / "zkai-proof-pressure-work-proof-time-growth-2026-05.svg"
+SVG_OUT = EVIDENCE_DIR / "zkai-proof-pressure-work-proof-growth-2026-05.svg"
 
 SCHEMA = "zkai-proof-pressure-main-evidence-v1"
 ISSUE = 715
@@ -326,8 +326,8 @@ def write_svg(path: pathlib.Path, payload: dict[str, Any]) -> None:
     validate_output_path(path)
     validate_payload(payload)
     rows = [row for row in payload["rows"] if row["row_kind"] == "sequence_axis"]
-    labels = ["lookup", "trace", "fused proof", "fused prove"]
-    colors = ["#2f80ed", "#6fcf97", "#f2c94c", "#eb5757"]
+    labels = ["lookup", "trace", "fused proof"]
+    colors = ["#2f80ed", "#6fcf97", "#f2c94c"]
     width = 1180
     height = 640
     chart_left = 130
@@ -338,8 +338,8 @@ def write_svg(path: pathlib.Path, payload: dict[str, Any]) -> None:
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
         '<rect width="1180" height="640" fill="#0b0d10"/>',
-        '<text x="48" y="46" fill="#f4f6f8" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="700">Work grows fast. Proof bytes grow slowly. Time does not.</text>',
-        '<text x="48" y="76" fill="#aab2bd" font-family="Inter, Arial, sans-serif" font-size="15">d64 seq32 to seq64, median-of-5 local release timing. Engineering evidence, not public benchmark.</text>',
+        '<text x="48" y="46" fill="#f4f6f8" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="700">Work grows fast. Proof bytes grow slowly.</text>',
+        '<text x="48" y="76" fill="#aab2bd" font-family="Inter, Arial, sans-serif" font-size="15">d64 seq32 to seq64, size-only view of checked proof-pressure evidence.</text>',
     ]
     for tick in range(0, 5):
         y = chart_top + chart_height - (tick / max_value) * chart_height
@@ -353,7 +353,6 @@ def write_svg(path: pathlib.Path, payload: dict[str, Any]) -> None:
             row["lookup_growth"],
             row["trace_growth"],
             row["fused_proof_growth"],
-            row["fused_prove_growth"],
         ]
         for index, value in enumerate(values):
             x = group_x + index * (bar_width + 18)
@@ -363,15 +362,15 @@ def write_svg(path: pathlib.Path, payload: dict[str, Any]) -> None:
             parts.append(f'<text x="{x + bar_width / 2:.1f}" y="{y - 8:.1f}" fill="#f4f6f8" font-family="Inter, Arial, sans-serif" font-size="13" text-anchor="middle">{value:.2f}x</text>')
         center = group_x + (len(labels) * (bar_width + 18) - 18) / 2
         parts.append(f'<text x="{center:.1f}" y="{chart_top + chart_height + 42}" fill="#f4f6f8" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700" text-anchor="middle">{row["from_profile_id"].replace("_", " ")} to seq64</text>')
-    legend_x = 760
+    legend_x = 830
     legend_y = 520
     for index, label in enumerate(labels):
         x = legend_x + index * 100
         parts.append(f'<rect x="{x}" y="{legend_y}" width="14" height="14" rx="3" fill="{colors[index]}"/>')
         parts.append(f'<text x="{x + 20}" y="{legend_y + 12}" fill="#c8d0d8" font-family="Inter, Arial, sans-serif" font-size="13">{label}</text>')
     parts.append('<text x="48" y="540" fill="#f4f6f8" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">Reading</text>')
-    parts.append('<text x="48" y="568" fill="#aab2bd" font-family="Inter, Arial, sans-serif" font-size="15">The size result is real: fused proof bytes grow near 1.08x while lookup and trace work grow about 4x.</text>')
-    parts.append('<text x="48" y="592" fill="#aab2bd" font-family="Inter, Arial, sans-serif" font-size="15">The speed result is different: local proving time grows near the work axis, so the claim must stay about proof boundaries.</text>')
+    parts.append('<text x="48" y="568" fill="#aab2bd" font-family="Inter, Arial, sans-serif" font-size="15">Fused proof bytes grow near 1.08x while lookup and trace work grow about 4x.</text>')
+    parts.append('<text x="48" y="592" fill="#aab2bd" font-family="Inter, Arial, sans-serif" font-size="15">This figure is only about proof-size pressure and boundary shape.</text>')
     parts.append("</svg>")
     atomic_write(path, "\n".join(parts) + "\n")
 

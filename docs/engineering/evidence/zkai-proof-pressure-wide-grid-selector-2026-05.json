@@ -419,7 +419,7 @@
     "not production zkML readiness",
     "does not widen the claim beyond checked d8, d16, d32, partial d64, partial d128, and one d256 attention row"
   ],
-  "payload_commitment": "blake2b-256:b8acb66d544941f535e699b42cae1184d92e06a869719904276c8d8f18e9ece0",
+  "payload_commitment": "blake2b-256:3a57fedb8850347ed2f6ef51b1c6885ea14a5f45bb5bb17c393ebaa041abf3bf",
   "requested_grid_signal": {
     "fully_missing_requested_widths": [],
     "missing_requested_cell_count": 14,
@@ -660,8 +660,8 @@
     {
       "id": "fuller_crossing_grid",
       "path": "docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json",
-      "sha256": "e4d0cfa99753d7fd64364361ba2550d474d8dd8857c86f3f08efd5d5993ac0ed",
-      "size_bytes": 97305
+      "sha256": "2fc9660f6bfb6d9c7c25b31205b89e60591cc6a52f19bf7809d8af4e797684e0",
+      "size_bytes": 97307
     },
     {
       "id": "proof_pressure_claim_pack",

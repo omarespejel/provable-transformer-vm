@@ -2601,7 +2601,7 @@
     }
   ],
   "grid_status": "GO_120_CELL_WIDTH_HEAD_SEQUENCE_STATUS_GRID_FROM_CHECKED_ROUTE_MATRIX",
-  "issue": 7,
+  "issue": 715,
   "mutation_results": [
     {
       "error": "result drift for decision",

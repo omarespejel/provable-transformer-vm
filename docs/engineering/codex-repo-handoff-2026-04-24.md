@@ -3412,7 +3412,7 @@ Updated source-of-truth artifacts:
 - Wide selector: next target is `d256_h2_seq64`.
 - Claim pack: `31 / 31` mutation cases reject.
 - Main evidence: `docs/engineering/evidence/zkai-proof-pressure-main-evidence-2026-05.json`.
-- Figure: `docs/engineering/evidence/zkai-proof-pressure-work-proof-time-growth-2026-05.svg`.
+- Figure: `docs/engineering/evidence/zkai-proof-pressure-work-proof-growth-2026-05.svg`.
 
 Non-claims remain: not full transformer inference, not a full transformer block
 proof, not exact real-valued Softmax, not a public proving-speed benchmark, not
