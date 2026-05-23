@@ -54,7 +54,7 @@ TIMING_POLICY = "proof_existence_and_byte_accounting_only_not_public_benchmark"
 SOURCE_PROOF_SIZE_BYTES = 816_627
 SOURCE_ENVELOPE_SIZE_BYTES = 42_930_889
 SIDECAR_PROOF_SIZE_BYTES = 34_914
-SIDECAR_ENVELOPE_SIZE_BYTES = 36_679_145
+SIDECAR_ENVELOPE_SIZE_BYTES = 36_679_243
 SOURCE_PLUS_SIDECAR_RAW_PROOF_BYTES = SOURCE_PROOF_SIZE_BYTES + SIDECAR_PROOF_SIZE_BYTES
 FUSED_PROOF_SIZE_BYTES = 821_398
 FUSED_ENVELOPE_SIZE_BYTES = 42_972_102
@@ -387,7 +387,13 @@ def verify_envelope_bytes_with_native_cli(
     if cached_summary is not None:
         assert_fields(cached_summary, expected_summary, f"native {label} verifier summary")
         return
-    with tempfile.NamedTemporaryFile("wb", suffix=".json", delete=False) as tmp:
+    with tempfile.NamedTemporaryFile(
+        "wb",
+        dir=EVIDENCE_DIR,
+        prefix=".d256-source-native-verify.",
+        suffix=".json",
+        delete=False,
+    ) as tmp:
         tmp.write(envelope_bytes)
         tmp_path = pathlib.Path(tmp.name)
     command = [
@@ -447,7 +453,13 @@ def verify_fused_envelope_bytes_with_native_cli(envelope_bytes: bytes, label: st
     cache_key = (digest, len(envelope_bytes))
     if cache_key in _FUSED_VERIFY_CACHE:
         return
-    with tempfile.NamedTemporaryFile("wb", suffix=".json", delete=False) as tmp:
+    with tempfile.NamedTemporaryFile(
+        "wb",
+        dir=EVIDENCE_DIR,
+        prefix=".d256-fused-native-verify.",
+        suffix=".json",
+        delete=False,
+    ) as tmp:
         tmp.write(envelope_bytes)
         tmp_path = pathlib.Path(tmp.name)
     command = [
@@ -636,6 +648,7 @@ def validate_source_artifacts(
         {
             "proof_backend",
             "proof_backend_version",
+            "proof_schema_version",
             "statement_version",
             "semantic_scope",
             "decision",
@@ -650,7 +663,8 @@ def validate_source_artifacts(
         sidecar_envelope,
         {
             "proof_backend": "stwo",
-            "proof_backend_version": "stwo-attention-kv-d256-two-head-seq32-softmax-table-logup-sidecar-proof-v1",
+            "proof_backend_version": "stwo-attention-kv-d256-two-head-seq32-softmax-table-logup-sidecar-v1",
+            "proof_schema_version": "stwo-attention-kv-d256-two-head-seq32-softmax-table-logup-sidecar-proof-v1",
             "statement_version": "zkai-attention-kv-stwo-native-d256-two-head-seq32-softmax-table-logup-sidecar-statement-v1",
             "semantic_scope": "d256_two_head_seq32_bounded_softmax_table_membership_constrained_by_native_stwo_logup_sidecar",
             "decision": "GO_NATIVE_STWO_AIR_CONSTRAINED_SOFTMAX_TABLE_LOOKUP_RELATION_SIDECAR",

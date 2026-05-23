@@ -92,6 +92,8 @@ pub const ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_BOUNDED_SOFTMAX_TABLE_MAX
 // proof cap above the d128 frontier while still rejecting accidental bloat.
 pub const ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES:
     usize = 1_048_576;
+pub const ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_BOUNDED_SOFTMAX_TABLE_CHECKED_PROOF_BYTES:
+    usize = 816_627;
 
 const ROW_DOMAIN: &str =
     "ptvm:zkai:attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-score-rows:v1";

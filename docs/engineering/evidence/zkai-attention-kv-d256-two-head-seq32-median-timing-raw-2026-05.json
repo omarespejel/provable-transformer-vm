@@ -1,14 +1,14 @@
 {
   "clock": "std_time_instant_elapsed_as_micros",
   "comparisons": {
-    "fused_minus_source_plus_sidecar_prove_median_us": 283714,
-    "fused_minus_source_plus_sidecar_verify_median_us": 171542,
-    "fused_prove_median_us": 2226893,
-    "fused_to_source_plus_sidecar_prove_median_ratio": 1.146005,
-    "fused_to_source_plus_sidecar_verify_median_ratio": 1.14139,
-    "fused_verify_median_us": 1384798,
-    "source_plus_sidecar_prove_median_us": 1943179,
-    "source_plus_sidecar_verify_median_us": 1213256
+    "fused_minus_source_plus_sidecar_prove_median_us": 256848,
+    "fused_minus_source_plus_sidecar_verify_median_us": 206969,
+    "fused_prove_median_us": 1924674,
+    "fused_to_source_plus_sidecar_prove_median_ratio": 1.154002,
+    "fused_to_source_plus_sidecar_verify_median_ratio": 1.198076,
+    "fused_verify_median_us": 1251867,
+    "source_plus_sidecar_prove_median_us": 1667826,
+    "source_plus_sidecar_verify_median_us": 1044898
   },
   "decision": "GO_D256_TWO_HEAD_SEQ32_ENGINEERING_LOCAL_MEDIAN_OF_5_TIMING_CAPTURED",
   "generated_proof_bytes": {
@@ -67,10 +67,10 @@
       "sha256": "cfcdccaa503a160efb019c529de6901953ebbaa71951c3b3fe0fb5a29b1928af"
     },
     {
-      "bytes": 36679145,
+      "bytes": 36679243,
       "id": "sidecar_envelope",
       "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d256-two-head-seq32-softmax-table-logup-sidecar-proof-2026-05.envelope.json",
-      "sha256": "c4151989f0309a493ebf0794754f21778c0a50b39f57db7b71b3d9c636ccb13a"
+      "sha256": "832481fb06661f0a19baaeb7ec7fa5ddf3f9c199821b360965b686e8d80378bf"
     },
     {
       "bytes": 42972102,
@@ -97,81 +97,81 @@
   "timing_scope": "existing_typed_source_input_prove_functions_plus_existing_typed_envelope_verify_functions",
   "timings": [
     {
-      "max_us": 1810935,
-      "median_us": 1676184,
+      "max_us": 1434019,
+      "median_us": 1417914,
       "metric": "source_prove_existing_input_us",
-      "min_us": 1650564,
+      "min_us": 1396311,
       "runs_us": [
-        1677505,
-        1810935,
-        1650564,
-        1658140,
-        1676184
+        1405792,
+        1396311,
+        1426291,
+        1417914,
+        1434019
       ]
     },
     {
-      "max_us": 269583,
-      "median_us": 266995,
+      "max_us": 250384,
+      "median_us": 249912,
       "metric": "sidecar_prove_existing_input_us",
-      "min_us": 261313,
+      "min_us": 248068,
       "runs_us": [
-        266995,
-        261313,
-        263078,
-        268417,
-        269583
+        249912,
+        248068,
+        249764,
+        249966,
+        250384
       ]
     },
     {
-      "max_us": 2458629,
-      "median_us": 2226893,
+      "max_us": 1965155,
+      "median_us": 1924674,
       "metric": "fused_prove_existing_input_us",
-      "min_us": 2215444,
+      "min_us": 1918232,
       "runs_us": [
-        2232564,
-        2224364,
-        2215444,
-        2458629,
-        2226893
+        1941996,
+        1918232,
+        1920411,
+        1965155,
+        1924674
       ]
     },
     {
-      "max_us": 973470,
-      "median_us": 923887,
+      "max_us": 814925,
+      "median_us": 800408,
       "metric": "source_verify_existing_envelope_us",
-      "min_us": 887444,
+      "min_us": 799317,
       "runs_us": [
-        960519,
-        887444,
-        899198,
-        923887,
-        973470
+        799317,
+        800408,
+        800015,
+        814925,
+        800626
       ]
     },
     {
-      "max_us": 337806,
-      "median_us": 289369,
+      "max_us": 251410,
+      "median_us": 244490,
       "metric": "sidecar_verify_existing_envelope_us",
-      "min_us": 271875,
+      "min_us": 243859,
       "runs_us": [
-        337806,
-        271875,
-        317020,
-        289369,
-        280980
+        243859,
+        244452,
+        244608,
+        251410,
+        244490
       ]
     },
     {
-      "max_us": 1829721,
-      "median_us": 1384798,
+      "max_us": 1265902,
+      "median_us": 1251867,
       "metric": "fused_verify_existing_envelope_us",
-      "min_us": 1356601,
+      "min_us": 1243328,
       "runs_us": [
-        1829721,
-        1362967,
-        1520103,
-        1356601,
-        1384798
+        1252059,
+        1251867,
+        1265902,
+        1249778,
+        1243328
       ]
     }
   ],

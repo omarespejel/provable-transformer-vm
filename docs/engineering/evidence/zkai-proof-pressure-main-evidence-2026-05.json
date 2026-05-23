@@ -3,6 +3,38 @@
   "claim_boundary": "PAPER_FACING_ENGINEERING_EVIDENCE_FOR_PROOF_PRESSURE_SCALING;PROOF_SIZE_AND_BOUNDARY_SHAPE_SIGNAL_ONLY;TIMING_IS_ENGINEERING_LOCAL_AND_NOT_A_PUBLIC_SPEED_CLAIM",
   "decision": "GO_MAIN_EVIDENCE_TABLE_AND_FIGURE_WITH_SIZE_TIMING_CAVEAT",
   "issue": 715,
+  "mutation_results": [
+    {
+      "error": "source artifact identity drift",
+      "name": "route_matrix_aggregate_drift",
+      "rejected": true
+    },
+    {
+      "error": "source artifact identity drift",
+      "name": "d64_timing_sample_count_drift",
+      "rejected": true
+    },
+    {
+      "error": "d64 h2 sequence growth drift",
+      "name": "d64_sequence_growth_drift",
+      "rejected": true
+    },
+    {
+      "error": "d256 timing caveat drift",
+      "name": "d256_timing_decision_drift",
+      "rejected": true
+    },
+    {
+      "error": "evidence row smuggling",
+      "name": "evidence_row_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "non-claims drift",
+      "name": "non_claim_removed",
+      "rejected": true
+    }
+  ],
   "mutations_checked": 6,
   "mutations_rejected": 6,
   "non_claims": [
@@ -96,8 +128,8 @@
       "trace_growth": 4.0
     },
     {
-      "d256_fused_to_split_prove_ratio": 1.146005,
-      "d256_fused_to_split_verify_ratio": 1.14139,
+      "d256_fused_to_split_prove_ratio": 1.154002,
+      "d256_fused_to_split_verify_ratio": 1.198076,
       "from_profile_id": "d128_two_head_seq32",
       "fused_proof_bytes": 821398,
       "fused_proof_growth": 1.842162,
@@ -135,8 +167,8 @@
     {
       "id": "d256_seq32_median_timing",
       "path": "docs/engineering/evidence/zkai-attention-kv-d256-two-head-seq32-median-timing-raw-2026-05.json",
-      "sha256": "c569f6daf4d72fd8f81277af4bd8311c4496d46de0182a2fd093078393be5e9b",
-      "size_bytes": 5387
+      "sha256": "39f5392cdb060e9c7d8274ee2603120680cf9cb8f09d5675a69710a107cd5d81",
+      "size_bytes": 5388
     }
   ],
   "summary": {

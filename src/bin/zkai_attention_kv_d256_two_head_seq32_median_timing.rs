@@ -311,10 +311,10 @@ fn run() -> Result<String, String> {
             "statement_commitment": EXPECTED_STATEMENT_COMMITMENT,
         },
         "source_artifacts": [
-            source_artifact("source_input", &evidence_dir, &source_input_path)?,
-            source_artifact("source_envelope", &evidence_dir, &source_envelope_path)?,
-            source_artifact("sidecar_envelope", &evidence_dir, &sidecar_envelope_path)?,
-            source_artifact("fused_envelope", &evidence_dir, &fused_envelope_path)?,
+            source_artifact("source_input", SOURCE_INPUT_PATH, source_input_raw.as_bytes()),
+            source_artifact("source_envelope", SOURCE_ENVELOPE_PATH, &source_envelope_raw),
+            source_artifact("sidecar_envelope", SIDECAR_ENVELOPE_PATH, &sidecar_envelope_raw),
+            source_artifact("fused_envelope", FUSED_ENVELOPE_PATH, &fused_envelope_raw),
         ],
         "timings": [
             source_prove_row,
@@ -538,22 +538,13 @@ fn contained_evidence_file(canonical_root: &Path, relative_path: &str) -> Result
 }
 
 #[cfg(feature = "stwo-backend")]
-fn source_artifact(
-    id: &'static str,
-    canonical_root: &Path,
-    path: &Path,
-) -> Result<serde_json::Value, String> {
-    let relative = path
-        .strip_prefix(canonical_root)
-        .map_err(|_| format!("source artifact escapes root: {}", path.display()))?;
-    let bytes =
-        fs::read(path).map_err(|error| format!("failed to read {}: {error}", path.display()))?;
-    Ok(serde_json::json!({
+fn source_artifact(id: &'static str, relative_path: &str, bytes: &[u8]) -> serde_json::Value {
+    serde_json::json!({
         "id": id,
-        "path": format!("docs/engineering/evidence/{}", relative.display()),
-        "sha256": sha256_bytes(&bytes),
+        "path": format!("docs/engineering/evidence/{relative_path}"),
+        "sha256": sha256_bytes(bytes),
         "bytes": bytes.len(),
-    }))
+    })
 }
 
 #[cfg(feature = "stwo-backend")]
@@ -607,5 +598,20 @@ mod tests {
     fn config_rejects_unknown_argument() {
         let error = Config::parse(["--bad".into()]).unwrap_err();
         assert!(error.contains("unknown argument"));
+    }
+
+    #[test]
+    fn source_artifact_uses_pre_read_bytes_without_disk_reopen() {
+        let artifact = source_artifact("fixture", "nested/input.json", b"{\"ok\":true}");
+        assert_eq!(artifact["id"], "fixture");
+        assert_eq!(
+            artifact["path"],
+            "docs/engineering/evidence/nested/input.json"
+        );
+        assert_eq!(artifact["bytes"], 11);
+        assert_eq!(
+            artifact["sha256"],
+            "4062edaf750fb8074e7e83e0c9028c94e32468a8b6f1614774328ef045150f93"
+        );
     }
 }

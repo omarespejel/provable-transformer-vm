@@ -169,6 +169,11 @@ fn require_verified<E: std::fmt::Display>(
 
 #[cfg(feature = "stwo-backend")]
 fn read_bounded_file(path: &Path, max_bytes: usize, label: &str) -> Result<Vec<u8>, String> {
+    let parent = path
+        .parent()
+        .filter(|parent| !parent.as_os_str().is_empty())
+        .unwrap_or_else(|| Path::new("."));
+    reject_existing_symlink_components(parent, label)?;
     let preflight_metadata = fs::symlink_metadata(path)
         .map_err(|error| format!("failed to stat {} {}: {error}", label, path.display()))?;
     if preflight_metadata.file_type().is_symlink() {
@@ -259,11 +264,41 @@ fn open_regular_file_without_following_symlinks(
 }
 
 #[cfg(feature = "stwo-backend")]
+fn reject_existing_symlink_components(path: &Path, label: &str) -> Result<(), String> {
+    let mut current = PathBuf::new();
+    for component in path.components() {
+        current.push(component.as_os_str());
+        match fs::symlink_metadata(&current) {
+            Ok(metadata) => {
+                if metadata.file_type().is_symlink() {
+                    return Err(format!(
+                        "{} {} contains symlink component {}",
+                        label,
+                        path.display(),
+                        current.display()
+                    ));
+                }
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => break,
+            Err(error) => {
+                return Err(format!(
+                    "failed to inspect {} component {}: {error}",
+                    label,
+                    current.display()
+                ));
+            }
+        }
+    }
+    Ok(())
+}
+
+#[cfg(feature = "stwo-backend")]
 fn atomic_write_file(path: &Path, bytes: &[u8], label: &str) -> Result<(), String> {
     let parent = path
         .parent()
         .filter(|parent| !parent.as_os_str().is_empty())
         .unwrap_or_else(|| Path::new("."));
+    reject_existing_symlink_components(parent, label)?;
     fs::create_dir_all(parent).map_err(|error| {
         format!(
             "failed to create output parent {} for {} {}: {error}",
@@ -272,6 +307,7 @@ fn atomic_write_file(path: &Path, bytes: &[u8], label: &str) -> Result<(), Strin
             path.display()
         )
     })?;
+    reject_existing_symlink_components(parent, label)?;
     let file_name = path
         .file_name()
         .ok_or_else(|| format!("{} {} has no file name", label, path.display()))?;
@@ -357,7 +393,11 @@ mod tests {
             .duration_since(UNIX_EPOCH)
             .expect("system time before epoch")
             .as_nanos();
-        std::env::temp_dir().join(format!(
+        let base = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("target")
+            .join("zkai-test-tmp");
+        fs::create_dir_all(&base).expect("create test temp base");
+        base.join(format!(
             "zkai-seq32-bounded-cli-{label}-{}-{nonce}",
             process::id()
         ))
@@ -407,6 +447,33 @@ mod tests {
         assert!(no_follow_error.contains("without following symlinks"));
 
         fs::remove_dir_all(&dir).expect("remove temp dir");
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn read_and_write_reject_parent_symlink_redirection() {
+        use std::os::unix::fs::symlink;
+
+        let dir = temp_dir("parent-symlink");
+        let outside = temp_dir("parent-symlink-outside");
+        let _ = fs::remove_dir_all(&dir);
+        let _ = fs::remove_dir_all(&outside);
+        fs::create_dir_all(&dir).expect("create temp dir");
+        fs::create_dir_all(&outside).expect("create outside dir");
+        fs::write(outside.join("input.json"), b"{}").expect("write redirected input");
+        let link_parent = dir.join("link-parent");
+        symlink(&outside, &link_parent).expect("create parent symlink");
+
+        let read_error = read_bounded_file(&link_parent.join("input.json"), 1024, "fixture")
+            .expect_err("parent symlink read must reject");
+        assert!(read_error.contains("symlink component"));
+        let write_error = atomic_write_file(&link_parent.join("out.json"), b"{}", "fixture")
+            .expect_err("parent symlink write must reject");
+        assert!(write_error.contains("symlink component"));
+        assert!(!outside.join("out.json").exists());
+
+        fs::remove_dir_all(&dir).expect("remove temp dir");
+        fs::remove_dir_all(&outside).expect("remove outside dir");
     }
 
     #[test]

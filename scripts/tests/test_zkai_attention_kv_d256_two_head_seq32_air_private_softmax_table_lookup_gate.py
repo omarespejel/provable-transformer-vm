@@ -3,6 +3,7 @@ import json
 import os
 import tempfile
 import unittest
+from unittest import mock
 
 from scripts import zkai_attention_kv_d256_two_head_seq32_air_private_softmax_table_lookup_gate as gate
 
@@ -59,7 +60,7 @@ class AttentionKvD256TwoHeadSeq32AirPrivateSoftmaxTableLookupGateTests(unittest.
         self.assertEqual(receipt["lookup_relation"], gate.LOOKUP_RELATION)
         self.assertEqual(receipt["lookup_relation_width"], 2)
         self.assertEqual(receipt["lookup_proof_size_bytes"], 34914)
-        self.assertEqual(receipt["lookup_envelope_size_bytes"], 36679145)
+        self.assertEqual(receipt["lookup_envelope_size_bytes"], 36679243)
         self.assertEqual(receipt["lookup_proof_commitments"], 4)
         self.assertEqual(receipt["lookup_trace_commitments"], 3)
         self.assertEqual(sum(row["multiplicity"] for row in receipt["table_multiplicities"]), 1184)
@@ -225,6 +226,25 @@ class AttentionKvD256TwoHeadSeq32AirPrivateSoftmaxTableLookupGateTests(unittest.
             ):
                 gate.write_json(payload, missing_parent / "lookup-gate.json")
             self.assertFalse(missing_parent.exists())
+
+    def test_main_rejects_same_json_and_tsv_output_path(self):
+        with self.evidence_tempdir() as evidence_tmp:
+            same_path = gate.pathlib.Path(evidence_tmp) / "same-output"
+            with mock.patch(
+                "sys.argv",
+                [
+                    "prog",
+                    "--write-json",
+                    str(same_path),
+                    "--write-tsv",
+                    str(same_path),
+                ],
+            ):
+                with self.assertRaisesRegex(
+                    gate.AttentionKvAirPrivateSoftmaxTableLookupGateError,
+                    "different files",
+                ):
+                    gate.main()
 
 
 if __name__ == "__main__":

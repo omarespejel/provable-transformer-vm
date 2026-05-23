@@ -38,6 +38,8 @@ use crate::proof::StarkProofBackend;
 
 pub const ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_PROOF_VERSION: &str =
     "stwo-attention-kv-d256-two-head-seq32-softmax-table-logup-sidecar-proof-v1";
+pub const ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_BACKEND_VERSION: &str =
+    "stwo-attention-kv-d256-two-head-seq32-softmax-table-logup-sidecar-v1";
 pub const ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_STATEMENT_VERSION:
     &str =
     "zkai-attention-kv-stwo-native-d256-two-head-seq32-softmax-table-logup-sidecar-statement-v1";
@@ -53,6 +55,8 @@ pub const ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_MAX_
     usize = 134_217_728;
 pub const ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_MAX_PROOF_BYTES: usize =
     1_048_576;
+pub const ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_CHECKED_PROOF_BYTES:
+    usize = 34_914;
 
 const LOG_SIZE: u32 = 11;
 const TRACE_ROW_COUNT: usize = 2048;
@@ -145,6 +149,7 @@ pub struct ZkAiAttentionKvNativeD256TwoHeadSeq32SoftmaxTableLookupSummary {
 pub struct ZkAiAttentionKvNativeD256TwoHeadSeq32SoftmaxTableLookupEnvelope {
     pub proof_backend: StarkProofBackend,
     pub proof_backend_version: String,
+    pub proof_schema_version: String,
     pub statement_version: String,
     pub semantic_scope: String,
     pub decision: String,
@@ -183,6 +188,9 @@ pub fn prove_zkai_attention_kv_native_d256_two_head_seq32_softmax_table_lookup_e
     let envelope = ZkAiAttentionKvNativeD256TwoHeadSeq32SoftmaxTableLookupEnvelope {
         proof_backend: StarkProofBackend::Stwo,
         proof_backend_version:
+            ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_BACKEND_VERSION
+                .to_string(),
+        proof_schema_version:
             ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_PROOF_VERSION
                 .to_string(),
         statement_version:
@@ -239,8 +247,13 @@ fn validate_envelope(
     }
     expect_eq(
         &envelope.proof_backend_version,
-        ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_PROOF_VERSION,
+        ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_BACKEND_VERSION,
         "lookup proof backend version",
+    )?;
+    expect_eq(
+        &envelope.proof_schema_version,
+        ZKAI_ATTENTION_KV_NATIVE_D256_TWO_HEAD_SEQ32_SOFTMAX_TABLE_LOOKUP_PROOF_VERSION,
+        "lookup proof schema version",
     )?;
     expect_eq(
         &envelope.statement_version,
@@ -847,6 +860,36 @@ mod tests {
             )
             .expect_err("summary drift must reject");
         assert!(error.to_string().contains("lookup summary"));
+    }
+
+    #[test]
+    fn attention_kv_d256_two_head_seq32_softmax_table_lookup_rejects_version_drift() {
+        let input = source_input();
+        let mut envelope =
+            prove_zkai_attention_kv_native_d256_two_head_seq32_softmax_table_lookup_envelope(
+                &input,
+            )
+            .expect("prove lookup sidecar");
+        envelope.proof_backend_version = "different-stwo-backend".to_string();
+        let error =
+            verify_zkai_attention_kv_native_d256_two_head_seq32_softmax_table_lookup_envelope(
+                &envelope,
+            )
+            .expect_err("backend version drift must reject");
+        assert!(error.to_string().contains("lookup proof backend version"));
+
+        let mut envelope =
+            prove_zkai_attention_kv_native_d256_two_head_seq32_softmax_table_lookup_envelope(
+                &input,
+            )
+            .expect("prove lookup sidecar");
+        envelope.proof_schema_version = "different-lookup-proof-schema".to_string();
+        let error =
+            verify_zkai_attention_kv_native_d256_two_head_seq32_softmax_table_lookup_envelope(
+                &envelope,
+            )
+            .expect_err("schema version drift must reject");
+        assert!(error.to_string().contains("lookup proof schema version"));
     }
 
     #[test]
