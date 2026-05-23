@@ -1,10 +1,10 @@
 {
   "claim_boundary": "ENGINEERING_STATUS_GRID_FOR_CHECKED_NATIVE_STWO_FUSED_BOUNDED_SOFTMAX_TABLE_ROUTES_MAPS_PROVED_AND_MISSING_WIDTH_HEAD_SEQUENCE_CELLS_NOT_A_FULL_FACTORIAL_PROOF_GRID_NOT_TIMING_NOT_REAL_VALUED_SOFTMAX_NOT_FULL_INFERENCE_NOT_RECURSION_OR_PCD",
   "decision": "GO_CHECKED_FULLER_CROSSING_GRID_WITH_FULL_PROOF_GRID_NO_GO",
-  "full_proof_grid_status": "NO_GO_71_OF_100_GRID_CELLS_DO_NOT_HAVE_NATIVE_FUSED_PROOFS",
+  "full_proof_grid_status": "NO_GO_90_OF_120_GRID_CELLS_DO_NOT_HAVE_NATIVE_FUSED_PROOFS",
   "go_criteria": [
     "the upstream fused Softmax-table route matrix validates locally",
-    "exactly 29 checked route cells are marked proved and exactly 71 cells are marked missing",
+    "exactly 30 checked route cells are marked proved and exactly 90 cells are marked missing",
     "every proved cell has matched source-plus-LogUp-sidecar comparator evidence from the route matrix",
     "missing cells carry no proof-byte, ratio, or evidence-path claims"
   ],
@@ -21,7 +21,8 @@
       16,
       32,
       64,
-      128
+      128,
+      256
     ],
     "steps_per_head": [
       8,
@@ -2166,9 +2167,440 @@
       "steps_per_head": 64,
       "trace_rows": null,
       "value_width": 128
+    },
+    {
+      "axis_role": "width_axis",
+      "cell_id": "d256_h1_seq8",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 1,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 8,
+      "trace_rows": null,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_sequence_crossing",
+      "cell_id": "d256_h1_seq16",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 1,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width",
+        "sequence"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 16,
+      "trace_rows": null,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_sequence_crossing",
+      "cell_id": "d256_h1_seq32",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 1,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width",
+        "sequence"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 32,
+      "trace_rows": null,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_sequence_crossing",
+      "cell_id": "d256_h1_seq64",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 1,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width",
+        "sequence"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 64,
+      "trace_rows": null,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_head_crossing",
+      "cell_id": "d256_h2_seq8",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 2,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width",
+        "head"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 8,
+      "trace_rows": null,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_head_sequence_crossing",
+      "cell_id": "d256_h2_seq16",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 2,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width",
+        "head",
+        "sequence"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 16,
+      "trace_rows": null,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_head_sequence_crossing",
+      "cell_id": "d256_h2_seq32",
+      "evidence_json": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d256-two-head-seq32-fused-softmax-table-gate-2026-05.json",
+      "fused_proof_size_bytes": 821398,
+      "fused_to_source_plus_sidecar_ratio": 0.964602,
+      "head_count": 2,
+      "key_width": 256,
+      "lookup_claims": 1184,
+      "missing_reason": null,
+      "pressure_axes": [
+        "width",
+        "head",
+        "sequence"
+      ],
+      "profile_id": "d256_two_head_seq32",
+      "source_plus_sidecar_raw_proof_bytes": 851541,
+      "status": "PROVED_NATIVE_FUSED_WITH_MATCHED_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR",
+      "steps_per_head": 32,
+      "trace_rows": 2048,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_head_sequence_crossing",
+      "cell_id": "d256_h2_seq64",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 2,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width",
+        "head",
+        "sequence"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 64,
+      "trace_rows": null,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_head_crossing",
+      "cell_id": "d256_h4_seq8",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 4,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width",
+        "head"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 8,
+      "trace_rows": null,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_head_sequence_crossing",
+      "cell_id": "d256_h4_seq16",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 4,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width",
+        "head",
+        "sequence"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 16,
+      "trace_rows": null,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_head_sequence_crossing",
+      "cell_id": "d256_h4_seq32",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 4,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width",
+        "head",
+        "sequence"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 32,
+      "trace_rows": null,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_head_sequence_crossing",
+      "cell_id": "d256_h4_seq64",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 4,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width",
+        "head",
+        "sequence"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 64,
+      "trace_rows": null,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_head_crossing",
+      "cell_id": "d256_h8_seq8",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 8,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width",
+        "head"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 8,
+      "trace_rows": null,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_head_sequence_crossing",
+      "cell_id": "d256_h8_seq16",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 8,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width",
+        "head",
+        "sequence"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 16,
+      "trace_rows": null,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_head_sequence_crossing",
+      "cell_id": "d256_h8_seq32",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 8,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width",
+        "head",
+        "sequence"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 32,
+      "trace_rows": null,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_head_sequence_crossing",
+      "cell_id": "d256_h8_seq64",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 8,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width",
+        "head",
+        "sequence"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 64,
+      "trace_rows": null,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_head_crossing",
+      "cell_id": "d256_h16_seq8",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 16,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width",
+        "head"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 8,
+      "trace_rows": null,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_head_sequence_crossing",
+      "cell_id": "d256_h16_seq16",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 16,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width",
+        "head",
+        "sequence"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 16,
+      "trace_rows": null,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_head_sequence_crossing",
+      "cell_id": "d256_h16_seq32",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 16,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width",
+        "head",
+        "sequence"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 32,
+      "trace_rows": null,
+      "value_width": 256
+    },
+    {
+      "axis_role": "width_head_sequence_crossing",
+      "cell_id": "d256_h16_seq64",
+      "evidence_json": null,
+      "fused_proof_size_bytes": null,
+      "fused_to_source_plus_sidecar_ratio": null,
+      "head_count": 16,
+      "key_width": 256,
+      "lookup_claims": null,
+      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "pressure_axes": [
+        "width",
+        "head",
+        "sequence"
+      ],
+      "profile_id": null,
+      "source_plus_sidecar_raw_proof_bytes": null,
+      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "steps_per_head": 64,
+      "trace_rows": null,
+      "value_width": 256
     }
   ],
-  "grid_status": "GO_100_CELL_WIDTH_HEAD_SEQUENCE_STATUS_GRID_FROM_CHECKED_ROUTE_MATRIX",
+  "grid_status": "GO_120_CELL_WIDTH_HEAD_SEQUENCE_STATUS_GRID_FROM_CHECKED_ROUTE_MATRIX",
   "issue": 7,
   "mutation_results": [
     {
@@ -2266,17 +2698,17 @@
   "mutations_rejected": 18,
   "next_low_risk_profiles": [
     {
-      "go_condition": "source, sidecar, fused, and mutation gates validate or identify the first width-axis NO-GO",
+      "go_condition": "source, sidecar, fused, timing, and mutation gates validate or identify the first d256 sequence-axis NO-GO",
       "head_count": 2,
       "key_width": 256,
-      "profile_id": "d256_two_head_seq32",
-      "reason": "tests whether the d128 width-frontier signal extends to a harder width point before block work",
-      "steps_per_head": 32
+      "profile_id": "d256_two_head_seq64",
+      "reason": "tests whether sequence-pressure amortization returns after the d256 width-stress row",
+      "steps_per_head": 64
     }
   ],
   "no_go_criteria": [
-    "full factorial proof-grid claim: 71 of 100 grid cells are missing native fused proofs",
-    "new crossing proof claim: this slice adds the d128/four-head/seq64 decision-gate row, not the full grid",
+    "full factorial proof-grid claim: 90 of 120 grid cells are missing native fused proofs",
+    "new crossing proof claim: this slice adds the d256/two-head/seq32 width-stress row, not the full grid",
     "timing or public benchmark claim: this gate records status only",
     "real-valued Softmax or full-inference claim: the upstream kernel is bounded integer Softmax-table/floor division"
   ],
@@ -2298,22 +2730,22 @@
       "head_axis": 4,
       "head_sequence_crossing": 12,
       "sequence_axis": 3,
-      "width_axis": 4,
-      "width_head_crossing": 16,
-      "width_head_sequence_crossing": 48,
-      "width_sequence_crossing": 12
+      "width_axis": 5,
+      "width_head_crossing": 20,
+      "width_head_sequence_crossing": 60,
+      "width_sequence_crossing": 15
     },
-    "coverage_share": 0.29,
-    "grid_cell_count": 100,
+    "coverage_share": 0.25,
+    "grid_cell_count": 120,
     "head_counts": {
-      "1": 20,
-      "16": 20,
-      "2": 20,
-      "4": 20,
-      "8": 20
+      "1": 24,
+      "16": 24,
+      "2": 24,
+      "4": 24,
+      "8": 24
     },
-    "missing_all_axis_cell_count": 32,
-    "missing_cell_count": 71,
+    "missing_all_axis_cell_count": 43,
+    "missing_cell_count": 90,
     "missing_cell_ids": [
       "d8_h1_seq16",
       "d8_h1_seq32",
@@ -2385,10 +2817,29 @@
       "d128_h16_seq8",
       "d128_h16_seq16",
       "d128_h16_seq32",
-      "d128_h16_seq64"
+      "d128_h16_seq64",
+      "d256_h1_seq8",
+      "d256_h1_seq16",
+      "d256_h1_seq32",
+      "d256_h1_seq64",
+      "d256_h2_seq8",
+      "d256_h2_seq16",
+      "d256_h2_seq64",
+      "d256_h4_seq8",
+      "d256_h4_seq16",
+      "d256_h4_seq32",
+      "d256_h4_seq64",
+      "d256_h8_seq8",
+      "d256_h8_seq16",
+      "d256_h8_seq32",
+      "d256_h8_seq64",
+      "d256_h16_seq8",
+      "d256_h16_seq16",
+      "d256_h16_seq32",
+      "d256_h16_seq64"
     ],
-    "proved_all_axis_cell_count": 16,
-    "proved_cell_count": 29,
+    "proved_all_axis_cell_count": 17,
+    "proved_cell_count": 30,
     "proved_cell_ids": [
       "d8_h1_seq8",
       "d8_h2_seq8",
@@ -2418,29 +2869,31 @@
       "d128_h2_seq32",
       "d128_h2_seq64",
       "d128_h4_seq32",
-      "d128_h4_seq64"
+      "d128_h4_seq64",
+      "d256_h2_seq32"
     ],
     "proved_counts_by_head_count": {
       "1": 5,
       "16": 1,
-      "2": 14,
+      "2": 15,
       "4": 8,
       "8": 1
     },
     "proved_counts_by_steps_per_head": {
       "16": 8,
-      "32": 8,
+      "32": 9,
       "64": 4,
       "8": 9
     },
     "proved_counts_by_width": {
       "128": 5,
       "16": 4,
+      "256": 1,
       "32": 6,
       "64": 7,
       "8": 7
     },
-    "proved_crossing_cell_count": 22,
+    "proved_crossing_cell_count": 23,
     "proved_profile_ids": [
       "d8_single_head_seq8",
       "d8_two_head_seq8",
@@ -2470,21 +2923,23 @@
       "d128_two_head_seq32",
       "d128_two_head_seq64",
       "d128_four_head_seq32",
-      "d128_four_head_seq64"
+      "d128_four_head_seq64",
+      "d256_two_head_seq32"
     ],
     "status_counts": {
-      "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR": 71,
-      "PROVED_NATIVE_FUSED_WITH_MATCHED_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR": 29
+      "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR": 90,
+      "PROVED_NATIVE_FUSED_WITH_MATCHED_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR": 30
     },
     "steps_per_head_counts": {
-      "16": 25,
-      "32": 25,
-      "64": 25,
-      "8": 25
+      "16": 30,
+      "32": 30,
+      "64": 30,
+      "8": 30
     },
     "width_counts": {
       "128": 20,
       "16": 20,
+      "256": 20,
       "32": 20,
       "64": 20,
       "8": 20
@@ -2494,8 +2949,8 @@
   "upstream_route_matrix": {
     "decision": "GO_NATIVE_STWO_FUSED_SOFTMAX_TABLE_CONTROLLED_ROUTE_MATRIX",
     "evidence_json": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
-    "matched_comparator_profiles": 29,
-    "profiles_checked": 29,
+    "matched_comparator_profiles": 30,
+    "profiles_checked": 30,
     "schema": "zkai-attention-kv-fused-softmax-table-route-matrix-v1"
   },
   "validation_commands": [

@@ -1,0 +1,1031 @@
+#!/usr/bin/env python3
+"""Build the native Stwo d256 two-head seq32 bounded Softmax-table attention/KV proof input.
+
+This answers issue #715 narrowly. It widens the checked d128 two-head seq32
+Softmax-table fixture to d256 while keeping head count and sequence length fixed:
+
+    clipped_gap = min(max_score - score, 8)
+    weight = WEIGHT_TABLE[clipped_gap]
+
+The resulting output is the integer floor of the weighted value average. This is
+Softmax-like in shape because all allowed candidates contribute with a monotone
+score-derived weight, but it is not exact Softmax and does not claim exp/div
+semantics or AIR-private lookup arguments.
+"""
+
+from __future__ import annotations
+
+import argparse
+import copy
+import csv
+import hashlib
+import importlib.util
+import json
+import pathlib
+from collections.abc import Sequence
+from typing import Any
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+EVIDENCE_DIR = ROOT / "docs" / "engineering" / "evidence"
+SOURCE_SCRIPT = ROOT / "scripts" / "zkai_attention_kv_stwo_native_d128_two_head_seq32_bounded_softmax_table_proof_input.py"
+JSON_OUT = EVIDENCE_DIR / "zkai-attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-proof-2026-05.json"
+TSV_OUT = EVIDENCE_DIR / "zkai-attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-proof-2026-05.tsv"
+
+SOURCE_SCHEMA = "zkai-attention-kv-stwo-native-d128-two-head-seq32-bounded-softmax-table-air-proof-input-v1"
+SOURCE_DECISION = "GO_INPUT_FOR_STWO_NATIVE_ATTENTION_KV_D128_TWO_HEAD_SEQ32_BOUNDED_SOFTMAX_TABLE_AIR_PROOF"
+SOURCE_TARGET_ID = "attention-kv-d128-two-head-seq32-causal-mask-bounded-softmax-table-v1"
+SOURCE_BACKEND_VERSION = "stwo-attention-kv-d128-two-head-seq32-causal-mask-bounded-softmax-table-v1"
+SOURCE_PROOF_VERSION = "stwo-attention-kv-d128-two-head-seq32-causal-mask-bounded-softmax-table-air-proof-v1"
+SOURCE_STATEMENT_VERSION = "zkai-attention-kv-stwo-native-d128-two-head-seq32-bounded-softmax-table-statement-v1"
+SOURCE_PAYLOAD_SHA256 = "f27675fef8c15ab95e362b087536e8359101c1cdfdc77aee03d0323e076d0c8b"
+
+SCHEMA = "zkai-attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-air-proof-input-v1"
+DECISION = "GO_INPUT_FOR_STWO_NATIVE_ATTENTION_KV_D256_TWO_HEAD_SEQ32_BOUNDED_SOFTMAX_TABLE_AIR_PROOF"
+ISSUE = 715
+SOURCE_ISSUE = 715
+TARGET_ID = "attention-kv-d256-two-head-seq32-causal-mask-bounded-softmax-table-v1"
+REQUIRED_BACKEND_VERSION = "stwo-attention-kv-d256-two-head-seq32-causal-mask-bounded-softmax-table-v1"
+PROOF_VERSION = "stwo-attention-kv-d256-two-head-seq32-causal-mask-bounded-softmax-table-air-proof-v1"
+STATEMENT_VERSION = "zkai-attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-statement-v1"
+SEMANTIC_SCOPE = "d256_two_head_seq32_bounded_table_softmax_approx_attention_kv_causal_mask_rows_bound_to_statement_receipt"
+VERIFIER_DOMAIN = "ptvm:zkai:attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table:v1"
+SEMANTICS = "bounded_table_softmax_approx_attention"
+WEIGHT_POLICY = "exp2_half_gap_table_clipped_8_floor_division"
+SCORE_SCALE = 1
+SCORE_GAP_CLIP = 8
+WEIGHT_TABLE = [
+    {"gap": 0, "weight": 256},
+    {"gap": 1, "weight": 181},
+    {"gap": 2, "weight": 128},
+    {"gap": 3, "weight": 91},
+    {"gap": 4, "weight": 64},
+    {"gap": 5, "weight": 45},
+    {"gap": 6, "weight": 32},
+    {"gap": 7, "weight": 23},
+    {"gap": 8, "weight": 16},
+]
+MASKING_POLICY = "causal_prefix_position_lte_query_token"
+SOURCE_KEY_WIDTH = 128
+SOURCE_VALUE_WIDTH = 128
+KEY_WIDTH = 256
+VALUE_WIDTH = 256
+HEAD_COUNT = 2
+SOURCE_SEQUENCE_LENGTH = 32
+SEQUENCE_LENGTH = 32
+INITIAL_KV_ITEMS_PER_HEAD = 2
+INITIAL_KV_ITEMS = HEAD_COUNT * INITIAL_KV_ITEMS_PER_HEAD
+FINAL_KV_ITEMS_PER_HEAD = INITIAL_KV_ITEMS_PER_HEAD + SEQUENCE_LENGTH
+FINAL_KV_ITEMS = HEAD_COUNT * FINAL_KV_ITEMS_PER_HEAD
+TRACE_ROW_COUNT = 2048
+SCORE_ROW_COUNT = HEAD_COUNT * sum(INITIAL_KV_ITEMS_PER_HEAD + step + 1 for step in range(SEQUENCE_LENGTH))
+SCORE_GAP_BITS = 16
+CAUSAL_GAP_BITS = 16
+WEIGHT_BITS = 9
+OUTPUT_REMAINDER_BITS = 16
+MAX_ABS_VALUE = 1_000_000
+
+ROW_DOMAIN = "ptvm:zkai:attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-score-rows:v1"
+INITIAL_KV_DOMAIN = "ptvm:zkai:attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-initial-kv:v1"
+INPUT_STEPS_DOMAIN = "ptvm:zkai:attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-input-steps:v1"
+FINAL_KV_DOMAIN = "ptvm:zkai:attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-final-kv:v1"
+OUTPUTS_DOMAIN = "ptvm:zkai:attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-outputs:v1"
+PUBLIC_INSTANCE_DOMAIN = "ptvm:zkai:attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-public-instance:v1"
+PROOF_NATIVE_PARAMETER_DOMAIN = "ptvm:zkai:attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-proof-parameters:v1"
+WEIGHT_TABLE_DOMAIN = "ptvm:zkai:attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-weight-table:v1"
+
+NON_CLAIMS = [
+    "not exact Softmax attention",
+    "not exp/div Softmax semantics",
+    "not full transformer inference",
+    "not recursive verification or PCD",
+    "not private witness privacy",
+    "not long-context benchmark evidence",
+    "not on-chain verification evidence",
+    "not AIR-private lookup arguments; table membership is verifier-recomputed over public rows before proof verification",
+    "bounded table score-to-weight policy, per-head KV carry, and weighted averages are verifier-recomputed from public rows before proof verification",
+]
+
+PROOF_VERIFIER_HARDENING = [
+    "native Stwo AIR proves query-key dot-product rows for every checked candidate",
+    "native Stwo AIR proves selected-score dominance gaps are nonnegative via bit decomposition",
+    "native Stwo AIR proves causal-prefix mask gaps are nonnegative via bit decomposition",
+    "native Stwo AIR proves table-derived weight times value products for every checked candidate and dimension",
+    "native Stwo AIR proves output quotient/remainder rows against the verifier-recomputed weighted numerator and denominator",
+    "verifier recomputes per-head append-only KV carry, max score, clipped score gaps, table-derived weights, weighted numerators, denominators, and outputs before proof verification",
+    "score-row, initial-KV, input-step, final-KV, output, public-instance, and statement commitments are recomputed before proof verification",
+    "fixed publication-v1 PCS verifier profile before commitment-root recomputation",
+    "bounded envelope JSON before deserialization and bounded proof bytes before proof parsing",
+    "commitment-vector length check before commitment indexing",
+]
+
+NEXT_BACKEND_STEP = "fuse the same d256 two-head seq32 bounded Softmax-table arithmetic with LogUp table membership in one native Stwo proof"
+
+VALIDATION_COMMANDS = [
+    "python3 scripts/zkai_attention_kv_stwo_native_d256_two_head_seq32_bounded_softmax_table_proof_input.py --write-json docs/engineering/evidence/zkai-attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-proof-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-proof-2026-05.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_stwo_native_d256_two_head_seq32_bounded_softmax_table_proof_input",
+    "cargo +nightly-2025-07-14 test --locked attention_kv_native_d256_two_head_seq32_bounded_softmax_table_proof --lib --features stwo-backend",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d256_two_head_seq32_bounded_softmax_table_proof -- prove docs/engineering/evidence/zkai-attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-proof-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d256_two_head_seq32_bounded_softmax_table_proof -- verify docs/engineering/evidence/zkai-attention-kv-stwo-native-d256-two-head-seq32-bounded-softmax-table-proof-2026-05.envelope.json",
+    "python3.10 scripts/zkai_attention_kv_d256_two_head_seq32_fused_softmax_table_native_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-stwo-native-d256-two-head-seq32-fused-softmax-table-gate-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-stwo-native-d256-two-head-seq32-fused-softmax-table-gate-2026-05.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d256_two_head_seq32_fused_softmax_table_native_gate",
+    "just lib",
+    "just gate-fast",
+    "just gate",
+]
+
+TSV_COLUMNS = (
+    "issue",
+    "decision",
+    "proof_version",
+    "key_width",
+    "value_width",
+    "head_count",
+    "sequence_length",
+    "score_row_count",
+    "trace_row_count",
+    "weight_policy",
+    "score_gap_clip",
+    "weight_table_commitment",
+    "attention_outputs",
+    "score_row_commitment",
+    "final_kv_cache_commitment",
+    "outputs_commitment",
+    "statement_commitment",
+    "non_claims",
+)
+
+
+class AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(ValueError):
+    pass
+
+
+def _load_source_module() -> Any:
+    spec = importlib.util.spec_from_file_location(
+        "zkai_attention_kv_stwo_native_d128_two_head_seq32_bounded_softmax_table_proof_input",
+        SOURCE_SCRIPT,
+    )
+    if spec is None or spec.loader is None:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"failed to load source script: {SOURCE_SCRIPT}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+SOURCE = _load_source_module()
+_SOURCE_PAYLOAD_CACHE: dict[int, dict[str, Any]] = {}
+
+
+def canonical_json_bytes(value: Any) -> bytes:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+
+
+def sha256_hex_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def commitment_from_parts(parts: list[tuple[str, Any]], domain: str) -> str:
+    encoded = b"".join(
+        str(label).encode("utf-8") + b"=" + canonical_json_bytes(value) + b"\n" for label, value in parts
+    )
+    digest = hashlib.blake2b(digest_size=32)
+    digest.update(domain.encode("utf-8"))
+    digest.update(b"\0")
+    digest.update(encoded)
+    return f"blake2b-256:{digest.hexdigest()}"
+
+
+def require_bounded_int(value: Any, label: str) -> int:
+    if not isinstance(value, int) or isinstance(value, bool):
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"{label} must be an integer")
+    if abs(value) > MAX_ABS_VALUE:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"{label} outside bounded fixture range")
+    return value
+
+
+def require_int(value: Any, label: str) -> int:
+    return require_bounded_int(value, label)
+
+
+def require_nonnegative_bit_bound(value: int, *, bits: int, label: str) -> int:
+    checked = require_int(value, label)
+    if checked < 0 or checked >= (1 << bits):
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"{label} outside {bits}-bit range")
+    return checked
+
+
+def next_power_of_two(value: int) -> int:
+    if value <= 0:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("trace row count input must be positive")
+    return 1 << (value - 1).bit_length()
+
+
+def require_vector(value: Any, *, width: int, label: str) -> list[int]:
+    if not isinstance(value, list):
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"{label} must be a list")
+    if len(value) != width:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"{label} width drift")
+    return [require_int(item, f"{label}[{index}]") for index, item in enumerate(value)]
+
+
+def require_head_index(value: Any, label: str) -> int:
+    head_index = require_int(value, label)
+    if head_index < 0 or head_index >= HEAD_COUNT:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"{label} outside head range")
+    return head_index
+
+
+def require_kv_item(value: Any, *, label: str) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"{label} must be an object")
+    return {
+        "head_index": require_head_index(value.get("head_index"), f"{label}.head_index"),
+        "position": require_int(value.get("position"), f"{label}.position"),
+        "key": require_vector(value.get("key"), width=KEY_WIDTH, label=f"{label}.key"),
+        "value": require_vector(value.get("value"), width=VALUE_WIDTH, label=f"{label}.value"),
+    }
+
+
+def require_input_step(value: Any, *, label: str) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"{label} must be an object")
+    return {
+        "head_index": require_head_index(value.get("head_index"), f"{label}.head_index"),
+        "token_position": require_int(value.get("token_position"), f"{label}.token_position"),
+        "query": require_vector(value.get("query"), width=KEY_WIDTH, label=f"{label}.query"),
+        "new_key": require_vector(value.get("new_key"), width=KEY_WIDTH, label=f"{label}.new_key"),
+        "new_value": require_vector(value.get("new_value"), width=VALUE_WIDTH, label=f"{label}.new_value"),
+    }
+
+
+def require_sequence(value: Any, *, label: str) -> Sequence[Any]:
+    if not isinstance(value, list):
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"{label} must be a list")
+    return value
+
+
+def source_payload() -> dict[str, Any]:
+    source_builder_id = id(SOURCE.build_payload)
+    cached = _SOURCE_PAYLOAD_CACHE.get(source_builder_id)
+    if cached is not None:
+        return copy.deepcopy(cached)
+    payload = SOURCE.build_payload()
+    if not isinstance(payload, dict):
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("source payload must be an object")
+    expected_scalars = {
+        "schema": SOURCE_SCHEMA,
+        "decision": SOURCE_DECISION,
+        "target_id": SOURCE_TARGET_ID,
+        "required_backend_version": SOURCE_BACKEND_VERSION,
+        "proof_version": SOURCE_PROOF_VERSION,
+        "statement_version": SOURCE_STATEMENT_VERSION,
+        "key_width": SOURCE_KEY_WIDTH,
+        "value_width": SOURCE_VALUE_WIDTH,
+        "sequence_length": SOURCE_SEQUENCE_LENGTH,
+        "head_count": HEAD_COUNT,
+    }
+    for key, expected in expected_scalars.items():
+        if payload.get(key) != expected:
+            raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"source payload {key} drift")
+    observed = sha256_hex_bytes(canonical_json_bytes(payload))
+    if observed != SOURCE_PAYLOAD_SHA256:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("source payload commitment drift")
+    _SOURCE_PAYLOAD_CACHE[source_builder_id] = copy.deepcopy(payload)
+    return copy.deepcopy(payload)
+
+
+def dot(lhs: list[int], rhs: list[int], *, label: str) -> int:
+    if len(lhs) != KEY_WIDTH or len(rhs) != KEY_WIDTH:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("dot-product width mismatch")
+    total = 0
+    for index, (left, right) in enumerate(zip(lhs, rhs, strict=True)):
+        product = require_bounded_int(
+            require_int(left, f"{label}.query[{index}]") * require_int(right, f"{label}.key[{index}]"),
+            f"{label}.product[{index}]",
+        )
+        total = require_bounded_int(total + product, f"{label}.partial_sum[{index}]")
+    return require_bounded_int(total, f"{label}.score")
+
+
+def weight_from_gap(score_gap: int) -> int:
+    if score_gap < 0:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("negative score gap")
+    clipped = min(score_gap, SCORE_GAP_CLIP)
+    table = {entry["gap"]: entry["weight"] for entry in WEIGHT_TABLE}
+    return table[clipped]
+
+
+def weight_table_payload() -> list[dict[str, int]]:
+    return [dict(entry) for entry in WEIGHT_TABLE]
+
+
+def weight_table_commitment() -> str:
+    return commitment_from_parts(
+        [
+            ("encoding", "bounded_softmax_table_weight_table_v1"),
+            ("score_scale", SCORE_SCALE),
+            ("score_gap_clip", SCORE_GAP_CLIP),
+            ("weight_policy", WEIGHT_POLICY),
+            ("weight_table", weight_table_payload()),
+        ],
+        WEIGHT_TABLE_DOMAIN,
+    )
+
+
+def vector_material_kv(cache: list[dict[str, Any]]) -> list[list[int]]:
+    return [[item["head_index"], item["position"], *item["key"], *item["value"]] for item in cache]
+
+
+def input_steps_material(steps: list[dict[str, Any]]) -> list[list[int]]:
+    return [[step["head_index"], step["token_position"], *step["query"], *step["new_key"], *step["new_value"]] for step in steps]
+
+
+def score_rows_material(rows: list[dict[str, Any]]) -> list[list[int]]:
+    material: list[list[int]] = []
+    for row in rows:
+        material.append([
+            row["row_index"], row["head_index"], row["step_index"], row["candidate_index"], row["token_position"],
+            row["candidate_position"], row["mask_allowed"], row["selected_score"], row["score"],
+            row["score_gap"], row["causal_gap"], row["attention_weight"], row["weight_denominator"],
+            *row["query"], *row["key"], *row["value"], *row["products"], *row["weighted_value"],
+            *row["weighted_numerator"], *row["attention_output"], *row["output_remainder"],
+        ])
+    return material
+
+
+def score_row_material_width() -> int:
+    return 13 + 3 * KEY_WIDTH + 5 * VALUE_WIDTH
+
+
+def rows_commitment(rows: list[dict[str, Any]]) -> str:
+    return commitment_from_parts(
+        [
+            ("encoding", "attention_kv_stwo_native_d256_two_head_seq32_bounded_softmax_table_score_rows_v1"),
+            ("shape", [len(rows), score_row_material_width()]),
+            ("rows_sha256", sha256_hex_bytes(canonical_json_bytes(score_rows_material(rows)))),
+        ],
+        ROW_DOMAIN,
+    )
+
+
+def kv_commitment(cache: list[dict[str, Any]], domain: str) -> str:
+    return commitment_from_parts(
+        [
+            ("encoding", "attention_kv_cache_with_head_v1"),
+            ("shape", [len(cache), 2 + KEY_WIDTH + VALUE_WIDTH]),
+            ("rows_sha256", sha256_hex_bytes(canonical_json_bytes(vector_material_kv(cache)))),
+        ],
+        domain,
+    )
+
+
+def input_steps_commitment(steps: list[dict[str, Any]]) -> str:
+    return commitment_from_parts(
+        [
+            ("encoding", "attention_input_steps_with_head_v1"),
+            ("shape", [len(steps), 2 + 2 * KEY_WIDTH + VALUE_WIDTH]),
+            ("rows_sha256", sha256_hex_bytes(canonical_json_bytes(input_steps_material(steps)))),
+        ],
+        INPUT_STEPS_DOMAIN,
+    )
+
+
+def outputs_commitment(steps: list[dict[str, Any]], outputs: list[list[int]]) -> str:
+    return commitment_from_parts(
+        [
+            ("encoding", "bounded_softmax_table_attention_outputs_with_head_v1"),
+            ("shape", [len(outputs), 1 + VALUE_WIDTH]),
+            ("rows_sha256", sha256_hex_bytes(canonical_json_bytes(outputs_material(steps, outputs)))),
+        ],
+        OUTPUTS_DOMAIN,
+    )
+
+
+def proof_native_parameter_commitment() -> str:
+    return commitment_from_parts(
+        [
+            ("head_count", HEAD_COUNT),
+            ("key_width", KEY_WIDTH),
+            ("masking_policy", MASKING_POLICY),
+            ("score_gap_clip", SCORE_GAP_CLIP),
+            ("score_scale", SCORE_SCALE),
+            ("semantics", SEMANTICS),
+            ("sequence_length", SEQUENCE_LENGTH),
+            ("value_width", VALUE_WIDTH),
+            ("weight_table_commitment", weight_table_commitment()),
+            ("weight_policy", WEIGHT_POLICY),
+        ],
+        PROOF_NATIVE_PARAMETER_DOMAIN,
+    )
+
+
+def outputs_material(steps: list[dict[str, Any]], outputs: list[list[int]]) -> list[list[int]]:
+    if len(steps) != len(outputs):
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("output/input step length mismatch")
+    return [[step["head_index"], *output] for step, output in zip(steps, outputs, strict=True)]
+
+
+def statement_commitment(payload: dict[str, Any]) -> str:
+    return commitment_from_parts(
+        [
+            ("final_kv_cache_commitment", payload["final_kv_cache_commitment"]),
+            ("head_count", payload["head_count"]),
+            ("initial_kv_cache_commitment", payload["initial_kv_cache_commitment"]),
+            ("input_steps_commitment", payload["input_steps_commitment"]),
+            ("key_width", payload["key_width"]),
+            ("masking_policy", payload["masking_policy"]),
+            ("non_claims", payload["non_claims"]),
+            ("outputs_commitment", payload["outputs_commitment"]),
+            ("proof_native_parameter_commitment", payload["proof_native_parameter_commitment"]),
+            ("required_backend_version", payload["required_backend_version"]),
+            ("score_gap_clip", payload["score_gap_clip"]),
+            ("score_row_commitment", payload["score_row_commitment"]),
+            ("score_scale", payload["score_scale"]),
+            ("semantics", payload["semantics"]),
+            ("sequence_length", payload["sequence_length"]),
+            ("target_id", payload["target_id"]),
+            ("value_width", payload["value_width"]),
+            ("verifier_domain", payload["verifier_domain"]),
+            ("weight_table_commitment", payload["weight_table_commitment"]),
+            ("weight_policy", payload["weight_policy"]),
+        ],
+        VERIFIER_DOMAIN,
+    )
+
+
+def public_instance_commitment(statement: str) -> str:
+    return commitment_from_parts(
+        [("statement_commitment", statement), ("target_id", TARGET_ID), ("proof_version", PROOF_VERSION)],
+        PUBLIC_INSTANCE_DOMAIN,
+    )
+
+
+def widen_vector(
+    vector: list[int],
+    *,
+    source_width: int,
+    target_width: int,
+    head_index: int,
+    local_step: int,
+    role_bias: int,
+    label: str,
+) -> list[int]:
+    checked = require_vector(vector, width=source_width, label=label)
+    widened = list(checked)
+    for index in range(target_width - source_width):
+        source_value = checked[(index + role_bias + head_index) % source_width]
+        shift = ((local_step + head_index + index + role_bias) % 7) - 3
+        widened.append(require_int(source_value + shift, f"{label}.widened[{index}]"))
+    if len(widened) != target_width:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"{label} widened width drift")
+    return widened
+
+
+def fixture_initial_kv() -> list[dict[str, Any]]:
+    initial = source_payload().get("initial_kv_cache")
+    source_items = require_sequence(initial, label="initial_kv_cache")
+    items = []
+    for index, item in enumerate(source_items):
+        if not isinstance(item, dict):
+            raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"initial_kv[{index}] must be an object")
+        head_index = require_head_index(item.get("head_index"), f"initial_kv[{index}].head_index")
+        position = require_int(item.get("position"), f"initial_kv[{index}].position")
+        items.append({
+            "head_index": head_index,
+            "position": position,
+            "key": widen_vector(
+                item.get("key"),
+                source_width=SOURCE_KEY_WIDTH,
+                target_width=KEY_WIDTH,
+                head_index=head_index,
+                local_step=position,
+                role_bias=11,
+                label=f"initial_kv[{index}].key",
+            ),
+            "value": widen_vector(
+                item.get("value"),
+                source_width=SOURCE_VALUE_WIDTH,
+                target_width=VALUE_WIDTH,
+                head_index=head_index,
+                local_step=position,
+                role_bias=17,
+                label=f"initial_kv[{index}].value",
+            ),
+        })
+    if len(items) != INITIAL_KV_ITEMS:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("source initial KV length drift")
+    return items
+
+
+def shifted_vector(
+    vector: list[int],
+    *,
+    width: int,
+    head_index: int,
+    local_step: int,
+    role_bias: int,
+    label: str,
+) -> list[int]:
+    checked = require_vector(vector, width=width, label=label)
+    return [
+        require_int(value + ((local_step + head_index + index + role_bias) % 5) - 2, f"{label}[{index}].shifted")
+        for index, value in enumerate(checked)
+    ]
+
+
+def fixture_input_steps() -> list[dict[str, Any]]:
+    steps = source_payload().get("input_steps")
+    seed_items: list[dict[str, Any]] = []
+    for index, item in enumerate(require_sequence(steps, label="input_steps")):
+        if not isinstance(item, dict):
+            raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"input_steps[{index}] must be an object")
+        head_index = require_head_index(item.get("head_index"), f"input_steps[{index}].head_index")
+        token_position = require_int(item.get("token_position"), f"input_steps[{index}].token_position")
+        local_step = token_position - INITIAL_KV_ITEMS_PER_HEAD
+        seed_items.append({
+            "head_index": head_index,
+            "token_position": token_position,
+            "query": widen_vector(
+                item.get("query"),
+                source_width=SOURCE_KEY_WIDTH,
+                target_width=KEY_WIDTH,
+                head_index=head_index,
+                local_step=local_step,
+                role_bias=23,
+                label=f"input_steps[{index}].query",
+            ),
+            "new_key": widen_vector(
+                item.get("new_key"),
+                source_width=SOURCE_KEY_WIDTH,
+                target_width=KEY_WIDTH,
+                head_index=head_index,
+                local_step=local_step,
+                role_bias=29,
+                label=f"input_steps[{index}].new_key",
+            ),
+            "new_value": widen_vector(
+                item.get("new_value"),
+                source_width=SOURCE_VALUE_WIDTH,
+                target_width=VALUE_WIDTH,
+                head_index=head_index,
+                local_step=local_step,
+                role_bias=31,
+                label=f"input_steps[{index}].new_value",
+            ),
+        })
+    if len(seed_items) != HEAD_COUNT * SOURCE_SEQUENCE_LENGTH:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("source input step length drift")
+    per_head: list[list[dict[str, Any]]] = [[] for _ in range(HEAD_COUNT)]
+    for item in seed_items:
+        per_head[item["head_index"]].append(item)
+    for head_index, head_steps in enumerate(per_head):
+        if len(head_steps) != SOURCE_SEQUENCE_LENGTH:
+            raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"source head {head_index} step count drift")
+        for local_step, item in enumerate(head_steps):
+            expected_position = INITIAL_KV_ITEMS_PER_HEAD + local_step
+            if item["token_position"] != expected_position:
+                raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(
+                    f"source head {head_index} token position drift: got {item['token_position']}, expected {expected_position}"
+                )
+
+    extended: list[dict[str, Any]] = []
+    for local_step in range(SEQUENCE_LENGTH):
+        for head_index in range(HEAD_COUNT):
+            if local_step < SOURCE_SEQUENCE_LENGTH:
+                base = per_head[head_index][local_step]
+                extended.append({
+                    "head_index": head_index,
+                    "token_position": base["token_position"],
+                    "query": list(base["query"]),
+                    "new_key": list(base["new_key"]),
+                    "new_value": list(base["new_value"]),
+                })
+                continue
+            # This d256 row is intentionally seq32-compatible today, so this
+            # branch is inactive. It stays as explicit scaffolding for a later
+            # generated longer-sequence route rather than silently changing the
+            # checked source-backed d256 fixture.
+            base = per_head[head_index][local_step - SOURCE_SEQUENCE_LENGTH]
+            extended.append({
+                "head_index": head_index,
+                "token_position": INITIAL_KV_ITEMS_PER_HEAD + local_step,
+                "query": shifted_vector(
+                    base["query"],
+                    width=KEY_WIDTH,
+                    head_index=head_index,
+                    local_step=local_step,
+                    role_bias=1,
+                    label=f"input_steps[{len(extended)}].query",
+                ),
+                "new_key": shifted_vector(
+                    base["new_key"],
+                    width=KEY_WIDTH,
+                    head_index=head_index,
+                    local_step=local_step,
+                    role_bias=2,
+                    label=f"input_steps[{len(extended)}].new_key",
+                ),
+                "new_value": shifted_vector(
+                    base["new_value"],
+                    width=VALUE_WIDTH,
+                    head_index=head_index,
+                    local_step=local_step,
+                    role_bias=3,
+                    label=f"input_steps[{len(extended)}].new_value",
+                ),
+            })
+    if len(extended) != HEAD_COUNT * SEQUENCE_LENGTH:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("extended input step length drift")
+    return extended
+
+
+def clone_kv_item(item: dict[str, Any]) -> dict[str, Any]:
+    checked = require_kv_item(item, label="kv_item")
+    return {
+        "head_index": checked["head_index"],
+        "position": checked["position"],
+        "key": list(checked["key"]),
+        "value": list(checked["value"]),
+    }
+
+
+def build_score_rows(initial_kv: list[dict[str, Any]], input_steps: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[list[int]]]:
+    current = [
+        require_kv_item(item, label=f"initial_kv[{index}]")
+        for index, item in enumerate(require_sequence(initial_kv, label="initial_kv"))
+    ]
+    steps = [
+        require_input_step(step, label=f"input_steps[{index}]")
+        for index, step in enumerate(require_sequence(input_steps, label="input_steps"))
+    ]
+    rows: list[dict[str, Any]] = []
+    outputs: list[list[int]] = []
+    local_step_counts = [0 for _ in range(HEAD_COUNT)]
+    for global_step_index, step in enumerate(steps):
+        head_index = step["head_index"]
+        step_index = local_step_counts[head_index]
+        local_step_counts[head_index] += 1
+        if step_index >= SEQUENCE_LENGTH:
+            raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"input_steps[{global_step_index}] exceeds per-head sequence length")
+        expected_position = INITIAL_KV_ITEMS_PER_HEAD + step_index
+        if step["token_position"] != expected_position:
+            raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(
+                f"input_steps[{global_step_index}].token_position drift: got {step['token_position']}, expected {expected_position}"
+            )
+        next_item = {
+            "head_index": head_index,
+            "position": step["token_position"],
+            "key": list(step["new_key"]),
+            "value": list(step["new_value"]),
+        }
+        candidates = [clone_kv_item(item) for item in current] + [clone_kv_item(next_item)]
+        head_candidates = [candidate for candidate in candidates if candidate["head_index"] == head_index]
+        allowed = [
+            require_kv_item(candidate, label=f"step[{global_step_index}].candidate[{candidate_index}]")
+            for candidate_index, candidate in enumerate(head_candidates)
+            if candidate["position"] <= step["token_position"]
+        ]
+        if not allowed:
+            raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"input_steps[{global_step_index}] has no allowed candidates")
+        scored = [
+            (
+                candidate,
+                dot(
+                    step["query"],
+                    candidate["key"],
+                    label=f"input_steps[{global_step_index}].candidate[{candidate_index}].dot",
+                ),
+            )
+            for candidate_index, candidate in enumerate(allowed)
+        ]
+        selected_score = max(score for _, score in scored)
+        score_gaps = [
+            require_nonnegative_bit_bound(
+                selected_score - score,
+                bits=SCORE_GAP_BITS,
+                label=f"input_steps[{global_step_index}].score_gap[{candidate_index}]",
+            )
+            for candidate_index, (_, score) in enumerate(scored)
+        ]
+        causal_gaps = [
+            require_nonnegative_bit_bound(
+                step["token_position"] - candidate["position"],
+                bits=CAUSAL_GAP_BITS,
+                label=f"input_steps[{global_step_index}].causal_gap[{candidate_index}]",
+            )
+            for candidate_index, (candidate, _) in enumerate(scored)
+        ]
+        weights = [
+            require_nonnegative_bit_bound(
+                weight_from_gap(score_gap),
+                bits=WEIGHT_BITS,
+                label=f"input_steps[{global_step_index}].attention_weight[{candidate_index}]",
+            )
+            for candidate_index, score_gap in enumerate(score_gaps)
+        ]
+        if any(weight <= 0 for weight in weights):
+            raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"input_steps[{global_step_index}] has zero weight")
+        denominator = require_bounded_int(sum(weights), f"input_steps[{global_step_index}].weight_denominator")
+        if denominator <= 0:
+            raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"input_steps[{global_step_index}] has invalid weight denominator")
+        numerators = [0 for _ in range(VALUE_WIDTH)]
+        weighted_values_by_candidate: list[list[int]] = []
+        for candidate_index, ((candidate, _), weight) in enumerate(zip(scored, weights, strict=True)):
+            weighted_values: list[int] = []
+            for dim, value in enumerate(candidate["value"]):
+                weighted_value = require_bounded_int(
+                    weight * require_int(value, f"input_steps[{global_step_index}].candidate[{candidate_index}].value[{dim}]"),
+                    f"input_steps[{global_step_index}].candidate[{candidate_index}].weighted_value[{dim}]",
+                )
+                weighted_values.append(weighted_value)
+                numerators[dim] = require_bounded_int(
+                    numerators[dim] + weighted_value,
+                    f"input_steps[{global_step_index}].weighted_numerator[{dim}]",
+                )
+            weighted_values_by_candidate.append(weighted_values)
+        output = [
+            require_int(numerator // denominator, f"input_steps[{global_step_index}].attention_output[{dim}]")
+            for dim, numerator in enumerate(numerators)
+        ]
+        remainders = [
+            require_bounded_int(
+                numerator - out * denominator,
+                f"input_steps[{global_step_index}].output_remainder[{dim}]",
+            )
+            for dim, (numerator, out) in enumerate(zip(numerators, output, strict=True))
+        ]
+        for dim, remainder in enumerate(remainders):
+            require_nonnegative_bit_bound(
+                remainder,
+                bits=OUTPUT_REMAINDER_BITS,
+                label=f"input_steps[{global_step_index}].output_remainder[{dim}]",
+            )
+            if remainder >= denominator:
+                raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(
+                    f"input_steps[{global_step_index}].output_remainder[{dim}] outside denominator range"
+                )
+        outputs.append(list(output))
+        for candidate_index, ((candidate, score), weight, score_gap, causal_gap, weighted_value) in enumerate(
+            zip(scored, weights, score_gaps, causal_gaps, weighted_values_by_candidate, strict=True)
+        ):
+            products = [
+                require_bounded_int(
+                    require_int(left, f"input_steps[{global_step_index}].candidate[{candidate_index}].query[{dim}]")
+                    * require_int(right, f"input_steps[{global_step_index}].candidate[{candidate_index}].key[{dim}]"),
+                    f"input_steps[{global_step_index}].candidate[{candidate_index}].product[{dim}]",
+                )
+                for dim, (left, right) in enumerate(zip(step["query"], candidate["key"], strict=True))
+            ]
+            rows.append({
+                "row_index": len(rows),
+                "head_index": head_index,
+                "step_index": step_index,
+                "candidate_index": candidate_index,
+                "token_position": step["token_position"],
+                "candidate_position": candidate["position"],
+                "mask_allowed": 1,
+                "selected_score": selected_score,
+                "score": score,
+                "score_gap": score_gap,
+                "causal_gap": causal_gap,
+                "attention_weight": weight,
+                "weight_denominator": denominator,
+                "query": list(step["query"]),
+                "key": list(candidate["key"]),
+                "value": list(candidate["value"]),
+                "products": list(products),
+                "weighted_value": list(weighted_value),
+                "weighted_numerator": list(numerators),
+                "attention_output": list(output),
+                "output_remainder": list(remainders),
+            })
+        current = candidates
+    if local_step_counts != [SEQUENCE_LENGTH for _ in range(HEAD_COUNT)]:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("per-head input step count drift")
+    return rows, current, outputs
+
+
+def validate_payload(payload: dict[str, Any]) -> None:
+    if not isinstance(payload, dict):
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("payload must be object")
+    expected_scalars = {
+        "schema": SCHEMA,
+        "decision": DECISION,
+        "issue": ISSUE,
+        "source_issue": SOURCE_ISSUE,
+        "target_id": TARGET_ID,
+        "required_backend_version": REQUIRED_BACKEND_VERSION,
+        "proof_version": PROOF_VERSION,
+        "statement_version": STATEMENT_VERSION,
+        "semantic_scope": SEMANTIC_SCOPE,
+        "verifier_domain": VERIFIER_DOMAIN,
+        "semantics": SEMANTICS,
+        "weight_policy": WEIGHT_POLICY,
+        "score_scale": SCORE_SCALE,
+        "score_gap_clip": SCORE_GAP_CLIP,
+        "weight_table": weight_table_payload(),
+        "masking_policy": MASKING_POLICY,
+        "key_width": KEY_WIDTH,
+        "value_width": VALUE_WIDTH,
+        "head_count": HEAD_COUNT,
+        "sequence_length": SEQUENCE_LENGTH,
+        "initial_kv_items": INITIAL_KV_ITEMS,
+        "final_kv_items": FINAL_KV_ITEMS,
+        "score_row_count": SCORE_ROW_COUNT,
+        "trace_row_count": TRACE_ROW_COUNT,
+        "score_gap_bits": SCORE_GAP_BITS,
+        "causal_gap_bits": CAUSAL_GAP_BITS,
+        "weight_bits": WEIGHT_BITS,
+        "output_remainder_bits": OUTPUT_REMAINDER_BITS,
+        "next_backend_step": NEXT_BACKEND_STEP,
+    }
+    allowed_keys = set(expected_scalars) | {
+        "initial_kv_cache",
+        "input_steps",
+        "final_kv_cache",
+        "attention_outputs",
+        "score_rows",
+        "initial_kv_cache_commitment",
+        "input_steps_commitment",
+        "score_row_commitment",
+        "final_kv_cache_commitment",
+        "outputs_commitment",
+        "weight_table_commitment",
+        "proof_native_parameter_commitment",
+        "public_instance_commitment",
+        "statement_commitment",
+        "non_claims",
+        "proof_verifier_hardening",
+        "validation_commands",
+    }
+    extra = sorted(set(payload) - allowed_keys)
+    if extra:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"unknown field(s): {extra}")
+    for key, expected in expected_scalars.items():
+        if payload.get(key) != expected:
+            raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"{key} drift")
+    if payload.get("non_claims") != NON_CLAIMS:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("non claims drift")
+    if payload.get("proof_verifier_hardening") != PROOF_VERIFIER_HARDENING:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("proof verifier hardening drift")
+    if payload.get("validation_commands") != VALIDATION_COMMANDS:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("validation commands drift")
+    if payload.get("weight_table_commitment") != weight_table_commitment():
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("weight table commitment drift")
+    initial = fixture_initial_kv()
+    steps = fixture_input_steps()
+    rows, final_cache, outputs = build_score_rows(initial, steps)
+    if len(initial) != payload.get("initial_kv_items"):
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("derived initial KV count drift")
+    if len(final_cache) != payload.get("final_kv_items"):
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("derived final KV count drift")
+    if len(rows) != payload.get("score_row_count"):
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("derived score row count drift")
+    if next_power_of_two(len(rows)) != payload.get("trace_row_count"):
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("derived trace row count drift")
+    if payload.get("initial_kv_cache") != initial:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("initial KV drift")
+    if payload.get("input_steps") != steps:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("input steps drift")
+    if payload.get("score_rows") != rows:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("score rows drift")
+    if payload.get("final_kv_cache") != final_cache:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("final KV drift")
+    if payload.get("attention_outputs") != outputs:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("attention outputs drift")
+    expected_commitments = {
+        "initial_kv_cache_commitment": kv_commitment(initial, INITIAL_KV_DOMAIN),
+        "input_steps_commitment": input_steps_commitment(steps),
+        "score_row_commitment": rows_commitment(rows),
+        "final_kv_cache_commitment": kv_commitment(final_cache, FINAL_KV_DOMAIN),
+        "outputs_commitment": outputs_commitment(steps, outputs),
+        "weight_table_commitment": weight_table_commitment(),
+        "proof_native_parameter_commitment": proof_native_parameter_commitment(),
+    }
+    for key, expected in expected_commitments.items():
+        if payload.get(key) != expected:
+            raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError(f"{key} drift")
+    statement = statement_commitment(payload)
+    if payload.get("statement_commitment") != statement:
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("statement commitment drift")
+    if payload.get("public_instance_commitment") != public_instance_commitment(statement):
+        raise AttentionKvD256TwoHeadSeq32BoundedSoftmaxTableInputError("public instance commitment drift")
+
+
+def build_payload() -> dict[str, Any]:
+    initial = fixture_initial_kv()
+    steps = fixture_input_steps()
+    rows, final_cache, outputs = build_score_rows(initial, steps)
+    payload: dict[str, Any] = {
+        "schema": SCHEMA,
+        "decision": DECISION,
+        "issue": ISSUE,
+        "source_issue": SOURCE_ISSUE,
+        "target_id": TARGET_ID,
+        "required_backend_version": REQUIRED_BACKEND_VERSION,
+        "proof_version": PROOF_VERSION,
+        "statement_version": STATEMENT_VERSION,
+        "semantic_scope": SEMANTIC_SCOPE,
+        "verifier_domain": VERIFIER_DOMAIN,
+        "semantics": SEMANTICS,
+        "weight_policy": WEIGHT_POLICY,
+        "score_scale": SCORE_SCALE,
+        "score_gap_clip": SCORE_GAP_CLIP,
+        "weight_table": weight_table_payload(),
+        "masking_policy": MASKING_POLICY,
+        "key_width": KEY_WIDTH,
+        "value_width": VALUE_WIDTH,
+        "head_count": HEAD_COUNT,
+        "sequence_length": SEQUENCE_LENGTH,
+        "initial_kv_items": INITIAL_KV_ITEMS,
+        "final_kv_items": FINAL_KV_ITEMS,
+        "score_row_count": SCORE_ROW_COUNT,
+        "trace_row_count": TRACE_ROW_COUNT,
+        "score_gap_bits": SCORE_GAP_BITS,
+        "causal_gap_bits": CAUSAL_GAP_BITS,
+        "weight_bits": WEIGHT_BITS,
+        "output_remainder_bits": OUTPUT_REMAINDER_BITS,
+        "initial_kv_cache": initial,
+        "input_steps": steps,
+        "final_kv_cache": final_cache,
+        "attention_outputs": outputs,
+        "score_rows": rows,
+        "initial_kv_cache_commitment": kv_commitment(initial, INITIAL_KV_DOMAIN),
+        "input_steps_commitment": input_steps_commitment(steps),
+        "score_row_commitment": rows_commitment(rows),
+        "final_kv_cache_commitment": kv_commitment(final_cache, FINAL_KV_DOMAIN),
+        "outputs_commitment": outputs_commitment(steps, outputs),
+        "weight_table_commitment": weight_table_commitment(),
+        "proof_native_parameter_commitment": proof_native_parameter_commitment(),
+        "public_instance_commitment": "",
+        "statement_commitment": "",
+        "non_claims": NON_CLAIMS,
+        "proof_verifier_hardening": PROOF_VERIFIER_HARDENING,
+        "next_backend_step": NEXT_BACKEND_STEP,
+        "validation_commands": VALIDATION_COMMANDS,
+    }
+    payload["statement_commitment"] = statement_commitment(payload)
+    payload["public_instance_commitment"] = public_instance_commitment(payload["statement_commitment"])
+    validate_payload(payload)
+    return payload
+
+
+def write_json(payload: dict[str, Any], path: pathlib.Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def to_tsv(payload: dict[str, Any]) -> str:
+    row = {
+        "issue": payload["issue"],
+        "decision": payload["decision"],
+        "proof_version": payload["proof_version"],
+        "key_width": payload["key_width"],
+        "value_width": payload["value_width"],
+        "head_count": payload["head_count"],
+        "sequence_length": payload["sequence_length"],
+        "score_row_count": payload["score_row_count"],
+        "trace_row_count": payload["trace_row_count"],
+        "weight_policy": payload["weight_policy"],
+        "score_gap_clip": payload["score_gap_clip"],
+        "weight_table_commitment": payload["weight_table_commitment"],
+        "attention_outputs": json.dumps(payload["attention_outputs"], separators=(",", ":")),
+        "score_row_commitment": payload["score_row_commitment"],
+        "final_kv_cache_commitment": payload["final_kv_cache_commitment"],
+        "outputs_commitment": payload["outputs_commitment"],
+        "statement_commitment": payload["statement_commitment"],
+        "non_claims": ";".join(payload["non_claims"]),
+    }
+    out_lines: list[str] = []
+    import io
+
+    buf = io.StringIO()
+    writer = csv.DictWriter(buf, fieldnames=TSV_COLUMNS, delimiter="\t", lineterminator="\n")
+    writer.writeheader()
+    writer.writerow(row)
+    out_lines.append(buf.getvalue())
+    return "".join(out_lines)
+
+
+def write_tsv(payload: dict[str, Any], path: pathlib.Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(to_tsv(payload), encoding="utf-8")
+
+
+def same_output_path(left: pathlib.Path, right: pathlib.Path) -> bool:
+    return left.expanduser().resolve(strict=False) == right.expanduser().resolve(strict=False)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--write-json", type=pathlib.Path, default=JSON_OUT)
+    parser.add_argument("--write-tsv", type=pathlib.Path, default=TSV_OUT)
+    args = parser.parse_args()
+    if same_output_path(args.write_json, args.write_tsv):
+        parser.error("--write-json and --write-tsv must point to different files")
+    payload = build_payload()
+    write_json(payload, args.write_json)
+    write_tsv(payload, args.write_tsv)
+
+
+if __name__ == "__main__":
+    main()

@@ -3389,3 +3389,31 @@ Updated source-of-truth artifacts:
 Non-claims remain: not full transformer inference, not a full transformer block
 proof, not exact real-valued Softmax, not timing evidence, not a NANOZK
 comparison, and not production zkML readiness.
+
+## 2026-05-24 d256_two_head_seq32 Width Stress And Timing Caveat
+
+Issue `#715` has a checked `d256_h2_seq32` GO row. The fused native proof is
+`821,398` raw bytes against a matched source-plus-sidecar frontier of `851,541`
+raw bytes, saving `30,143` bytes at `1,184` lookup claims and `2,048` trace
+rows. From d128 two-head seq32 to d256 two-head seq32, lookup claims and trace
+rows stay `1.000000x`, while fused raw proof bytes grow `1.842162x`.
+
+This is a proof-size GO, not a timing GO. The d256 median-of-5 local release
+timing has fused slower than split: prove `1.146005x`, verify `1.141390x`.
+The d64 sequence timing rows show the same caveat at a different angle:
+seq32-to-seq64 lookup and trace work grow about `4x`, fused proof bytes grow
+about `1.08x`, but local prove and verify time grow near the work axis.
+
+Updated source-of-truth artifacts:
+
+- Route matrix: `30` checked matched rows, `766,883` aggregate raw proof-byte
+  savings.
+- Fuller grid: `30 / 120` proved cells, `90 / 120` missing cells.
+- Wide selector: next target is `d256_h2_seq64`.
+- Claim pack: `31 / 31` mutation cases reject.
+- Main evidence: `docs/engineering/evidence/zkai-proof-pressure-main-evidence-2026-05.json`.
+- Figure: `docs/engineering/evidence/zkai-proof-pressure-work-proof-time-growth-2026-05.svg`.
+
+Non-claims remain: not full transformer inference, not a full transformer block
+proof, not exact real-valued Softmax, not a public proving-speed benchmark, not
+a NANOZK comparison, and not production zkML readiness.
