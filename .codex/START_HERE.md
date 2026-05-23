@@ -151,9 +151,12 @@ This is the fast local entrypoint for a fresh agent working in this repository.
 145. `docs/engineering/zkai-proof-pressure-scaling-claim-pack-2026-05-20.md`
 146. `docs/engineering/zkai-proof-pressure-wide-grid-selector-2026-05-21.md`
 147. `docs/engineering/zkai-attention-kv-stwo-native-d64-two-head-seq64-fused-softmax-table-gate-2026-05-22.md`
-148. `docs/engineering/zkai-native-seq32-attention-mlp-median-timing-2026-05.md`
-149. `docs/engineering/reproducibility.md`
-150. `git status --short --branch`
+148. `docs/engineering/zkai-attention-kv-stwo-native-d64-single-head-longseq-fused-softmax-table-gate-2026-05-23.md`
+149. `docs/engineering/zkai-attention-kv-stwo-native-d128-two-head-seq32-fused-softmax-table-gate-2026-05-23.md`
+150. `docs/engineering/zkai-attention-kv-stwo-native-d128-two-head-seq64-fused-softmax-table-gate-2026-05-23.md`
+151. `docs/engineering/zkai-native-seq32-attention-mlp-median-timing-2026-05.md`
+152. `docs/engineering/reproducibility.md`
+153. `git status --short --branch`
 
 ## What this repository is now
 

@@ -21,6 +21,28 @@ proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
 
 Latest proof-pressure route extension: issue `#715` now has the
+`d128_two_head_seq64` native Stwo fused Softmax-table row. The matched split
+frontier is `476,773` source proof bytes plus `45,414` LogUp sidecar bytes
+(`522,187` total). The fused proof is `481,870` bytes, saving `40,317` bytes
+(`0.922792x`) against the matched split frontier. It is `5,097` bytes larger
+than the source arithmetic proof alone, so the honest claim is
+source-plus-sidecar fusion saving, not source-only compression. Holding d128
+and two heads fixed from seq32 to seq64, lookup claims grow `3.729730x` and
+trace rows grow `4.000000x`, while fused proof bytes grow `1.080697x`, matched
+split bytes grow `1.091811x`, and fused savings grow `1.244813x`. Holding two
+heads and seq64 fixed from d64 to d128, lookup claims and trace rows stay
+`1.000000x`, while fused proof bytes grow `1.767448x`, matched split bytes grow
+`1.701101x`, and fused savings grow `1.174259x`. The route matrix is now `26`
+matched rows, `33,100` lookup claims, `4,234,408` fused proof bytes versus
+`4,871,057` split proof bytes, and `636,649` aggregate saved bytes. The fuller
+grid is now `26 / 100` proved and `74 / 100` missing; the next selector target
+is `d128_h4_seq32`, with `d128_h1_seq16` as the fallback if the four-head row
+is too heavy. This is not exact Softmax, not full transformer inference, not
+recursion or PCD, not production zkML readiness, not a NANOZK comparison, not
+timing evidence, and not a model-faithful d128 two-head trace. See
+`docs/engineering/zkai-attention-kv-stwo-native-d128-two-head-seq64-fused-softmax-table-gate-2026-05-23.md`.
+
+Previous proof-pressure route extension: issue `#715` has the
 `d128_two_head_seq32` native Stwo fused Softmax-table row. The matched split
 frontier is `443,266` source proof bytes plus `35,010` LogUp sidecar bytes
 (`478,276` total). The fused proof is `445,888` bytes, saving `32,388` bytes
@@ -29,14 +51,10 @@ than the source arithmetic proof alone, so the honest claim is
 source-plus-sidecar fusion saving, not source-only compression. Holding two
 heads and seq32 fixed from d64 to d128, lookup claims and trace rows stay
 `1.000000x`, while fused proof bytes grow `1.760615x`, matched split bytes grow
-`1.677561x`, and fused savings grow `1.017051x`. The route matrix is now `25`
-matched rows, `28,684` lookup claims, `3,752,538` fused proof bytes versus
-`4,348,870` split proof bytes, and `596,332` aggregate saved bytes. The fuller
-grid is now `25 / 100` proved and `75 / 100` missing; the next selector target
-is `d128_h2_seq64`, with `d128_h1_seq16` as the fallback if seq64 is too heavy.
-This is not exact Softmax, not full transformer inference, not recursion or
-PCD, not production zkML readiness, not a NANOZK comparison, not timing
-evidence, and not a model-faithful d128 two-head trace. See
+`1.677561x`, and fused savings grow `1.017051x`. This is not exact Softmax,
+not full transformer inference, not recursion or PCD, not production zkML
+readiness, not a NANOZK comparison, not timing evidence, and not a
+model-faithful d128 two-head trace. See
 `docs/engineering/zkai-attention-kv-stwo-native-d128-two-head-seq32-fused-softmax-table-gate-2026-05-23.md`.
 
 Previous proof-pressure route extension: issue `#715` has the
