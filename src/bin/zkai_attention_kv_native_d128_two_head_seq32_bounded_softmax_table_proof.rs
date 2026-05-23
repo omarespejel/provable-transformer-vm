@@ -250,8 +250,11 @@ fn open_regular_file_without_following_symlinks(
     }
     #[cfg(not(unix))]
     {
-        fs::File::open(path)
-            .map_err(|error| format!("failed to open {} {}: {error}", label, path.display()))
+        Err(format!(
+            "refusing to open {} {} on this platform without no-follow protection",
+            label,
+            path.display()
+        ))
     }
 }
 
