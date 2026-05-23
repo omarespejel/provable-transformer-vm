@@ -63,6 +63,7 @@ const WEIGHT_TABLE: &[(usize, i64)] = &[
     (7, 23),
     (8, 16),
 ];
+const MAX_TABLE_WEIGHT: i64 = 256;
 const MASKING_POLICY: &str = "causal_prefix_position_lte_query_token";
 const KEY_WIDTH: usize = 128;
 const VALUE_WIDTH: usize = 128;
@@ -80,6 +81,8 @@ const CAUSAL_GAP_BITS: usize = 16;
 const WEIGHT_BITS: usize = 9;
 const OUTPUT_REMAINDER_BITS: usize = 16;
 const M31_MODULUS: i64 = (1i64 << 31) - 1;
+// Controlled-fixture bound, not a model-domain limit. Future broader fixtures
+// can split raw-input and derived-field bounds without changing the AIR shape.
 const MAX_ABS_VALUE: i64 = 1_000_000;
 const EXPECTED_TRACE_COMMITMENTS: usize = 2;
 const EXPECTED_PROOF_COMMITMENTS: usize = 3;
@@ -802,7 +805,8 @@ fn validate_sequence(
             .map(|(_, score)| bounded_weight(selected_score - *score))
             .collect::<Result<Vec<_>>>()?;
         let denominator: i64 = weights.iter().sum();
-        if denominator <= 0 || denominator >= (1i64 << WEIGHT_BITS) * SCORE_ROW_COUNT as i64 {
+        let max_denominator = max_weight_denominator(scored.len())?;
+        if denominator <= 0 || denominator > max_denominator {
             return Err(weighted_error("weight denominator outside bounded range"));
         }
         let mut numerators = vec![0i64; VALUE_WIDTH];
@@ -1023,9 +1027,8 @@ fn validate_score_row(
     if row.attention_weight <= 0 || row.attention_weight >= (1i64 << WEIGHT_BITS) {
         return Err(weighted_error("attention weight outside bit range"));
     }
-    if row.weight_denominator <= 0
-        || row.weight_denominator >= (1i64 << WEIGHT_BITS) * SCORE_ROW_COUNT as i64
-    {
+    let max_denominator = max_weight_denominator(row.token_position.saturating_add(1))?;
+    if row.weight_denominator <= 0 || row.weight_denominator > max_denominator {
         return Err(weighted_error("weight denominator outside bounded range"));
     }
     expect_i64(
@@ -1078,6 +1081,9 @@ fn prove_rows(
 
     let trace = attention_trace(input)?;
     let mut tree_builder = commitment_scheme.tree_builder();
+    // The AIR reads the checked public row values through preprocessed columns
+    // and then constrains them equal to the base trace values. Both trees carry
+    // the same rows by design, but they occupy distinct Stwo commitment slots.
     tree_builder.extend_evals(trace.clone());
     tree_builder.commit(channel);
 
@@ -1185,6 +1191,8 @@ fn attention_commitment_roots(
 
     let trace = attention_trace(input)?;
     let mut tree_builder = commitment_scheme.tree_builder();
+    // Keep root recomputation byte-for-byte aligned with prove_rows: the first
+    // commitment is the public/preprocessed row view, the second is base trace.
     tree_builder.extend_evals(trace.clone());
     tree_builder.commit(channel);
 
@@ -1312,6 +1320,23 @@ fn validate_static_air_layout() -> Result<()> {
         return Err(weighted_error(format!(
             "bounded Softmax-table AIR preprocessed layout drift: got {} masks, expected {} columns",
             counter.preprocessed_masks, preprocessed_column_count
+        )));
+    }
+    let component = attention_component();
+    let trace_bounds = component.trace_log_degree_bounds();
+    if trace_bounds.len() != EXPECTED_TRACE_COMMITMENTS {
+        return Err(weighted_error(format!(
+            "bounded Softmax-table AIR commitment-count drift: got {}, expected {}",
+            trace_bounds.len(),
+            EXPECTED_TRACE_COMMITMENTS
+        )));
+    }
+    let expected_degree = LOG_SIZE.saturating_add(1);
+    if component.max_constraint_log_degree_bound() != expected_degree {
+        return Err(weighted_error(format!(
+            "bounded Softmax-table AIR max-degree drift: got {}, expected {}",
+            component.max_constraint_log_degree_bound(),
+            expected_degree
         )));
     }
     Ok(())
@@ -1468,6 +1493,14 @@ fn bounded_weight(score_gap: i64) -> Result<i64> {
         .iter()
         .find_map(|(gap, weight)| (*gap == clipped).then_some(*weight))
         .ok_or_else(|| weighted_error("missing clipped score-gap weight"))
+}
+
+fn max_weight_denominator(candidate_count: usize) -> Result<i64> {
+    let count = i64::try_from(candidate_count)
+        .map_err(|_| weighted_error("candidate count outside denominator range"))?;
+    count
+        .checked_mul(MAX_TABLE_WEIGHT)
+        .ok_or_else(|| weighted_error("weight denominator bound overflow"))
 }
 
 fn quotient_remainder_floor(numerator: i64, denominator: i64) -> Result<(i64, i64)> {
