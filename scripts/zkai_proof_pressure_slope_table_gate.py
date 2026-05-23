@@ -95,11 +95,13 @@ MUTATION_NAMES = (
     "route_matrix_row_count_drift",
     "main_evidence_row_count_drift",
     "source_digest_drift",
+    "source_size_drift",
     "d64_sequence_growth_drift",
     "d128_sequence_growth_drift",
     "d64_head_axis_drift",
     "d256_width_timing_drift",
     "outcome_overclaim",
+    "summary_row_mismatch",
     "non_claim_removed",
     "full_block_overclaim",
 )
@@ -145,6 +147,152 @@ EXPECTED_SUMMARY = {
     "d256_width_fused_verify_ratio": 1.198076,
     "interpretation": "sequence and head lookup pressure amortize in proof bytes; width pressure remains costly",
     "recommended_next_gate": NEXT_GATE,
+}
+EXPECTED_ROWS = {
+    "d64_h1_to_h4_seq16_head_axis": {
+        "axis": "head",
+        "from_profile_id": "d64_single_head_seq16",
+        "to_profile_id": "d64_four_head_seq16",
+        "lookup_growth": 4.0,
+        "trace_growth": 4.0,
+        "width_growth": 1.0,
+        "fused_proof_growth": 0.999457,
+        "split_proof_growth": 1.024806,
+        "saving_growth": 1.386727,
+        "target_fused_proof_bytes": 237_596,
+        "target_split_proof_bytes": 260_685,
+        "target_saving_bytes": 23_089,
+        "target_fused_to_split_ratio": 0.91143,
+        "fused_prove_growth": None,
+        "fused_verify_growth": None,
+        "outcome": EXPECTED_OUTCOMES["d64_h1_to_h4_seq16_head_axis"],
+    },
+    "d64_h2_seq32_to_seq64_sequence_axis": {
+        "axis": "sequence",
+        "from_profile_id": "d64_two_head_seq32",
+        "to_profile_id": "d64_two_head_seq64",
+        "lookup_growth": 3.72973,
+        "trace_growth": 4.0,
+        "width_growth": 1.0,
+        "fused_proof_growth": 1.076519,
+        "split_proof_growth": 1.076702,
+        "saving_growth": 1.07816,
+        "target_fused_proof_bytes": 272_636,
+        "target_split_proof_bytes": 306_970,
+        "target_saving_bytes": 34_334,
+        "target_fused_to_split_ratio": 0.888152,
+        "fused_prove_growth": 4.019863,
+        "fused_verify_growth": 3.973893,
+        "outcome": EXPECTED_OUTCOMES["d64_h2_seq32_to_seq64_sequence_axis"],
+    },
+    "d64_h4_seq32_to_seq64_sequence_axis": {
+        "axis": "sequence",
+        "from_profile_id": "d64_four_head_seq32",
+        "to_profile_id": "d64_four_head_seq64",
+        "lookup_growth": 3.72973,
+        "trace_growth": 4.0,
+        "width_growth": 1.0,
+        "fused_proof_growth": 1.080558,
+        "split_proof_growth": 1.095365,
+        "saving_growth": 1.212295,
+        "target_fused_proof_bytes": 276_503,
+        "target_split_proof_bytes": 315_785,
+        "target_saving_bytes": 39_282,
+        "target_fused_to_split_ratio": 0.875605,
+        "fused_prove_growth": 3.937449,
+        "fused_verify_growth": 3.966431,
+        "outcome": EXPECTED_OUTCOMES["d64_h4_seq32_to_seq64_sequence_axis"],
+    },
+    "d128_h2_seq32_to_seq64_sequence_axis": {
+        "axis": "sequence",
+        "from_profile_id": "d128_two_head_seq32",
+        "to_profile_id": "d128_two_head_seq64",
+        "lookup_growth": 3.72973,
+        "trace_growth": 4.0,
+        "width_growth": 1.0,
+        "fused_proof_growth": 1.080697,
+        "split_proof_growth": 1.091811,
+        "saving_growth": 1.244813,
+        "target_fused_proof_bytes": 481_870,
+        "target_split_proof_bytes": 522_187,
+        "target_saving_bytes": 40_317,
+        "target_fused_to_split_ratio": 0.922792,
+        "fused_prove_growth": None,
+        "fused_verify_growth": None,
+        "outcome": EXPECTED_OUTCOMES["d128_h2_seq32_to_seq64_sequence_axis"],
+    },
+    "d128_h4_seq32_to_seq64_sequence_axis": {
+        "axis": "sequence",
+        "from_profile_id": "d128_four_head_seq32",
+        "to_profile_id": "d128_four_head_seq64",
+        "lookup_growth": 3.72973,
+        "trace_growth": 4.0,
+        "width_growth": 1.0,
+        "fused_proof_growth": 1.06491,
+        "split_proof_growth": 1.068793,
+        "saving_growth": 1.114797,
+        "target_fused_proof_bytes": 495_854,
+        "target_split_proof_bytes": 539_670,
+        "target_saving_bytes": 43_816,
+        "target_fused_to_split_ratio": 0.91881,
+        "fused_prove_growth": None,
+        "fused_verify_growth": None,
+        "outcome": EXPECTED_OUTCOMES["d128_h4_seq32_to_seq64_sequence_axis"],
+    },
+    "d64_to_d128_h1_seq16_width_axis": {
+        "axis": "width",
+        "from_profile_id": "d64_single_head_seq16",
+        "to_profile_id": "d128_single_head_seq16",
+        "lookup_growth": 1.0,
+        "trace_growth": 1.0,
+        "width_growth": 2.0,
+        "fused_proof_growth": 1.599924,
+        "split_proof_growth": 1.561918,
+        "saving_growth": 1.019279,
+        "target_fused_proof_bytes": 380_342,
+        "target_split_proof_bytes": 397_313,
+        "target_saving_bytes": 16_971,
+        "target_fused_to_split_ratio": 0.957286,
+        "fused_prove_growth": None,
+        "fused_verify_growth": None,
+        "outcome": EXPECTED_OUTCOMES["d64_to_d128_h1_seq16_width_axis"],
+    },
+    "d64_to_d128_h2_seq32_width_axis": {
+        "axis": "width",
+        "from_profile_id": "d64_two_head_seq32",
+        "to_profile_id": "d128_two_head_seq32",
+        "lookup_growth": 1.0,
+        "trace_growth": 1.0,
+        "width_growth": 2.0,
+        "fused_proof_growth": 1.760615,
+        "split_proof_growth": 1.677561,
+        "saving_growth": 1.017051,
+        "target_fused_proof_bytes": 445_888,
+        "target_split_proof_bytes": 478_276,
+        "target_saving_bytes": 32_388,
+        "target_fused_to_split_ratio": 0.932282,
+        "fused_prove_growth": None,
+        "fused_verify_growth": None,
+        "outcome": EXPECTED_OUTCOMES["d64_to_d128_h2_seq32_width_axis"],
+    },
+    "d128_to_d256_h2_seq32_width_axis": {
+        "axis": "width",
+        "from_profile_id": "d128_two_head_seq32",
+        "to_profile_id": "d256_two_head_seq32",
+        "lookup_growth": 1.0,
+        "trace_growth": 1.0,
+        "width_growth": 2.0,
+        "fused_proof_growth": 1.842162,
+        "split_proof_growth": 1.780438,
+        "saving_growth": 0.930684,
+        "target_fused_proof_bytes": 821_398,
+        "target_split_proof_bytes": 851_541,
+        "target_saving_bytes": 30_143,
+        "target_fused_to_split_ratio": 0.964602,
+        "fused_prove_growth": None,
+        "fused_verify_growth": None,
+        "outcome": EXPECTED_OUTCOMES["d128_to_d256_h2_seq32_width_axis"],
+    },
 }
 
 
@@ -338,9 +486,11 @@ def validate_rows(rows: list[dict[str, Any]]) -> None:
     expected = set(EXPECTED_OUTCOMES)
     if set(by_id) != expected:
         raise ProofPressureSlopeTableError("slope row identity drift")
-    for row_id, outcome in EXPECTED_OUTCOMES.items():
-        if by_id[row_id].get("outcome") != outcome:
-            raise ProofPressureSlopeTableError("slope row outcome drift")
+    for row_id, expected_values in EXPECTED_ROWS.items():
+        row = by_id[row_id]
+        for key, expected_value in expected_values.items():
+            if row.get(key) != expected_value:
+                raise ProofPressureSlopeTableError(f"slope row {key} drift")
     if by_id["d64_h1_to_h4_seq16_head_axis"]["lookup_growth"] != 4.0:
         raise ProofPressureSlopeTableError("d64 head-axis lookup drift")
     if by_id["d64_h1_to_h4_seq16_head_axis"]["fused_proof_growth"] != 0.999457:
@@ -472,6 +622,8 @@ def mutate_payload(payload: dict[str, Any], name: str) -> dict[str, Any]:
         mutated["source_artifacts"][1]["path"] = "docs/engineering/evidence/wrong.json"
     elif name == "source_digest_drift":
         mutated["source_artifacts"][0]["sha256"] = "0" * 64
+    elif name == "source_size_drift":
+        mutated["source_artifacts"][0]["size_bytes"] += 1
     elif name == "d64_sequence_growth_drift":
         rows["d64_h2_seq32_to_seq64_sequence_axis"]["lookup_growth"] = 3.0
     elif name == "d128_sequence_growth_drift":
@@ -482,6 +634,8 @@ def mutate_payload(payload: dict[str, Any], name: str) -> dict[str, Any]:
         mutated["summary"]["d256_width_fused_prove_ratio"] = 0.9
     elif name == "outcome_overclaim":
         rows["d128_to_d256_h2_seq32_width_axis"]["outcome"] = "GO_WIDTH_AXIS_FREE"
+    elif name == "summary_row_mismatch":
+        rows["d64_h2_seq32_to_seq64_sequence_axis"]["fused_proof_growth"] = 1.07
     elif name == "non_claim_removed":
         mutated["non_claims"].pop()
     elif name == "full_block_overclaim":

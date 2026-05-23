@@ -28,6 +28,7 @@ class ProofPressureSlopeTableGateTests(unittest.TestCase):
         self.assertEqual(self.payload["mutations_checked"], len(gate.MUTATION_NAMES))
         sources = {artifact["id"]: artifact for artifact in self.payload["source_artifacts"]}
         self.assertEqual(sources["route_matrix"]["sha256"], gate.EXPECTED_SOURCE_DIGESTS["route_matrix"])
+        self.assertEqual(sources["route_matrix"]["size_bytes"], gate.EXPECTED_SOURCE_SIZES["route_matrix"])
 
     def test_binds_key_rows(self) -> None:
         rows = {row["row_id"]: row for row in self.payload["rows"]}
