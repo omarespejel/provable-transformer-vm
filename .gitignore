@@ -29,3 +29,9 @@ AI_REVIEW_BOTS_BEST_PRACTICES_*.md
 compiled/
 docs/artifacts/*.proof.json
 mutants.out/
+
+# Generated local proof artifacts that exceed GitHub's 100 MB blob limit.
+docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.json
+docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.envelope.json
+docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-fused-softmax-table-proof-2026-05.envelope.json
+docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-proof-2026-05.envelope.json

@@ -1,0 +1,272 @@
+{
+  "all_mutations_rejected": true,
+  "claim_boundary": "NATIVE_STWO_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_LOOKUP_MEMBERSHIP_CONSTRAINED_BY_LOGUP_SIDECAR_SOURCE_PLUS_SIDECAR_COMPARATOR_FOR_FUSED_ROUTE_NOT_EXACT_SOFTMAX_NOT_FULL_INFERENCE_NOT_RECURSION_OR_PCD",
+  "decision": "GO_NATIVE_STWO_AIR_CONSTRAINED_D128_FOUR_HEAD_SEQ64_SOFTMAX_TABLE_LOOKUP_RELATION_SIDECAR",
+  "fixed_d64_four_head_comparison": {
+    "claim_count_ratio": "1.000000",
+    "envelope_size_ratio": "1.914237",
+    "fixed_d64_four_head_lookup_claims": 8832,
+    "fixed_d64_four_head_lookup_envelope_size_bytes": 71779632,
+    "fixed_d64_four_head_lookup_proof_size_bytes": 43147,
+    "proof_size_ratio": "1.144066",
+    "seq64_lookup_claims": 8832,
+    "seq64_lookup_envelope_size_bytes": 137403230,
+    "seq64_lookup_proof_size_bytes": 49363
+  },
+  "fused_comparator": {
+    "comparison_scope": "raw proof bytes only; no timing, no full inference, no real-valued Softmax claim",
+    "fused_envelope_size_bytes": 140976246,
+    "fused_proof_size_bytes": 495854,
+    "fused_saves_vs_source_plus_sidecar_bytes": 43816,
+    "fused_to_source_plus_sidecar_ratio": "0.918810",
+    "lookup_sidecar_proof_size_bytes": 49363,
+    "source_plus_sidecar_raw_proof_bytes": 539670,
+    "source_proof_size_bytes": 490307
+  },
+  "fused_component_status": "NO_GO_THIS_ROUTE_IS_SOURCE_PLUS_SIDECAR_COMPARATOR_NOT_FUSED",
+  "gate_commitment": "blake2b-256:40309941a7cc0e7cc713df8fcc5dff2bd407181f5309e09a7c3d825cbdaa209b",
+  "issue": 715,
+  "lookup_receipt": {
+    "lookup_claims": 8832,
+    "lookup_envelope_size_bytes": 137403230,
+    "lookup_proof_commitments": 4,
+    "lookup_proof_size_bytes": 49363,
+    "lookup_relation": "AttentionKvD128FourHeadSeq64SoftmaxTableLookupRelation",
+    "lookup_relation_width": 2,
+    "lookup_trace_commitments": 3,
+    "proof_backend": "stwo",
+    "proof_version": "stwo-attention-kv-d128-four-head-seq64-softmax-table-logup-sidecar-proof-v1",
+    "score_gap_clip": 8,
+    "score_rows": 8832,
+    "semantic_scope": "d128_four_head_seq64_bounded_softmax_table_membership_constrained_by_native_stwo_logup_sidecar",
+    "source_final_kv_cache_commitment": "blake2b-256:5ef15131f7e506f40bb1166a07ca44bdcb4ff6a8f48743b1a47de847af6ba57d",
+    "source_head_count": 4,
+    "source_outputs_commitment": "blake2b-256:1b07544046102909e63670e5e2839f10221e9006a48cd9921e6070716493353e",
+    "source_public_instance_commitment": "blake2b-256:ab969d779814f4b0cca509b347693663e4731e9358fa30bed0c97c48c85be407",
+    "source_score_row_commitment": "blake2b-256:8edc2ffee7847b34425d7bc93ae6eabf5aa44a46c7f990af36348e1bb1784684",
+    "source_statement_commitment": "blake2b-256:9f7564f82bd44833784ef83bbe84058838b3abef13cf5db61444546e6d169953",
+    "source_weight_policy": "exp2_half_gap_table_clipped_8_floor_division",
+    "source_weight_table_commitment": "blake2b-256:b7f92b49df70772167c8a5ca9453de7a584b661d8a7f54d9b44cf2dd48ce5722",
+    "statement_version": "zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-statement-v1",
+    "table_multiplicities": [
+      {
+        "gap": 0,
+        "multiplicity": 265,
+        "weight": 256
+      },
+      {
+        "gap": 1,
+        "multiplicity": 2,
+        "weight": 181
+      },
+      {
+        "gap": 2,
+        "multiplicity": 2,
+        "weight": 128
+      },
+      {
+        "gap": 3,
+        "multiplicity": 3,
+        "weight": 91
+      },
+      {
+        "gap": 4,
+        "multiplicity": 0,
+        "weight": 64
+      },
+      {
+        "gap": 5,
+        "multiplicity": 0,
+        "weight": 45
+      },
+      {
+        "gap": 6,
+        "multiplicity": 2,
+        "weight": 32
+      },
+      {
+        "gap": 7,
+        "multiplicity": 1,
+        "weight": 23
+      },
+      {
+        "gap": 8,
+        "multiplicity": 8557,
+        "weight": 16
+      }
+    ],
+    "table_rows": 9,
+    "target_id": "attention-kv-d128-four-head-seq64-causal-mask-bounded-softmax-table-logup-sidecar-v1",
+    "trace_rows": 16384,
+    "verifier_domain": "ptvm:zkai:attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar:v1"
+  },
+  "lookup_status": "GO_STWO_LOGUP_TABLE_MEMBERSHIP_SIDECAR_PROOF",
+  "mutation_cases": [
+    {
+      "error": "decision drift",
+      "name": "lookup_decision_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "lookup_status drift",
+      "name": "lookup_status_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "fused_component_status drift",
+      "name": "fused_component_overclaim",
+      "rejected": true
+    },
+    {
+      "error": "claim_boundary drift",
+      "name": "claim_boundary_fused_overclaim",
+      "rejected": true
+    },
+    {
+      "error": "claim_boundary drift",
+      "name": "claim_boundary_exact_softmax_overclaim",
+      "rejected": true
+    },
+    {
+      "error": "lookup_receipt drift",
+      "name": "source_statement_commitment_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "lookup_receipt drift",
+      "name": "source_public_instance_commitment_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "lookup_receipt drift",
+      "name": "source_score_row_commitment_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "lookup_receipt drift",
+      "name": "source_final_kv_commitment_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "lookup_receipt drift",
+      "name": "source_outputs_commitment_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "lookup_receipt drift",
+      "name": "source_weight_table_commitment_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "lookup_receipt drift",
+      "name": "source_head_count_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "lookup_receipt drift",
+      "name": "lookup_relation_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "lookup_receipt drift",
+      "name": "lookup_relation_width_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "lookup_receipt drift",
+      "name": "lookup_claim_count_metric_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "lookup_receipt drift",
+      "name": "lookup_proof_size_metric_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "lookup_receipt drift",
+      "name": "lookup_envelope_size_metric_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "fixed_d64_four_head_comparison drift",
+      "name": "fixed_d64_four_head_comparison_metric_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "fused_comparator drift",
+      "name": "source_plus_sidecar_metric_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "fused_comparator drift",
+      "name": "fused_proof_size_metric_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "fused_comparator drift",
+      "name": "fused_savings_metric_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "fused_comparator drift",
+      "name": "fused_ratio_metric_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "lookup_receipt drift",
+      "name": "table_multiplicity_drift",
+      "rejected": true
+    },
+    {
+      "error": "non_claims drift",
+      "name": "non_claim_removed",
+      "rejected": true
+    },
+    {
+      "error": "next_backend_step drift",
+      "name": "next_backend_step_removed",
+      "rejected": true
+    },
+    {
+      "error": "lookup_receipt drift",
+      "name": "source_score_row_commitment_alternative_drift",
+      "rejected": true
+    },
+    {
+      "error": "payload field set mismatch",
+      "name": "unknown_field_injection",
+      "rejected": true
+    },
+    {
+      "error": "lookup_receipt drift",
+      "name": "lookup_receipt_unknown_field_injection",
+      "rejected": true
+    }
+  ],
+  "mutations_checked": 28,
+  "mutations_rejected": 28,
+  "next_backend_step": "use this source-plus-sidecar comparator as the matched control for the existing seq64 fused native route",
+  "non_claims": [
+    "not a fused attention-arithmetic-plus-lookup component",
+    "not exact Softmax attention",
+    "not exp/div Softmax semantics",
+    "not full autoregressive inference",
+    "not long-context benchmark evidence",
+    "not recursive verification or PCD",
+    "not private witness privacy",
+    "not on-chain verification evidence"
+  ],
+  "schema": "zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-gate-v1",
+  "source_issue": 715,
+  "timing_policy": "no_new_timing_proof_existence_and_relation_gate_only",
+  "validation_commands": [
+    "cargo +nightly-2025-07-14 test --locked attention_kv_d128_four_head_seq64_softmax_table_lookup --lib --features stwo-backend",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_proof -- prove docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-proof-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_proof -- verify docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-proof-2026-05.envelope.json",
+    "python3.10 scripts/zkai_attention_kv_d128_four_head_seq64_air_private_softmax_table_lookup_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-gate-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-gate-2026-05.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d128_four_head_seq64_air_private_softmax_table_lookup_gate",
+    "just lib",
+    "just gate-fast",
+    "just gate"
+  ]
+}

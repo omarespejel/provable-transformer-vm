@@ -1,10 +1,10 @@
 {
   "claim_boundary": "ENGINEERING_STATUS_GRID_FOR_CHECKED_NATIVE_STWO_FUSED_BOUNDED_SOFTMAX_TABLE_ROUTES_MAPS_PROVED_AND_MISSING_WIDTH_HEAD_SEQUENCE_CELLS_NOT_A_FULL_FACTORIAL_PROOF_GRID_NOT_TIMING_NOT_REAL_VALUED_SOFTMAX_NOT_FULL_INFERENCE_NOT_RECURSION_OR_PCD",
   "decision": "GO_CHECKED_FULLER_CROSSING_GRID_WITH_FULL_PROOF_GRID_NO_GO",
-  "full_proof_grid_status": "NO_GO_73_OF_100_GRID_CELLS_DO_NOT_HAVE_NATIVE_FUSED_PROOFS",
+  "full_proof_grid_status": "NO_GO_72_OF_100_GRID_CELLS_DO_NOT_HAVE_NATIVE_FUSED_PROOFS",
   "go_criteria": [
     "the upstream fused Softmax-table route matrix validates locally",
-    "exactly 27 checked route cells are marked proved and exactly 73 cells are marked missing",
+    "exactly 28 checked route cells are marked proved and exactly 72 cells are marked missing",
     "every proved cell has matched source-plus-LogUp-sidecar comparator evidence from the route matrix",
     "missing cells carry no proof-byte, ratio, or evidence-path claims"
   ],
@@ -1974,23 +1974,23 @@
     {
       "axis_role": "width_head_sequence_crossing",
       "cell_id": "d128_h4_seq64",
-      "evidence_json": null,
-      "fused_proof_size_bytes": null,
-      "fused_to_source_plus_sidecar_ratio": null,
+      "evidence_json": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-fused-softmax-table-gate-2026-05.json",
+      "fused_proof_size_bytes": 495854,
+      "fused_to_source_plus_sidecar_ratio": 0.91881,
       "head_count": 4,
       "key_width": 128,
-      "lookup_claims": null,
-      "missing_reason": "no checked native fused proof plus matched source-plus-LogUp-sidecar comparator for this cell",
+      "lookup_claims": 8832,
+      "missing_reason": null,
       "pressure_axes": [
         "width",
         "head",
         "sequence"
       ],
-      "profile_id": null,
-      "source_plus_sidecar_raw_proof_bytes": null,
-      "status": "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR",
+      "profile_id": "d128_four_head_seq64",
+      "source_plus_sidecar_raw_proof_bytes": 539670,
+      "status": "PROVED_NATIVE_FUSED_WITH_MATCHED_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR",
       "steps_per_head": 64,
-      "trace_rows": null,
+      "trace_rows": 16384,
       "value_width": 128
     },
     {
@@ -2267,24 +2267,24 @@
   "next_low_risk_profiles": [
     {
       "go_condition": "source, sidecar, fused, and mutation gates validate with a positive fused-vs-split saving",
-      "head_count": 4,
-      "key_width": 128,
-      "profile_id": "d128_four_head_seq64",
-      "reason": "tests whether the positive d128 four-head seq32 head-axis signal survives the sequence jump",
-      "steps_per_head": 64
-    },
-    {
-      "go_condition": "source, sidecar, fused, and mutation gates validate with a positive fused-vs-split saving",
       "head_count": 1,
       "key_width": 128,
       "profile_id": "d128_single_head_seq16",
       "reason": "anchors d128 width pressure with lower lookup load if d128 four-head seq64 proves too heavy",
       "steps_per_head": 16
+    },
+    {
+      "go_condition": "source, sidecar, fused, and mutation gates validate or identify the first width-axis NO-GO",
+      "head_count": 2,
+      "key_width": 256,
+      "profile_id": "d256_two_head_seq32",
+      "reason": "tests whether the d128 width-frontier signal extends to a harder width point before block work",
+      "steps_per_head": 32
     }
   ],
   "no_go_criteria": [
-    "full factorial proof-grid claim: 73 of 100 grid cells are missing native fused proofs",
-    "new crossing proof claim: this slice adds only the d128/four-head/seq32 head-frontier row",
+    "full factorial proof-grid claim: 72 of 100 grid cells are missing native fused proofs",
+    "new crossing proof claim: this slice adds the d128/four-head/seq64 decision-gate row, not the full grid",
     "timing or public benchmark claim: this gate records status only",
     "real-valued Softmax or full-inference claim: the upstream kernel is bounded integer Softmax-table/floor division"
   ],
@@ -2311,7 +2311,7 @@
       "width_head_sequence_crossing": 48,
       "width_sequence_crossing": 12
     },
-    "coverage_share": 0.27,
+    "coverage_share": 0.28,
     "grid_cell_count": 100,
     "head_counts": {
       "1": 20,
@@ -2320,8 +2320,8 @@
       "4": 20,
       "8": 20
     },
-    "missing_all_axis_cell_count": 33,
-    "missing_cell_count": 73,
+    "missing_all_axis_cell_count": 32,
+    "missing_cell_count": 72,
     "missing_cell_ids": [
       "d8_h1_seq16",
       "d8_h1_seq32",
@@ -2387,7 +2387,6 @@
       "d128_h2_seq16",
       "d128_h4_seq8",
       "d128_h4_seq16",
-      "d128_h4_seq64",
       "d128_h8_seq8",
       "d128_h8_seq16",
       "d128_h8_seq32",
@@ -2397,8 +2396,8 @@
       "d128_h16_seq32",
       "d128_h16_seq64"
     ],
-    "proved_all_axis_cell_count": 15,
-    "proved_cell_count": 27,
+    "proved_all_axis_cell_count": 16,
+    "proved_cell_count": 28,
     "proved_cell_ids": [
       "d8_h1_seq8",
       "d8_h2_seq8",
@@ -2426,29 +2425,30 @@
       "d64_h4_seq64",
       "d128_h2_seq32",
       "d128_h2_seq64",
-      "d128_h4_seq32"
+      "d128_h4_seq32",
+      "d128_h4_seq64"
     ],
     "proved_counts_by_head_count": {
       "1": 4,
       "16": 1,
       "2": 14,
-      "4": 7,
+      "4": 8,
       "8": 1
     },
     "proved_counts_by_steps_per_head": {
       "16": 7,
       "32": 8,
-      "64": 3,
+      "64": 4,
       "8": 9
     },
     "proved_counts_by_width": {
-      "128": 3,
+      "128": 4,
       "16": 4,
       "32": 6,
       "64": 7,
       "8": 7
     },
-    "proved_crossing_cell_count": 20,
+    "proved_crossing_cell_count": 21,
     "proved_profile_ids": [
       "d8_single_head_seq8",
       "d8_two_head_seq8",
@@ -2476,11 +2476,12 @@
       "d64_four_head_seq64",
       "d128_two_head_seq32",
       "d128_two_head_seq64",
-      "d128_four_head_seq32"
+      "d128_four_head_seq32",
+      "d128_four_head_seq64"
     ],
     "status_counts": {
-      "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR": 73,
-      "PROVED_NATIVE_FUSED_WITH_MATCHED_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR": 27
+      "MISSING_NATIVE_FUSED_PROOF_AND_MATCHED_COMPARATOR": 72,
+      "PROVED_NATIVE_FUSED_WITH_MATCHED_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR": 28
     },
     "steps_per_head_counts": {
       "16": 25,
@@ -2500,8 +2501,8 @@
   "upstream_route_matrix": {
     "decision": "GO_NATIVE_STWO_FUSED_SOFTMAX_TABLE_CONTROLLED_ROUTE_MATRIX",
     "evidence_json": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
-    "matched_comparator_profiles": 27,
-    "profiles_checked": 27,
+    "matched_comparator_profiles": 28,
+    "profiles_checked": 28,
     "schema": "zkai-attention-kv-fused-softmax-table-route-matrix-v1"
   },
   "validation_commands": [

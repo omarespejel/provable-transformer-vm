@@ -407,15 +407,15 @@
   ],
   "open_followups": [
     {
-      "go_gate": "add d128 four-head seq64, a d256 attention route row, or typed d64/d128 component accounting without changing the claim boundary",
+      "go_gate": "add a d256 attention route row or typed d64/d128 component accounting without changing the claim boundary",
       "id": "d64_d128_d256_grid",
-      "reason": "Issue #715 asked for d64/d128/d256 where feasible. The checked attention route matrix now has source-backed d128 two-head seq32, two-head seq64, and four-head seq32 rows, but d128 four-head seq64, d256 attention rows, and d64/d128 typed component-grid accounting are still missing.",
+      "reason": "Issue #715 asked for d64/d128/d256 where feasible. The checked attention route matrix now has source-backed d128 two-head seq32, two-head seq64, four-head seq32, and four-head seq64 rows, but d256 attention rows and d64/d128 typed component-grid accounting are still missing.",
       "status": "OPEN_NEEDED"
     },
     {
       "go_gate": "produce the next checked seq64 row or record a concrete resource/no-go blocker with proof-byte attribution",
       "id": "seq64_attention_grid",
-      "reason": "d64 two-head and four-head seq64 are present, but the seq64 grid is not complete across width/head axes.",
+      "reason": "d64 two-head, d64 four-head, d128 two-head, and d128 four-head seq64 rows are present, but the seq64 grid is not complete across width/head axes.",
       "status": "OPEN_NEEDED"
     },
     {
@@ -425,8 +425,8 @@
       "status": "OPEN_NEEDED"
     }
   ],
-  "payload_commitment": "blake2b-256:2f5ff2070eb54fb241b45e77183c7e10cf88833ed7e557e1e1c257eaa82f9e72",
-  "result": "TWENTY_SEVEN_ATTENTION_ROUTE_ROWS_SCALE_RAW_PROOF_PRESSURE_AND_D128_HEAD_AXIS_STAYS_POSITIVE",
+  "payload_commitment": "blake2b-256:2a01867629debaed9b288af0c85f6ee5a5b6846fed7432a74e85700f2d8e5d2c",
+  "result": "TWENTY_EIGHT_ATTENTION_ROUTE_ROWS_SCALE_RAW_PROOF_PRESSURE_AND_D128_FOUR_HEAD_SEQ64_STAYS_POSITIVE",
   "route_matrix_signal": {
     "d128_four_head_seq32_head_frontier": {
       "four_head_fused_raw_proof_bytes": 465630,
@@ -453,6 +453,32 @@
       "two_to_four_source_raw_proof_growth": "1.045444",
       "two_to_four_split_raw_proof_growth": "1.055738",
       "two_to_four_trace_row_growth": "2.000000"
+    },
+    "d128_four_head_seq64_decision_gate": {
+      "profile_ids": [
+        "d128_four_head_seq32",
+        "d128_four_head_seq64"
+      ],
+      "seq32_fused_raw_proof_bytes": 465630,
+      "seq32_lookup_claims": 2368,
+      "seq32_sidecar_raw_proof_bytes": 41524,
+      "seq32_source_raw_proof_bytes": 463410,
+      "seq32_to_seq64_fused_raw_proof_growth": "1.064910",
+      "seq32_to_seq64_lookup_claim_growth": "3.729730",
+      "seq32_to_seq64_saving_growth": "1.114797",
+      "seq32_to_seq64_sidecar_raw_proof_growth": "1.188782",
+      "seq32_to_seq64_source_raw_proof_growth": "1.058041",
+      "seq32_to_seq64_split_raw_proof_growth": "1.068793",
+      "seq32_to_seq64_trace_row_growth": "4.000000",
+      "seq32_trace_rows": 4096,
+      "seq64_fused_raw_proof_bytes": 495854,
+      "seq64_fused_to_split_ratio": 0.91881,
+      "seq64_lookup_claims": 8832,
+      "seq64_raw_saving_bytes": 43816,
+      "seq64_sidecar_raw_proof_bytes": 49363,
+      "seq64_source_plus_sidecar_raw_proof_bytes": 539670,
+      "seq64_source_raw_proof_bytes": 490307,
+      "seq64_trace_rows": 16384
     },
     "d128_two_head_seq32_width_frontier": {
       "d128_fused_raw_proof_bytes": 445888,
@@ -651,7 +677,7 @@
       "seq64_source_raw_proof_bytes": 264403,
       "seq64_trace_rows": 8192
     },
-    "fused_raw_proof_bytes_total": 4700038,
+    "fused_raw_proof_bytes_total": 5195892,
     "head_counts": [
       1,
       2,
@@ -659,21 +685,21 @@
       8,
       16
     ],
-    "matched_comparator_profiles": 27,
+    "matched_comparator_profiles": 28,
     "max_fused_to_split_ratio": 0.934545,
     "min_fused_to_split_ratio": 0.676723,
-    "profiles_checked": 27,
-    "raw_proof_savings_bytes_total": 675953,
-    "source_plus_sidecar_raw_proof_bytes_total": 5375991,
-    "status": "GO_27_ROW_RAW_PROOF_ROUTE_MATRIX_WITH_D128_SEQ32_HEAD_FRONTIER",
+    "profiles_checked": 28,
+    "raw_proof_savings_bytes_total": 719769,
+    "source_plus_sidecar_raw_proof_bytes_total": 5915661,
+    "status": "GO_28_ROW_RAW_PROOF_ROUTE_MATRIX_WITH_D128_FOUR_HEAD_SEQ64_DECISION_GATE",
     "steps_per_head": [
       8,
       16,
       32,
       64
     ],
-    "total_lookup_claims": 35468,
-    "total_trace_rows": 62016,
+    "total_lookup_claims": 44300,
+    "total_trace_rows": 78400,
     "widths": [
       8,
       16,
@@ -746,14 +772,14 @@
     {
       "id": "attention_route_matrix",
       "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
-      "sha256": "1671310d7eaf9e066db6224037a61ac7bf644df4b389afdc1d56306f073d0281",
-      "size_bytes": 82911
+      "sha256": "a580e3730c92d4d674eba350cf03f3d08aef8be3c116ff1de69086378dc5ac1c",
+      "size_bytes": 85893
     },
     {
       "id": "fuller_crossing_grid",
       "path": "docs/engineering/evidence/zkai-attention-kv-fuller-crossing-grid-2026-05.json",
-      "sha256": "fd1d37bd2df13014b5a66e9e6231e4f572bdd863c15e547a2ea51d7c78cf77eb",
-      "size_bytes": 82623
+      "sha256": "d22712eefc097f3c9adae42f8dfa66271d648ba0aaf0d2b4c24d9cb72965927c",
+      "size_bytes": 82737
     },
     {
       "id": "native_seq32_d128_single_proof",
@@ -823,8 +849,8 @@
     }
   ],
   "summary": {
-    "attention_raw_proof_savings_bytes_total": 675953,
-    "attention_route_rows_checked": 27,
+    "attention_raw_proof_savings_bytes_total": 719769,
+    "attention_route_rows_checked": 28,
     "attention_rows_checked": 10,
     "attention_rows_with_positive_typed_saving": 10,
     "attention_typed_savings_bytes_total": 51288,
@@ -832,6 +858,9 @@
     "current_best_inner_policy_bound_typed_bytes": 39516,
     "current_best_saving_vs_47188_frontier_bytes": 7672,
     "d128_four_head_seq32_raw_saving_bytes": 39304,
+    "d128_four_head_seq32_to_seq64_fused_raw_proof_growth": "1.064910",
+    "d128_four_head_seq32_to_seq64_lookup_growth": "3.729730",
+    "d128_four_head_seq64_raw_saving_bytes": 43816,
     "d128_seq32_raw_saving_bytes": 32388,
     "d128_seq32_to_seq64_fused_raw_proof_growth": "1.080697",
     "d128_seq32_to_seq64_lookup_growth": "3.729730",
