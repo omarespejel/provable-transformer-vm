@@ -435,7 +435,7 @@
       "status": "OPEN_NEEDED"
     }
   ],
-  "payload_commitment": "blake2b-256:f09cb6b4323493f2f731c727fdc631710e0beb2cff8454ab3c79f65105f99ae4",
+  "payload_commitment": "blake2b-256:96ea02d69875f6abfe8d9cd4e82f1214f98da77d5b27367ed7c4b43e21a20d53",
   "result": "TWENTY_EIGHT_ATTENTION_ROUTE_ROWS_SCALE_RAW_PROOF_PRESSURE_AND_D128_FOUR_HEAD_SEQ64_STAYS_POSITIVE",
   "route_matrix_signal": {
     "d128_four_head_seq32_head_frontier": {
@@ -784,6 +784,12 @@
       "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
       "sha256": "2a2f22ed1d349fe9244c6600d16bd2f0abda46c811452c551e78a089d31da5ca",
       "size_bytes": 86206
+    },
+    {
+      "id": "d128_four_head_seq64_large_artifacts_manifest",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-large-artifacts-2026-05.json",
+      "sha256": "fa2023e239f762ff72c96b86cba9d02500bbdf822fe279572a07df82ccf5fb2c",
+      "size_bytes": 4556
     },
     {
       "id": "fuller_crossing_grid",

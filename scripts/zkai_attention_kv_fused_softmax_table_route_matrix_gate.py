@@ -615,9 +615,15 @@ def validate_d128_four_head_seq64_light_gate(profile: Profile, gate_result: dict
 
 def validate_existing_gate(profile: Profile, gate_result: dict[str, Any]) -> None:
     local_artifact_paths = d128_four_head_seq64_local_artifact_paths(profile)
-    if local_artifact_paths and not all(path.is_file() for path in local_artifact_paths):
-        validate_d128_four_head_seq64_light_gate(profile, gate_result)
-        return
+    if local_artifact_paths:
+        present = [path for path in local_artifact_paths if path.is_file()]
+        if present and len(present) != len(local_artifact_paths):
+            raise FusedSoftmaxTableRouteMatrixGateError(
+                f"{profile.profile_id} partial local artifact state; remove or regenerate all oversized artifacts"
+            )
+        if not present:
+            validate_d128_four_head_seq64_light_gate(profile, gate_result)
+            return
     module = profile.gate_module
     signature = inspect.signature(module.validate_result)
     if len(signature.parameters) == 1:
