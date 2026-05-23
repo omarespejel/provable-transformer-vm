@@ -38,7 +38,7 @@ SOURCE_ISSUE = matrix.ISSUE
 DECISION = "GO_CHECKED_FULLER_CROSSING_GRID_WITH_FULL_PROOF_GRID_NO_GO"
 ROUTE_ID = "local_stwo_attention_kv_fuller_width_head_sequence_crossing_grid"
 GRID_STATUS = "GO_100_CELL_WIDTH_HEAD_SEQUENCE_STATUS_GRID_FROM_CHECKED_ROUTE_MATRIX"
-FULL_PROOF_GRID_STATUS = "NO_GO_72_OF_100_GRID_CELLS_DO_NOT_HAVE_NATIVE_FUSED_PROOFS"
+FULL_PROOF_GRID_STATUS = "NO_GO_71_OF_100_GRID_CELLS_DO_NOT_HAVE_NATIVE_FUSED_PROOFS"
 CLAIM_BOUNDARY = (
     "ENGINEERING_STATUS_GRID_FOR_CHECKED_NATIVE_STWO_FUSED_BOUNDED_SOFTMAX_TABLE_ROUTES_"
     "MAPS_PROVED_AND_MISSING_WIDTH_HEAD_SEQUENCE_CELLS_NOT_A_FULL_FACTORIAL_PROOF_GRID_"
@@ -76,6 +76,7 @@ EXPECTED_PROVED_KEYS = (
     (64, 2, 64),
     (64, 4, 32),
     (64, 4, 64),
+    (128, 1, 16),
     (128, 2, 32),
     (128, 2, 64),
     (128, 4, 32),
@@ -106,6 +107,7 @@ EXPECTED_PROVED_PROFILE_IDS = (
     "d64_two_head_seq64",
     "d64_four_head_seq32",
     "d64_four_head_seq64",
+    "d128_single_head_seq16",
     "d128_two_head_seq32",
     "d128_two_head_seq64",
     "d128_four_head_seq32",
@@ -119,25 +121,17 @@ VALIDATION_COMMANDS = (
 )
 GO_CRITERIA = (
     "the upstream fused Softmax-table route matrix validates locally",
-    "exactly 28 checked route cells are marked proved and exactly 72 cells are marked missing",
+    "exactly 29 checked route cells are marked proved and exactly 71 cells are marked missing",
     "every proved cell has matched source-plus-LogUp-sidecar comparator evidence from the route matrix",
     "missing cells carry no proof-byte, ratio, or evidence-path claims",
 )
 NO_GO_CRITERIA = (
-    "full factorial proof-grid claim: 72 of 100 grid cells are missing native fused proofs",
+    "full factorial proof-grid claim: 71 of 100 grid cells are missing native fused proofs",
     "new crossing proof claim: this slice adds the d128/four-head/seq64 decision-gate row, not the full grid",
     "timing or public benchmark claim: this gate records status only",
     "real-valued Softmax or full-inference claim: the upstream kernel is bounded integer Softmax-table/floor division",
 )
 NEXT_LOW_RISK_PROFILES = (
-    {
-        "profile_id": "d128_single_head_seq16",
-        "key_width": 128,
-        "head_count": 1,
-        "steps_per_head": 16,
-        "reason": "anchors d128 width pressure with lower lookup load if d128 four-head seq64 proves too heavy",
-        "go_condition": "source, sidecar, fused, and mutation gates validate with a positive fused-vs-split saving",
-    },
     {
         "profile_id": "d256_two_head_seq32",
         "key_width": 256,

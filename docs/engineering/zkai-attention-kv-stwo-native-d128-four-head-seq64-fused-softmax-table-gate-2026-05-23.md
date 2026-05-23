@@ -70,6 +70,10 @@ The fuller crossing grid is now `28 / 100` proved and `72 / 100` missing.
 The wide-grid selector now promotes `d128_h1_seq16` as the next low-pressure
 d128 width anchor, then `d256_h2_seq32` as the next width stress test.
 
+Superseding note: `d128_h1_seq16` has since landed as a checked anchor row in
+`docs/engineering/zkai-attention-kv-stwo-native-d128-single-head-seq16-fused-softmax-table-gate-2026-05-23.md`;
+the current selector target is `d256_h2_seq32`.
+
 ## Reproducibility Metadata
 
 - timing mode: `proof_existence_and_byte_accounting_only_not_public_benchmark`

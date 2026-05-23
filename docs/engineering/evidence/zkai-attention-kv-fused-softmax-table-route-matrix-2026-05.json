@@ -1,14 +1,14 @@
 {
   "aggregate_metrics": {
-    "matched_fused_proof_size_bytes_total": 5195892,
-    "matched_fused_savings_bytes_total": 719769,
-    "matched_source_plus_sidecar_raw_proof_bytes_total": 5915661,
+    "matched_fused_proof_size_bytes_total": 5576234,
+    "matched_fused_savings_bytes_total": 736740,
+    "matched_source_plus_sidecar_raw_proof_bytes_total": 6312974,
     "max_fused_proof_size_bytes": 495854,
-    "max_matched_fused_to_source_plus_sidecar_ratio": 0.934545,
+    "max_matched_fused_to_source_plus_sidecar_ratio": 0.957286,
     "min_matched_fused_to_source_plus_sidecar_ratio": 0.676723,
-    "total_fused_proof_size_bytes": 5195892,
-    "total_lookup_claims": 44300,
-    "total_trace_rows": 78400
+    "total_fused_proof_size_bytes": 5576234,
+    "total_lookup_claims": 44468,
+    "total_trace_rows": 78656
   },
   "axis_summary": {
     "combined_width_head_axis_seq8": {
@@ -918,6 +918,54 @@
         2048
       ]
     },
+    "combined_width_sequence_axis_d128_single_head_seq16_width_anchor": {
+      "d64_to_d128_fused_proof_size_ratio": 1.599924,
+      "d64_to_d128_key_width_ratio": 2.0,
+      "d64_to_d128_lookup_claim_ratio": 1.0,
+      "d64_to_d128_savings_ratio": 1.019279,
+      "d64_to_d128_sidecar_proof_size_ratio": 1.004007,
+      "d64_to_d128_source_plus_sidecar_ratio": 1.561918,
+      "d64_to_d128_source_proof_size_ratio": 1.617272,
+      "d64_to_d128_trace_row_ratio": 1.0,
+      "fused_proof_size_bytes": [
+        237725,
+        380342
+      ],
+      "fused_to_source_plus_sidecar_ratios": [
+        0.934545,
+        0.957286
+      ],
+      "held_constant": "head_count_1_steps_per_head_16_bounded_softmax_table_kernel_with_width_axis_extended",
+      "key_widths": [
+        64,
+        128
+      ],
+      "lookup_claims": [
+        168,
+        168
+      ],
+      "matched_comparator_status": "GO_MATCHED_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR_RECORDED",
+      "profile_ids": [
+        "d64_single_head_seq16",
+        "d128_single_head_seq16"
+      ],
+      "sidecar_proof_size_bytes": [
+        22960,
+        23052
+      ],
+      "source_plus_sidecar_raw_proof_bytes": [
+        254375,
+        397313
+      ],
+      "source_proof_size_bytes": [
+        231415,
+        374261
+      ],
+      "trace_rows": [
+        256,
+        256
+      ]
+    },
     "head_axis_d8_seq8": {
       "eight_head_comparator_status": "GO_MATCHED_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR_RECORDED",
       "fused_proof_ratio_1_to_16": 1.362866,
@@ -1070,7 +1118,7 @@
   "decision": "GO_NATIVE_STWO_FUSED_SOFTMAX_TABLE_CONTROLLED_ROUTE_MATRIX",
   "issue": 505,
   "kernel_scope": "bounded_integer_softmax_table_floor_division_kernel_with_fused_attention_arithmetic_and_logup_membership",
-  "matched_comparator_profiles": 28,
+  "matched_comparator_profiles": 29,
   "mutation_results": [
     {
       "error": "result drift for decision",
@@ -1248,6 +1296,11 @@
       "rejected": true
     },
     {
+      "error": "d128_single_head_seq16 head count drift",
+      "name": "d128_single_head_seq16_width_anchor_metric_smuggling",
+      "rejected": true
+    },
+    {
       "error": "d128_two_head_seq32 key width drift",
       "name": "d128_two_head_seq32_width_frontier_metric_smuggling",
       "rejected": true
@@ -1374,6 +1427,11 @@
     },
     {
       "error": "axis summary drift",
+      "name": "axis_summary_d128_single_head_seq16_width_anchor_ratio_drift",
+      "rejected": true
+    },
+    {
+      "error": "axis summary drift",
       "name": "axis_summary_d128_seq32_width_frontier_ratio_drift",
       "rejected": true
     },
@@ -1403,8 +1461,8 @@
       "rejected": true
     }
   ],
-  "mutations_checked": 66,
-  "mutations_rejected": 66,
+  "mutations_checked": 68,
+  "mutations_rejected": 68,
   "no_comparator_profiles": [],
   "profile_ids": [
     "d8_single_head_seq8",
@@ -1431,12 +1489,13 @@
     "d64_two_head_seq64",
     "d64_four_head_seq32",
     "d64_four_head_seq64",
+    "d128_single_head_seq16",
     "d128_two_head_seq32",
     "d128_two_head_seq64",
     "d128_four_head_seq32",
     "d128_four_head_seq64"
   ],
-  "profiles_checked": 28,
+  "profiles_checked": 29,
   "route_id": "local_stwo_attention_kv_fused_softmax_table_controlled_route_matrix",
   "route_rows": [
     {
@@ -2206,6 +2265,38 @@
       "table_rows": 9,
       "trace_rows": 16384,
       "value_width": 64
+    },
+    {
+      "axis_role": "combined_width_sequence_axis_d128_single_head_seq16_width_anchor",
+      "decision": "GO_NATIVE_STWO_FUSED_ATTENTION_ARITHMETIC_AND_SOFTMAX_TABLE_LOGUP_MEMBERSHIP",
+      "evidence_json": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-single-head-seq16-fused-softmax-table-gate-2026-05.json",
+      "fused_envelope_size_bytes": 5755759,
+      "fused_issue": 715,
+      "fused_over_source_proof_bytes": 6081,
+      "fused_proof_size_bytes": 380342,
+      "fused_saves_vs_source_plus_sidecar_bytes": 16971,
+      "fused_to_source_plus_sidecar_ratio": 0.957286,
+      "head_count": 1,
+      "key_width": 128,
+      "label": "d128 single-head seq16 fused Softmax-table route",
+      "lookup_claims": 168,
+      "matched_source_sidecar_status": "GO_MATCHED_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR_RECORDED",
+      "mutations_checked": 26,
+      "mutations_rejected": 26,
+      "profile_id": "d128_single_head_seq16",
+      "route_id": "local_stwo_attention_kv_d128_single_head_seq16_fused_bounded_softmax_table_logup_proof",
+      "score_rows": 168,
+      "sidecar_issue": 715,
+      "sidecar_proof_size_bytes": 23052,
+      "source_envelope_size_bytes": 5704322,
+      "source_input_json": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-proof-2026-05.json",
+      "source_issue": 715,
+      "source_plus_sidecar_raw_proof_bytes": 397313,
+      "source_proof_size_bytes": 374261,
+      "steps_per_head": 16,
+      "table_rows": 9,
+      "trace_rows": 256,
+      "value_width": 128
     },
     {
       "axis_role": "combined_width_head_sequence_axis_d128_seq32_width_frontier",

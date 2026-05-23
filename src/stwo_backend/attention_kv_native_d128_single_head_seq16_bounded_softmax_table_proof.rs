@@ -6,7 +6,7 @@ use sha2::{Digest as ShaDigest, Sha256};
 use stwo::core::air::Component;
 use stwo::core::channel::Blake2sM31Channel;
 use stwo::core::fields::m31::BaseField;
-use stwo::core::fields::qm31::{SecureField, SECURE_EXTENSION_DEGREE};
+use stwo::core::fields::qm31::SecureField;
 use stwo::core::pcs::{CommitmentSchemeVerifier, PcsConfig};
 use stwo::core::poly::circle::CanonicCoset;
 use stwo::core::proof::StarkProof;
@@ -20,31 +20,32 @@ use stwo::prover::poly::{BitReversedOrder, NaturalOrder};
 use stwo::prover::{prove, CommitmentSchemeProver};
 use stwo_constraint_framework::preprocessed_columns::PreProcessedColumnId;
 use stwo_constraint_framework::{
-    EvalAtRow, FrameworkComponent, FrameworkEval, TraceLocationAllocator, ORIGINAL_TRACE_IDX,
-    PREPROCESSED_TRACE_IDX,
+    EvalAtRow, FrameworkComponent, FrameworkEval, TraceLocationAllocator,
 };
 
 use crate::error::{Result, VmError};
 use crate::proof::StarkProofBackend;
 
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_INPUT_SCHEMA: &str =
-    "zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-air-proof-input-v1";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_INPUT_DECISION: &str =
-    "GO_INPUT_FOR_STWO_NATIVE_ATTENTION_KV_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_AIR_PROOF";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_PROOF_VERSION: &str =
-    "stwo-attention-kv-d128-four-head-seq64-causal-mask-bounded-softmax-table-air-proof-v1";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_STATEMENT_VERSION:
-    &str = "zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-statement-v1";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_SEMANTIC_SCOPE: &str =
-    "d128_four_head_seq64_bounded_table_softmax_approx_attention_kv_causal_mask_rows_bound_to_statement_receipt";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_DECISION: &str =
-    "GO_STWO_NATIVE_ATTENTION_KV_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_AIR_PROOF";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_TARGET_ID: &str =
-    "attention-kv-d128-four-head-seq64-causal-mask-bounded-softmax-table-v1";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_REQUIRED_BACKEND_VERSION:
-    &str = "stwo-attention-kv-d128-four-head-seq64-causal-mask-bounded-softmax-table-v1";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_VERIFIER_DOMAIN:
-    &str = "ptvm:zkai:attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table:v1";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_INPUT_SCHEMA: &str =
+    "zkai-attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-air-proof-input-v1";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_INPUT_DECISION:
+    &str =
+    "GO_INPUT_FOR_STWO_NATIVE_ATTENTION_KV_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_AIR_PROOF";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_PROOF_VERSION:
+    &str =
+    "stwo-attention-kv-d128-single-head-seq16-causal-mask-bounded-softmax-table-air-proof-v1";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_STATEMENT_VERSION: &str =
+    "zkai-attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-statement-v1";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_SEMANTIC_SCOPE: &str =
+    "d128_single_head_seq16_bounded_table_softmax_approx_attention_kv_causal_mask_rows_bound_to_statement_receipt";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_DECISION: &str =
+    "GO_STWO_NATIVE_ATTENTION_KV_BOUNDED_SOFTMAX_TABLE_AIR_PROOF";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_TARGET_ID: &str =
+    "attention-kv-d128-single-head-seq16-causal-mask-bounded-softmax-table-v1";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_REQUIRED_BACKEND_VERSION: &str =
+    "stwo-attention-kv-d128-single-head-seq16-causal-mask-bounded-softmax-table-v1";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_VERIFIER_DOMAIN:
+    &str = "ptvm:zkai:attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table:v1";
 
 const ISSUE: usize = 715;
 const SOURCE_ISSUE: usize = 715;
@@ -63,55 +64,49 @@ const WEIGHT_TABLE: &[(usize, i64)] = &[
     (7, 23),
     (8, 16),
 ];
-const MAX_TABLE_WEIGHT: i64 = 256;
 const MASKING_POLICY: &str = "causal_prefix_position_lte_query_token";
 const KEY_WIDTH: usize = 128;
 const VALUE_WIDTH: usize = 128;
-const HEAD_COUNT: usize = 4;
-const SEQUENCE_LENGTH: usize = 64;
-const INITIAL_KV_ITEMS_PER_HEAD: usize = 2;
-const INITIAL_KV_ITEMS: usize = HEAD_COUNT * INITIAL_KV_ITEMS_PER_HEAD;
-const FINAL_KV_ITEMS_PER_HEAD: usize = INITIAL_KV_ITEMS_PER_HEAD + SEQUENCE_LENGTH;
-const FINAL_KV_ITEMS: usize = HEAD_COUNT * FINAL_KV_ITEMS_PER_HEAD;
-const SCORE_ROW_COUNT: usize = 8832;
-const TRACE_ROW_COUNT: usize = 16384;
-const LOG_SIZE: u32 = 14;
+const SEQUENCE_LENGTH: usize = 16;
+const INITIAL_KV_ITEMS: usize = 2;
+const FINAL_KV_ITEMS: usize = 18;
+const SCORE_ROW_COUNT: usize = 168;
+const TRACE_ROW_COUNT: usize = 256;
+const LOG_SIZE: u32 = 8;
 const SCORE_GAP_BITS: usize = 16;
 const CAUSAL_GAP_BITS: usize = 16;
 const WEIGHT_BITS: usize = 9;
 const OUTPUT_REMAINDER_BITS: usize = 16;
 const M31_MODULUS: i64 = (1i64 << 31) - 1;
-// Controlled-fixture bound, not a model-domain limit. Future broader fixtures
-// can split raw-input and derived-field bounds without changing the AIR shape.
 const MAX_ABS_VALUE: i64 = 1_000_000;
 const EXPECTED_TRACE_COMMITMENTS: usize = 2;
 const EXPECTED_PROOF_COMMITMENTS: usize = 3;
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES:
-    usize = 268_435_456;
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BYTES:
-    usize = 268_435_456;
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES: usize =
+    8_388_608;
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BYTES: usize =
+    16_777_216;
 // The checked artifact path transports proof bytes as a pretty JSON array
 // inside a 1MiB envelope, so the raw proof cap must stay below the transport
 // ceiling rather than advertising a binary-envelope-sized limit.
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES:
-    usize = 1_048_576;
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES:
+    usize = 524_288;
 
 const ROW_DOMAIN: &str =
-    "ptvm:zkai:attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-score-rows:v1";
+    "ptvm:zkai:attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-score-rows:v1";
 const INITIAL_KV_DOMAIN: &str =
-    "ptvm:zkai:attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-initial-kv:v1";
+    "ptvm:zkai:attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-initial-kv:v1";
 const INPUT_STEPS_DOMAIN: &str =
-    "ptvm:zkai:attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-input-steps:v1";
+    "ptvm:zkai:attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-input-steps:v1";
 const FINAL_KV_DOMAIN: &str =
-    "ptvm:zkai:attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-final-kv:v1";
+    "ptvm:zkai:attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-final-kv:v1";
 const OUTPUTS_DOMAIN: &str =
-    "ptvm:zkai:attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-outputs:v1";
+    "ptvm:zkai:attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-outputs:v1";
 const PUBLIC_INSTANCE_DOMAIN: &str =
-    "ptvm:zkai:attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-public-instance:v1";
+    "ptvm:zkai:attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-public-instance:v1";
 const PROOF_NATIVE_PARAMETER_DOMAIN: &str =
-    "ptvm:zkai:attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-parameters:v1";
+    "ptvm:zkai:attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-proof-parameters:v1";
 const WEIGHT_TABLE_DOMAIN: &str =
-    "ptvm:zkai:attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-weight-table:v1";
+    "ptvm:zkai:attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-weight-table:v1";
 
 const EXPECTED_NON_CLAIMS: &[&str] = &[
     "not exact Softmax attention",
@@ -122,7 +117,7 @@ const EXPECTED_NON_CLAIMS: &[&str] = &[
     "not long-context benchmark evidence",
     "not on-chain verification evidence",
     "not AIR-private lookup arguments; table membership is verifier-recomputed over public rows before proof verification",
-    "bounded table score-to-weight policy, per-head KV carry, and weighted averages are verifier-recomputed from public rows before proof verification",
+    "bounded table score-to-weight policy and weighted averages are verifier-recomputed from public rows before proof verification",
 ];
 
 const EXPECTED_PROOF_VERIFIER_HARDENING: &[&str] = &[
@@ -131,71 +126,32 @@ const EXPECTED_PROOF_VERIFIER_HARDENING: &[&str] = &[
     "native Stwo AIR proves causal-prefix mask gaps are nonnegative via bit decomposition",
     "native Stwo AIR proves table-derived weight times value products for every checked candidate and dimension",
     "native Stwo AIR proves output quotient/remainder rows against the verifier-recomputed weighted numerator and denominator",
-    "verifier recomputes per-head append-only KV carry, max score, clipped score gaps, table-derived weights, weighted numerators, denominators, and outputs before proof verification",
+    "verifier recomputes append-only KV carry, max score, clipped score gaps, table-derived weights, weighted numerators, denominators, and outputs before proof verification",
     "score-row, initial-KV, input-step, final-KV, output, public-instance, and statement commitments are recomputed before proof verification",
     "fixed publication-v1 PCS verifier profile before commitment-root recomputation",
     "bounded envelope JSON before deserialization and bounded proof bytes before proof parsing",
     "commitment-vector length check before commitment indexing",
 ];
 
-const NEXT_BACKEND_STEP: &str = "fuse the same d128 four-head seq64 bounded Softmax-table arithmetic with LogUp table membership in one native Stwo proof";
+const NEXT_BACKEND_STEP: &str = "fuse this d128 single-head seq16 bounded Softmax-table source with AIR-private LogUp table membership, then compare against a matched d128 single-head seq16 source-plus-sidecar route";
 
 const EXPECTED_VALIDATION_COMMANDS: &[&str] = &[
-    "python3.10 scripts/zkai_attention_kv_stwo_native_d128_four_head_seq64_bounded_softmax_table_proof_input.py --write-json docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.tsv",
-    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_stwo_native_d128_four_head_seq64_bounded_softmax_table_proof_input",
-    "cargo +nightly-2025-07-14 test --locked attention_kv_native_d128_four_head_seq64_bounded_softmax_table_proof --lib --features stwo-backend",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_proof -- prove docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_proof -- verify docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 test --locked attention_kv_d128_four_head_seq64_softmax_table_lookup --lib --features stwo-backend",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_proof -- prove docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-proof-2026-05.envelope.json",
-    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_proof -- verify docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-proof-2026-05.envelope.json",
-    "python3.10 scripts/zkai_attention_kv_d128_four_head_seq64_air_private_softmax_table_lookup_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-gate-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-gate-2026-05.tsv",
-    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d128_four_head_seq64_air_private_softmax_table_lookup_gate",
-    "python3.10 scripts/zkai_attention_kv_d128_four_head_seq64_fused_softmax_table_native_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-fused-softmax-table-gate-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-fused-softmax-table-gate-2026-05.tsv",
-    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d128_four_head_seq64_fused_softmax_table_native_gate",
+    "python3.10 scripts/zkai_attention_kv_stwo_native_d128_single_head_seq16_bounded_softmax_table_proof_input.py --write-json docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-proof-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-proof-2026-05.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_stwo_native_d128_single_head_seq16_bounded_softmax_table_proof_input",
+    "cargo +nightly-2025-07-14 test --locked attention_kv_native_d128_single_head_seq16_bounded_softmax_table_proof --lib --features stwo-backend",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_proof -- prove docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-proof-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_proof -- verify docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-proof-2026-05.envelope.json",
+    "python3.10 scripts/zkai_attention_kv_d128_single_head_seq16_fused_softmax_table_native_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-single-head-seq16-fused-softmax-table-gate-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-single-head-seq16-fused-softmax-table-gate-2026-05.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d128_single_head_seq16_fused_softmax_table_native_gate",
     "just lib",
     "just gate-fast",
     "just gate",
 ];
 
 #[derive(Debug, Clone)]
-struct AttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableEval;
+struct AttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableEval;
 
-#[derive(Default)]
-struct AttentionKvD128FourHeadSeq64BoundedSoftmaxTableLayoutCounter {
-    trace_masks: usize,
-    preprocessed_masks: usize,
-}
-
-impl EvalAtRow for AttentionKvD128FourHeadSeq64BoundedSoftmaxTableLayoutCounter {
-    type F = BaseField;
-    type EF = SecureField;
-
-    fn next_interaction_mask<const N: usize>(
-        &mut self,
-        interaction: usize,
-        _offsets: [isize; N],
-    ) -> [Self::F; N] {
-        match interaction {
-            ORIGINAL_TRACE_IDX => self.trace_masks += N,
-            PREPROCESSED_TRACE_IDX => self.preprocessed_masks += N,
-            _ => {}
-        }
-        std::array::from_fn(|_| BaseField::zero())
-    }
-
-    fn add_constraint<G>(&mut self, _constraint: G)
-    where
-        Self::EF: std::ops::Mul<G, Output = Self::EF> + From<G>,
-    {
-    }
-
-    fn combine_ef(_values: [Self::F; SECURE_EXTENSION_DEGREE]) -> Self::EF {
-        SecureField::zero()
-    }
-}
-
-impl FrameworkEval for AttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableEval {
+impl FrameworkEval for AttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableEval {
     fn log_size(&self) -> u32 {
         LOG_SIZE
     }
@@ -207,7 +163,6 @@ impl FrameworkEval for AttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableEval
     fn evaluate<E: EvalAtRow>(&self, mut eval: E) -> E {
         let enabled = eval.next_trace_mask();
         let row_index = eval.next_trace_mask();
-        let head_index = eval.next_trace_mask();
         let step_index = eval.next_trace_mask();
         let candidate_index = eval.next_trace_mask();
         let token_position = eval.next_trace_mask();
@@ -256,7 +211,6 @@ impl FrameworkEval for AttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableEval
         let mut trace_values = vec![
             enabled.clone(),
             row_index,
-            head_index,
             step_index,
             candidate_index,
             token_position.clone(),
@@ -315,16 +269,9 @@ impl FrameworkEval for AttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableEval
         }
 
         let column_ids = column_ids();
-        if column_ids.len() == trace_values.len() {
-            for index in 0..column_ids.len() {
-                let public_value =
-                    eval.get_preprocessed_column(preprocessed_column_id(&column_ids[index]));
-                eval.add_constraint(trace_values[index].clone() - public_value);
-            }
-        } else {
-            // FrameworkEval cannot return Result; make layout drift unsatisfiable
-            // in optimized builds instead of silently truncating bindings.
-            eval.add_constraint(E::F::from(BaseField::from(1u32)));
+        for (column_id, trace_value) in column_ids.iter().zip(trace_values) {
+            let public_value = eval.get_preprocessed_column(preprocessed_column_id(column_id));
+            eval.add_constraint(trace_value - public_value);
         }
 
         eval.add_constraint(enabled.clone() * (enabled.clone() - one.clone()));
@@ -369,8 +316,7 @@ impl FrameworkEval for AttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableEval
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct AttentionKvD128FourHeadSeq64BoundedSoftmaxTableEntry {
-    pub head_index: usize,
+pub struct AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableEntry {
     pub position: usize,
     pub key: Vec<i64>,
     pub value: Vec<i64>,
@@ -378,8 +324,7 @@ pub struct AttentionKvD128FourHeadSeq64BoundedSoftmaxTableEntry {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct AttentionKvD128FourHeadSeq64BoundedSoftmaxTableInputStep {
-    pub head_index: usize,
+pub struct AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableInputStep {
     pub token_position: usize,
     pub query: Vec<i64>,
     pub new_key: Vec<i64>,
@@ -388,16 +333,15 @@ pub struct AttentionKvD128FourHeadSeq64BoundedSoftmaxTableInputStep {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct AttentionKvD128FourHeadSeq64BoundedSoftmaxTableWeightEntry {
+pub struct AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableWeightEntry {
     pub gap: usize,
     pub weight: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct AttentionKvD128FourHeadSeq64BoundedSoftmaxTableScoreRow {
+pub struct AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableScoreRow {
     pub row_index: usize,
-    pub head_index: usize,
     pub step_index: usize,
     pub candidate_index: usize,
     pub token_position: usize,
@@ -421,7 +365,7 @@ pub struct AttentionKvD128FourHeadSeq64BoundedSoftmaxTableScoreRow {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput {
+pub struct ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput {
     pub schema: String,
     pub decision: String,
     pub issue: usize,
@@ -436,11 +380,10 @@ pub struct ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput {
     pub weight_policy: String,
     pub score_scale: usize,
     pub score_gap_clip: usize,
-    pub weight_table: Vec<AttentionKvD128FourHeadSeq64BoundedSoftmaxTableWeightEntry>,
+    pub weight_table: Vec<AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableWeightEntry>,
     pub masking_policy: String,
     pub key_width: usize,
     pub value_width: usize,
-    pub head_count: usize,
     pub sequence_length: usize,
     pub initial_kv_items: usize,
     pub final_kv_items: usize,
@@ -450,11 +393,11 @@ pub struct ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput {
     pub causal_gap_bits: usize,
     pub weight_bits: usize,
     pub output_remainder_bits: usize,
-    pub initial_kv_cache: Vec<AttentionKvD128FourHeadSeq64BoundedSoftmaxTableEntry>,
-    pub input_steps: Vec<AttentionKvD128FourHeadSeq64BoundedSoftmaxTableInputStep>,
-    pub final_kv_cache: Vec<AttentionKvD128FourHeadSeq64BoundedSoftmaxTableEntry>,
+    pub initial_kv_cache: Vec<AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableEntry>,
+    pub input_steps: Vec<AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableInputStep>,
+    pub final_kv_cache: Vec<AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableEntry>,
     pub attention_outputs: Vec<Vec<i64>>,
-    pub score_rows: Vec<AttentionKvD128FourHeadSeq64BoundedSoftmaxTableScoreRow>,
+    pub score_rows: Vec<AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableScoreRow>,
     pub initial_kv_cache_commitment: String,
     pub input_steps_commitment: String,
     pub score_row_commitment: String,
@@ -472,89 +415,85 @@ pub struct ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableEnvelope {
+pub struct ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableEnvelope {
     pub proof_backend: StarkProofBackend,
     pub proof_backend_version: String,
     pub statement_version: String,
     pub semantic_scope: String,
     pub decision: String,
-    pub input: ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    pub input: ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
     pub proof: Vec<u8>,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-struct AttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofPayload {
+struct AttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofPayload {
     stark_proof: StarkProof<Blake2sM31MerkleHasher>,
 }
 
-pub fn zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_input_from_json_str(
+pub fn zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_input_from_json_str(
     raw_json: &str,
-) -> Result<ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput> {
+) -> Result<ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput> {
     if raw_json.len()
-        > ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES
+        > ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES
     {
         return Err(weighted_error(format!(
             "input JSON exceeds max size: got {} bytes, limit {} bytes",
             raw_json.len(),
-            ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES
+            ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES
         )));
     }
-    let input: ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput =
+    let input: ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput =
         serde_json::from_str(raw_json)
             .map_err(|error| VmError::Serialization(error.to_string()))?;
     validate_input(&input)?;
     Ok(input)
 }
 
-pub fn prove_zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_envelope(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
-) -> Result<ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableEnvelope> {
+pub fn prove_zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_envelope(
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
+) -> Result<ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableEnvelope> {
     validate_input(input)?;
-    Ok(ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableEnvelope {
+    Ok(ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableEnvelope {
         proof_backend: StarkProofBackend::Stwo,
         proof_backend_version:
-            ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_REQUIRED_BACKEND_VERSION
-                .to_string(),
-        statement_version:
-            ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_STATEMENT_VERSION
-                .to_string(),
-        semantic_scope: ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_SEMANTIC_SCOPE
+            ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_REQUIRED_BACKEND_VERSION.to_string(),
+        statement_version: ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_STATEMENT_VERSION
             .to_string(),
-        decision: ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_DECISION.to_string(),
+        semantic_scope: ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_SEMANTIC_SCOPE
+            .to_string(),
+        decision: ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_DECISION.to_string(),
         input: input.clone(),
         proof: prove_rows(input)?,
     })
 }
 
-pub fn zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_envelope_from_json_slice(
+pub fn zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_envelope_from_json_slice(
     raw_json: &[u8],
-) -> Result<ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableEnvelope> {
-    if raw_json.len()
-        > ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BYTES
-    {
+) -> Result<ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableEnvelope> {
+    if raw_json.len() > ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BYTES {
         return Err(weighted_error(format!(
             "envelope JSON exceeds max size: got {} bytes, limit {} bytes",
             raw_json.len(),
-            ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BYTES
+            ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BYTES
         )));
     }
-    let envelope: ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableEnvelope =
+    let envelope: ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableEnvelope =
         serde_json::from_slice(raw_json)
             .map_err(|error| VmError::Serialization(error.to_string()))?;
     validate_envelope(&envelope)?;
     Ok(envelope)
 }
 
-pub fn verify_zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_envelope(
-    envelope: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableEnvelope,
+pub fn verify_zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_envelope(
+    envelope: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableEnvelope,
 ) -> Result<bool> {
     validate_envelope(envelope)?;
     verify_rows(&envelope.input, &envelope.proof)
 }
 
 fn validate_envelope(
-    envelope: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableEnvelope,
+    envelope: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableEnvelope,
 ) -> Result<()> {
     validate_input(&envelope.input)?;
     if envelope.proof_backend != StarkProofBackend::Stwo {
@@ -562,82 +501,82 @@ fn validate_envelope(
     }
     expect_eq(
         &envelope.proof_backend_version,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_REQUIRED_BACKEND_VERSION,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_REQUIRED_BACKEND_VERSION,
         "proof backend version",
     )?;
     expect_eq(
         &envelope.statement_version,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_STATEMENT_VERSION,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_STATEMENT_VERSION,
         "statement version",
     )?;
     expect_eq(
         &envelope.semantic_scope,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_SEMANTIC_SCOPE,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_SEMANTIC_SCOPE,
         "semantic scope",
     )?;
     expect_eq(
         &envelope.decision,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_DECISION,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_DECISION,
         "decision",
     )?;
     if envelope.proof.is_empty() {
         return Err(weighted_error("proof bytes must not be empty"));
     }
     if envelope.proof.len()
-        > ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES
+        > ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES
     {
         return Err(weighted_error(format!(
             "proof bytes exceed bounded verifier limit: got {}, max {}",
             envelope.proof.len(),
-            ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES
+            ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES
         )));
     }
     Ok(())
 }
 
 fn validate_input(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
 ) -> Result<()> {
     expect_eq(
         &input.schema,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_INPUT_SCHEMA,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_INPUT_SCHEMA,
         "schema",
     )?;
     expect_eq(
         &input.decision,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_INPUT_DECISION,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_INPUT_DECISION,
         "input decision",
     )?;
     expect_usize(input.issue, ISSUE, "issue")?;
     expect_usize(input.source_issue, SOURCE_ISSUE, "source issue")?;
     expect_eq(
         &input.target_id,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_TARGET_ID,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_TARGET_ID,
         "target id",
     )?;
     expect_eq(
         &input.required_backend_version,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_REQUIRED_BACKEND_VERSION,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_REQUIRED_BACKEND_VERSION,
         "required backend version",
     )?;
     expect_eq(
         &input.proof_version,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_PROOF_VERSION,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_PROOF_VERSION,
         "proof version",
     )?;
     expect_eq(
         &input.statement_version,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_STATEMENT_VERSION,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_STATEMENT_VERSION,
         "statement version",
     )?;
     expect_eq(
         &input.semantic_scope,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_SEMANTIC_SCOPE,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_SEMANTIC_SCOPE,
         "semantic scope",
     )?;
     expect_eq(
         &input.verifier_domain,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_VERIFIER_DOMAIN,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_VERIFIER_DOMAIN,
         "verifier domain",
     )?;
     expect_eq(&input.semantics, SEMANTICS, "semantics")?;
@@ -648,7 +587,6 @@ fn validate_input(
     expect_eq(&input.masking_policy, MASKING_POLICY, "masking policy")?;
     expect_usize(input.key_width, KEY_WIDTH, "key width")?;
     expect_usize(input.value_width, VALUE_WIDTH, "value width")?;
-    expect_usize(input.head_count, HEAD_COUNT, "head count")?;
     expect_usize(input.sequence_length, SEQUENCE_LENGTH, "sequence length")?;
     expect_usize(input.initial_kv_items, INITIAL_KV_ITEMS, "initial KV items")?;
     expect_usize(input.final_kv_items, FINAL_KV_ITEMS, "final KV items")?;
@@ -700,7 +638,7 @@ fn validate_input(
         "final KV commitment",
     )?;
     expect_eq(
-        &outputs_commitment(&input.input_steps, &input.attention_outputs)?,
+        &outputs_commitment(&input.attention_outputs)?,
         &input.outputs_commitment,
         "outputs commitment",
     )?;
@@ -727,25 +665,25 @@ fn validate_input(
     Ok(())
 }
 
-pub(crate) fn validate_zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_input(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+pub(crate) fn validate_zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_input(
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
 ) -> Result<()> {
     validate_input(input)
 }
 
 fn validate_sequence(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
 ) -> Result<()> {
     if input.initial_kv_cache.len() != INITIAL_KV_ITEMS {
         return Err(weighted_error("initial KV cache length drift"));
     }
-    if input.input_steps.len() != SEQUENCE_LENGTH * HEAD_COUNT {
+    if input.input_steps.len() != SEQUENCE_LENGTH {
         return Err(weighted_error("input steps length drift"));
     }
     if input.final_kv_cache.len() != FINAL_KV_ITEMS {
         return Err(weighted_error("final KV cache length drift"));
     }
-    if input.attention_outputs.len() != SEQUENCE_LENGTH * HEAD_COUNT {
+    if input.attention_outputs.len() != SEQUENCE_LENGTH {
         return Err(weighted_error("attention output length drift"));
     }
     if input.score_rows.len() != SCORE_ROW_COUNT {
@@ -758,41 +696,21 @@ fn validate_sequence(
     {
         validate_kv_entry(entry)?;
     }
-    for step in &input.input_steps {
-        validate_input_step(step)?;
-    }
-    validate_per_head_strict_positions(&input.initial_kv_cache, "initial KV cache")?;
-    validate_per_head_strict_positions(&input.final_kv_cache, "final KV cache")?;
-    validate_final_kv_append_order(input)?;
     let mut current = input.initial_kv_cache.clone();
     let mut expected_rows = Vec::with_capacity(SCORE_ROW_COUNT);
-    let mut expected_outputs = Vec::with_capacity(SEQUENCE_LENGTH * HEAD_COUNT);
-    let mut local_step_counts = vec![0usize; HEAD_COUNT];
-    for (global_step_index, step) in input.input_steps.iter().enumerate() {
-        validate_input_step(step)?;
-        if step.head_index >= HEAD_COUNT {
-            return Err(weighted_error("input step head index out of range"));
-        }
-        let step_index = local_step_counts[step.head_index];
-        local_step_counts[step.head_index] += 1;
-        expect_usize(
-            step.token_position,
-            INITIAL_KV_ITEMS_PER_HEAD + step_index,
-            "token position",
-        )?;
-        let next_item = AttentionKvD128FourHeadSeq64BoundedSoftmaxTableEntry {
-            head_index: step.head_index,
+    let mut expected_outputs = Vec::with_capacity(SEQUENCE_LENGTH);
+    for (step_index, step) in input.input_steps.iter().enumerate() {
+        validate_input_step(step, step_index)?;
+        let next_item = AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableEntry {
             position: step.token_position,
             key: step.new_key.clone(),
             value: step.new_value.clone(),
         };
         let mut next_cache = current.clone();
         next_cache.push(next_item);
-        let scored: Vec<(AttentionKvD128FourHeadSeq64BoundedSoftmaxTableEntry, i64)> = next_cache
+        let scored: Vec<(AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableEntry, i64)> = next_cache
             .iter()
-            .filter(|candidate| {
-                candidate.head_index == step.head_index && candidate.position <= step.token_position
-            })
+            .filter(|candidate| candidate.position <= step.token_position)
             .map(|candidate| Ok((candidate.clone(), dot(&step.query, &candidate.key)?)))
             .collect::<Result<Vec<_>>>()?;
         let selected_score = scored
@@ -805,8 +723,7 @@ fn validate_sequence(
             .map(|(_, score)| bounded_weight(selected_score - *score))
             .collect::<Result<Vec<_>>>()?;
         let denominator: i64 = weights.iter().sum();
-        let max_denominator = max_weight_denominator(scored.len())?;
-        if denominator <= 0 || denominator > max_denominator {
+        if denominator <= 0 || denominator >= (1i64 << WEIGHT_BITS) * SCORE_ROW_COUNT as i64 {
             return Err(weighted_error("weight denominator outside bounded range"));
         }
         let mut numerators = vec![0i64; VALUE_WIDTH];
@@ -833,7 +750,7 @@ fn validate_sequence(
                 return Err(weighted_error("output remainder outside bounded range"));
             }
         }
-        if input.attention_outputs[global_step_index] != output {
+        if input.attention_outputs[step_index] != output {
             return Err(weighted_error("attention output recomputation drift"));
         }
         expected_outputs.push(output.clone());
@@ -841,9 +758,8 @@ fn validate_sequence(
             scored.iter().zip(weights.iter()).enumerate()
         {
             let products = products(&step.query, &candidate.key)?;
-            expected_rows.push(AttentionKvD128FourHeadSeq64BoundedSoftmaxTableScoreRow {
+            expected_rows.push(AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableScoreRow {
                 row_index: expected_rows.len(),
-                head_index: step.head_index,
                 step_index,
                 candidate_index,
                 token_position: step.token_position,
@@ -871,12 +787,6 @@ fn validate_sequence(
         }
         current = next_cache;
     }
-    if local_step_counts
-        .iter()
-        .any(|count| *count != SEQUENCE_LENGTH)
-    {
-        return Err(weighted_error("per-head input step count drift"));
-    }
     if current != input.final_kv_cache {
         return Err(weighted_error("final KV cache recomputation drift"));
     }
@@ -892,49 +802,7 @@ fn validate_sequence(
     Ok(())
 }
 
-fn validate_per_head_strict_positions(
-    entries: &[AttentionKvD128FourHeadSeq64BoundedSoftmaxTableEntry],
-    label: &str,
-) -> Result<()> {
-    let mut last_positions = vec![None; HEAD_COUNT];
-    for entry in entries {
-        if entry.head_index >= HEAD_COUNT {
-            return Err(weighted_error(format!("{label} head index out of range")));
-        }
-        if let Some(last_position) = last_positions[entry.head_index] {
-            if entry.position <= last_position {
-                return Err(weighted_error(format!(
-                    "{label} per-head positions not strictly increasing"
-                )));
-            }
-        }
-        last_positions[entry.head_index] = Some(entry.position);
-    }
-    Ok(())
-}
-
-fn validate_final_kv_append_order(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
-) -> Result<()> {
-    let mut expected = input.initial_kv_cache.clone();
-    for step in &input.input_steps {
-        expected.push(AttentionKvD128FourHeadSeq64BoundedSoftmaxTableEntry {
-            head_index: step.head_index,
-            position: step.token_position,
-            key: step.new_key.clone(),
-            value: step.new_value.clone(),
-        });
-    }
-    if input.final_kv_cache != expected {
-        return Err(weighted_error("final KV cache append order drift"));
-    }
-    Ok(())
-}
-
-fn validate_kv_entry(entry: &AttentionKvD128FourHeadSeq64BoundedSoftmaxTableEntry) -> Result<()> {
-    if entry.head_index >= HEAD_COUNT {
-        return Err(weighted_error("KV head index out of range"));
-    }
+fn validate_kv_entry(entry: &AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableEntry) -> Result<()> {
     expect_usize(entry.key.len(), KEY_WIDTH, "KV key width")?;
     expect_usize(entry.value.len(), VALUE_WIDTH, "KV value width")?;
     for value in entry.key.iter().chain(entry.value.iter()) {
@@ -944,11 +812,14 @@ fn validate_kv_entry(entry: &AttentionKvD128FourHeadSeq64BoundedSoftmaxTableEntr
 }
 
 fn validate_input_step(
-    step: &AttentionKvD128FourHeadSeq64BoundedSoftmaxTableInputStep,
+    step: &AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableInputStep,
+    step_index: usize,
 ) -> Result<()> {
-    if step.head_index >= HEAD_COUNT {
-        return Err(weighted_error("input step head index out of range"));
-    }
+    expect_usize(
+        step.token_position,
+        INITIAL_KV_ITEMS + step_index,
+        "token position",
+    )?;
     expect_usize(step.query.len(), KEY_WIDTH, "query width")?;
     expect_usize(step.new_key.len(), KEY_WIDTH, "new key width")?;
     expect_usize(step.new_value.len(), VALUE_WIDTH, "new value width")?;
@@ -964,13 +835,10 @@ fn validate_input_step(
 }
 
 fn validate_score_row(
-    row: &AttentionKvD128FourHeadSeq64BoundedSoftmaxTableScoreRow,
+    row: &AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableScoreRow,
     expected_index: usize,
 ) -> Result<()> {
     expect_usize(row.row_index, expected_index, "score row index")?;
-    if row.head_index >= HEAD_COUNT {
-        return Err(weighted_error("score row head index out of range"));
-    }
     if row.step_index >= SEQUENCE_LENGTH {
         return Err(weighted_error("score row step index out of range"));
     }
@@ -1027,8 +895,9 @@ fn validate_score_row(
     if row.attention_weight <= 0 || row.attention_weight >= (1i64 << WEIGHT_BITS) {
         return Err(weighted_error("attention weight outside bit range"));
     }
-    let max_denominator = max_weight_denominator(row.token_position.saturating_add(1))?;
-    if row.weight_denominator <= 0 || row.weight_denominator > max_denominator {
+    if row.weight_denominator <= 0
+        || row.weight_denominator >= (1i64 << WEIGHT_BITS) * SCORE_ROW_COUNT as i64
+    {
         return Err(weighted_error("weight denominator outside bounded range"));
     }
     expect_i64(
@@ -1061,10 +930,9 @@ fn validate_score_row(
 }
 
 fn prove_rows(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
 ) -> Result<Vec<u8>> {
     validate_input(input)?;
-    validate_static_air_layout()?;
     let component = attention_component();
     let config = attention_pcs_config();
     let twiddles = SimdBackend::precompute_twiddles(
@@ -1079,11 +947,8 @@ fn prove_rows(
         CommitmentSchemeProver::<SimdBackend, Blake2sM31MerkleChannel>::new(config, &twiddles);
     commitment_scheme.set_store_polynomials_coefficients();
 
-    let trace = attention_trace(input)?;
+    let trace = attention_trace(input);
     let mut tree_builder = commitment_scheme.tree_builder();
-    // The AIR reads the checked public row values through preprocessed columns
-    // and then constrains them equal to the base trace values. Both trees carry
-    // the same rows by design, but they occupy distinct Stwo commitment slots.
     tree_builder.extend_evals(trace.clone());
     tree_builder.commit(channel);
 
@@ -1095,22 +960,21 @@ fn prove_rows(
         prove::<SimdBackend, Blake2sM31MerkleChannel>(&[&component], channel, commitment_scheme)
             .map_err(|error| {
                 VmError::UnsupportedProof(format!(
-            "attention/KV native d128-four-head bounded Softmax-table AIR proving failed: {error}"
-        ))
+                    "attention/KV native d128 single-head seq16 bounded Softmax-table AIR proving failed: {error}"
+                ))
             })?;
     serde_json::to_vec(
-        &AttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofPayload { stark_proof },
+        &AttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofPayload { stark_proof },
     )
     .map_err(|error| VmError::Serialization(error.to_string()))
 }
 
 fn verify_rows(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
     proof: &[u8],
 ) -> Result<bool> {
     validate_input(input)?;
-    validate_static_air_layout()?;
-    let payload: AttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofPayload =
+    let payload: AttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofPayload =
         serde_json::from_slice(proof).map_err(|error| VmError::Serialization(error.to_string()))?;
     let stark_proof = payload.stark_proof;
     let config = validate_pcs_config(stark_proof.config)?;
@@ -1130,7 +994,7 @@ fn verify_rows(
             EXPECTED_PROOF_COMMITMENTS
         )));
     }
-    let expected_roots = attention_commitment_roots(input, config)?;
+    let expected_roots = attention_commitment_roots(input, config);
     if stark_proof.commitments[0] != expected_roots[0] {
         return Err(weighted_error(
             "preprocessed row commitment does not match checked bounded Softmax-table rows",
@@ -1149,7 +1013,7 @@ fn verify_rows(
         .map(|_| true)
         .map_err(|error| {
             weighted_error(format!(
-                "attention/KV native d128-four-head bounded Softmax-table proof rejected: {error}"
+                "attention/KV native d128 single-head seq16 bounded Softmax-table proof rejected: {error}"
             ))
         })
 }
@@ -1168,14 +1032,11 @@ fn attention_pcs_config() -> PcsConfig {
 }
 
 fn attention_commitment_roots(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
     config: PcsConfig,
-) -> Result<
-    stwo::core::pcs::TreeVec<
-        <Blake2sM31MerkleHasher as stwo::core::vcs_lifted::merkle_hasher::MerkleHasherLifted>::Hash,
-    >,
+) -> stwo::core::pcs::TreeVec<
+    <Blake2sM31MerkleHasher as stwo::core::vcs_lifted::merkle_hasher::MerkleHasherLifted>::Hash,
 > {
-    validate_static_air_layout()?;
     let component = attention_component();
     let twiddles = SimdBackend::precompute_twiddles(
         CanonicCoset::new(
@@ -1189,10 +1050,8 @@ fn attention_commitment_roots(
         CommitmentSchemeProver::<SimdBackend, Blake2sM31MerkleChannel>::new(config, &twiddles);
     commitment_scheme.set_store_polynomials_coefficients();
 
-    let trace = attention_trace(input)?;
+    let trace = attention_trace(input);
     let mut tree_builder = commitment_scheme.tree_builder();
-    // Keep root recomputation byte-for-byte aligned with prove_rows: the first
-    // commitment is the public/preprocessed row view, the second is base trace.
     tree_builder.extend_evals(trace.clone());
     tree_builder.commit(channel);
 
@@ -1200,21 +1059,21 @@ fn attention_commitment_roots(
     tree_builder.extend_evals(trace);
     tree_builder.commit(channel);
 
-    Ok(commitment_scheme.roots())
+    commitment_scheme.roots()
 }
 
 fn attention_component(
-) -> FrameworkComponent<AttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableEval> {
+) -> FrameworkComponent<AttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableEval> {
     FrameworkComponent::new(
         &mut TraceLocationAllocator::new_with_preprocessed_columns(&preprocessed_column_ids()),
-        AttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableEval,
+        AttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableEval,
         SecureField::zero(),
     )
 }
 
 fn attention_trace(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
-) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
+) -> ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>> {
     let domain = CanonicCoset::new(LOG_SIZE).circle_domain();
     let mut rows = input.score_rows.clone();
     while rows.len() < TRACE_ROW_COUNT {
@@ -1227,7 +1086,6 @@ fn attention_trace(
         let mut values = vec![
             field_usize(enabled),
             field_usize(row.row_index),
-            field_usize(row.head_index),
             field_usize(row.step_index),
             field_usize(row.candidate_index),
             field_usize(row.token_position),
@@ -1284,16 +1142,12 @@ fn attention_trace(
                 .map(field_usize),
             );
         }
-        if values.len() != columns.len() {
-            return Err(weighted_error(
-                "bounded softmax-table trace column/value count drift",
-            ));
-        }
+        debug_assert_eq!(values.len(), columns.len());
         for (column, value) in columns.iter_mut().zip(values) {
             column.push(value);
         }
     }
-    Ok(columns
+    columns
         .into_iter()
         .map(|column| {
             CircleEvaluation::<SimdBackend, BaseField, NaturalOrder>::new(
@@ -1302,50 +1156,12 @@ fn attention_trace(
             )
             .bit_reverse()
         })
-        .collect())
+        .collect()
 }
 
-fn validate_static_air_layout() -> Result<()> {
-    let column_count = column_ids().len();
-    let preprocessed_column_count = preprocessed_column_ids().len();
-    let counter = AttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableEval
-        .evaluate(AttentionKvD128FourHeadSeq64BoundedSoftmaxTableLayoutCounter::default());
-    if counter.trace_masks != column_count {
-        return Err(weighted_error(format!(
-            "bounded Softmax-table AIR trace layout drift: got {} trace masks, expected {} columns",
-            counter.trace_masks, column_count
-        )));
-    }
-    if counter.preprocessed_masks != preprocessed_column_count {
-        return Err(weighted_error(format!(
-            "bounded Softmax-table AIR preprocessed layout drift: got {} masks, expected {} columns",
-            counter.preprocessed_masks, preprocessed_column_count
-        )));
-    }
-    let component = attention_component();
-    let trace_bounds = component.trace_log_degree_bounds();
-    if trace_bounds.len() != EXPECTED_TRACE_COMMITMENTS {
-        return Err(weighted_error(format!(
-            "bounded Softmax-table AIR commitment-count drift: got {}, expected {}",
-            trace_bounds.len(),
-            EXPECTED_TRACE_COMMITMENTS
-        )));
-    }
-    let expected_degree = LOG_SIZE.saturating_add(1);
-    if component.max_constraint_log_degree_bound() != expected_degree {
-        return Err(weighted_error(format!(
-            "bounded Softmax-table AIR max-degree drift: got {}, expected {}",
-            component.max_constraint_log_degree_bound(),
-            expected_degree
-        )));
-    }
-    Ok(())
-}
-
-fn padding_row(row_index: usize) -> AttentionKvD128FourHeadSeq64BoundedSoftmaxTableScoreRow {
-    AttentionKvD128FourHeadSeq64BoundedSoftmaxTableScoreRow {
+fn padding_row(row_index: usize) -> AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableScoreRow {
+    AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableScoreRow {
         row_index,
-        head_index: 0,
         step_index: 0,
         candidate_index: 0,
         token_position: 0,
@@ -1372,7 +1188,6 @@ fn column_ids() -> Vec<String> {
     let mut ids = [
         "enabled",
         "row-index",
-        "head-index",
         "step-index",
         "candidate-index",
         "token-position",
@@ -1387,7 +1202,7 @@ fn column_ids() -> Vec<String> {
     ]
     .into_iter()
     .map(|suffix| {
-        format!("zkai/attention-kv/native-d128-four-head-seq64-bounded-softmax-table/{suffix}")
+        format!("zkai/attention-kv/native-d128-single-head-seq16-bounded-softmax-table/{suffix}")
     })
     .collect::<Vec<_>>();
     for prefix in [
@@ -1407,29 +1222,29 @@ fn column_ids() -> Vec<String> {
         };
         for index in 0..width {
             ids.push(format!(
-                "zkai/attention-kv/native-d128-four-head-seq64-bounded-softmax-table/{prefix}-{index:02}"
+                "zkai/attention-kv/native-d128-single-head-seq16-bounded-softmax-table/{prefix}-{index:02}"
             ));
         }
     }
     for index in 0..SCORE_GAP_BITS {
         ids.push(format!(
-            "zkai/attention-kv/native-d128-four-head-seq64-bounded-softmax-table/score-gap-bit-{index:02}"
+            "zkai/attention-kv/native-d128-single-head-seq16-bounded-softmax-table/score-gap-bit-{index:02}"
         ));
     }
     for index in 0..CAUSAL_GAP_BITS {
         ids.push(format!(
-            "zkai/attention-kv/native-d128-four-head-seq64-bounded-softmax-table/causal-gap-bit-{index:02}"
+            "zkai/attention-kv/native-d128-single-head-seq16-bounded-softmax-table/causal-gap-bit-{index:02}"
         ));
     }
     for index in 0..WEIGHT_BITS {
         ids.push(format!(
-            "zkai/attention-kv/native-d128-four-head-seq64-bounded-softmax-table/weight-bit-{index:02}"
+            "zkai/attention-kv/native-d128-single-head-seq16-bounded-softmax-table/weight-bit-{index:02}"
         ));
     }
     for dim in 0..VALUE_WIDTH {
         for index in 0..OUTPUT_REMAINDER_BITS {
             ids.push(format!(
-                "zkai/attention-kv/native-d128-four-head-seq64-bounded-softmax-table/output-remainder-{dim:02}-bit-{index:02}"
+                "zkai/attention-kv/native-d128-single-head-seq16-bounded-softmax-table/output-remainder-{dim:02}-bit-{index:02}"
             ));
         }
     }
@@ -1459,12 +1274,12 @@ fn bits(value: usize, width: usize) -> Vec<usize> {
     (0..width).map(|index| (value >> index) & 1).collect()
 }
 
-fn expected_weight_table_entries() -> Vec<AttentionKvD128FourHeadSeq64BoundedSoftmaxTableWeightEntry>
-{
+fn expected_weight_table_entries(
+) -> Vec<AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableWeightEntry> {
     WEIGHT_TABLE
         .iter()
         .map(
-            |(gap, weight)| AttentionKvD128FourHeadSeq64BoundedSoftmaxTableWeightEntry {
+            |(gap, weight)| AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableWeightEntry {
                 gap: *gap,
                 weight: *weight,
             },
@@ -1473,7 +1288,7 @@ fn expected_weight_table_entries() -> Vec<AttentionKvD128FourHeadSeq64BoundedSof
 }
 
 fn validate_weight_table(
-    table: &[AttentionKvD128FourHeadSeq64BoundedSoftmaxTableWeightEntry],
+    table: &[AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableWeightEntry],
 ) -> Result<()> {
     if table != expected_weight_table_entries().as_slice() {
         return Err(weighted_error("weight table drift"));
@@ -1485,22 +1300,11 @@ fn bounded_weight(score_gap: i64) -> Result<i64> {
     if score_gap < 0 {
         return Err(weighted_error("negative score gap"));
     }
-    let clipped = std::cmp::min(
-        usize::try_from(score_gap).expect("score_gap is checked non-negative"),
-        SCORE_GAP_CLIP,
-    );
+    let clipped = std::cmp::min(score_gap as usize, SCORE_GAP_CLIP);
     WEIGHT_TABLE
         .iter()
         .find_map(|(gap, weight)| (*gap == clipped).then_some(*weight))
         .ok_or_else(|| weighted_error("missing clipped score-gap weight"))
-}
-
-fn max_weight_denominator(candidate_count: usize) -> Result<i64> {
-    let count = i64::try_from(candidate_count)
-        .map_err(|_| weighted_error("candidate count outside denominator range"))?;
-    count
-        .checked_mul(MAX_TABLE_WEIGHT)
-        .ok_or_else(|| weighted_error("weight denominator bound overflow"))
 }
 
 fn quotient_remainder_floor(numerator: i64, denominator: i64) -> Result<(i64, i64)> {
@@ -1543,14 +1347,13 @@ fn products(query: &[i64], key: &[i64]) -> Result<Vec<i64>> {
 }
 
 fn kv_commitment(
-    cache: &[AttentionKvD128FourHeadSeq64BoundedSoftmaxTableEntry],
+    cache: &[AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableEntry],
     domain: &str,
 ) -> Result<String> {
     let material = cache
         .iter()
         .map(|entry| {
-            let mut row = Vec::with_capacity(2 + KEY_WIDTH + VALUE_WIDTH);
-            row.push(entry.head_index as i64);
+            let mut row = Vec::with_capacity(1 + KEY_WIDTH + VALUE_WIDTH);
             row.push(entry.position as i64);
             row.extend(entry.key.iter().copied());
             row.extend(entry.value.iter().copied());
@@ -1559,10 +1362,10 @@ fn kv_commitment(
         .collect::<Vec<_>>();
     commitment_from_parts(
         &[
-            ("encoding", json_string("attention_kv_cache_with_head_v1")?),
+            ("encoding", json_string("attention_kv_cache_v1")?),
             (
                 "shape",
-                canonical_json_string(&vec![cache.len(), 2 + KEY_WIDTH + VALUE_WIDTH])?,
+                canonical_json_string(&vec![cache.len(), 1 + KEY_WIDTH + VALUE_WIDTH])?,
             ),
             (
                 "rows_sha256",
@@ -1574,13 +1377,12 @@ fn kv_commitment(
 }
 
 fn input_steps_commitment(
-    steps: &[AttentionKvD128FourHeadSeq64BoundedSoftmaxTableInputStep],
+    steps: &[AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableInputStep],
 ) -> Result<String> {
     let material = steps
         .iter()
         .map(|step| {
-            let mut row = Vec::with_capacity(2 + 2 * KEY_WIDTH + VALUE_WIDTH);
-            row.push(step.head_index as i64);
+            let mut row = Vec::with_capacity(1 + 2 * KEY_WIDTH + VALUE_WIDTH);
             row.push(step.token_position as i64);
             row.extend(step.query.iter().copied());
             row.extend(step.new_key.iter().copied());
@@ -1590,13 +1392,10 @@ fn input_steps_commitment(
         .collect::<Vec<_>>();
     commitment_from_parts(
         &[
-            (
-                "encoding",
-                json_string("attention_input_steps_with_head_v1")?,
-            ),
+            ("encoding", json_string("attention_input_steps_v1")?),
             (
                 "shape",
-                canonical_json_string(&vec![steps.len(), 2 + 2 * KEY_WIDTH + VALUE_WIDTH])?,
+                canonical_json_string(&vec![steps.len(), 1 + 2 * KEY_WIDTH + VALUE_WIDTH])?,
             ),
             (
                 "rows_sha256",
@@ -1608,16 +1407,14 @@ fn input_steps_commitment(
 }
 
 fn rows_commitment(
-    rows: &[AttentionKvD128FourHeadSeq64BoundedSoftmaxTableScoreRow],
+    rows: &[AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableScoreRow],
 ) -> Result<String> {
     let material = rows.iter().map(score_row_material).collect::<Vec<_>>();
     commitment_from_parts(
         &[
             (
                 "encoding",
-                json_string(
-                    "attention_kv_stwo_native_d128_four_head_seq64_bounded_softmax_table_score_rows_v1",
-                )?,
+                json_string("attention_kv_stwo_native_bounded_softmax_table_score_rows_v1")?,
             ),
             (
                 "shape",
@@ -1632,10 +1429,9 @@ fn rows_commitment(
     )
 }
 
-fn score_row_material(row: &AttentionKvD128FourHeadSeq64BoundedSoftmaxTableScoreRow) -> Vec<i64> {
+fn score_row_material(row: &AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableScoreRow) -> Vec<i64> {
     let mut out = vec![
         row.row_index as i64,
-        row.head_index as i64,
         row.step_index as i64,
         row.candidate_index as i64,
         row.token_position as i64,
@@ -1660,39 +1456,23 @@ fn score_row_material(row: &AttentionKvD128FourHeadSeq64BoundedSoftmaxTableScore
 }
 
 fn score_row_material_width() -> usize {
-    13 + 3 * KEY_WIDTH + 5 * VALUE_WIDTH
+    12 + 3 * KEY_WIDTH + 5 * VALUE_WIDTH
 }
 
-fn outputs_commitment(
-    steps: &[AttentionKvD128FourHeadSeq64BoundedSoftmaxTableInputStep],
-    outputs: &[Vec<i64>],
-) -> Result<String> {
-    if steps.len() != outputs.len() {
-        return Err(weighted_error("output/input step length drift"));
-    }
-    let material = steps
-        .iter()
-        .zip(outputs.iter())
-        .map(|(step, output)| {
-            let mut row = Vec::with_capacity(1 + VALUE_WIDTH);
-            row.push(step.head_index as i64);
-            row.extend(output.iter().copied());
-            row
-        })
-        .collect::<Vec<_>>();
+fn outputs_commitment(outputs: &[Vec<i64>]) -> Result<String> {
     commitment_from_parts(
         &[
             (
                 "encoding",
-                json_string("bounded_softmax_table_attention_outputs_with_head_v1")?,
+                json_string("bounded_softmax_table_attention_outputs_v1")?,
             ),
             (
                 "shape",
-                canonical_json_string(&vec![outputs.len(), 1 + VALUE_WIDTH])?,
+                canonical_json_string(&vec![outputs.len(), VALUE_WIDTH])?,
             ),
             (
                 "rows_sha256",
-                json_string(&sha256_hex(canonical_json_string(&material)?.as_bytes()))?,
+                json_string(&sha256_hex(canonical_json_string(outputs)?.as_bytes()))?,
             ),
         ],
         OUTPUTS_DOMAIN,
@@ -1700,7 +1480,7 @@ fn outputs_commitment(
 }
 
 fn weight_table_commitment(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
 ) -> Result<String> {
     commitment_from_parts(
         &[
@@ -1718,11 +1498,10 @@ fn weight_table_commitment(
 }
 
 fn proof_native_parameter_commitment(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
 ) -> Result<String> {
     commitment_from_parts(
         &[
-            ("head_count", input.head_count.to_string()),
             ("key_width", input.key_width.to_string()),
             ("masking_policy", json_string(&input.masking_policy)?),
             ("score_gap_clip", input.score_gap_clip.to_string()),
@@ -1741,7 +1520,7 @@ fn proof_native_parameter_commitment(
 }
 
 fn statement_commitment(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
 ) -> Result<String> {
     commitment_from_parts(
         &[
@@ -1749,7 +1528,6 @@ fn statement_commitment(
                 "final_kv_cache_commitment",
                 json_string(&input.final_kv_cache_commitment)?,
             ),
-            ("head_count", input.head_count.to_string()),
             (
                 "initial_kv_cache_commitment",
                 json_string(&input.initial_kv_cache_commitment)?,
@@ -1795,7 +1573,7 @@ fn statement_commitment(
 }
 
 fn public_instance_commitment(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
 ) -> Result<String> {
     commitment_from_parts(
         &[
@@ -1905,7 +1683,7 @@ fn expect_str_list_eq(actual: &[String], expected: &[&str], label: &str) -> Resu
 
 fn weighted_error(message: impl Into<String>) -> VmError {
     VmError::InvalidConfig(format!(
-        "attention/KV native d128-four-head bounded Softmax-table proof: {}",
+        "attention/KV native d128 single-head seq16 bounded Softmax-table proof: {}",
         message.into()
     ))
 }
@@ -1915,74 +1693,40 @@ mod tests {
     use super::*;
     use serde_json::Value;
 
-    const INPUT_JSON_PATH: &str = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.json"
+    const INPUT_JSON: &str = include_str!(
+        "../../docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-proof-2026-05.json"
     );
 
-    fn input() -> ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput {
-        let raw = std::fs::read_to_string(INPUT_JSON_PATH).expect(
-            "local-only d128-four-head seq64 source artifact required for ignored artifact tests",
-        );
-        zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_input_from_json_str(
-            &raw,
+    fn input() -> ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput {
+        zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_input_from_json_str(
+            INPUT_JSON,
         )
-        .expect("d128-four-head bounded Softmax-table attention input")
-    }
-
-    fn input_json() -> String {
-        std::fs::read_to_string(INPUT_JSON_PATH).expect(
-            "local-only d128-four-head seq64 source artifact required for ignored artifact tests",
-        )
-    }
-
-    macro_rules! require_input {
-        () => {
-            input()
-        };
-    }
-
-    macro_rules! require_input_value {
-        () => {
-            serde_json::from_str::<Value>(&input_json()).expect("json")
-        };
+        .expect("d128 single-head seq16 bounded Softmax-table attention input")
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_native_d128_four_head_seq64_bounded_softmax_table_input_validates_checked_rows()
-    {
-        let input = require_input!();
+    fn attention_kv_native_d128_single_head_seq16_bounded_softmax_table_input_validates_checked_rows(
+    ) {
+        let input = input();
         assert_eq!(input.score_rows.len(), SCORE_ROW_COUNT);
         assert_eq!(input.trace_row_count, TRACE_ROW_COUNT);
-        assert_eq!(input.head_count, HEAD_COUNT);
-        assert_eq!(input.attention_outputs.len(), SEQUENCE_LENGTH * HEAD_COUNT);
-        assert_eq!(input.attention_outputs[0].len(), VALUE_WIDTH);
+        assert_eq!(input.attention_outputs.len(), SEQUENCE_LENGTH);
+        assert_eq!(score_row_material_width(), 1036);
         assert_eq!(
-            &input.attention_outputs[0][..8],
-            &[-4, -1, 4, -2, 2, 6, 1, -5]
+            &input.attention_outputs[0][..16],
+            &[1, -4, 1, -5, 0, 4, -1, 3, -2, 2, -3, 1, -4, 1, -5, 0]
         );
         assert_eq!(
-            &input.attention_outputs[0][VALUE_WIDTH - 8..],
-            &[4, -5, 0, 6, -1, 4, 0, -3]
+            &input.attention_outputs[15][..16],
+            &[1, -2, 0, -3, -1, 2, -1, 1, -1, -1, -2, 1, -2, 0, -3, -1]
         );
-        assert_eq!(input.attention_outputs[15].len(), VALUE_WIDTH);
-        assert_eq!(
-            &input.attention_outputs[15][..8],
-            &[-3, 1, 0, 0, 0, 0, -5, -1]
-        );
-        assert_eq!(
-            &input.attention_outputs[15][VALUE_WIDTH - 8..],
-            &[-2, -1, 1, -2, -5, 1, 7, -7]
-        );
-        assert_eq!(input.score_rows[0].head_index, 0);
         assert_eq!(input.score_rows[0].attention_weight, 16);
-        assert_eq!(input.score_rows[3].head_index, 1);
-        assert_eq!(input.score_rows[4].attention_weight, 16);
+        assert_eq!(input.score_rows[2].attention_weight, 16);
+        assert_eq!(input.score_gap_clip, SCORE_GAP_CLIP);
     }
 
     #[test]
-    fn attention_kv_native_d128_four_head_seq64_bounded_softmax_table_uses_floor_division_for_negative_numerators(
+    fn attention_kv_native_d128_single_head_seq16_bounded_softmax_table_uses_floor_division_for_negative_numerators(
     ) {
         assert_eq!(
             quotient_remainder_floor(-1, 16).expect("division"),
@@ -1996,17 +1740,16 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_native_d128_four_head_seq64_bounded_softmax_table_air_proof_round_trips() {
-        let input = require_input!();
+    fn attention_kv_native_d128_single_head_seq16_bounded_softmax_table_air_proof_round_trips() {
+        let input = input();
         let envelope =
-            prove_zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_envelope(
+            prove_zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_envelope(
                 &input,
             )
-            .expect("d128-four-head bounded Softmax-table attention proof");
+            .expect("d128 single-head seq16 bounded Softmax-table attention proof");
         assert!(!envelope.proof.is_empty());
         assert!(
-            verify_zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_envelope(
+            verify_zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_envelope(
                 &envelope
             )
             .expect("verify")
@@ -2014,115 +1757,78 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_native_d128_four_head_seq64_bounded_softmax_table_rejects_weight_relabeling() {
-        let mut value: Value = require_input_value!();
+    fn attention_kv_native_d128_single_head_seq16_bounded_softmax_table_rejects_weight_relabeling()
+    {
+        let mut value: Value = serde_json::from_str(INPUT_JSON).expect("json");
         value["score_rows"][0]["attention_weight"] = Value::from(15);
-        let error =
-            zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_input_from_json_str(
-                &serde_json::to_string(&value).expect("json"),
-            )
-            .unwrap_err();
+        let error = zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_input_from_json_str(
+            &serde_json::to_string(&value).expect("json"),
+        )
+        .unwrap_err();
         assert!(error.to_string().contains("score rows recomputation drift"));
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_native_d128_four_head_seq64_bounded_softmax_table_rejects_head_relabeling() {
-        let mut value: Value = require_input_value!();
-        value["input_steps"][1]["head_index"] = Value::from(0);
-        let error =
-            zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_input_from_json_str(
-                &serde_json::to_string(&value).expect("json"),
-            )
-            .unwrap_err();
-        let message = error.to_string();
-        assert!(
-            message.contains("input steps drift")
-                || message.contains("token position")
-                || message.contains("final KV cache append order drift")
-        );
+    fn attention_kv_native_d128_single_head_seq16_bounded_softmax_table_rejects_table_relabeling() {
+        let mut value: Value = serde_json::from_str(INPUT_JSON).expect("json");
+        value["weight_table"][0]["weight"] = Value::from(255);
+        let error = zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_input_from_json_str(
+            &serde_json::to_string(&value).expect("json"),
+        )
+        .unwrap_err();
+        assert!(error.to_string().contains("weight table drift"));
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_native_d128_four_head_seq64_bounded_softmax_table_rejects_output_relabeling() {
-        let mut value: Value = require_input_value!();
+    fn attention_kv_native_d128_single_head_seq16_bounded_softmax_table_rejects_output_relabeling()
+    {
+        let mut value: Value = serde_json::from_str(INPUT_JSON).expect("json");
         value["attention_outputs"][0][0] = Value::from(99);
-        let error =
-            zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_input_from_json_str(
-                &serde_json::to_string(&value).expect("json"),
-            )
-            .unwrap_err();
+        let error = zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_input_from_json_str(
+            &serde_json::to_string(&value).expect("json"),
+        )
+        .unwrap_err();
         assert!(error
             .to_string()
             .contains("attention output recomputation drift"));
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_native_d128_four_head_seq64_bounded_softmax_table_rejects_quotient_remainder_drift(
+    fn attention_kv_native_d128_single_head_seq16_bounded_softmax_table_rejects_quotient_remainder_drift(
     ) {
-        let mut value: Value = require_input_value!();
+        let mut value: Value = serde_json::from_str(INPUT_JSON).expect("json");
         value["score_rows"][0]["output_remainder"][0] = Value::from(99);
-        let error =
-            zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_input_from_json_str(
-                &serde_json::to_string(&value).expect("json"),
-            )
-            .unwrap_err();
+        let error = zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_input_from_json_str(
+            &serde_json::to_string(&value).expect("json"),
+        )
+        .unwrap_err();
         assert!(error.to_string().contains("score rows recomputation drift"));
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_native_d128_four_head_seq64_bounded_softmax_table_rejects_initial_kv_position_reorder(
-    ) {
-        let mut input = require_input!();
-        input.initial_kv_cache.swap(0, 1);
-        let error = validate_sequence(&input).unwrap_err();
-        assert!(error
-            .to_string()
-            .contains("initial KV cache per-head positions not strictly increasing"));
-    }
-
-    #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_native_d128_four_head_seq64_bounded_softmax_table_rejects_final_kv_append_reorder(
-    ) {
-        let mut input = require_input!();
-        input.final_kv_cache.swap(8, 9);
-        let error = validate_sequence(&input).unwrap_err();
-        assert!(error
-            .to_string()
-            .contains("final KV cache append order drift"));
-    }
-
-    #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_native_d128_four_head_seq64_bounded_softmax_table_rejects_commitment_drift() {
-        let mut value: Value = require_input_value!();
+    fn attention_kv_native_d128_single_head_seq16_bounded_softmax_table_rejects_commitment_drift() {
+        let mut value: Value = serde_json::from_str(INPUT_JSON).expect("json");
         value["score_row_commitment"] = Value::String(format!("blake2b-256:{}", "55".repeat(32)));
-        let error =
-            zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_input_from_json_str(
-                &serde_json::to_string(&value).expect("json"),
-            )
-            .unwrap_err();
+        let error = zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_input_from_json_str(
+            &serde_json::to_string(&value).expect("json"),
+        )
+        .unwrap_err();
         assert!(error.to_string().contains("score row commitment"));
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_native_d128_four_head_seq64_bounded_softmax_table_rejects_proof_byte_tamper() {
-        let input = require_input!();
+    fn attention_kv_native_d128_single_head_seq16_bounded_softmax_table_rejects_proof_byte_tamper()
+    {
+        let input = input();
         let mut envelope =
-            prove_zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_envelope(
+            prove_zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_envelope(
                 &input,
             )
-            .expect("d128-four-head bounded Softmax-table attention proof");
+            .expect("d128 single-head seq16 bounded Softmax-table attention proof");
         let last = envelope.proof.last_mut().expect("proof byte");
         *last ^= 1;
         assert!(
-            verify_zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_envelope(
+            verify_zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_envelope(
                 &envelope
             )
             .is_err()
@@ -2130,23 +1836,20 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_native_d128_four_head_seq64_bounded_softmax_table_rejects_unknown_envelope_field(
+    fn attention_kv_native_d128_single_head_seq16_bounded_softmax_table_rejects_unknown_envelope_field(
     ) {
-        let input = require_input!();
+        let input = input();
         let envelope =
-            prove_zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_envelope(
+            prove_zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_envelope(
                 &input,
             )
-            .expect("d128-four-head bounded Softmax-table attention proof");
+            .expect("d128 single-head seq16 bounded Softmax-table attention proof");
         let mut value = serde_json::to_value(&envelope).expect("envelope json");
         value["unexpected"] = Value::String("claim smuggling".to_string());
         let raw = serde_json::to_vec(&value).expect("envelope bytes");
         let error =
-            zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_envelope_from_json_slice(
-                &raw,
-            )
-            .unwrap_err();
+            zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_envelope_from_json_slice(&raw)
+                .unwrap_err();
         assert!(error.to_string().contains("unknown field"));
     }
 }

@@ -3,14 +3,13 @@ use serde::{Deserialize, Serialize};
 use stwo::core::air::Component;
 use stwo::core::channel::{Blake2sM31Channel, Channel};
 use stwo::core::fields::m31::BaseField;
-use stwo::core::fields::qm31::{SecureField, SECURE_EXTENSION_DEGREE};
+use stwo::core::fields::qm31::SecureField;
 use stwo::core::pcs::{CommitmentSchemeVerifier, PcsConfig};
 use stwo::core::poly::circle::CanonicCoset;
 use stwo::core::proof::StarkProof;
 use stwo::core::vcs_lifted::blake2_merkle::{Blake2sM31MerkleChannel, Blake2sM31MerkleHasher};
 use stwo::core::verifier::verify;
 use stwo::core::ColumnVec;
-use stwo::core::Fraction;
 use stwo::prover::backend::simd::column::BaseColumn;
 use stwo::prover::backend::simd::m31::LOG_N_LANES;
 use stwo::prover::backend::simd::qm31::PackedSecureField;
@@ -21,52 +20,51 @@ use stwo::prover::{prove, CommitmentSchemeProver};
 use stwo_constraint_framework::preprocessed_columns::PreProcessedColumnId;
 use stwo_constraint_framework::{
     relation, EvalAtRow, FrameworkComponent, FrameworkEval, LogupTraceGenerator, Relation,
-    RelationEntry, TraceLocationAllocator, ORIGINAL_TRACE_IDX, PREPROCESSED_TRACE_IDX,
+    RelationEntry, TraceLocationAllocator,
 };
 
-use super::attention_kv_native_d128_four_head_seq64_bounded_softmax_table_proof::{
-    validate_zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_input,
-    zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_input_from_json_str,
-    AttentionKvD128FourHeadSeq64BoundedSoftmaxTableScoreRow,
-    ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
-    ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES,
+use super::attention_kv_native_d128_single_head_seq16_bounded_softmax_table_proof::{
+    validate_zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_input,
+    zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_input_from_json_str,
+    AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableScoreRow,
+    ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
+    ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES,
 };
 use super::logup_utils::selector_masked_lookup_fraction_terms as masked_lookup_fraction_terms;
 use crate::error::{Result, VmError};
 use crate::proof::StarkProofBackend;
 
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_PROOF_VERSION: &str =
-    "stwo-attention-kv-d128-four-head-seq64-fused-bounded-softmax-table-logup-proof-v1";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_BACKEND_VERSION: &str =
-    "stwo-attention-kv-d128-four-head-seq64-fused-bounded-softmax-table-logup-v1";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_STATEMENT_VERSION:
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_PROOF_VERSION: &str =
+    "stwo-attention-kv-d128-single-head-seq16-fused-bounded-softmax-table-logup-proof-v1";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_BACKEND_VERSION:
+    &str = "stwo-attention-kv-d128-single-head-seq16-fused-bounded-softmax-table-logup-v1";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_STATEMENT_VERSION:
     &str =
-    "zkai-attention-kv-stwo-native-d128-four-head-seq64-fused-softmax-table-logup-statement-v1";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_SEMANTIC_SCOPE: &str =
-    "d128_four_head_seq64_bounded_softmax_table_attention_arithmetic_and_logup_membership_fused_in_one_native_stwo_proof";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_DECISION: &str =
+    "zkai-attention-kv-stwo-native-d128-single-head-seq16-fused-softmax-table-logup-statement-v1";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_SEMANTIC_SCOPE: &str =
+    "d128_single_head_seq16_bounded_softmax_table_attention_arithmetic_and_logup_membership_fused_in_one_native_stwo_proof";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_DECISION: &str =
     "GO_NATIVE_STWO_FUSED_ATTENTION_ARITHMETIC_AND_SOFTMAX_TABLE_LOGUP_MEMBERSHIP";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_TARGET_ID: &str =
-    "attention-kv-d128-four-head-seq64-causal-mask-fused-bounded-softmax-table-logup-v1";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_VERIFIER_DOMAIN: &str =
-    "ptvm:zkai:attention-kv-stwo-native-d128-four-head-seq64-fused-bounded-softmax-table-logup:v1";
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BYTES: usize =
-    268_435_456;
-pub const ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_MAX_PROOF_BYTES: usize =
-    1_048_576;
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_TARGET_ID: &str =
+    "attention-kv-d128-single-head-seq16-causal-mask-fused-bounded-softmax-table-logup-v1";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_VERIFIER_DOMAIN: &str =
+    "ptvm:zkai:attention-kv-stwo-native-d128-single-head-seq16-fused-bounded-softmax-table-logup:v1";
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BYTES: usize =
+    16_777_216;
+pub const ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_MAX_PROOF_BYTES:
+    usize = 524_288;
 
 const ISSUE: usize = 715;
 const SOURCE_ISSUE: usize = 715;
-const SIDECAR_ISSUE: usize = 715;
-const SOURCE_PLUS_SIDECAR_RAW_PROOF_BYTES: usize = 539_670;
+const SOURCE_PLUS_SIDECAR_RAW_PROOF_BYTES: usize = 374_261 + 23_052;
 const FUSION_STATUS: &str =
     "GO_ONE_NATIVE_STWO_PROOF_OBJECT_WITH_ATTENTION_ARITHMETIC_AND_LOGUP_MEMBERSHIP";
 const NON_FUSED_STATUS: &str =
-    "GO_MATCHED_D128_FOUR_HEAD_SEQ64_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR_RECORDED";
+    "GO_MATCHED_D128_SINGLE_HEAD_SEQ16_SOURCE_PLUS_LOGUP_SIDECAR_COMPARATOR_RECORDED";
 const TIMING_POLICY: &str = "proof_existence_and_byte_accounting_only_not_public_benchmark";
 
-const LOG_SIZE: u32 = 14;
-const TRACE_ROW_COUNT: usize = 16384;
+const LOG_SIZE: u32 = 8;
+const TRACE_ROW_COUNT: usize = 256;
 const KEY_WIDTH: usize = 128;
 const VALUE_WIDTH: usize = 128;
 const SCORE_GAP_CLIP: usize = 8;
@@ -79,13 +77,13 @@ const EXPECTED_TRACE_COMMITMENTS: usize = 3;
 const EXPECTED_PROOF_COMMITMENTS: usize = 4;
 
 const PREPROCESSED_TABLE_GAP: &str =
-    "zkai/attention-kv/native-d128-four-head-seq64-fused-softmax-table-logup/table-gap";
+    "zkai/attention-kv/native-d128-single-head-seq16-fused-softmax-table-logup/table-gap";
 const PREPROCESSED_TABLE_WEIGHT: &str =
-    "zkai/attention-kv/native-d128-four-head-seq64-fused-softmax-table-logup/table-weight";
+    "zkai/attention-kv/native-d128-single-head-seq16-fused-softmax-table-logup/table-weight";
 const PREPROCESSED_TABLE_MULTIPLICITY: &str =
-    "zkai/attention-kv/native-d128-four-head-seq64-fused-softmax-table-logup/table-multiplicity";
+    "zkai/attention-kv/native-d128-single-head-seq16-fused-softmax-table-logup/table-multiplicity";
 const FUSED_COLUMN_PREFIX: &str =
-    "zkai/attention-kv/native-d128-four-head-seq64-fused-softmax-table-logup";
+    "zkai/attention-kv/native-d128-single-head-seq16-fused-softmax-table-logup";
 
 const EXPECTED_NON_CLAIMS: &[&str] = &[
     "not exact Softmax attention",
@@ -98,52 +96,14 @@ const EXPECTED_NON_CLAIMS: &[&str] = &[
     "clipped-gap derivation and source-row semantics are verifier-recomputed from public rows before proof verification",
 ];
 
-relation!(AttentionKvD128FourHeadSeq64FusedSoftmaxTableRelation, 2);
+relation!(AttentionKvD128SingleHeadSeq16FusedSoftmaxTableRelation, 2);
 
 #[derive(Debug, Clone)]
-struct AttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableEval {
-    lookup_elements: AttentionKvD128FourHeadSeq64FusedSoftmaxTableRelation,
+struct AttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableEval {
+    lookup_elements: AttentionKvD128SingleHeadSeq16FusedSoftmaxTableRelation,
 }
 
-#[derive(Default)]
-struct AttentionKvD128FourHeadSeq64FusedSoftmaxTableLayoutCounter {
-    trace_masks: usize,
-    preprocessed_masks: usize,
-}
-
-impl EvalAtRow for AttentionKvD128FourHeadSeq64FusedSoftmaxTableLayoutCounter {
-    type F = BaseField;
-    type EF = SecureField;
-
-    fn next_interaction_mask<const N: usize>(
-        &mut self,
-        interaction: usize,
-        _offsets: [isize; N],
-    ) -> [Self::F; N] {
-        match interaction {
-            ORIGINAL_TRACE_IDX => self.trace_masks += N,
-            PREPROCESSED_TRACE_IDX => self.preprocessed_masks += N,
-            _ => {}
-        }
-        std::array::from_fn(|_| BaseField::zero())
-    }
-
-    fn add_constraint<G>(&mut self, _constraint: G)
-    where
-        Self::EF: std::ops::Mul<G, Output = Self::EF> + From<G>,
-    {
-    }
-
-    fn write_logup_frac(&mut self, _fraction: Fraction<Self::EF, Self::EF>) {}
-
-    fn finalize_logup_in_pairs(&mut self) {}
-
-    fn combine_ef(_values: [Self::F; SECURE_EXTENSION_DEGREE]) -> Self::EF {
-        SecureField::zero()
-    }
-}
-
-impl FrameworkEval for AttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableEval {
+impl FrameworkEval for AttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableEval {
     fn log_size(&self) -> u32 {
         LOG_SIZE
     }
@@ -155,7 +115,6 @@ impl FrameworkEval for AttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableEval {
     fn evaluate<E: EvalAtRow>(&self, mut eval: E) -> E {
         let enabled = eval.next_trace_mask();
         let row_index = eval.next_trace_mask();
-        let head_index = eval.next_trace_mask();
         let step_index = eval.next_trace_mask();
         let candidate_index = eval.next_trace_mask();
         let token_position = eval.next_trace_mask();
@@ -205,7 +164,6 @@ impl FrameworkEval for AttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableEval {
         let mut trace_values = vec![
             enabled.clone(),
             row_index,
-            head_index,
             step_index,
             candidate_index,
             token_position.clone(),
@@ -264,17 +222,15 @@ impl FrameworkEval for AttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableEval {
             remainder_bits.push(bits_sum);
         }
 
-        let row_column_ids = fused_row_column_ids();
-        if row_column_ids.len() == trace_values.len() {
-            for index in 0..row_column_ids.len() {
-                let public_value =
-                    eval.get_preprocessed_column(preprocessed_column_id(&row_column_ids[index]));
-                eval.add_constraint(trace_values[index].clone() - public_value);
-            }
-        } else {
-            // FrameworkEval cannot return Result; make layout drift unsatisfiable
-            // in optimized builds instead of silently truncating bindings.
-            eval.add_constraint(E::F::from(BaseField::from(1u32)));
+        let column_ids = fused_row_column_ids();
+        assert_eq!(
+            column_ids.len(),
+            trace_values.len(),
+            "fused trace/public column count drift"
+        );
+        for (column_id, trace_value) in column_ids.iter().zip(trace_values) {
+            let public_value = eval.get_preprocessed_column(preprocessed_column_id(column_id));
+            eval.add_constraint(trace_value - public_value);
         }
 
         let table_gap =
@@ -338,7 +294,7 @@ impl FrameworkEval for AttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableEval {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct AttentionKvD128FourHeadSeq64FusedSoftmaxTableMultiplicity {
+pub struct AttentionKvD128SingleHeadSeq16FusedSoftmaxTableMultiplicity {
     pub gap: usize,
     pub weight: i64,
     pub multiplicity: usize,
@@ -346,19 +302,15 @@ pub struct AttentionKvD128FourHeadSeq64FusedSoftmaxTableMultiplicity {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ZkAiAttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableSummary {
+pub struct ZkAiAttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableSummary {
     pub issue: usize,
     pub source_issue: usize,
-    pub sidecar_issue: usize,
     pub fusion_status: String,
     pub non_fused_status: String,
     pub source_statement_commitment: String,
     pub source_public_instance_commitment: String,
     pub source_score_row_commitment: String,
-    pub source_final_kv_cache_commitment: String,
-    pub source_outputs_commitment: String,
     pub source_weight_table_commitment: String,
-    pub source_head_count: usize,
     pub score_rows: usize,
     pub trace_rows: usize,
     pub table_rows: usize,
@@ -368,14 +320,14 @@ pub struct ZkAiAttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableSummary {
     pub lookup_relation_width: usize,
     pub lookup_claims: usize,
     pub source_plus_sidecar_raw_proof_bytes: usize,
-    pub table_multiplicities: Vec<AttentionKvD128FourHeadSeq64FusedSoftmaxTableMultiplicity>,
+    pub table_multiplicities: Vec<AttentionKvD128SingleHeadSeq16FusedSoftmaxTableMultiplicity>,
     pub timing_policy: String,
     pub non_claims: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ZkAiAttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableEnvelope {
+pub struct ZkAiAttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableEnvelope {
     pub proof_backend: StarkProofBackend,
     pub proof_backend_version: String,
     pub proof_schema_version: String,
@@ -384,21 +336,21 @@ pub struct ZkAiAttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableEnvelope {
     pub decision: String,
     pub target_id: String,
     pub verifier_domain: String,
-    pub fused_summary: ZkAiAttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableSummary,
-    pub source_input: ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    pub fused_summary: ZkAiAttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableSummary,
+    pub source_input: ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
     pub proof: Vec<u8>,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-struct AttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableProofPayload {
+struct AttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableProofPayload {
     stark_proof: StarkProof<Blake2sM31MerkleHasher>,
 }
 
 #[derive(Clone)]
 struct FusedBundle {
     log_size: u32,
-    summary: ZkAiAttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableSummary,
+    summary: ZkAiAttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableSummary,
     preprocessed_trace: ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
     base_trace: ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
 }
@@ -413,48 +365,48 @@ struct FusedTraceColumnIndices {
     table_multiplicity: usize,
 }
 
-pub fn zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_source_input_from_json_str(
+pub fn zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_source_input_from_json_str(
     raw_json: &str,
-) -> Result<ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput> {
+) -> Result<ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput> {
     if raw_json.len()
-        > ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES
+        > ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_BOUNDED_SOFTMAX_TABLE_MAX_INPUT_JSON_BYTES
     {
         return Err(fused_error(format!(
             "source input JSON exceeds inherited bounded cap: got {} bytes",
             raw_json.len()
         )));
     }
-    zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_input_from_json_str(
+    zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_input_from_json_str(
         raw_json,
     )
 }
 
-pub fn prove_zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope(
-    source_input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
-) -> Result<ZkAiAttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableEnvelope> {
+pub fn prove_zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope(
+    source_input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
+) -> Result<ZkAiAttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableEnvelope> {
     validate_source_input(source_input)?;
     let bundle = build_fused_bundle(source_input)?;
     let proof = prove_fused(&bundle)?;
-    let envelope = ZkAiAttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableEnvelope {
+    let envelope = ZkAiAttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableEnvelope {
         proof_backend: StarkProofBackend::Stwo,
         proof_backend_version:
-            ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_BACKEND_VERSION
+            ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_BACKEND_VERSION
                 .to_string(),
         proof_schema_version:
-            ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_PROOF_VERSION
+            ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_PROOF_VERSION
                 .to_string(),
         statement_version:
-            ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_STATEMENT_VERSION
+            ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_STATEMENT_VERSION
                 .to_string(),
         semantic_scope:
-            ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_SEMANTIC_SCOPE
+            ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_SEMANTIC_SCOPE
                 .to_string(),
-        decision: ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_DECISION
+        decision: ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_DECISION
             .to_string(),
-        target_id: ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_TARGET_ID
+        target_id: ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_TARGET_ID
             .to_string(),
         verifier_domain:
-            ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_VERIFIER_DOMAIN
+            ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_VERIFIER_DOMAIN
                 .to_string(),
         fused_summary: bundle.summary,
         source_input: source_input.clone(),
@@ -464,34 +416,32 @@ pub fn prove_zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_e
     Ok(envelope)
 }
 
-pub fn zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope_from_json_slice(
+pub fn zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope_from_json_slice(
     raw_json: &[u8],
-) -> Result<ZkAiAttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableEnvelope> {
-    if raw_json.len()
-        > ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BYTES
-    {
+) -> Result<ZkAiAttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableEnvelope> {
+    if raw_json.len() > ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BYTES {
         return Err(fused_error(format!(
             "fused envelope JSON exceeds max size: got {} bytes, limit {} bytes",
             raw_json.len(),
-            ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BYTES
+            ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BYTES
         )));
     }
-    let envelope: ZkAiAttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableEnvelope =
+    let envelope: ZkAiAttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableEnvelope =
         serde_json::from_slice(raw_json)
             .map_err(|error| VmError::Serialization(error.to_string()))?;
     validate_envelope(&envelope)?;
     Ok(envelope)
 }
 
-pub fn verify_zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope(
-    envelope: &ZkAiAttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableEnvelope,
+pub fn verify_zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope(
+    envelope: &ZkAiAttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableEnvelope,
 ) -> Result<bool> {
     validate_envelope(envelope)?;
     verify_fused(&envelope.source_input, &envelope.proof)
 }
 
 fn validate_envelope(
-    envelope: &ZkAiAttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableEnvelope,
+    envelope: &ZkAiAttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableEnvelope,
 ) -> Result<()> {
     validate_source_input(&envelope.source_input)?;
     if envelope.proof_backend != StarkProofBackend::Stwo {
@@ -499,37 +449,37 @@ fn validate_envelope(
     }
     expect_eq(
         &envelope.proof_backend_version,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_BACKEND_VERSION,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_BACKEND_VERSION,
         "fused proof backend version",
     )?;
     expect_eq(
         &envelope.proof_schema_version,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_PROOF_VERSION,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_PROOF_VERSION,
         "fused proof schema version",
     )?;
     expect_eq(
         &envelope.statement_version,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_STATEMENT_VERSION,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_STATEMENT_VERSION,
         "fused statement version",
     )?;
     expect_eq(
         &envelope.semantic_scope,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_SEMANTIC_SCOPE,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_SEMANTIC_SCOPE,
         "fused semantic scope",
     )?;
     expect_eq(
         &envelope.decision,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_DECISION,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_DECISION,
         "fused decision",
     )?;
     expect_eq(
         &envelope.target_id,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_TARGET_ID,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_TARGET_ID,
         "fused target id",
     )?;
     expect_eq(
         &envelope.verifier_domain,
-        ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_VERIFIER_DOMAIN,
+        ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_VERIFIER_DOMAIN,
         "fused verifier domain",
     )?;
     let expected_summary = fused_summary(&envelope.source_input)?;
@@ -538,7 +488,7 @@ fn validate_envelope(
     }
     if envelope.proof.is_empty()
         || envelope.proof.len()
-            > ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_MAX_PROOF_BYTES
+            > ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_MAX_PROOF_BYTES
     {
         return Err(fused_error("fused proof byte length outside bounded cap"));
     }
@@ -546,19 +496,26 @@ fn validate_envelope(
 }
 
 fn validate_source_input(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
 ) -> Result<()> {
-    validate_zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_input(input)
+    validate_zkai_attention_kv_native_d128_single_head_seq16_bounded_softmax_table_input(input)?;
+    if input.score_gap_clip != SCORE_GAP_CLIP {
+        return Err(fused_error(format!(
+            "score_gap_clip drift: got {}, expected {}",
+            input.score_gap_clip, SCORE_GAP_CLIP
+        )));
+    }
+    Ok(())
 }
 
 fn fused_summary(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
-) -> Result<ZkAiAttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableSummary> {
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
+) -> Result<ZkAiAttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableSummary> {
     let mut multiplicities = input
         .weight_table
         .iter()
         .map(
-            |entry| AttentionKvD128FourHeadSeq64FusedSoftmaxTableMultiplicity {
+            |entry| AttentionKvD128SingleHeadSeq16FusedSoftmaxTableMultiplicity {
                 gap: entry.gap,
                 weight: entry.weight,
                 multiplicity: 0,
@@ -584,25 +541,21 @@ fn fused_summary(
             .ok_or_else(|| fused_error("lookup multiplicity overflow"))?;
     }
     Ok(
-        ZkAiAttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableSummary {
+        ZkAiAttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableSummary {
             issue: ISSUE,
             source_issue: SOURCE_ISSUE,
-            sidecar_issue: SIDECAR_ISSUE,
             fusion_status: FUSION_STATUS.to_string(),
             non_fused_status: NON_FUSED_STATUS.to_string(),
             source_statement_commitment: input.statement_commitment.clone(),
             source_public_instance_commitment: input.public_instance_commitment.clone(),
             source_score_row_commitment: input.score_row_commitment.clone(),
-            source_final_kv_cache_commitment: input.final_kv_cache_commitment.clone(),
-            source_outputs_commitment: input.outputs_commitment.clone(),
             source_weight_table_commitment: input.weight_table_commitment.clone(),
-            source_head_count: input.head_count,
             score_rows: input.score_row_count,
             trace_rows: TRACE_ROW_COUNT,
             table_rows: input.weight_table.len(),
             score_gap_clip: input.score_gap_clip,
             weight_policy: input.weight_policy.clone(),
-            lookup_relation: "AttentionKvD128FourHeadSeq64FusedSoftmaxTableRelation".to_string(),
+            lookup_relation: "AttentionKvD128SingleHeadSeq16FusedSoftmaxTableRelation".to_string(),
             lookup_relation_width: 2,
             lookup_claims: input.score_rows.len(),
             source_plus_sidecar_raw_proof_bytes: SOURCE_PLUS_SIDECAR_RAW_PROOF_BYTES,
@@ -617,10 +570,9 @@ fn fused_summary(
 }
 
 fn build_fused_bundle(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
 ) -> Result<FusedBundle> {
     validate_source_input(input)?;
-    validate_static_fused_air_layout()?;
     let summary = fused_summary(input)?;
     if TRACE_ROW_COUNT != 1usize << LOG_SIZE {
         return Err(fused_error("internal fused trace row/log size drift"));
@@ -637,30 +589,36 @@ fn build_fused_bundle(
 }
 
 fn fused_preprocessed_trace(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
-    summary: &ZkAiAttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableSummary,
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
+    summary: &ZkAiAttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableSummary,
 ) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
     let domain = CanonicCoset::new(LOG_SIZE).circle_domain();
     let mut columns: Vec<Vec<BaseField>> =
         vec![Vec::with_capacity(TRACE_ROW_COUNT); fused_preprocessed_column_ids().len()];
+    let row_column_count = fused_row_column_ids().len();
+    let table_column_count = 3;
+    if columns.len() < row_column_count + table_column_count {
+        return Err(fused_error(
+            "fused preprocessed trace has fewer columns than row and table layout",
+        ));
+    }
 
     let mut rows = input.score_rows.clone();
     while rows.len() < TRACE_ROW_COUNT {
         rows.push(padding_row(rows.len()));
     }
-    let row_column_count = fused_row_column_ids().len();
     for (real_index, row) in rows.iter().enumerate() {
         let enabled = usize::from(real_index < input.score_rows.len());
         let values = row_values(row, enabled)?;
         if values.len() != row_column_count {
-            return Err(fused_error("fused softmax-table row/value count drift"));
+            return Err(fused_error("fused row/value column count drift"));
         }
         for (column, value) in columns.iter_mut().take(row_column_count).zip(values) {
             column.push(value);
         }
     }
 
-    let table_offset = fused_row_column_ids().len();
+    let table_offset = row_column_count;
     let Some(pad) = input.weight_table.last() else {
         return Err(fused_error(
             "source validation requires a non-empty weight table",
@@ -690,22 +648,21 @@ fn fused_preprocessed_trace(
 }
 
 fn fused_base_trace(
-    input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
 ) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
     let domain = CanonicCoset::new(LOG_SIZE).circle_domain();
     let mut rows = input.score_rows.clone();
     while rows.len() < TRACE_ROW_COUNT {
         rows.push(padding_row(rows.len()));
     }
+    let row_column_count = fused_row_column_ids().len();
     let mut columns: Vec<Vec<BaseField>> =
-        vec![Vec::with_capacity(TRACE_ROW_COUNT); fused_row_column_ids().len()];
+        vec![Vec::with_capacity(TRACE_ROW_COUNT); row_column_count];
     for (real_index, row) in rows.iter().enumerate() {
         let enabled = usize::from(real_index < input.score_rows.len());
         let values = row_values(row, enabled)?;
-        if values.len() != columns.len() {
-            return Err(fused_error(
-                "fused softmax-table base trace column/value count drift",
-            ));
+        if values.len() != row_column_count {
+            return Err(fused_error("fused row/value column count drift"));
         }
         for (column, value) in columns.iter_mut().zip(values) {
             column.push(value);
@@ -724,7 +681,7 @@ fn fused_base_trace(
 }
 
 fn row_values(
-    row: &AttentionKvD128FourHeadSeq64BoundedSoftmaxTableScoreRow,
+    row: &AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableScoreRow,
     enabled: usize,
 ) -> Result<Vec<BaseField>> {
     let clipped_gap = if row.score_gap < 0 {
@@ -735,7 +692,6 @@ fn row_values(
     let mut values = vec![
         field_usize(enabled, "enabled")?,
         field_usize(row.row_index, "row index")?,
-        field_usize(row.head_index, "head index")?,
         field_usize(row.step_index, "step index")?,
         field_usize(row.candidate_index, "candidate index")?,
         field_usize(row.token_position, "token position")?,
@@ -782,10 +738,9 @@ fn row_values(
     Ok(values)
 }
 
-fn padding_row(row_index: usize) -> AttentionKvD128FourHeadSeq64BoundedSoftmaxTableScoreRow {
-    AttentionKvD128FourHeadSeq64BoundedSoftmaxTableScoreRow {
+fn padding_row(row_index: usize) -> AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableScoreRow {
+    AttentionKvD128SingleHeadSeq16BoundedSoftmaxTableScoreRow {
         row_index,
-        head_index: 0,
         step_index: 0,
         candidate_index: 0,
         token_position: 0,
@@ -809,7 +764,8 @@ fn padding_row(row_index: usize) -> AttentionKvD128FourHeadSeq64BoundedSoftmaxTa
 }
 
 fn prove_fused(bundle: &FusedBundle) -> Result<Vec<u8>> {
-    let component = fused_component(AttentionKvD128FourHeadSeq64FusedSoftmaxTableRelation::dummy());
+    let component =
+        fused_component(AttentionKvD128SingleHeadSeq16FusedSoftmaxTableRelation::dummy());
     let config = fused_pcs_config();
     let twiddles = SimdBackend::precompute_twiddles(
         CanonicCoset::new(
@@ -832,13 +788,13 @@ fn prove_fused(bundle: &FusedBundle) -> Result<Vec<u8>> {
     tree_builder.commit(channel);
 
     mix_fused_summary(channel, &bundle.summary);
-    let lookup_elements = AttentionKvD128FourHeadSeq64FusedSoftmaxTableRelation::draw(channel);
+    let lookup_elements = AttentionKvD128SingleHeadSeq16FusedSoftmaxTableRelation::draw(channel);
     let (interaction_trace, claimed_sum) = fused_interaction_trace(
         bundle.log_size,
         &bundle.base_trace,
         &bundle.preprocessed_trace,
         &lookup_elements,
-    )?;
+    );
     if claimed_sum != SecureField::zero() {
         return Err(fused_error(
             "fused Softmax-table LogUp expected zero claimed sum",
@@ -856,30 +812,29 @@ fn prove_fused(bundle: &FusedBundle) -> Result<Vec<u8>> {
                 fused_error(format!("fused attention/lookup proving failed: {error}"))
             })?;
     serde_json::to_vec(
-        &AttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableProofPayload { stark_proof },
+        &AttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableProofPayload { stark_proof },
     )
     .map_err(|error| VmError::Serialization(error.to_string()))
 }
 
 fn verify_fused(
-    source_input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    source_input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
     proof: &[u8],
 ) -> Result<bool> {
     validate_source_input(source_input)?;
-    validate_static_fused_air_layout()?;
     if proof.is_empty()
         || proof.len()
-            > ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_MAX_PROOF_BYTES
+            > ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_MAX_PROOF_BYTES
     {
         return Err(fused_error("fused proof byte length outside bounded cap"));
     }
-    let payload: AttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableProofPayload =
+    let payload: AttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableProofPayload =
         serde_json::from_slice(proof).map_err(|error| VmError::Serialization(error.to_string()))?;
     let stark_proof = payload.stark_proof;
     let config = validate_pcs_config(stark_proof.config)?;
     let expected_roots = fused_commitment_roots(source_input, config)?;
     let component_placeholder =
-        fused_component(AttentionKvD128FourHeadSeq64FusedSoftmaxTableRelation::dummy());
+        fused_component(AttentionKvD128SingleHeadSeq16FusedSoftmaxTableRelation::dummy());
     let sizes = component_placeholder.trace_log_degree_bounds();
     if sizes.len() != EXPECTED_TRACE_COMMITMENTS {
         return Err(fused_error("fused component trace commitment count drift"));
@@ -905,7 +860,7 @@ fn verify_fused(
     commitment_scheme.commit(stark_proof.commitments[1], &sizes[1], channel);
     let summary = fused_summary(source_input)?;
     mix_fused_summary(channel, &summary);
-    let lookup_elements = AttentionKvD128FourHeadSeq64FusedSoftmaxTableRelation::draw(channel);
+    let lookup_elements = AttentionKvD128SingleHeadSeq16FusedSoftmaxTableRelation::draw(channel);
     let component = fused_component(lookup_elements);
     commitment_scheme.commit(stark_proof.commitments[2], &sizes[2], channel);
     verify(&[&component], channel, commitment_scheme, stark_proof)
@@ -914,7 +869,7 @@ fn verify_fused(
 }
 
 fn fused_commitment_roots(
-    source_input: &ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput,
+    source_input: &ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput,
     config: PcsConfig,
 ) -> Result<
     stwo::core::pcs::TreeVec<
@@ -922,7 +877,8 @@ fn fused_commitment_roots(
     >,
 > {
     let bundle = build_fused_bundle(source_input)?;
-    let component = fused_component(AttentionKvD128FourHeadSeq64FusedSoftmaxTableRelation::dummy());
+    let component =
+        fused_component(AttentionKvD128SingleHeadSeq16FusedSoftmaxTableRelation::dummy());
     let twiddles = SimdBackend::precompute_twiddles(
         CanonicCoset::new(
             component.max_constraint_log_degree_bound() + config.fri_config.log_blowup_factor + 1,
@@ -944,13 +900,13 @@ fn fused_commitment_roots(
     tree_builder.commit(channel);
 
     mix_fused_summary(channel, &bundle.summary);
-    let lookup_elements = AttentionKvD128FourHeadSeq64FusedSoftmaxTableRelation::draw(channel);
+    let lookup_elements = AttentionKvD128SingleHeadSeq16FusedSoftmaxTableRelation::draw(channel);
     let (interaction_trace, claimed_sum) = fused_interaction_trace(
         bundle.log_size,
         &bundle.base_trace,
         &bundle.preprocessed_trace,
         &lookup_elements,
-    )?;
+    );
     if claimed_sum != SecureField::zero() {
         return Err(fused_error(
             "fused Softmax-table LogUp expected zero claimed sum",
@@ -967,14 +923,14 @@ fn fused_interaction_trace(
     log_size: u32,
     base_trace: &ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
     preprocessed_trace: &ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
-    lookup_elements: &AttentionKvD128FourHeadSeq64FusedSoftmaxTableRelation,
-) -> Result<(
+    lookup_elements: &AttentionKvD128SingleHeadSeq16FusedSoftmaxTableRelation,
+) -> (
     ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
     SecureField,
-)> {
+) {
     let mut logup_gen = LogupTraceGenerator::new(log_size);
     let mut col_gen = logup_gen.new_col();
-    let indices = fused_trace_column_indices()?;
+    let indices = fused_trace_column_indices();
     for vec_row in 0..(1 << (log_size - LOG_N_LANES)) {
         let enabled = PackedSecureField::from(base_trace[indices.enabled].data[vec_row]);
         let table_multiplicity =
@@ -992,27 +948,48 @@ fn fused_interaction_trace(
         col_gen.write_frac(vec_row, numerator, denominator);
     }
     col_gen.finalize_col();
-    Ok(logup_gen.finalize_last())
+    logup_gen.finalize_last()
 }
 
 fn fused_component(
-    lookup_elements: AttentionKvD128FourHeadSeq64FusedSoftmaxTableRelation,
-) -> FrameworkComponent<AttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableEval> {
+    lookup_elements: AttentionKvD128SingleHeadSeq16FusedSoftmaxTableRelation,
+) -> FrameworkComponent<AttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableEval> {
     FrameworkComponent::new(
         &mut TraceLocationAllocator::new_with_preprocessed_columns(&fused_preprocessed_column_ids()),
-        AttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableEval { lookup_elements },
+        AttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableEval { lookup_elements },
         SecureField::zero(),
     )
 }
 
 fn mix_fused_summary(
     channel: &mut Blake2sM31Channel,
-    summary: &ZkAiAttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableSummary,
+    summary: &ZkAiAttentionKvNativeD128SingleHeadSeq16FusedSoftmaxTableSummary,
 ) {
+    channel.mix_u64(6);
+    mix_fused_summary_str(
+        channel,
+        "source_statement_commitment",
+        &summary.source_statement_commitment,
+    );
+    mix_fused_summary_str(
+        channel,
+        "source_public_instance_commitment",
+        &summary.source_public_instance_commitment,
+    );
+    mix_fused_summary_str(
+        channel,
+        "source_score_row_commitment",
+        &summary.source_score_row_commitment,
+    );
+    mix_fused_summary_str(
+        channel,
+        "source_weight_table_commitment",
+        &summary.source_weight_table_commitment,
+    );
+    mix_fused_summary_str(channel, "weight_policy", &summary.weight_policy);
+    mix_fused_summary_str(channel, "lookup_relation", &summary.lookup_relation);
     channel.mix_u64(summary.issue as u64);
     channel.mix_u64(summary.source_issue as u64);
-    channel.mix_u64(summary.sidecar_issue as u64);
-    channel.mix_u64(summary.source_head_count as u64);
     channel.mix_u64(summary.score_rows as u64);
     channel.mix_u64(summary.trace_rows as u64);
     channel.mix_u64(summary.table_rows as u64);
@@ -1025,6 +1002,24 @@ fn mix_fused_summary(
         channel.mix_u64(entry.weight.rem_euclid(M31_MODULUS) as u64);
         channel.mix_u64(entry.multiplicity as u64);
     }
+}
+
+fn mix_fused_summary_str(channel: &mut Blake2sM31Channel, label: &str, value: &str) {
+    channel.mix_u64(label.len() as u64);
+    channel.mix_u64(value.len() as u64);
+    channel.mix_u32s(&bytes_to_channel_words(label.as_bytes()));
+    channel.mix_u32s(&bytes_to_channel_words(value.as_bytes()));
+}
+
+fn bytes_to_channel_words(bytes: &[u8]) -> Vec<u32> {
+    bytes
+        .chunks(4)
+        .map(|chunk| {
+            let mut word = [0u8; 4];
+            word[..chunk.len()].copy_from_slice(chunk);
+            u32::from_le_bytes(word)
+        })
+        .collect()
 }
 
 fn validate_pcs_config(actual: PcsConfig) -> Result<PcsConfig> {
@@ -1044,7 +1039,6 @@ fn fused_row_column_ids() -> Vec<String> {
     let mut ids = [
         "enabled",
         "row-index",
-        "head-index",
         "step-index",
         "candidate-index",
         "token-position",
@@ -1103,36 +1097,33 @@ fn fused_column_id(suffix: &str) -> String {
     format!("{FUSED_COLUMN_PREFIX}/{suffix}")
 }
 
-fn fused_trace_column_indices() -> Result<FusedTraceColumnIndices> {
+fn fused_trace_column_indices() -> FusedTraceColumnIndices {
     let row_ids = fused_row_column_ids();
     let preprocessed_ids = fused_preprocessed_column_ids();
-    Ok(FusedTraceColumnIndices {
-        enabled: fused_row_column_index(&row_ids, "enabled")?,
-        attention_weight: fused_row_column_index(&row_ids, "attention-weight")?,
-        lookup_gap: fused_row_column_index(&row_ids, "lookup-clipped-gap")?,
-        table_gap: fused_preprocessed_column_index(&preprocessed_ids, PREPROCESSED_TABLE_GAP)?,
-        table_weight: fused_preprocessed_column_index(
-            &preprocessed_ids,
-            PREPROCESSED_TABLE_WEIGHT,
-        )?,
+    FusedTraceColumnIndices {
+        enabled: fused_row_column_index(&row_ids, "enabled"),
+        attention_weight: fused_row_column_index(&row_ids, "attention-weight"),
+        lookup_gap: fused_row_column_index(&row_ids, "lookup-clipped-gap"),
+        table_gap: fused_preprocessed_column_index(&preprocessed_ids, PREPROCESSED_TABLE_GAP),
+        table_weight: fused_preprocessed_column_index(&preprocessed_ids, PREPROCESSED_TABLE_WEIGHT),
         table_multiplicity: fused_preprocessed_column_index(
             &preprocessed_ids,
             PREPROCESSED_TABLE_MULTIPLICITY,
-        )?,
-    })
+        ),
+    }
 }
 
-fn fused_row_column_index(ids: &[String], suffix: &str) -> Result<usize> {
+fn fused_row_column_index(ids: &[String], suffix: &str) -> usize {
     let target = fused_column_id(suffix);
     ids.iter()
         .position(|id| id == &target)
-        .ok_or_else(|| fused_error(format!("missing fused trace column id: {target}")))
+        .unwrap_or_else(|| panic!("missing fused trace column id: {target}"))
 }
 
-fn fused_preprocessed_column_index(ids: &[PreProcessedColumnId], target: &str) -> Result<usize> {
+fn fused_preprocessed_column_index(ids: &[PreProcessedColumnId], target: &str) -> usize {
     ids.iter()
         .position(|id| id.id == target)
-        .ok_or_else(|| fused_error(format!("missing fused preprocessed column id: {target}")))
+        .unwrap_or_else(|| panic!("missing fused preprocessed column id: {target}"))
 }
 
 fn fused_preprocessed_column_ids() -> Vec<PreProcessedColumnId> {
@@ -1144,29 +1135,6 @@ fn fused_preprocessed_column_ids() -> Vec<PreProcessedColumnId> {
     ids.push(preprocessed_column_id(PREPROCESSED_TABLE_WEIGHT));
     ids.push(preprocessed_column_id(PREPROCESSED_TABLE_MULTIPLICITY));
     ids
-}
-
-fn validate_static_fused_air_layout() -> Result<()> {
-    let row_column_count = fused_row_column_ids().len();
-    let preprocessed_column_count = fused_preprocessed_column_ids().len();
-    let counter = AttentionKvNativeD128FourHeadSeq64FusedSoftmaxTableEval {
-        lookup_elements: AttentionKvD128FourHeadSeq64FusedSoftmaxTableRelation::dummy(),
-    }
-    .evaluate(AttentionKvD128FourHeadSeq64FusedSoftmaxTableLayoutCounter::default());
-    if counter.trace_masks != row_column_count {
-        return Err(fused_error(format!(
-            "fused Softmax-table AIR trace layout drift: got {} trace masks, expected {} row columns",
-            counter.trace_masks, row_column_count
-        )));
-    }
-    if counter.preprocessed_masks != preprocessed_column_count {
-        return Err(fused_error(format!(
-            "fused Softmax-table AIR preprocessed layout drift: got {} masks, expected {} columns",
-            counter.preprocessed_masks, preprocessed_column_count
-        )));
-    }
-    fused_trace_column_indices()?;
-    Ok(())
 }
 
 fn preprocessed_column_id(id: &str) -> PreProcessedColumnId {
@@ -1209,7 +1177,7 @@ fn expect_eq(actual: &str, expected: &str, label: &str) -> Result<()> {
 
 fn fused_error(message: impl Into<String>) -> VmError {
     VmError::UnsupportedProof(format!(
-        "attention/KV native d128-four-head fused bounded Softmax-table proof: {}",
+        "attention/KV native d128 single-head seq16 fused bounded Softmax-table proof: {}",
         message.into()
     ))
 }
@@ -1218,44 +1186,30 @@ fn fused_error(message: impl Into<String>) -> VmError {
 mod tests {
     use super::*;
 
-    const SOURCE_INPUT_JSON_PATH: &str = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.json"
-    );
-
-    fn source_input() -> ZkAiAttentionKvNativeD128FourHeadSeq64BoundedSoftmaxTableProofInput {
-        let raw = std::fs::read_to_string(SOURCE_INPUT_JSON_PATH).expect(
-            "local-only d128-four-head seq64 source artifact required for ignored artifact tests",
+    fn source_input() -> ZkAiAttentionKvNativeD128SingleHeadSeq16BoundedSoftmaxTableProofInput {
+        let raw = include_str!(
+            "../../docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-single-head-seq16-bounded-softmax-table-proof-2026-05.json"
         );
-        zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_source_input_from_json_str(
-            &raw,
-        )
-        .expect("source input")
-    }
-
-    macro_rules! require_source_input {
-        () => {
-            source_input()
-        };
+        zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_source_input_from_json_str(raw)
+            .expect("source input")
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_d128_four_head_seq64_fused_softmax_table_round_trips_real_proof() {
-        let input = require_source_input!();
+    fn attention_kv_d128_single_head_seq16_fused_softmax_table_round_trips_real_proof() {
+        let input = source_input();
         let envelope =
-            prove_zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope(
+            prove_zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope(
                 &input,
             )
             .expect("prove fused attention/lookup");
         assert_eq!(
             envelope.decision,
-            ZKAI_ATTENTION_KV_NATIVE_D128_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_DECISION
+            ZKAI_ATTENTION_KV_NATIVE_D128_SINGLE_HEAD_SEQ16_FUSED_SOFTMAX_TABLE_DECISION
         );
-        assert_eq!(envelope.fused_summary.lookup_claims, 8832);
+        assert_eq!(envelope.fused_summary.lookup_claims, 168);
         assert_eq!(envelope.fused_summary.table_rows, 9);
         assert!(
-            verify_zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope(
+            verify_zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope(
                 &envelope
             )
             .expect("verify fused attention/lookup")
@@ -1263,9 +1217,8 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_d128_four_head_seq64_fused_softmax_table_summary_counts_claims() {
-        let input = require_source_input!();
+    fn attention_kv_d128_single_head_seq16_fused_softmax_table_summary_counts_claims() {
+        let input = source_input();
         let summary = fused_summary(&input).expect("summary");
         let total: usize = summary
             .table_multiplicities
@@ -1278,11 +1231,11 @@ mod tests {
     }
 
     #[test]
-    fn attention_kv_d128_four_head_seq64_fused_softmax_table_derives_logup_indices_from_column_ids()
-    {
+    fn attention_kv_d128_single_head_seq16_fused_softmax_table_derives_logup_indices_from_column_ids(
+    ) {
         let row_ids = fused_row_column_ids();
         let preprocessed_ids = fused_preprocessed_column_ids();
-        let indices = fused_trace_column_indices().expect("indices");
+        let indices = fused_trace_column_indices();
 
         assert_eq!(row_ids[indices.enabled], fused_column_id("enabled"));
         assert_eq!(
@@ -1308,17 +1261,16 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_d128_four_head_seq64_fused_softmax_table_rejects_summary_drift() {
-        let input = require_source_input!();
+    fn attention_kv_d128_single_head_seq16_fused_softmax_table_rejects_summary_drift() {
+        let input = source_input();
         let mut envelope =
-            prove_zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope(
+            prove_zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope(
                 &input,
             )
             .expect("prove fused attention/lookup");
         envelope.fused_summary.lookup_claims += 1;
         let error =
-            verify_zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope(
+            verify_zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope(
                 &envelope,
             )
             .expect_err("summary drift must reject");
@@ -1326,17 +1278,16 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_d128_four_head_seq64_fused_softmax_table_rejects_source_weight_drift() {
-        let input = require_source_input!();
+    fn attention_kv_d128_single_head_seq16_fused_softmax_table_rejects_source_weight_drift() {
+        let input = source_input();
         let mut envelope =
-            prove_zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope(
+            prove_zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope(
                 &input,
             )
             .expect("prove fused attention/lookup");
         envelope.source_input.score_rows[0].attention_weight += 1;
         let error =
-            verify_zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope(
+            verify_zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope(
                 &envelope,
             )
             .expect_err("source drift must reject");
@@ -1348,9 +1299,8 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_d128_four_head_seq64_fused_softmax_table_rejects_negative_bit_material() {
-        let input = require_source_input!();
+    fn attention_kv_d128_single_head_seq16_fused_softmax_table_rejects_negative_bit_material() {
+        let input = source_input();
         let mut row = input.score_rows[0].clone();
         row.score_gap = -1;
         let error = row_values(&row, 1).expect_err("negative score gap must reject");
@@ -1358,17 +1308,16 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_d128_four_head_seq64_fused_softmax_table_rejects_output_remainder_drift() {
-        let input = require_source_input!();
+    fn attention_kv_d128_single_head_seq16_fused_softmax_table_rejects_output_remainder_drift() {
+        let input = source_input();
         let mut envelope =
-            prove_zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope(
+            prove_zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope(
                 &input,
             )
             .expect("prove fused attention/lookup");
         envelope.source_input.score_rows[0].output_remainder[0] += 1;
         let error =
-            verify_zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope(
+            verify_zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope(
                 &envelope,
             )
             .expect_err("source drift must reject");
@@ -1376,18 +1325,17 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_d128_four_head_seq64_fused_softmax_table_rejects_proof_byte_tamper() {
-        let input = require_source_input!();
+    fn attention_kv_d128_single_head_seq16_fused_softmax_table_rejects_proof_byte_tamper() {
+        let input = source_input();
         let mut envelope =
-            prove_zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope(
+            prove_zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope(
                 &input,
             )
             .expect("prove fused attention/lookup");
         let last = envelope.proof.last_mut().expect("proof byte");
         *last ^= 1;
         let error =
-            verify_zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope(
+            verify_zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope(
                 &envelope,
             )
             .expect_err("proof tamper must reject");
@@ -1395,17 +1343,16 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_d128_four_head_seq64_fused_softmax_table_rejects_backend_version_drift() {
-        let input = require_source_input!();
+    fn attention_kv_d128_single_head_seq16_fused_softmax_table_rejects_backend_version_drift() {
+        let input = source_input();
         let mut envelope =
-            prove_zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope(
+            prove_zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope(
                 &input,
             )
             .expect("prove fused attention/lookup");
         envelope.proof_backend_version = "different-stwo-backend".to_string();
         let error =
-            verify_zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope(
+            verify_zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope(
                 &envelope,
             )
             .expect_err("backend version drift must reject");
@@ -1413,17 +1360,17 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_d128_four_head_seq64_fused_softmax_table_rejects_proof_schema_version_drift() {
-        let input = require_source_input!();
+    fn attention_kv_d128_single_head_seq16_fused_softmax_table_rejects_proof_schema_version_drift()
+    {
+        let input = source_input();
         let mut envelope =
-            prove_zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope(
+            prove_zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope(
                 &input,
             )
             .expect("prove fused attention/lookup");
         envelope.proof_schema_version = "different-fused-proof-schema".to_string();
         let error =
-            verify_zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope(
+            verify_zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope(
                 &envelope,
             )
             .expect_err("proof schema version drift must reject");
@@ -1431,21 +1378,17 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
-    fn attention_kv_d128_four_head_seq64_fused_softmax_table_rejects_unknown_envelope_field() {
-        let input = require_source_input!();
+    fn attention_kv_d128_single_head_seq16_fused_softmax_table_rejects_unknown_envelope_field() {
+        let input = source_input();
         let envelope =
-            prove_zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope(
+            prove_zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope(
                 &input,
             )
             .expect("prove fused attention/lookup");
         let mut value = serde_json::to_value(&envelope).expect("envelope json");
         value["sidecar_proof"] = serde_json::Value::String("split-brain".to_string());
         let raw = serde_json::to_vec(&value).expect("envelope bytes");
-        let error =
-            zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_envelope_from_json_slice(
-                &raw,
-            )
+        let error = zkai_attention_kv_native_d128_single_head_seq16_fused_softmax_table_envelope_from_json_slice(&raw)
             .expect_err("unknown field must reject");
         assert!(error.to_string().contains("unknown field"));
     }
