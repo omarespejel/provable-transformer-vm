@@ -13,23 +13,23 @@ class AttentionKvFullerCrossingGridGateTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.result = gate.build_result()
 
-    def test_records_100_cell_grid_with_27_proved_and_73_missing(self):
+    def test_records_100_cell_grid_with_28_proved_and_72_missing(self):
         result = self.result
         self.assertEqual(result["decision"], gate.DECISION)
         self.assertEqual(result["grid_status"], gate.GRID_STATUS)
         self.assertEqual(result["full_proof_grid_status"], gate.FULL_PROOF_GRID_STATUS)
-        self.assertIn("73_OF_100", result["full_proof_grid_status"])
+        self.assertIn("72_OF_100", result["full_proof_grid_status"])
         self.assertNotIn("56_OF_80", result["full_proof_grid_status"])
-        self.assertIn("73 of 100", result["no_go_criteria"][0])
+        self.assertIn("72 of 100", result["no_go_criteria"][0])
         self.assertIn("NOT_A_FULL_FACTORIAL_PROOF_GRID", result["claim_boundary"])
         self.assertEqual(result["summary"]["grid_cell_count"], 100)
-        self.assertEqual(result["summary"]["proved_cell_count"], 27)
-        self.assertEqual(result["summary"]["missing_cell_count"], 73)
+        self.assertEqual(result["summary"]["proved_cell_count"], 28)
+        self.assertEqual(result["summary"]["missing_cell_count"], 72)
         self.assertNotIn(
             "d64_two_head_seq64",
             [row["profile_id"] for row in result["next_low_risk_profiles"]],
         )
-        self.assertEqual(result["summary"]["coverage_share"], 0.27)
+        self.assertEqual(result["summary"]["coverage_share"], 0.28)
         self.assertEqual(result["mutations_checked"], len(gate.EXPECTED_MUTATION_NAMES))
         self.assertEqual(result["mutations_rejected"], len(gate.EXPECTED_MUTATION_NAMES))
 
@@ -133,7 +133,7 @@ class AttentionKvFullerCrossingGridGateTests(unittest.TestCase):
 
     def test_missing_cells_carry_no_proof_metrics_or_evidence_paths(self):
         missing = [row for row in self.result["grid_rows"] if row["status"] == gate.MISSING_STATUS]
-        self.assertEqual(len(missing), 73)
+        self.assertEqual(len(missing), 72)
         for row in missing:
             self.assertIsNone(row["profile_id"])
             self.assertIsNone(row["lookup_claims"])
@@ -152,15 +152,15 @@ class AttentionKvFullerCrossingGridGateTests(unittest.TestCase):
 
     def test_summary_keeps_go_and_no_go_boundary_sharp(self):
         summary = self.result["summary"]
-        self.assertEqual(summary["proved_crossing_cell_count"], 20)
-        self.assertEqual(summary["proved_all_axis_cell_count"], 15)
-        self.assertEqual(summary["missing_all_axis_cell_count"], 33)
-        self.assertEqual(summary["proved_counts_by_width"], {"128": 3, "16": 4, "32": 6, "64": 7, "8": 7})
-        self.assertEqual(summary["proved_counts_by_head_count"], {"1": 4, "16": 1, "2": 14, "4": 7, "8": 1})
-        self.assertEqual(summary["proved_counts_by_steps_per_head"], {"16": 7, "32": 8, "64": 3, "8": 9})
+        self.assertEqual(summary["proved_crossing_cell_count"], 21)
+        self.assertEqual(summary["proved_all_axis_cell_count"], 16)
+        self.assertEqual(summary["missing_all_axis_cell_count"], 32)
+        self.assertEqual(summary["proved_counts_by_width"], {"128": 4, "16": 4, "32": 6, "64": 7, "8": 7})
+        self.assertEqual(summary["proved_counts_by_head_count"], {"1": 4, "16": 1, "2": 14, "4": 8, "8": 1})
+        self.assertEqual(summary["proved_counts_by_steps_per_head"], {"16": 7, "32": 8, "64": 4, "8": 9})
         self.assertIn("full factorial proof-grid claim", self.result["no_go_criteria"][0])
-        self.assertEqual(self.result["next_low_risk_profiles"][0]["profile_id"], "d128_four_head_seq64")
-        self.assertEqual(self.result["next_low_risk_profiles"][1]["profile_id"], "d128_single_head_seq16")
+        self.assertEqual(self.result["next_low_risk_profiles"][0]["profile_id"], "d128_single_head_seq16")
+        self.assertEqual(self.result["next_low_risk_profiles"][1]["profile_id"], "d256_two_head_seq32")
         self.assertNotIn(
             "d64_two_head_seq64",
             [row["profile_id"] for row in self.result["next_low_risk_profiles"]],

@@ -1,0 +1,50 @@
+{
+  "schema": "zkai-attention-kv-stwo-native-d128-four-head-seq64-large-artifacts-v1",
+  "issue": 715,
+  "status": "LOCAL_GENERATED_ARTIFACTS_NOT_TRACKED_BECAUSE_EACH_EXCEEDS_GITHUB_100_MB_BLOB_LIMIT",
+  "claim_boundary": "SIZE_AND_DIGEST_MANIFEST_FOR_LOCAL_D128_FOUR_HEAD_SEQ64_SOURCE_AND_PROOF_ENVELOPES_NOT_A_REPLACEMENT_FOR_REGENERATION_OR_NATIVE_VERIFICATION",
+  "source_statement_commitment": "blake2b-256:9f7564f82bd44833784ef83bbe84058838b3abef13cf5db61444546e6d169953",
+  "artifacts": [
+    {
+      "id": "source_input_json",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.json",
+      "size_bytes": 117957319,
+      "sha256": "746eff40c2f71b71a81cf92595600741073bff022c01266dd30228013fab4942",
+      "regenerate_command": "python3.10 scripts/zkai_attention_kv_stwo_native_d128_four_head_seq64_bounded_softmax_table_proof_input.py --write-json docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.tsv"
+    },
+    {
+      "id": "source_proof_envelope",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.envelope.json",
+      "size_bytes": 140928819,
+      "sha256": "8ddb791d059198e4492c1d32adacbb42a2b40fa0abb75dcb6b25a378587925b3",
+      "regenerate_command": "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_proof -- prove docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.envelope.json"
+    },
+    {
+      "id": "sidecar_proof_envelope",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-proof-2026-05.envelope.json",
+      "size_bytes": 137403230,
+      "sha256": "d41fa0bfec7a504f17d5a2d9d9d3bce673d5fe4f738f6bf1418cea045e6b8a72",
+      "regenerate_command": "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_proof -- prove docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-proof-2026-05.envelope.json"
+    },
+    {
+      "id": "fused_proof_envelope",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-fused-softmax-table-proof-2026-05.envelope.json",
+      "size_bytes": 140976246,
+      "sha256": "d268799d1d9d0ad17919597259e28d164a2ae6ecd78fc128b7109a618f8481ea",
+      "regenerate_command": "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_proof -- prove docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-fused-softmax-table-proof-2026-05.envelope.json"
+    }
+  ],
+  "verify_commands": [
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_proof -- verify docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-bounded-softmax-table-proof-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d128_four_head_seq64_softmax_table_lookup_proof -- verify docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-softmax-table-logup-sidecar-proof-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d128_four_head_seq64_fused_softmax_table_proof -- verify docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-fused-softmax-table-proof-2026-05.envelope.json"
+  ],
+  "non_claims": [
+    "not a tracked proof envelope",
+    "not a substitute for native verifier execution",
+    "not stable upstream Stwo binary serialization",
+    "not timing evidence",
+    "not a NANOZK comparison",
+    "not production zkML readiness"
+  ]
+}
