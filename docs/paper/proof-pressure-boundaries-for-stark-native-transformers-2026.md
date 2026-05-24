@@ -405,12 +405,24 @@ This command writes:
 - `docs/paper/figures/proof-pressure-growth-factors-2026-05.svg`;
 - `docs/paper/figures/proof-pressure-growth-factors-2026-05.png`;
 - `docs/paper/figures/proof-pressure-growth-factors-2026-05.pdf`;
+- `docs/paper/figures/proof-pressure-growth-factors-2026-05.tsv`;
 - `docs/paper/figures/proof-pressure-boundary-selection-2026-05.svg`;
 - `docs/paper/figures/proof-pressure-boundary-selection-2026-05.png`;
 - `docs/paper/figures/proof-pressure-boundary-selection-2026-05.pdf`;
+- `docs/paper/figures/proof-pressure-boundary-selection-2026-05.tsv`;
 - `docs/paper/figures/proof-pressure-opening-mechanism-2026-05.svg`;
 - `docs/paper/figures/proof-pressure-opening-mechanism-2026-05.png`;
-- `docs/paper/figures/proof-pressure-opening-mechanism-2026-05.pdf`.
+- `docs/paper/figures/proof-pressure-opening-mechanism-2026-05.pdf`;
+- `docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv`.
+
+The evidence rows use the native Stwo bounded-integer Softmax-table fixture
+family with the route-matrix claim boundary
+`ENGINEERING_PROOF_BYTE_ACCOUNTING_FOR_NATIVE_STWO_FUSED_BOUNDED_SOFTMAX_TABLE_FIXTURE_FAMILY_NOT_REAL_VALUED_SOFTMAX_NOT_FULL_INFERENCE_NOT_TIMING_NOT_RECURSION_OR_PCD_NOT_A_PUBLIC_BENCHMARK_WITH_MATCHED_SOURCE_PLUS_SIDECAR_COMPARATORS_FOR_ALL_PROFILE_ROWS`.
+The main timing mode is
+`median_of_5_in_process_release_timing_for_d64_and_d256_engineering_only`.
+The four paper sequence rows are `seq32` to `seq64` transitions with `32` and
+`64` steps per head; the `d64` rows have local median-of-five release timing,
+while the `d128` sequence rows are proof-size only in this artifact.
 
 The underlying evidence-generation commands are:
 
