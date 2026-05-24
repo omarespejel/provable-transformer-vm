@@ -1,4 +1,4 @@
-# Appendix: Statement Validity for zkML Proof Artifacts
+# Proof Validity Is Not Statement Validity: Typed Boundaries for zkML Proof Artifacts
 
 **Companion note for**  
 `Proof-Pressure Boundaries for STARK-Native Transformer Inference`
@@ -189,4 +189,3 @@ The generator writes:
 - `docs/paper/figures/zkml-statement-validity-boundary-2026-05.png`;
 - `docs/paper/figures/zkml-statement-validity-boundary-2026-05.pdf`;
 - `docs/paper/figures/zkml-statement-validity-boundary-2026-05.tsv`.
-
