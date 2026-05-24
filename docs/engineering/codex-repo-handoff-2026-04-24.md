@@ -4,7 +4,7 @@ This is the tracked GitHub-safe mirror of the local `.codex` handoff notes.
 If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 `.codex/HANDOFF.md` first. This file is the durable shared resume surface.
 
-**Mainline tip at last refresh:** `f49d0a4f2da639833320963d16908d7b6f383aa0` (matches
+**Mainline tip at last refresh:** `e575bccfe82097cf35db9bc4f6b19dc8442df1ab` (matches
 `.codex/HANDOFF.md` “Mainline reference at refresh”; update both together).
 
 ## Read order for a fresh agent
@@ -115,9 +115,11 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 104. `docs/engineering/zkai-stwo-inner-attempt-domain-statement-2026-05-19.md`
 105. `docs/engineering/zkai-proof-pressure-slope-table-2026-05-24.md`
 106. `docs/engineering/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05-24.md`
-107. `docs/engineering/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05-24.md`
-108. `docs/engineering/reproducibility.md`
-109. `git status --short --branch`
+107. `docs/engineering/zkai-minimal-d128-block-boundary-wrapper-2026-05-24.md`
+108. `docs/engineering/zkai-native-d128-seq32-attention-derived-mlp-single-proof-2026-05-24.md`
+109. `docs/engineering/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05-24.md`
+110. `docs/engineering/reproducibility.md`
+111. `git status --short --branch`
 
 ## Current lane split
 
@@ -130,8 +132,44 @@ before opening or executing frontier issues. The north star is STARK-native
 proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
 
+Current branch minimal d128 block-boundary wrapper: issue `#715` now has a
+candidate wrapper gate around the model-faithful d128 attention-derived MLP
+proof object. The wrapper produces one boundary statement commitment,
+`blake2b-256:abb34aa243a583b01b4a7f4516df7563c7be1e0ad6f64b26a52e58df17306f1a`
+with payload commitment
+`blake2b-256:02541cc4330b086b4207a07ff659cbef46141bd3e37248ba18f049469635f28b`,
+that binds the proof envelope hash, proof hash, verifier domain, target id,
+local typed-byte accounting, matched split frontier components, the preflight
+payload commitment, and the attention-derived d128 block statement-chain commitment.
+It preserves the underlying proof-size result: `503,567` proof JSON bytes
+versus `522,480`, saving `18,913` (`0.963801x`), and `204,564` local typed
+bytes versus `209,732`, saving `5,168` (`0.975359x`). The wrapper proof-byte
+delta is explicitly `0`; it is statement metadata, not a new proof object and
+not an extra proof-size win. The split frontier is now component-pinned as
+`445,888` proof JSON bytes / `184,900` typed bytes for
+`attention_fused_softmax_logup_proof`, plus `76,592` proof JSON bytes /
+`24,832` typed bytes for `attention_derived_d128_rmsnorm_mlp_proof`. The gate
+rejects `21 / 21` mutations, including source digest drift, proof hash drift,
+verifier-domain drift, target-id drift, split frontier drift, split component
+drift, preflight gate drift, block statement drift, attention-output drift,
+MLP-output drift, wrapper byte overclaims, full-block overclaims, and
+external-comparison overclaims. Evidence paths:
+`docs/engineering/evidence/zkai-minimal-d128-block-boundary-wrapper-2026-05.json`
+and
+`docs/engineering/evidence/zkai-minimal-d128-block-boundary-wrapper-2026-05.tsv`.
+Reproduce with
+`python3.10 scripts/zkai_minimal_d128_block_boundary_wrapper_gate.py --write-json docs/engineering/evidence/zkai-minimal-d128-block-boundary-wrapper-2026-05.json --write-tsv docs/engineering/evidence/zkai-minimal-d128-block-boundary-wrapper-2026-05.tsv --write-md docs/engineering/zkai-minimal-d128-block-boundary-wrapper-2026-05-24.md`;
+focused tests:
+`python3.10 -m unittest scripts.tests.test_zkai_minimal_d128_block_boundary_wrapper_gate`;
+full gate command: `just gate`; closure note: `just gate` passed locally after
+review fixes (`14 / 14` release-gate steps OK).
+This is not a full transformer block proof, not recursive proof composition,
+not timing evidence, not a NANOZK comparison, and not a matched external zkML
+comparison. See
+`docs/engineering/zkai-minimal-d128-block-boundary-wrapper-2026-05-24.md`.
+
 Latest model-faithful d128 block-boundary preflight: issue `#715` now has a
-post-PR `#744` decision artifact for the next proof target. The current anchor
+post-PR `#745` decision artifact for the next proof target. The current anchor
 is the model-faithful d128 two-head seq32 attention-derived MLP single proof:
 `503,567` proof JSON bytes versus the matched split frontier at `522,480`,
 saving `18,913` (`0.963801x`), and `204,564` typed bytes versus `209,732`,
