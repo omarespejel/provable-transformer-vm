@@ -225,6 +225,7 @@ def require(condition: bool, message: str) -> None:
 
 
 SourceArtifactSpec = tuple[str, pathlib.Path, str, int | None]
+LoadedSourceArtifact = tuple[dict[str, Any], bytes]
 
 
 def source_artifact_specs() -> tuple[SourceArtifactSpec, ...]:
@@ -244,37 +245,23 @@ def expected_source_artifacts() -> list[dict[str, Any]]:
     ]
 
 
+def load_source_artifacts_from_specs() -> tuple[dict[str, LoadedSourceArtifact], list[dict[str, Any]]]:
+    loaded: dict[str, LoadedSourceArtifact] = {}
+    artifacts = []
+    for artifact_id, path, label, max_bytes in source_artifact_specs():
+        payload, raw = read_json(path, label, max_bytes)
+        loaded[artifact_id] = (payload, raw)
+        artifacts.append(source_artifact_from_payload(artifact_id, path, payload, raw))
+    return loaded, artifacts
+
+
 def build_payload() -> dict[str, Any]:
-    input_payload, input_raw = read_json(INPUT_PATH, "scoped input", MAX_SINGLE_INPUT_JSON_BYTES)
-    envelope, envelope_raw = read_json(ENVELOPE_PATH, "scoped envelope", MAX_SINGLE_ENVELOPE_JSON_BYTES)
-    single_accounting, single_accounting_raw = read_json(
-        SINGLE_ACCOUNTING_PATH,
-        "single accounting",
-        MAX_ACCOUNTING_JSON_BYTES,
-    )
-    split_accounting, split_accounting_raw = read_json(
-        SPLIT_ACCOUNTING_PATH,
-        "split accounting",
-        MAX_ACCOUNTING_JSON_BYTES,
-    )
-    preflight, preflight_raw = read_json(PREFLIGHT_PATH, "preflight gate", MAX_PREFLIGHT_JSON_BYTES)
-    expected_artifacts = [
-        source_artifact_from_payload("scoped_input", INPUT_PATH, input_payload, input_raw),
-        source_artifact_from_payload("scoped_envelope", ENVELOPE_PATH, envelope, envelope_raw),
-        source_artifact_from_payload(
-            "single_accounting",
-            SINGLE_ACCOUNTING_PATH,
-            single_accounting,
-            single_accounting_raw,
-        ),
-        source_artifact_from_payload(
-            "split_accounting",
-            SPLIT_ACCOUNTING_PATH,
-            split_accounting,
-            split_accounting_raw,
-        ),
-        source_artifact_from_payload("preflight_gate", PREFLIGHT_PATH, preflight, preflight_raw),
-    ]
+    loaded_artifacts, expected_artifacts = load_source_artifacts_from_specs()
+    input_payload, input_raw = loaded_artifacts["scoped_input"]
+    envelope, envelope_raw = loaded_artifacts["scoped_envelope"]
+    single_accounting, _ = loaded_artifacts["single_accounting"]
+    split_accounting, _ = loaded_artifacts["split_accounting"]
+    preflight, _ = loaded_artifacts["preflight_gate"]
 
     proof = envelope.get("proof")
     require(isinstance(proof, list), "envelope proof must be a list")
