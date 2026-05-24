@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="526.79952pt" height="217.19952pt" viewBox="0 0 526.79952 217.19952" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="613.19952pt" height="217.19952pt" viewBox="0 0 613.19952 217.19952" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
@@ -22,125 +22,125 @@
  <g id="figure_1">
   <g id="patch_1">
    <path d="M 0 217.19952
-L 526.79952 217.19952
-L 526.79952 0
+L 613.19952 217.19952
+L 613.19952 0
 L 0 0
 z
 " style="fill: #ffffff"/>
   </g>
   <g id="axes_1">
    <g id="patch_2">
-    <path d="M 26.158782 162.950031
-L 157.333059 162.950031
-Q 170.143047 162.950031 170.143047 157.880043
-L 170.143047 59.319477
-Q 170.143047 54.249489 157.333059 54.249489
-L 26.158782 54.249489
-Q 13.348794 54.249489 13.348794 59.319477
-L 13.348794 157.880043
-Q 13.348794 162.950031 26.158782 162.950031
+    <path d="M 29.355582 162.950031
+L 158.696279 162.950031
+Q 173.666267 162.950031 173.666267 157.880043
+L 173.666267 59.319477
+Q 173.666267 54.249489 158.696279 54.249489
+L 29.355582 54.249489
+Q 14.385594 54.249489 14.385594 59.319477
+L 14.385594 157.880043
+Q 14.385594 162.950031 29.355582 162.950031
 z
-" clip-path="url(#pcc9176dde7)" style="fill: #ffffff; stroke: #4477aa; stroke-width: 1.2; stroke-linejoin: miter"/>
+" clip-path="url(#p515baa6092)" style="fill: #ffffff; stroke: #4477aa; stroke-width: 1.2; stroke-linejoin: miter"/>
    </g>
    <g id="patch_3">
-    <path d="M 197.812621 177.145998
-L 339.234889 177.145998
-Q 352.044877 177.145998 352.044877 172.07601
-L 352.044877 45.12351
-Q 352.044877 40.053522 339.234889 40.053522
-L 197.812621 40.053522
-Q 185.002633 40.053522 185.002633 45.12351
-L 185.002633 172.07601
-Q 185.002633 177.145998 197.812621 177.145998
+    <path d="M 232.947419 177.145998
+L 398.216087 177.145998
+Q 413.186075 177.145998 413.186075 172.07601
+L 413.186075 45.12351
+Q 413.186075 40.053522 398.216087 40.053522
+L 232.947419 40.053522
+Q 217.977431 40.053522 217.977431 45.12351
+L 217.977431 172.07601
+Q 217.977431 177.145998 232.947419 177.145998
 z
-" clip-path="url(#pcc9176dde7)" style="fill: #ffffff; stroke: #117733; stroke-width: 1.2; stroke-linejoin: miter"/>
+" clip-path="url(#p515baa6092)" style="fill: #ffffff; stroke: #117733; stroke-width: 1.2; stroke-linejoin: miter"/>
    </g>
    <g id="patch_4">
-    <path d="M 379.714451 162.950031
-L 500.640738 162.950031
-Q 513.450726 162.950031 513.450726 157.880043
-L 513.450726 59.319477
-Q 513.450726 54.249489 500.640738 54.249489
-L 379.714451 54.249489
-Q 366.904463 54.249489 366.904463 59.319477
-L 366.904463 157.880043
-Q 366.904463 162.950031 379.714451 162.950031
+    <path d="M 472.467227 162.950031
+L 589.831933 162.950031
+Q 604.801921 162.950031 604.801921 157.880043
+L 604.801921 59.319477
+Q 604.801921 54.249489 589.831933 54.249489
+L 472.467227 54.249489
+Q 457.497239 54.249489 457.497239 59.319477
+L 457.497239 157.880043
+Q 457.497239 162.950031 472.467227 162.950031
 z
-" clip-path="url(#pcc9176dde7)" style="fill: #ffffff; stroke: #aa4499; stroke-width: 1.2; stroke-linejoin: miter"/>
+" clip-path="url(#p515baa6092)" style="fill: #ffffff; stroke: #aa4499; stroke-width: 1.2; stroke-linejoin: miter"/>
    </g>
    <g id="patch_5">
-    <path d="M 165.4806 108.59976
-Q 177.573402 108.59976 188.324565 108.59976
-" clip-path="url(#pcc9176dde7)" style="fill: none; stroke: #555555; stroke-width: 1.2; stroke-linecap: round"/>
-    <path d="M 182.724565 105.79976
-L 188.324565 108.59976
-L 182.724565 111.39976
+    <path d="M 173.867389 108.59976
+Q 197.31626 108.59976 219.423489 108.59976
+" clip-path="url(#p515baa6092)" style="fill: none; stroke: #555555; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 213.823489 105.79976
+L 219.423489 108.59976
+L 213.823489 111.39976
 z
-" clip-path="url(#pcc9176dde7)" style="fill: #555555; stroke: #555555; stroke-width: 1.2; stroke-linecap: round"/>
+" clip-path="url(#p515baa6092)" style="fill: #555555; stroke: #555555; stroke-width: 1.2; stroke-linecap: round"/>
    </g>
    <g id="patch_6">
-    <path d="M 347.382429 108.59976
-Q 359.475232 108.59976 370.226394 108.59976
-" clip-path="url(#pcc9176dde7)" style="fill: none; stroke: #555555; stroke-width: 1.2; stroke-linecap: round"/>
-    <path d="M 364.626394 105.79976
-L 370.226394 108.59976
-L 364.626394 111.39976
+    <path d="M 410.398865 108.59976
+Q 435.344049 108.59976 458.947593 108.59976
+" clip-path="url(#p515baa6092)" style="fill: none; stroke: #555555; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 453.347593 105.79976
+L 458.947593 108.59976
+L 453.347593 111.39976
 z
-" clip-path="url(#pcc9176dde7)" style="fill: #555555; stroke: #555555; stroke-width: 1.2; stroke-linecap: round"/>
+" clip-path="url(#p515baa6092)" style="fill: #555555; stroke: #555555; stroke-width: 1.2; stroke-linecap: round"/>
    </g>
    <g id="text_1">
-    <text style="fill: #4477aa; font: 700 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: middle" x="91.745921" y="80.54056" transform="rotate(-0 91.745921 80.54056)">Raw proof</text>
+    <text style="fill: #4477aa; font: 700 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: middle" x="94.02593" y="80.54056" transform="rotate(-0 94.02593 80.54056)">Raw proof</text>
    </g>
    <g id="text_2">
-    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="48.191962" y="100.820512" transform="rotate(-0 48.191962 100.820512)">proof bytes</text>
+    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="55.103962" y="100.820512" transform="rotate(-0 55.103962 100.820512)">proof bytes</text>
    </g>
    <g id="text_3">
-    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="48.191962" y="119.072469" transform="rotate(-0 48.191962 119.072469)">verification key</text>
+    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="55.103962" y="119.072469" transform="rotate(-0 55.103962 119.072469)">verification key</text>
    </g>
    <g id="text_4">
-    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="48.191962" y="137.261145" transform="rotate(-0 48.191962 137.261145)">public instance</text>
+    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="55.103962" y="137.261145" transform="rotate(-0 55.103962 137.261145)">public instance</text>
    </g>
    <g id="text_5">
-    <text style="fill: #117733; font: 700 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: middle" x="268.523755" y="66.281313" transform="rotate(-0 268.523755 66.281313)">Typed statement boundary</text>
+    <text style="fill: #117733; font: 700 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: middle" x="315.581753" y="66.281313" transform="rotate(-0 315.581753 66.281313)">Typed statement boundary</text>
    </g>
    <g id="text_6">
-    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="219.845801" y="86.561265" transform="rotate(-0 219.845801 86.561265)">model and input</text>
+    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="258.695798" y="86.561265" transform="rotate(-0 258.695798 86.561265)">model and input</text>
    </g>
    <g id="text_7">
-    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="219.845801" y="104.813221" transform="rotate(-0 219.845801 104.813221)">output and policy</text>
+    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="258.695798" y="104.813221" transform="rotate(-0 258.695798 104.813221)">output and policy</text>
    </g>
    <g id="text_8">
-    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="219.845801" y="123.065178" transform="rotate(-0 219.845801 123.065178)">table identity</text>
+    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="258.695798" y="123.065178" transform="rotate(-0 258.695798 123.065178)">table identity</text>
    </g>
    <g id="text_9">
-    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="219.845801" y="141.317135" transform="rotate(-0 219.845801 141.317135)">verifier domain</text>
+    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="258.695798" y="141.317135" transform="rotate(-0 258.695798 141.317135)">verifier domain</text>
    </g>
    <g id="text_10">
-    <text style="fill: #aa4499; font: 700 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: middle" x="440.177594" y="80.477279" transform="rotate(-0 440.177594 80.477279)">Application claim</text>
+    <text style="fill: #aa4499; font: 700 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: middle" x="531.14958" y="80.477279" transform="rotate(-0 531.14958 80.477279)">Application claim</text>
    </g>
    <g id="text_11">
-    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="401.74763" y="100.622231" transform="rotate(-0 401.74763 100.622231)">receipt meaning</text>
+    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="498.215606" y="100.622231" transform="rotate(-0 498.215606 100.622231)">receipt meaning</text>
    </g>
    <g id="text_12">
-    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="401.74763" y="119.009188" transform="rotate(-0 401.74763 119.009188)">allowed action</text>
+    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="498.215606" y="119.009188" transform="rotate(-0 498.215606 119.009188)">allowed action</text>
    </g>
    <g id="text_13">
-    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="401.74763" y="137.261145" transform="rotate(-0 401.74763 137.261145)">audit context</text>
+    <text style="fill: #222222; font: 9px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: start" x="498.215606" y="137.261145" transform="rotate(-0 498.215606 137.261145)">audit context</text>
    </g>
    <g id="text_14">
-    <text style="fill: #444444; font: 8px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: middle" x="177.57284" y="96.579784" transform="rotate(-0 177.57284 96.579784)">verify</text>
+    <text style="fill: #444444; font: 8px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: middle" x="197.318848" y="96.579784" transform="rotate(-0 197.318848 96.579784)">verify</text>
    </g>
    <g id="text_15">
-    <text style="fill: #444444; font: 8px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: middle" x="359.47467" y="96.579784" transform="rotate(-0 359.47467 96.579784)">bind meaning</text>
+    <text style="fill: #444444; font: 8px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: middle" x="435.341657" y="96.699784" transform="rotate(-0 435.341657 96.699784)">bind</text>
    </g>
    <g id="text_16">
-    <text style="fill: #333333; font: 8.5px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: middle" x="263.39976" y="199.862916" transform="rotate(-0 263.39976 199.862916)">Proof validity answers a cryptographic question. Statement validity binds the proof to the claim an application consumes.</text>
+    <text style="fill: #333333; font: 8.5px 'STIX Two Text', 'Times New Roman', 'DejaVu Serif', serif; text-anchor: middle" x="306.59976" y="199.862916" transform="rotate(-0 306.59976 199.862916)">Proof validity answers a cryptographic question. Statement validity binds the proof to the claim an application consumes.</text>
    </g>
   </g>
  </g>
  <defs>
-  <clipPath id="pcc9176dde7">
-   <rect x="7.2" y="7.2" width="512.39952" height="202.79952"/>
+  <clipPath id="p515baa6092">
+   <rect x="7.2" y="7.2" width="598.79952" height="202.79952"/>
   </clipPath>
  </defs>
 </svg>
