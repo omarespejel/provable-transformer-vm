@@ -1,0 +1,4 @@
+layer	question	examples
+raw_proof_verification	Does this proof verify for this verifier relation and public instance?	proof bytes; verification key; public inputs
+typed_statement_boundary	What is this proof allowed to mean?	model; input; output; policy; table identity; verifier domain
+application_claim	Which deployment event or decision may consume the artifact?	receipt id; action policy; audit record; settlement context
