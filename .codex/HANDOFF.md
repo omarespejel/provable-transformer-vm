@@ -2,7 +2,7 @@
 
 Last refreshed: 2026-05-24
 Repository: `/Users/espejelomar/StarkNet/provable-transformer-vm`
-Mainline reference at refresh: `f49d0a4f2da639833320963d16908d7b6f383aa0`
+Mainline reference at refresh: `0ac567a14b2042cd06c689d0b465b37930c7cf4f`
 
 ## Immediate orientation
 
@@ -20,19 +20,49 @@ before opening or executing frontier issues. The north star is STARK-native
 proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
 
-Latest scoped d128 implementation gate: issue `#715` now has a real one-proof
-scoped `d128 seq32` attention-plus-MLP size result. The single native Stwo proof
-co-locates the real d128 two-head seq32 fused attention source, a
+Latest model-faithful d128 block-boundary preflight: issue `#715` now has a
+post-PR `#744` decision artifact for the next proof target. The current anchor
+is the model-faithful d128 two-head seq32 attention-derived MLP single proof:
+`503,567` proof JSON bytes versus the matched split frontier at `522,480`,
+saving `18,913` (`0.963801x`), and `204,564` typed bytes versus `209,732`,
+saving `5,168` (`0.975359x`). Compared with the previous co-located row, the
+stronger value binding did not increase typed bytes, moved proof JSON by
+`-951` bytes, and improved typed savings by `560` bytes. The preflight rejects
+`15 / 15` mutations and chooses
+`minimal_scoped_d128_attention_derived_block_boundary_wrapper` as the next gate;
+`d128_h2_seq64_sequence_stress_if_block_wrapper_no_go` stays the fallback
+stress path if the wrapper is a NO-GO. Backend/version scope:
+`zkai-model-faithful-d128-block-boundary-preflight-v1` over the PR `#744`
+model-faithful native Stwo proof artifact; timing mode:
+`proof_size_and_statement_binding_preflight_only_no_new_timing_claim`.
+Evidence paths:
+`docs/engineering/evidence/zkai-model-faithful-d128-block-boundary-preflight-2026-05.json`
+and
+`docs/engineering/evidence/zkai-model-faithful-d128-block-boundary-preflight-2026-05.tsv`.
+Reproduce with
+`python3.10 scripts/zkai_model_faithful_d128_block_boundary_preflight_gate.py --write-json docs/engineering/evidence/zkai-model-faithful-d128-block-boundary-preflight-2026-05.json --write-tsv docs/engineering/evidence/zkai-model-faithful-d128-block-boundary-preflight-2026-05.tsv --write-md docs/engineering/zkai-model-faithful-d128-block-boundary-preflight-2026-05-24.md`;
+full local gate: `just gate`. This is not a new proof object, not a full
+transformer block proof, not a timing claim, and not an external comparison. See
+`docs/engineering/zkai-model-faithful-d128-block-boundary-preflight-2026-05-24.md`.
+
+Latest scoped d128 implementation gate: issue `#715` has the model-faithful
+one-proof scoped `d128 seq32` attention-plus-MLP result merged in PR `#744`
+as `0ac567a14b2042cd06c689d0b465b37930c7cf4f`. The single native Stwo proof
+uses the real d128 two-head seq32 fused attention source and a d128 RMSNorm/MLP
+surface whose input is derived from the actual d128 attention output artifact.
+It beats the matched scoped split frontier: `503,567` proof JSON bytes versus
+`522,480`, saving `18,913`, and `204,564` typed bytes versus `209,732`, saving
+`5,168`. This supersedes the earlier co-location row as the current claim
+anchor. See
+`docs/engineering/zkai-native-d128-seq32-attention-derived-mlp-single-proof-2026-05-24.md`.
+
+Previous scoped d128 co-location gate: the older single native Stwo proof
+co-located the real d128 two-head seq32 fused attention source, a
 verifier-recomputed co-location adapter, and the seq32-derived d128 RMSNorm/MLP
-surface. It beats the matched scoped split frontier: `504,518` proof JSON bytes
-versus `520,399`, saving `15,881` (`0.969483x`), and `204,564` typed bytes
-versus `209,172`, saving `4,608` (`0.977970x`). The gate rejects `11 / 11`
-mutations and pins source digests, binary accounting, resource caps,
-reproduction commands, and non-claims. This is not a full transformer block
-proof, not a model-faithful d128 attention-to-MLP adapter, not enforcing d128
-MLP input derivation from attention outputs, not an external benchmark, and not
-a NANOZK comparison. Next decision gate: regenerate a model-faithful d128 MLP
-surface from the d128 attention output, or run a d128 seq64 stress gate. See
+surface. It was useful as a regression baseline, but it was not the
+model-faithful d128 attention-derived route. It was `504,518` proof JSON bytes
+versus `520,399`, saving `15,881`, and `204,564` typed bytes versus `209,172`,
+saving `4,608`. See
 `docs/engineering/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05-24.md`.
 
 Previous scoped-block preflight: issue `#715` has a generated
