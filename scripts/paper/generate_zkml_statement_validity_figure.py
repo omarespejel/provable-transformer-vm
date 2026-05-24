@@ -22,6 +22,7 @@ FIGURE_DIR.mkdir(parents=True, exist_ok=True)
 
 STEM = "zkml-statement-validity-boundary-2026-05"
 
+# Match the repo's paper-figure style reset before applying figure-specific rcParams.
 plt.style.use("tableau-colorblind10")
 plt.rcParams.update(
     {
