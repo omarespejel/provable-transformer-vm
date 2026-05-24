@@ -1,0 +1,274 @@
+{
+  "all_mutations_rejected": true,
+  "claim_boundary": "MODEL_FAITHFUL_D128_SEQ32_ATTENTION_DERIVED_MLP_PREFLIGHT;NEXT_GATE_IS_MINIMAL_SCOPED_BLOCK_BOUNDARY;NOT_FULL_BLOCK_NOT_SPEED_CLAIM_NOT_EXTERNAL_COMPARISON",
+  "decision": "GO_MODEL_FAITHFUL_D128_BLOCK_BOUNDARY_PREFLIGHT",
+  "fallback_gate": "d128_h2_seq64_sequence_stress_if_block_wrapper_no_go",
+  "go_gate": [
+    "the minimal block-boundary wrapper preserves the model-faithful d128 attention-derived MLP binding",
+    "the new proof beats the matched local split frontier before any external comparison",
+    "source digests, statement commitments, accounting bytes, and non-claims remain pinned",
+    "mutation gates reject relabeling, stale co-location claims, full-block claims, and external benchmark claims"
+  ],
+  "issue": 715,
+  "mutation_results": [
+    {
+      "error": "model_faithful_single sha256 drift",
+      "name": "source_digest_drift",
+      "rejected": true
+    },
+    {
+      "error": "issue drift",
+      "name": "issue_drift",
+      "rejected": true
+    },
+    {
+      "error": "decision drift",
+      "name": "decision_drift",
+      "rejected": true
+    },
+    {
+      "error": "primary next gate drift",
+      "name": "primary_gate_drift",
+      "rejected": true
+    },
+    {
+      "error": "recommended action drift",
+      "name": "fallback_promoted_to_primary",
+      "rejected": true
+    },
+    {
+      "error": "summary.previous_colocated_typed_saving_bytes drift",
+      "name": "previous_metric_drift",
+      "rejected": true
+    },
+    {
+      "error": "summary.model_faithful_typed_saving_bytes drift",
+      "name": "model_metric_drift",
+      "rejected": true
+    },
+    {
+      "error": "legacy caveat leaked",
+      "name": "legacy_caveat_reintroduced",
+      "rejected": true
+    },
+    {
+      "error": "claim boundary missing NOT_FULL_BLOCK",
+      "name": "full_block_overclaim",
+      "rejected": true
+    },
+    {
+      "error": "claim boundary missing NOT_EXTERNAL_COMPARISON",
+      "name": "external_overclaim",
+      "rejected": true
+    },
+    {
+      "error": "sequence proof growth drift",
+      "name": "sequence_slope_drift",
+      "rejected": true
+    },
+    {
+      "error": "non-claims drift",
+      "name": "non_claim_removed",
+      "rejected": true
+    },
+    {
+      "error": "model_faithful_d128_boundary.action missing",
+      "name": "row_missing_required_field",
+      "rejected": true
+    },
+    {
+      "error": "validation commands drift",
+      "name": "validation_command_drift",
+      "rejected": true
+    },
+    {
+      "error": "payload commitment drift",
+      "name": "payload_commitment_drift",
+      "rejected": true
+    }
+  ],
+  "mutations_checked": 15,
+  "mutations_rejected": 15,
+  "no_go_gate": [
+    "the wrapper only works by dropping the attention-derived MLP input binding",
+    "the scoped proof is equal or heavier than its matched split frontier",
+    "the next story requires treating d128 seq64 or d256 as the primary claim",
+    "the result needs speed, NANOZK, full-block, or production-throughput wording to sound interesting"
+  ],
+  "non_claims": [
+    "not a full transformer block proof",
+    "not a public proving-speed benchmark",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML comparison",
+    "not exact real-valued Softmax",
+    "not full autoregressive inference",
+    "not production-throughput evidence"
+  ],
+  "payload_commitment": "blake2b-256:dfc47f43b47bef2b3d08bf254404641d6188eb0bd373978085cd9591a821d861",
+  "primary_next_gate": "minimal_scoped_d128_attention_derived_block_boundary_wrapper",
+  "recommended_action": "IMPLEMENT_MINIMAL_SCOPED_BLOCK_BOUNDARY_AROUND_MODEL_FAITHFUL_D128_ROUTE",
+  "result": "ATTACK_MINIMAL_BLOCK_BOUNDARY_AROUND_MODEL_FAITHFUL_D128_ATTENTION_DERIVED_MLP",
+  "rows": [
+    {
+      "action": "keep_as_regression_baseline_not_current_claim_anchor",
+      "metric_scope": "proof_json_and_typed_bytes",
+      "ratio": "0.969483",
+      "row_id": "previous_colocated_d128_boundary",
+      "saving_bytes": 15881,
+      "single_or_fused_bytes": 504518,
+      "split_or_reference_bytes": 520399,
+      "status": "BASELINE_SUPERSEDED_BY_MODEL_FAITHFUL_BINDING",
+      "typed_bytes": 204564,
+      "typed_ratio": "0.977970",
+      "typed_saving_bytes": 4608
+    },
+    {
+      "action": "use_as_anchor_for_minimal_scoped_block_boundary",
+      "metric_scope": "proof_json_and_typed_bytes",
+      "ratio": "0.963801",
+      "row_id": "model_faithful_d128_boundary",
+      "saving_bytes": 18913,
+      "single_or_fused_bytes": 503567,
+      "split_or_reference_bytes": 522480,
+      "status": "CURRENT_CLAIM_ANCHOR_GO",
+      "typed_bytes": 204564,
+      "typed_ratio": "0.975359",
+      "typed_saving_bytes": 5168
+    },
+    {
+      "action": "preserve_value_derivation_and_residual_surface_in_next_boundary",
+      "adapter_mismatches": 0,
+      "metric_scope": "component_surface_typed_bytes",
+      "ratio": "0.435833",
+      "row_id": "attention_derived_mlp_surface",
+      "saving_bytes": 32144,
+      "single_or_fused_bytes": 24832,
+      "split_or_reference_bytes": 56976,
+      "status": "VALUE_BOUND_MLP_SURFACE_GO"
+    },
+    {
+      "action": "run_d128_h2_seq64_if_minimal_block_wrapper_becomes_no_go",
+      "fused_proof_growth": 1.080697,
+      "lookup_growth": 3.72973,
+      "metric_scope": "raw_proof_bytes_growth",
+      "ratio": "0.922792",
+      "row_id": "d128_sequence_stress_context",
+      "saving_bytes": 40317,
+      "single_or_fused_bytes": 481870,
+      "split_or_reference_bytes": 522187,
+      "status": "FALLBACK_STRESS_PATH_NOT_PRIMARY",
+      "trace_growth": 4.0
+    },
+    {
+      "action": "IMPLEMENT_MINIMAL_SCOPED_BLOCK_BOUNDARY_AROUND_MODEL_FAITHFUL_D128_ROUTE",
+      "metric_scope": "decision_gate",
+      "ratio": null,
+      "row_id": "next_block_boundary_gate",
+      "saving_bytes": null,
+      "single_or_fused_bytes": null,
+      "split_or_reference_bytes": null,
+      "status": "ATTACK_NEXT"
+    }
+  ],
+  "schema": "zkai-model-faithful-d128-block-boundary-preflight-v1",
+  "source_artifacts": [
+    {
+      "bytes": 9116,
+      "decision": "GO_COLOCATED_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_BEATS_SCOPED_SPLIT_FRONTIER",
+      "id": "previous_colocated_single",
+      "path": "docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.json",
+      "result": "SCOPED_D128_SEQ32_SINGLE_PROOF_SAVES_15881_JSON_AND_4608_TYPED_BYTES",
+      "schema": "zkai-native-d128-seq32-attention-mlp-single-proof-gate-v1",
+      "sha256": "be132be07bbb493ae549ff0315e326c058b9713998ccbe3ed564a69cefc43866"
+    },
+    {
+      "bytes": 7719,
+      "decision": "GO_D128_SEQ32_ATTENTION_DERIVED_MLP_SINGLE_PROOF_BEATS_MATCHED_SPLIT_FRONTIER",
+      "id": "model_faithful_single",
+      "path": "docs/engineering/evidence/zkai-native-d128-seq32-attention-derived-mlp-single-proof-2026-05.json",
+      "result": "D128_ATTENTION_DERIVED_SINGLE_PROOF_SAVES_18913_JSON_AND_5168_TYPED_BYTES",
+      "schema": "zkai-native-d128-seq32-attention-derived-mlp-single-proof-gate-v1",
+      "sha256": "0a2200bce9ebbe93d17a030dbd6c7222efccb06bb26ebde97999bfc938469447"
+    },
+    {
+      "bytes": 5966,
+      "decision": null,
+      "id": "model_faithful_single_accounting",
+      "path": "docs/engineering/evidence/zkai-native-d128-seq32-attention-derived-mlp-single-proof-binary-accounting-2026-05.json",
+      "result": null,
+      "schema": "zkai-stwo-local-binary-proof-accounting-cli-v1",
+      "sha256": "8f0e8ce78fea0be66c98b41aae5c8658083194fce137321a79f094b32956baef"
+    },
+    {
+      "bytes": 10714,
+      "decision": null,
+      "id": "model_faithful_split_accounting",
+      "path": "docs/engineering/evidence/zkai-native-d128-seq32-attention-derived-mlp-split-frontier-binary-accounting-2026-05.json",
+      "result": null,
+      "schema": "zkai-stwo-local-binary-proof-accounting-cli-v1",
+      "sha256": "13f31f75ff1dd95aee63853abee201ac4a7615604ad3a4b30e412dc73c966ee9"
+    },
+    {
+      "bytes": 3891,
+      "decision": "GO_D128_ATTENTION_DERIVED_D128_MLP_SURFACE_INPUTS_READY_FOR_NATIVE_PROOF",
+      "id": "model_faithful_mlp_surface",
+      "path": "docs/engineering/evidence/zkai-d128-attention-derived-d128-native-mlp-surface-2026-05.json",
+      "result": "D128_ATTENTION_DERIVED_D128_MLP_SURFACE_REGENERATED_FROM_VALUE_COMPATIBLE_ATTENTION_OUTPUTS",
+      "schema": "zkai-d128-attention-derived-d128-native-mlp-surface-gate-v1",
+      "sha256": "be2d7edd41f0e8552da4e3a6a2a691db0853fc139a86a1f96ecd04547986685b"
+    },
+    {
+      "bytes": 37718,
+      "decision": "GO_D128_ATTENTION_DERIVED_D128_INPUT_FIXTURE",
+      "id": "model_faithful_input",
+      "path": "docs/engineering/evidence/zkai-d128-attention-derived-d128-input-2026-05.json",
+      "result": "GO_VALUE_CONNECTED_D128_ATTENTION_DERIVED_D128_INPUT_ARTIFACT",
+      "schema": "zkai-d128-attention-derived-d128-input-gate-v1",
+      "sha256": "fa37beb536e976b462accdeb07934c0fd5a1470ab331c4e3a2c66a02fdc59a66"
+    },
+    {
+      "bytes": 10939,
+      "decision": "GO_PAPER_SLOPE_TABLE_WITH_SCOPED_BLOCK_NEXT_GATE",
+      "id": "slope_table",
+      "path": "docs/engineering/evidence/zkai-proof-pressure-slope-table-2026-05.json",
+      "result": null,
+      "schema": "zkai-proof-pressure-slope-table-v1",
+      "sha256": "1bae947f83b9fd49238751391c8445e575e05b464bc6af47a079be4cd1782e2e"
+    }
+  ],
+  "summary": {
+    "current_anchor": "model_faithful_d128_boundary",
+    "d128_sequence_fused_proof_growth": 1.080697,
+    "d128_sequence_lookup_growth": 3.72973,
+    "d128_sequence_trace_growth": 4.0,
+    "legacy_non_derivation_caveat_removed": true,
+    "mlp_surface_adapter_mismatches": 0,
+    "mlp_surface_typed_saving_bytes": 32144,
+    "model_faithful_accounting_typed_bytes": 204564,
+    "model_faithful_json_delta_vs_colocated_bytes": -951,
+    "model_faithful_proof_json_saving_bytes": 18913,
+    "model_faithful_single_proof_json_bytes": 503567,
+    "model_faithful_split_proof_json_bytes": 522480,
+    "model_faithful_split_typed_bytes": 209732,
+    "model_faithful_typed_bytes": 204564,
+    "model_faithful_typed_delta_vs_colocated_bytes": 0,
+    "model_faithful_typed_saving_bytes": 5168,
+    "model_faithful_typed_saving_delta_vs_colocated_bytes": 560,
+    "paper_claim_status": "GO_NEXT_MINIMAL_BLOCK_BOUNDARY_PREFLIGHT_NOT_FULL_BLOCK",
+    "previous_colocated_proof_json_saving_bytes": 15881,
+    "previous_colocated_single_proof_json_bytes": 504518,
+    "previous_colocated_split_proof_json_bytes": 520399,
+    "previous_colocated_typed_bytes": 204564,
+    "previous_colocated_typed_saving_bytes": 4608,
+    "proof_size_comparable_external_rows": 0
+  },
+  "timing_policy": "proof_size_and_statement_binding_preflight_only_no_new_timing_claim",
+  "validation_commands": [
+    "python3.10 scripts/zkai_model_faithful_d128_block_boundary_preflight_gate.py --write-json docs/engineering/evidence/zkai-model-faithful-d128-block-boundary-preflight-2026-05.json --write-tsv docs/engineering/evidence/zkai-model-faithful-d128-block-boundary-preflight-2026-05.tsv --write-md docs/engineering/zkai-model-faithful-d128-block-boundary-preflight-2026-05-24.md",
+    "python3.10 -m py_compile scripts/zkai_model_faithful_d128_block_boundary_preflight_gate.py scripts/tests/test_zkai_model_faithful_d128_block_boundary_preflight_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_model_faithful_d128_block_boundary_preflight_gate",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}
