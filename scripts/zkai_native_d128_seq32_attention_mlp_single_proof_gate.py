@@ -201,6 +201,15 @@ def source_artifact(
     max_bytes: int | None = None,
 ) -> dict[str, Any]:
     payload, raw = read_json(path, label, max_bytes)
+    return source_artifact_from_payload(artifact_id, path, payload, raw)
+
+
+def source_artifact_from_payload(
+    artifact_id: str,
+    path: pathlib.Path,
+    payload: dict[str, Any],
+    raw: bytes,
+) -> dict[str, Any]:
     return {
         "id": artifact_id,
         "path": path.relative_to(ROOT).as_posix(),
@@ -238,9 +247,34 @@ def expected_source_artifacts() -> list[dict[str, Any]]:
 def build_payload() -> dict[str, Any]:
     input_payload, input_raw = read_json(INPUT_PATH, "scoped input", MAX_SINGLE_INPUT_JSON_BYTES)
     envelope, envelope_raw = read_json(ENVELOPE_PATH, "scoped envelope", MAX_SINGLE_ENVELOPE_JSON_BYTES)
-    single_accounting, _ = read_json(SINGLE_ACCOUNTING_PATH, "single accounting", MAX_ACCOUNTING_JSON_BYTES)
-    split_accounting, _ = read_json(SPLIT_ACCOUNTING_PATH, "split accounting", MAX_ACCOUNTING_JSON_BYTES)
-    preflight, _ = read_json(PREFLIGHT_PATH, "preflight gate", MAX_PREFLIGHT_JSON_BYTES)
+    single_accounting, single_accounting_raw = read_json(
+        SINGLE_ACCOUNTING_PATH,
+        "single accounting",
+        MAX_ACCOUNTING_JSON_BYTES,
+    )
+    split_accounting, split_accounting_raw = read_json(
+        SPLIT_ACCOUNTING_PATH,
+        "split accounting",
+        MAX_ACCOUNTING_JSON_BYTES,
+    )
+    preflight, preflight_raw = read_json(PREFLIGHT_PATH, "preflight gate", MAX_PREFLIGHT_JSON_BYTES)
+    expected_artifacts = [
+        source_artifact_from_payload("scoped_input", INPUT_PATH, input_payload, input_raw),
+        source_artifact_from_payload("scoped_envelope", ENVELOPE_PATH, envelope, envelope_raw),
+        source_artifact_from_payload(
+            "single_accounting",
+            SINGLE_ACCOUNTING_PATH,
+            single_accounting,
+            single_accounting_raw,
+        ),
+        source_artifact_from_payload(
+            "split_accounting",
+            SPLIT_ACCOUNTING_PATH,
+            split_accounting,
+            split_accounting_raw,
+        ),
+        source_artifact_from_payload("preflight_gate", PREFLIGHT_PATH, preflight, preflight_raw),
+    ]
 
     proof = envelope.get("proof")
     require(isinstance(proof, list), "envelope proof must be a list")
@@ -328,16 +362,20 @@ def build_payload() -> dict[str, Any]:
             ),
             "threat_model": "local research CLI evidence, not untrusted service ingestion",
         },
-        "source_artifacts": expected_source_artifacts(),
+        "source_artifacts": expected_artifacts,
         "non_claims": list(NON_CLAIMS),
         "validation_commands": list(VALIDATION_COMMANDS),
     }
     payload["payload_commitment"] = payload_commitment(payload)
-    validate_payload(payload)
+    validate_payload(payload, expected_artifacts=expected_artifacts)
     return payload
 
 
-def validate_payload(payload: dict[str, Any]) -> None:
+def validate_payload(
+    payload: dict[str, Any],
+    *,
+    expected_artifacts: list[dict[str, Any]] | None = None,
+) -> None:
     require(payload.get("schema") == SCHEMA, "schema drift")
     require(payload.get("decision") == DECISION, "decision drift")
     require(payload.get("result") == RESULT, "result drift")
@@ -361,7 +399,8 @@ def validate_payload(payload: dict[str, Any]) -> None:
     require(tuple(payload.get("validation_commands", ())) == VALIDATION_COMMANDS, "validation commands drift")
     artifacts = payload.get("source_artifacts")
     require(isinstance(artifacts, list), "source artifacts must be list")
-    expected_artifacts = expected_source_artifacts()
+    if expected_artifacts is None:
+        expected_artifacts = expected_source_artifacts()
     require(len(artifacts) == len(expected_artifacts), "source artifact count drift")
     for got, expected in zip(artifacts, expected_artifacts):
         require(isinstance(got, dict), "source artifact entry must be object")
@@ -414,13 +453,14 @@ def mutation_cases() -> tuple[Mutation, ...]:
 
 def run_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
     results = []
+    expected_artifacts = expected_source_artifacts()
     for name, mutate in mutation_cases():
         candidate = copy.deepcopy(payload)
         mutate(candidate)
         if name != "payload_commitment_drift":
             candidate["payload_commitment"] = payload_commitment(candidate)
         try:
-            validate_payload(candidate)
+            validate_payload(candidate, expected_artifacts=expected_artifacts)
         except NativeD128Seq32SingleProofGateError as err:
             results.append({"name": name, "rejected": True, "error": str(err)})
         else:
