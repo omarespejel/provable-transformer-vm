@@ -31,6 +31,15 @@ settings, SRS assumptions, and statement-envelope bytes.
 
 The honest next step is therefore an EZKL export probe, not a paper claim.
 
+Prior local evidence already warns against treating a vanilla ONNX export as a
+same-statement proof path. The `d64` RMSNorm-SwiGLU external-adapter surface
+probe recorded `NO-GO` for an exact vanilla external export because a floating
+export would not bind the checked integer rounding, lookup, and commitment
+semantics (`docs/engineering/zkai-d64-external-adapter-surface-probe-2026-05-01.md`).
+The attention-surface probe proposed here is a different object, but it should
+inherit the same fail-closed rule: if export changes the integer table policy or
+public-output semantics, the row is not same-surface.
+
 ## Candidate Surface
 
 Target the smallest surface that can still connect to the paper's claim:
@@ -137,4 +146,3 @@ For the current proof-pressure paper:
 - Not a proof that EZKL or zkVM baselines are unsuitable.
 - Not evidence against external systems.
 - Not a public performance benchmark.
-
