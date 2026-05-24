@@ -707,6 +707,41 @@ mod tests {
     }
 
     #[test]
+    fn contained_reader_accepts_envelope_at_exact_max_cap() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("max-envelope.json");
+        let file = fs::File::create(&path).unwrap();
+        file.set_len(MAX_ENVELOPE_JSON_BYTES as u64).unwrap();
+        let canonical_root = fs::canonicalize(root.path()).unwrap();
+        let raw = read_contained_bounded_file(
+            &canonical_root,
+            &path,
+            MAX_ENVELOPE_JSON_BYTES,
+            "envelope JSON",
+        )
+        .unwrap();
+        assert_eq!(raw.len(), MAX_ENVELOPE_JSON_BYTES);
+    }
+
+    #[test]
+    fn contained_reader_rejects_envelope_over_max_cap() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("oversize-envelope.json");
+        let file = fs::File::create(&path).unwrap();
+        file.set_len(MAX_ENVELOPE_JSON_BYTES as u64 + 1).unwrap();
+        let canonical_root = fs::canonicalize(root.path()).unwrap();
+        let error = read_contained_bounded_file(
+            &canonical_root,
+            &path,
+            MAX_ENVELOPE_JSON_BYTES,
+            "envelope JSON",
+        )
+        .unwrap_err();
+        assert!(error.contains("exceeds max size"));
+        assert!(error.contains(&(MAX_ENVELOPE_JSON_BYTES + 1).to_string()));
+    }
+
+    #[test]
     fn envelope_cap_accepts_exact_limit() {
         assert!(enforce_byte_cap(
             MAX_ENVELOPE_JSON_BYTES as u64,
