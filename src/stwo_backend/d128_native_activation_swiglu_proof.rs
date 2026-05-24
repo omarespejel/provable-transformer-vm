@@ -85,6 +85,16 @@ pub const ZKAI_D128_SEQ32_DERIVED_GATE_VALUE_PROJECTION_PUBLIC_INSTANCE_COMMITME
     "blake2b-256:6fc1b1a31765cc0e4797ef65042d4e43bfb23f55a679a17bbbc65e3b949d7e6c";
 pub const ZKAI_D128_SEQ32_DERIVED_GATE_VALUE_PROJECTION_STATEMENT_COMMITMENT: &str =
     "blake2b-256:3b2122aa86c92194194b3a322321cb119f720c1657f629ebcb5835f153b95003";
+pub const ZKAI_D128_ATTENTION_SEQ32_DERIVED_GATE_PROJECTION_OUTPUT_COMMITMENT: &str =
+    "blake2b-256:96ac1706b1e3cc2be12fd117aed0ccd49332151dd3f5af39d4784056f1772dda";
+pub const ZKAI_D128_ATTENTION_SEQ32_DERIVED_VALUE_PROJECTION_OUTPUT_COMMITMENT: &str =
+    "blake2b-256:e7d6cead5b4e6aa3b769476e3d8a8f1314158295c759bb4269c58f3a0802603e";
+pub const ZKAI_D128_ATTENTION_SEQ32_DERIVED_GATE_VALUE_PROJECTION_OUTPUT_COMMITMENT: &str =
+    "blake2b-256:7d9b61b5c99b7dbb227549620ffdbbae66bfd643a142981e004c9208f1a2dbc1";
+pub const ZKAI_D128_ATTENTION_SEQ32_DERIVED_GATE_VALUE_PROJECTION_PUBLIC_INSTANCE_COMMITMENT: &str =
+    "blake2b-256:23fe758c4fa63a3c10ff57c23beeb08eb880c6a31f125dd49aa7bee425b5ddac";
+pub const ZKAI_D128_ATTENTION_SEQ32_DERIVED_GATE_VALUE_PROJECTION_STATEMENT_COMMITMENT: &str =
+    "blake2b-256:614a46cc06f1dea4165886518f84814d6e7919b0d8c69d81aaf3bae5ed74dc64";
 
 const M31_MODULUS: i64 = (1i64 << 31) - 1;
 const ZKAI_D128_TARGET_ID: &str = "rmsnorm-swiglu-residual-d128-v1";
@@ -169,6 +179,13 @@ const EXPECTED_DERIVED_VALIDATION_COMMANDS: &[&str] = &[
 const EXPECTED_SEQ32_DERIVED_VALIDATION_COMMANDS: &[&str] = &[
     "python3.10 scripts/zkai_seq32_derived_d128_mlp_surface_gate.py --write-inputs",
     "python3.10 -m unittest scripts.tests.test_zkai_seq32_derived_d128_mlp_surface_gate",
+    "cargo +nightly-2025-07-14 test d128_native_activation_swiglu_proof --lib --features stwo-backend",
+    "just gate-fast",
+    "just gate",
+];
+const EXPECTED_D128_ATTENTION_DERIVED_VALIDATION_COMMANDS: &[&str] = &[
+    "python3.10 scripts/zkai_d128_attention_derived_d128_mlp_surface_gate.py --write-inputs",
+    "python3.10 -m unittest scripts.tests.test_zkai_d128_attention_derived_d128_mlp_surface_gate",
     "cargo +nightly-2025-07-14 test d128_native_activation_swiglu_proof --lib --features stwo-backend",
     "just gate-fast",
     "just gate",
@@ -671,6 +688,20 @@ fn approved_source_gate_value_anchor(
             gate_value_projection_output_commitment:
                 ZKAI_D128_SEQ32_DERIVED_GATE_VALUE_PROJECTION_OUTPUT_COMMITMENT,
             validation_commands: EXPECTED_SEQ32_DERIVED_VALIDATION_COMMANDS,
+        },
+        SourceGateValueAnchor {
+            name: "d128_attention_derived",
+            statement_commitment:
+                ZKAI_D128_ATTENTION_SEQ32_DERIVED_GATE_VALUE_PROJECTION_STATEMENT_COMMITMENT,
+            public_instance_commitment:
+                ZKAI_D128_ATTENTION_SEQ32_DERIVED_GATE_VALUE_PROJECTION_PUBLIC_INSTANCE_COMMITMENT,
+            gate_projection_output_commitment:
+                ZKAI_D128_ATTENTION_SEQ32_DERIVED_GATE_PROJECTION_OUTPUT_COMMITMENT,
+            value_projection_output_commitment:
+                ZKAI_D128_ATTENTION_SEQ32_DERIVED_VALUE_PROJECTION_OUTPUT_COMMITMENT,
+            gate_value_projection_output_commitment:
+                ZKAI_D128_ATTENTION_SEQ32_DERIVED_GATE_VALUE_PROJECTION_OUTPUT_COMMITMENT,
+            validation_commands: EXPECTED_D128_ATTENTION_DERIVED_VALIDATION_COMMANDS,
         },
     ];
     anchors

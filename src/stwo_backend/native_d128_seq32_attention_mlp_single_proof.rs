@@ -84,12 +84,18 @@ pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_STATEMENT_VERSION: &
     "zkai-native-d128-seq32-attention-mlp-single-proof-object-native-adapter-statement-v1";
 pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_SEMANTIC_SCOPE: &str =
     "d128_two_head_seq32_attention_softmax_table_public_adapter_and_seq32_derived_d128_rmsnorm_mlp_surfaces_in_one_native_stwo_proof_object";
+pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_DERIVED_MLP_SINGLE_PROOF_SEMANTIC_SCOPE: &str =
+    "d128_two_head_seq32_attention_softmax_table_public_adapter_and_d128_attention_derived_d128_rmsnorm_mlp_surfaces_in_one_native_stwo_proof_object";
 pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_DECISION: &str =
     "GO_SINGLE_NATIVE_STWO_PROOF_OBJECT_WITH_COLOCATED_D128_SEQ32_ATTENTION_AND_D128_MLP_ADAPTER_AIR";
 pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_ROUTE_ID: &str =
     "native_stwo_d128_two_head_seq32_attention_softmax_table_plus_seq32_derived_d128_rmsnorm_mlp_single_proof_object_probe";
+pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_DERIVED_MLP_SINGLE_PROOF_ROUTE_ID: &str =
+    "native_stwo_d128_two_head_seq32_attention_softmax_table_plus_d128_attention_derived_d128_rmsnorm_mlp_single_proof_object_probe";
 pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_TARGET_ID: &str =
     "attention-kv-d128-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1";
+pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_DERIVED_MLP_SINGLE_PROOF_TARGET_ID: &str =
+    "attention-kv-d128-two-head-seq32-fused-softmax-table-plus-d128-attention-derived-d128-rmsnorm-mlp-v1";
 pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_VERIFIER_DOMAIN: &str =
     "ptvm:zkai:native-d128-seq32-attention-mlp-single-proof-object:v1";
 // Current checked artifacts are about 18.8 MiB for the single-proof input and
@@ -139,6 +145,8 @@ const SINGLE_PCS_LIFTING_LOG_SIZE: u32 = 19;
 const CURRENT_TWO_PROOF_FRONTIER_TYPED_BYTES: usize = 520_399;
 const CURRENT_ATTENTION_FUSED_TYPED_BYTES: usize = 445_888;
 const CURRENT_DERIVED_MLP_FUSED_TYPED_BYTES: usize = 24_272;
+const D128_ATTENTION_DERIVED_TWO_PROOF_FRONTIER_BYTES: usize = 522_480;
+const D128_ATTENTION_DERIVED_MLP_FUSED_BYTES: usize = 76_592;
 const NANOZK_REPORTED_D128_BLOCK_PROOF_BYTES: usize = 6_900;
 const SOURCE_ATTENTION_OUTPUTS_COMMITMENT: &str =
     "blake2b-256:33d4d79978b0781e6c38e1af3e2031112a0944d569db3c2b205297595f5f0554";
@@ -147,6 +155,12 @@ const SEQ32_DERIVED_D128_INPUT_ACTIVATION_COMMITMENT: &str =
 const SEQ32_DERIVED_D128_INPUT_PROOF_VERSION: &str = "zkai-seq32-derived-d128-input-gate-v1";
 const SEQ32_DERIVED_D128_INPUT_STATEMENT_COMMITMENT: &str =
     "blake2b-256:03267fbc084726c1249fbd6025cc3ec3fdc30214f7c75693810c5b72188ace55";
+const D128_ATTENTION_DERIVED_D128_INPUT_ACTIVATION_COMMITMENT: &str =
+    "blake2b-256:086f65c7f1a79ef3ba1b56a51479bff381ef21efb49b6a5fa7b06156191d07ca";
+const D128_ATTENTION_DERIVED_D128_INPUT_PROOF_VERSION: &str =
+    "zkai-d128-attention-derived-d128-input-gate-v1";
+const D128_ATTENTION_DERIVED_D128_INPUT_STATEMENT_COMMITMENT: &str =
+    "blake2b-256:b1b08efc40dc4c22e9d133d787603100539f672b9ebb7ec2797a180becb9f9c6";
 const STATEMENT_DOMAIN: &str =
     "ptvm:zkai:native-d128-seq32-attention-mlp-single-proof-statement:v1";
 const PUBLIC_INSTANCE_DOMAIN: &str =
@@ -224,12 +238,40 @@ const EXPECTED_NON_CLAIMS: &[&str] = &[
     "not timing evidence",
     "not production-ready zkML",
 ];
+const EXPECTED_D128_ATTENTION_DERIVED_NON_CLAIMS: &[&str] = &[
+    "not a full transformer block proof",
+    "not proving a learned attention-to-MLP projection",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not exact real-valued Softmax",
+    "not full autoregressive inference",
+    "not timing evidence",
+    "not production-ready zkML",
+];
 const EXPECTED_PROOF_VERIFIER_HARDENING: &[&str] = &[
     "attention source input validated before proof construction",
     "attention fused summary recomputed before relation draw",
     "attention LogUp interaction trace committed in the same proof object",
     "attention output commitment pinned to the statement-bound d128 adapter source",
     "native adapter AIR proves quotient/remainder consistency for a scoped co-location adapter, not derivation of d128 MLP inputs from attention outputs",
+    "native adapter AIR remainder bits are boolean-constrained inside the same proof object",
+    "d128 RMSNorm-MLP fused input validated before proof construction",
+    "d128 MLP input activation commitment pinned to the approved attention-derived vector",
+    "d128 residual source anchors pinned to the approved attention-derived input statement",
+    "combined preprocessed column IDs checked for uniqueness",
+    "combined preprocessed trace column count checked before committing",
+    "combined base trace binds attention rows and six MLP component traces",
+    "statement/public-instance/native-parameter commitments recomputed before proof verification",
+    "fixed publication-v1 PCS verifier profile before commitment-root recomputation",
+    "commitment-vector length check before commitment indexing",
+    "bounded proof bytes before JSON deserialization",
+];
+const EXPECTED_D128_ATTENTION_DERIVED_PROOF_VERIFIER_HARDENING: &[&str] = &[
+    "attention source input validated before proof construction",
+    "attention fused summary recomputed before relation draw",
+    "attention LogUp interaction trace committed in the same proof object",
+    "attention output commitment pinned to the statement-bound d128 adapter source",
+    "native adapter AIR proves quotient/remainder consistency for the deterministic d128 attention-derived MLP input adapter",
     "native adapter AIR remainder bits are boolean-constrained inside the same proof object",
     "d128 RMSNorm-MLP fused input validated before proof construction",
     "d128 MLP input activation commitment pinned to the approved attention-derived vector",
@@ -290,10 +332,24 @@ const EXPECTED_EXPERIMENTAL_ADAPTER_MODE_VALIDATION_COMMANDS: &[&str] = &[
     "just gate-fast",
     "just gate",
 ];
+const EXPECTED_D128_ATTENTION_DERIVED_VALIDATION_COMMANDS: &[&str] = &[
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_d128_seq32_attention_mlp_single_proof -- build-input-model-faithful docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-d128-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-d128-seq32-attention-derived-mlp-single-proof-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_d128_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-d128-seq32-attention-derived-mlp-single-proof-2026-05.input.json docs/engineering/evidence/zkai-native-d128-seq32-attention-derived-mlp-single-proof-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_d128_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-d128-seq32-attention-derived-mlp-single-proof-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-d128-seq32-attention-derived-mlp-single-proof-2026-05.envelope.json > docs/engineering/evidence/zkai-native-d128-seq32-attention-derived-mlp-single-proof-binary-accounting-2026-05.json",
+    "python3.10 scripts/zkai_d128_attention_derived_d128_mlp_surface_gate.py --write-inputs --write-json docs/engineering/evidence/zkai-d128-attention-derived-d128-native-mlp-surface-2026-05.json --write-tsv docs/engineering/evidence/zkai-d128-attention-derived-d128-native-mlp-surface-2026-05.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_d128_attention_derived_d128_mlp_surface_gate",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_d128_seq32_attention_mlp_single_proof --lib",
+    "git diff --check",
+    "just gate-fast",
+    "just gate",
+];
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ZkAiNativeD128Seq32AttentionMlpAdapterMode {
     #[serde(rename = "duplicate_base_preprocessed_v1")]
     DuplicateBasePreprocessed,
+    #[serde(rename = "d128_attention_derived_duplicate_base_preprocessed_v1")]
+    D128AttentionDerivedDuplicateBasePreprocessed,
     #[serde(rename = "duplicate_base_preprocessed_selector_v1")]
     DuplicateBasePreprocessedSelector,
     #[serde(rename = "compact_base_referenced_fixed_v1")]
@@ -374,9 +430,9 @@ impl ZkAiNativeD128Seq32AttentionMlpAdapterMode {
 
     fn adapter_status(self) -> &'static str {
         match self {
-            Self::DuplicateBasePreprocessed | Self::DuplicateBasePreprocessedSelector => {
-                EXPECTED_ADAPTER_STATUS
-            }
+            Self::DuplicateBasePreprocessed
+            | Self::D128AttentionDerivedDuplicateBasePreprocessed
+            | Self::DuplicateBasePreprocessedSelector => EXPECTED_ADAPTER_STATUS,
             Self::CompactBaseReferencedFixed => EXPECTED_COMPACT_ADAPTER_STATUS,
             Self::PreprocessedOutputAnchorFixed => {
                 EXPECTED_PREPROCESSED_OUTPUT_ANCHOR_ADAPTER_STATUS
@@ -401,7 +457,10 @@ impl ZkAiNativeD128Seq32AttentionMlpAdapterMode {
 
     fn backend_version(self) -> &'static str {
         match self {
-            Self::DuplicateBasePreprocessed => DUPLICATE_ADAPTER_BACKEND_VERSION,
+            Self::DuplicateBasePreprocessed
+            | Self::D128AttentionDerivedDuplicateBasePreprocessed => {
+                DUPLICATE_ADAPTER_BACKEND_VERSION
+            }
             Self::DuplicateBasePreprocessedSelector => DUPLICATE_SELECTOR_ADAPTER_BACKEND_VERSION,
             Self::CompactBaseReferencedFixed => COMPACT_ADAPTER_BACKEND_VERSION,
             Self::PreprocessedOutputAnchorFixed => {
@@ -431,9 +490,9 @@ impl ZkAiNativeD128Seq32AttentionMlpAdapterMode {
 
     fn base_value_columns(self) -> usize {
         match self {
-            Self::DuplicateBasePreprocessed | Self::DuplicateBasePreprocessedSelector => {
-                ADAPTER_VALUE_COLUMNS
-            }
+            Self::DuplicateBasePreprocessed
+            | Self::D128AttentionDerivedDuplicateBasePreprocessed
+            | Self::DuplicateBasePreprocessedSelector => ADAPTER_VALUE_COLUMNS,
             Self::CompactBaseReferencedFixed => ADAPTER_COMPACT_BASE_VALUE_COLUMNS,
             Self::PreprocessedOutputAnchorFixed => {
                 ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_VALUE_COLUMNS
@@ -458,9 +517,9 @@ impl ZkAiNativeD128Seq32AttentionMlpAdapterMode {
 
     fn base_trace_cells(self) -> usize {
         match self {
-            Self::DuplicateBasePreprocessed | Self::DuplicateBasePreprocessedSelector => {
-                ADAPTER_TRACE_CELLS
-            }
+            Self::DuplicateBasePreprocessed
+            | Self::D128AttentionDerivedDuplicateBasePreprocessed
+            | Self::DuplicateBasePreprocessedSelector => ADAPTER_TRACE_CELLS,
             Self::CompactBaseReferencedFixed => ADAPTER_COMPACT_BASE_TRACE_CELLS,
             Self::PreprocessedOutputAnchorFixed => {
                 ADAPTER_PREPROCESSED_OUTPUT_ANCHOR_BASE_TRACE_CELLS
@@ -486,6 +545,9 @@ impl ZkAiNativeD128Seq32AttentionMlpAdapterMode {
     fn validation_commands(self) -> &'static [&'static str] {
         match self {
             Self::DuplicateBasePreprocessed => EXPECTED_VALIDATION_COMMANDS,
+            Self::D128AttentionDerivedDuplicateBasePreprocessed => {
+                EXPECTED_D128_ATTENTION_DERIVED_VALIDATION_COMMANDS
+            }
             Self::CompactBaseReferencedFixed
             | Self::PreprocessedOutputAnchorFixed
             | Self::RmsnormInputFusedFixed
@@ -508,6 +570,51 @@ impl ZkAiNativeD128Seq32AttentionMlpAdapterMode {
             | Self::RmsnormInputFusedPostTailLabelProbeB => {
                 EXPECTED_EXPERIMENTAL_ADAPTER_MODE_VALIDATION_COMMANDS
             }
+        }
+    }
+
+    fn non_claims(self) -> &'static [&'static str] {
+        match self {
+            Self::D128AttentionDerivedDuplicateBasePreprocessed => {
+                EXPECTED_D128_ATTENTION_DERIVED_NON_CLAIMS
+            }
+            _ => EXPECTED_NON_CLAIMS,
+        }
+    }
+
+    fn proof_verifier_hardening(self) -> &'static [&'static str] {
+        match self {
+            Self::D128AttentionDerivedDuplicateBasePreprocessed => {
+                EXPECTED_D128_ATTENTION_DERIVED_PROOF_VERIFIER_HARDENING
+            }
+            _ => EXPECTED_PROOF_VERIFIER_HARDENING,
+        }
+    }
+
+    fn semantic_scope(self) -> &'static str {
+        match self {
+            Self::D128AttentionDerivedDuplicateBasePreprocessed => {
+                ZKAI_NATIVE_D128_SEQ32_ATTENTION_DERIVED_MLP_SINGLE_PROOF_SEMANTIC_SCOPE
+            }
+            _ => ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_SEMANTIC_SCOPE,
+        }
+    }
+
+    fn route_id(self) -> &'static str {
+        match self {
+            Self::D128AttentionDerivedDuplicateBasePreprocessed => {
+                ZKAI_NATIVE_D128_SEQ32_ATTENTION_DERIVED_MLP_SINGLE_PROOF_ROUTE_ID
+            }
+            _ => ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_ROUTE_ID,
+        }
+    }
+
+    fn target_id(self) -> &'static str {
+        match self {
+            Self::D128AttentionDerivedDuplicateBasePreprocessed => {
+                ZKAI_NATIVE_D128_SEQ32_ATTENTION_DERIVED_MLP_SINGLE_PROOF_TARGET_ID
+            }
+            _ => ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_TARGET_ID,
         }
     }
 
@@ -905,8 +1012,8 @@ pub fn build_zkai_native_d128_seq32_attention_mlp_single_proof_input_with_adapte
     let mut input = ZkAiNativeD128Seq32AttentionMlpSingleProofInput {
         schema: ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_INPUT_SCHEMA.to_string(),
         decision: ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_INPUT_DECISION.to_string(),
-        route_id: ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_ROUTE_ID.to_string(),
-        target_id: ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_TARGET_ID.to_string(),
+        route_id: adapter_mode.route_id().to_string(),
+        target_id: adapter_mode.target_id().to_string(),
         verifier_domain: ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_VERIFIER_DOMAIN
             .to_string(),
         attention_proof_version:
@@ -940,20 +1047,34 @@ pub fn build_zkai_native_d128_seq32_attention_mlp_single_proof_input_with_adapte
         adapter_trace_cells: adapter_mode.base_trace_cells(),
         attempt_policy: attempt_policy_for_adapter_mode_with_profile(adapter_mode, attempt_profile),
         pcs_lifting_log_size,
-        current_two_proof_frontier_typed_bytes: CURRENT_TWO_PROOF_FRONTIER_TYPED_BYTES,
+        current_two_proof_frontier_typed_bytes: if adapter_mode
+            == ZkAiNativeD128Seq32AttentionMlpAdapterMode::D128AttentionDerivedDuplicateBasePreprocessed
+        {
+            D128_ATTENTION_DERIVED_TWO_PROOF_FRONTIER_BYTES
+        } else {
+            CURRENT_TWO_PROOF_FRONTIER_TYPED_BYTES
+        },
         current_attention_fused_typed_bytes: CURRENT_ATTENTION_FUSED_TYPED_BYTES,
-        current_derived_mlp_fused_typed_bytes: CURRENT_DERIVED_MLP_FUSED_TYPED_BYTES,
+        current_derived_mlp_fused_typed_bytes: if adapter_mode
+            == ZkAiNativeD128Seq32AttentionMlpAdapterMode::D128AttentionDerivedDuplicateBasePreprocessed
+        {
+            D128_ATTENTION_DERIVED_MLP_FUSED_BYTES
+        } else {
+            CURRENT_DERIVED_MLP_FUSED_TYPED_BYTES
+        },
         nanozk_reported_d128_block_proof_bytes: NANOZK_REPORTED_D128_BLOCK_PROOF_BYTES,
         statement_commitment: String::new(),
         public_instance_commitment: String::new(),
         proof_native_parameter_commitment: String::new(),
         attention_source_input,
         mlp_input,
-        non_claims: EXPECTED_NON_CLAIMS
+        non_claims: adapter_mode
+            .non_claims()
             .iter()
             .map(|value| value.to_string())
             .collect(),
-        proof_verifier_hardening: EXPECTED_PROOF_VERIFIER_HARDENING
+        proof_verifier_hardening: adapter_mode
+            .proof_verifier_hardening()
             .iter()
             .map(|value| value.to_string())
             .collect(),
@@ -964,7 +1085,8 @@ pub fn build_zkai_native_d128_seq32_attention_mlp_single_proof_input_with_adapte
             .collect(),
     };
     input.statement_commitment = statement_commitment(&input)?;
-    input.public_instance_commitment = public_instance_commitment(&input.statement_commitment)?;
+    input.public_instance_commitment =
+        public_instance_commitment(&input.statement_commitment, input.adapter_mode)?;
     input.proof_native_parameter_commitment =
         proof_native_parameter_commitment(&input.statement_commitment, input.adapter_mode)?;
     validate_single_input(&input)?;
@@ -1023,10 +1145,9 @@ pub fn prove_zkai_native_d128_seq32_attention_mlp_single_proof_envelope(
             .to_string(),
         statement_version: ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_STATEMENT_VERSION
             .to_string(),
-        semantic_scope: ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_SEMANTIC_SCOPE
-            .to_string(),
+        semantic_scope: input.adapter_mode.semantic_scope().to_string(),
         decision: ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_DECISION.to_string(),
-        target_id: ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_TARGET_ID.to_string(),
+        target_id: input.adapter_mode.target_id().to_string(),
         verifier_domain: ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_VERIFIER_DOMAIN
             .to_string(),
         input: input.clone(),
@@ -1108,9 +1229,8 @@ pub fn sample_zkai_native_d128_seq32_attention_mlp_openings(
         proof_backend_version: input.adapter_mode.backend_version().to_string(),
         statement_version: ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_STATEMENT_VERSION
             .to_string(),
-        semantic_scope: ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_SEMANTIC_SCOPE
-            .to_string(),
-        target_id: ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_TARGET_ID.to_string(),
+        semantic_scope: input.adapter_mode.semantic_scope().to_string(),
+        target_id: input.adapter_mode.target_id().to_string(),
         verifier_domain: ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_VERIFIER_DOMAIN
             .to_string(),
         adapter_mode: input.adapter_mode,
@@ -1170,7 +1290,7 @@ fn validate_single_envelope(
     )?;
     expect_eq(
         &envelope.semantic_scope,
-        ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_SEMANTIC_SCOPE,
+        envelope.input.adapter_mode.semantic_scope(),
         "semantic scope",
     )?;
     expect_eq(
@@ -1180,7 +1300,7 @@ fn validate_single_envelope(
     )?;
     expect_eq(
         &envelope.target_id,
-        ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_TARGET_ID,
+        envelope.input.adapter_mode.target_id(),
         "target id",
     )?;
     expect_eq(
@@ -1207,14 +1327,10 @@ fn validate_single_input(input: &ZkAiNativeD128Seq32AttentionMlpSingleProofInput
         ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_INPUT_DECISION,
         "input decision",
     )?;
-    expect_eq(
-        &input.route_id,
-        ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_ROUTE_ID,
-        "route id",
-    )?;
+    expect_eq(&input.route_id, input.adapter_mode.route_id(), "route id")?;
     expect_eq(
         &input.target_id,
-        ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_TARGET_ID,
+        input.adapter_mode.target_id(),
         "target id",
     )?;
     expect_eq(
@@ -1251,9 +1367,28 @@ fn validate_single_input(input: &ZkAiNativeD128Seq32AttentionMlpSingleProofInput
         &input.attention_source_input.outputs_commitment,
         "attention output commitment source",
     )?;
+    let (
+        expected_mlp_input_activation_commitment,
+        expected_mlp_input_proof_version,
+        expected_mlp_input_statement_commitment,
+    ) = if input.adapter_mode
+        == ZkAiNativeD128Seq32AttentionMlpAdapterMode::D128AttentionDerivedDuplicateBasePreprocessed
+    {
+        (
+            D128_ATTENTION_DERIVED_D128_INPUT_ACTIVATION_COMMITMENT,
+            D128_ATTENTION_DERIVED_D128_INPUT_PROOF_VERSION,
+            D128_ATTENTION_DERIVED_D128_INPUT_STATEMENT_COMMITMENT,
+        )
+    } else {
+        (
+            SEQ32_DERIVED_D128_INPUT_ACTIVATION_COMMITMENT,
+            SEQ32_DERIVED_D128_INPUT_PROOF_VERSION,
+            SEQ32_DERIVED_D128_INPUT_STATEMENT_COMMITMENT,
+        )
+    };
     expect_eq(
         &input.mlp_input_activation_commitment,
-        SEQ32_DERIVED_D128_INPUT_ACTIVATION_COMMITMENT,
+        expected_mlp_input_activation_commitment,
         "MLP input activation commitment route pin",
     )?;
     expect_eq(
@@ -1266,7 +1401,7 @@ fn validate_single_input(input: &ZkAiNativeD128Seq32AttentionMlpSingleProofInput
             .mlp_input
             .residual_add_input
             .source_rmsnorm_proof_version,
-        SEQ32_DERIVED_D128_INPUT_PROOF_VERSION,
+        expected_mlp_input_proof_version,
         "MLP residual source proof version",
     )?;
     expect_eq(
@@ -1274,7 +1409,7 @@ fn validate_single_input(input: &ZkAiNativeD128Seq32AttentionMlpSingleProofInput
             .mlp_input
             .residual_add_input
             .source_rmsnorm_statement_commitment,
-        SEQ32_DERIVED_D128_INPUT_STATEMENT_COMMITMENT,
+        expected_mlp_input_statement_commitment,
         "MLP residual source statement commitment",
     )?;
     expect_eq(
@@ -1341,7 +1476,13 @@ fn validate_single_input(input: &ZkAiNativeD128Seq32AttentionMlpSingleProofInput
     )?;
     expect_usize(
         input.current_two_proof_frontier_typed_bytes,
-        CURRENT_TWO_PROOF_FRONTIER_TYPED_BYTES,
+        if input.adapter_mode
+            == ZkAiNativeD128Seq32AttentionMlpAdapterMode::D128AttentionDerivedDuplicateBasePreprocessed
+        {
+            D128_ATTENTION_DERIVED_TWO_PROOF_FRONTIER_BYTES
+        } else {
+            CURRENT_TWO_PROOF_FRONTIER_TYPED_BYTES
+        },
         "current two-proof frontier typed bytes",
     )?;
     expect_usize(
@@ -1351,7 +1492,13 @@ fn validate_single_input(input: &ZkAiNativeD128Seq32AttentionMlpSingleProofInput
     )?;
     expect_usize(
         input.current_derived_mlp_fused_typed_bytes,
-        CURRENT_DERIVED_MLP_FUSED_TYPED_BYTES,
+        if input.adapter_mode
+            == ZkAiNativeD128Seq32AttentionMlpAdapterMode::D128AttentionDerivedDuplicateBasePreprocessed
+        {
+            D128_ATTENTION_DERIVED_MLP_FUSED_BYTES
+        } else {
+            CURRENT_DERIVED_MLP_FUSED_TYPED_BYTES
+        },
         "current derived MLP fused typed bytes",
     )?;
     expect_usize(
@@ -1359,10 +1506,14 @@ fn validate_single_input(input: &ZkAiNativeD128Seq32AttentionMlpSingleProofInput
         NANOZK_REPORTED_D128_BLOCK_PROOF_BYTES,
         "NANOZK reported d128 block proof bytes",
     )?;
-    expect_vec_eq(&input.non_claims, EXPECTED_NON_CLAIMS, "non-claims")?;
+    expect_vec_eq(
+        &input.non_claims,
+        input.adapter_mode.non_claims(),
+        "non-claims",
+    )?;
     expect_vec_eq(
         &input.proof_verifier_hardening,
-        EXPECTED_PROOF_VERIFIER_HARDENING,
+        input.adapter_mode.proof_verifier_hardening(),
         "proof verifier hardening",
     )?;
     expect_vec_eq(
@@ -1377,7 +1528,7 @@ fn validate_single_input(input: &ZkAiNativeD128Seq32AttentionMlpSingleProofInput
     )?;
     expect_eq(
         &input.public_instance_commitment,
-        &public_instance_commitment(&input.statement_commitment)?,
+        &public_instance_commitment(&input.statement_commitment, input.adapter_mode)?,
         "public instance commitment",
     )?;
     expect_eq(
@@ -1923,6 +2074,7 @@ fn combined_base_trace(
 ) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
     match input.adapter_mode {
         ZkAiNativeD128Seq32AttentionMlpAdapterMode::DuplicateBasePreprocessed
+        | ZkAiNativeD128Seq32AttentionMlpAdapterMode::D128AttentionDerivedDuplicateBasePreprocessed
         | ZkAiNativeD128Seq32AttentionMlpAdapterMode::DuplicateBasePreprocessedSelector => {
             attention_base.extend(adapter_trace(input)?);
         }
@@ -2546,10 +2698,13 @@ fn statement_commitment(input: &ZkAiNativeD128Seq32AttentionMlpSingleProofInput)
     Ok(blake2b_commitment_bytes(&bytes, STATEMENT_DOMAIN))
 }
 
-fn public_instance_commitment(statement: &str) -> Result<String> {
+fn public_instance_commitment(
+    statement: &str,
+    adapter_mode: ZkAiNativeD128Seq32AttentionMlpAdapterMode,
+) -> Result<String> {
     let payload = serde_json::json!({
         "operation": "native_d128_seq32_attention_mlp_single_proof_object_probe",
-        "route_id": ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_ROUTE_ID,
+        "route_id": adapter_mode.route_id(),
         "statement_commitment": statement,
     });
     let bytes =
@@ -2692,6 +2847,26 @@ mod tests {
         .expect("single input")
     }
 
+    fn fixture_d128_attention_derived_input() -> ZkAiNativeD128Seq32AttentionMlpSingleProofInput {
+        let attention = zkai_attention_kv_native_d128_two_head_seq32_fused_softmax_table_source_input_from_json_str(
+            include_str!(
+                "../../docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-two-head-seq32-bounded-softmax-table-proof-2026-05.json"
+            ),
+        )
+        .expect("attention source");
+        let mlp = zkai_d128_rmsnorm_mlp_fused_input_from_json_str(include_str!(
+            "../../docs/engineering/evidence/zkai-d128-attention-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json"
+        ))
+        .expect("d128 attention-derived MLP input");
+        build_zkai_native_d128_seq32_attention_mlp_single_proof_input_with_adapter_mode_and_attempt_profile(
+            attention,
+            mlp,
+            ZkAiNativeD128Seq32AttentionMlpAdapterMode::D128AttentionDerivedDuplicateBasePreprocessed,
+            ZkAiNativeD128Seq32AttentionMlpAttemptPolicyProfile::FullTranscriptV1,
+        )
+        .expect("d128 attention-derived single input")
+    }
+
     fn adjacent_seed_modes() -> [ZkAiNativeD128Seq32AttentionMlpAdapterMode; 6] {
         [
             ZkAiNativeD128Seq32AttentionMlpAdapterMode::RmsnormInputFusedAdjacentSeed00,
@@ -2726,6 +2901,31 @@ mod tests {
             CURRENT_TWO_PROOF_FRONTIER_TYPED_BYTES
         );
         validate_single_input(&input).expect("input validates");
+    }
+
+    #[test]
+    fn d128_attention_derived_route_pins_model_faithful_mlp_input() {
+        let input = fixture_d128_attention_derived_input();
+        assert_eq!(
+            input.adapter_mode,
+            ZkAiNativeD128Seq32AttentionMlpAdapterMode::D128AttentionDerivedDuplicateBasePreprocessed
+        );
+        assert_eq!(
+            input.mlp_input_activation_commitment,
+            D128_ATTENTION_DERIVED_D128_INPUT_ACTIVATION_COMMITMENT
+        );
+        assert_eq!(
+            input.current_two_proof_frontier_typed_bytes,
+            D128_ATTENTION_DERIVED_TWO_PROOF_FRONTIER_BYTES
+        );
+        assert!(input
+            .proof_verifier_hardening
+            .iter()
+            .any(|claim| claim.contains("deterministic d128 attention-derived MLP input adapter")));
+        assert!(!input.non_claims.contains(
+            &"not enforcing d128 MLP input derivation from attention outputs".to_string()
+        ));
+        validate_single_input(&input).expect("d128 attention-derived input validates");
     }
 
     #[test]
@@ -3086,8 +3286,11 @@ mod tests {
         );
         missing_policy.statement_commitment =
             statement_commitment(&missing_policy).expect("missing-policy statement");
-        missing_policy.public_instance_commitment =
-            public_instance_commitment(&missing_policy.statement_commitment).expect("public");
+        missing_policy.public_instance_commitment = public_instance_commitment(
+            &missing_policy.statement_commitment,
+            missing_policy.adapter_mode,
+        )
+        .expect("public");
         missing_policy.proof_native_parameter_commitment = proof_native_parameter_commitment(
             &missing_policy.statement_commitment,
             missing_policy.adapter_mode,
@@ -3103,8 +3306,11 @@ mod tests {
             .security_loss_bits = "0.000000".to_string();
         changed_loss.statement_commitment =
             statement_commitment(&changed_loss).expect("changed-loss statement");
-        changed_loss.public_instance_commitment =
-            public_instance_commitment(&changed_loss.statement_commitment).expect("public");
+        changed_loss.public_instance_commitment = public_instance_commitment(
+            &changed_loss.statement_commitment,
+            changed_loss.adapter_mode,
+        )
+        .expect("public");
         changed_loss.proof_native_parameter_commitment = proof_native_parameter_commitment(
             &changed_loss.statement_commitment,
             changed_loss.adapter_mode,
@@ -3123,8 +3329,11 @@ mod tests {
         widened_policy.attempt_budget = widened_policy.attempt_domain.len();
         widened_domain.statement_commitment =
             statement_commitment(&widened_domain).expect("widened-domain statement");
-        widened_domain.public_instance_commitment =
-            public_instance_commitment(&widened_domain.statement_commitment).expect("public");
+        widened_domain.public_instance_commitment = public_instance_commitment(
+            &widened_domain.statement_commitment,
+            widened_domain.adapter_mode,
+        )
+        .expect("public");
         widened_domain.proof_native_parameter_commitment = proof_native_parameter_commitment(
             &widened_domain.statement_commitment,
             widened_domain.adapter_mode,
@@ -3141,8 +3350,11 @@ mod tests {
         );
         non_attempt_mode.statement_commitment =
             statement_commitment(&non_attempt_mode).expect("non-attempt statement");
-        non_attempt_mode.public_instance_commitment =
-            public_instance_commitment(&non_attempt_mode.statement_commitment).expect("public");
+        non_attempt_mode.public_instance_commitment = public_instance_commitment(
+            &non_attempt_mode.statement_commitment,
+            non_attempt_mode.adapter_mode,
+        )
+        .expect("public");
         non_attempt_mode.proof_native_parameter_commitment = proof_native_parameter_commitment(
             &non_attempt_mode.statement_commitment,
             non_attempt_mode.adapter_mode,
@@ -3194,8 +3406,11 @@ mod tests {
             .policy_stage = ATTEMPT_POLICY_STAGE.to_string();
         changed_stage.statement_commitment =
             statement_commitment(&changed_stage).expect("changed-stage statement");
-        changed_stage.public_instance_commitment =
-            public_instance_commitment(&changed_stage.statement_commitment).expect("public");
+        changed_stage.public_instance_commitment = public_instance_commitment(
+            &changed_stage.statement_commitment,
+            changed_stage.adapter_mode,
+        )
+        .expect("public");
         changed_stage.proof_native_parameter_commitment = proof_native_parameter_commitment(
             &changed_stage.statement_commitment,
             changed_stage.adapter_mode,
@@ -3374,9 +3589,11 @@ mod tests {
         recomputed_missing_policy.input.statement_commitment =
             statement_commitment(&recomputed_missing_policy.input)
                 .expect("missing-policy statement");
-        recomputed_missing_policy.input.public_instance_commitment =
-            public_instance_commitment(&recomputed_missing_policy.input.statement_commitment)
-                .expect("public");
+        recomputed_missing_policy.input.public_instance_commitment = public_instance_commitment(
+            &recomputed_missing_policy.input.statement_commitment,
+            recomputed_missing_policy.input.adapter_mode,
+        )
+        .expect("public");
         recomputed_missing_policy
             .input
             .proof_native_parameter_commitment = proof_native_parameter_commitment(
@@ -3534,7 +3751,8 @@ mod tests {
                 .to_string();
         input.statement_commitment = statement_commitment(&input).expect("statement");
         input.public_instance_commitment =
-            public_instance_commitment(&input.statement_commitment).expect("public instance");
+            public_instance_commitment(&input.statement_commitment, input.adapter_mode)
+                .expect("public instance");
         input.proof_native_parameter_commitment =
             proof_native_parameter_commitment(&input.statement_commitment, input.adapter_mode)
                 .expect("params");
@@ -3549,7 +3767,8 @@ mod tests {
                 .to_string();
         input.statement_commitment = statement_commitment(&input).expect("statement");
         input.public_instance_commitment =
-            public_instance_commitment(&input.statement_commitment).expect("public instance");
+            public_instance_commitment(&input.statement_commitment, input.adapter_mode)
+                .expect("public instance");
         input.proof_native_parameter_commitment =
             proof_native_parameter_commitment(&input.statement_commitment, input.adapter_mode)
                 .expect("params");
@@ -3581,6 +3800,7 @@ mod tests {
     fn combined_preprocessed_columns_are_unique() {
         for mode in [
             ZkAiNativeD128Seq32AttentionMlpAdapterMode::DuplicateBasePreprocessed,
+            ZkAiNativeD128Seq32AttentionMlpAdapterMode::D128AttentionDerivedDuplicateBasePreprocessed,
             ZkAiNativeD128Seq32AttentionMlpAdapterMode::DuplicateBasePreprocessedSelector,
             ZkAiNativeD128Seq32AttentionMlpAdapterMode::CompactBaseReferencedFixed,
             ZkAiNativeD128Seq32AttentionMlpAdapterMode::PreprocessedOutputAnchorFixed,
@@ -3648,7 +3868,8 @@ mod tests {
         );
         assert_eq!(
             input.public_instance_commitment,
-            public_instance_commitment(&input.statement_commitment).expect("public instance")
+            public_instance_commitment(&input.statement_commitment, input.adapter_mode)
+                .expect("public instance")
         );
         assert_eq!(
             input.proof_native_parameter_commitment,

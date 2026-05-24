@@ -1,0 +1,67 @@
+{
+  "decision": "GO_D128_ATTENTION_DERIVED_D128_MLP_SURFACE_INPUTS_READY_FOR_NATIVE_PROOF",
+  "interpretation": {
+    "nanozk_comparison_claim": false,
+    "native_larger_attention_mlp_boundary_exists": false,
+    "native_mlp_surface_regenerated": true,
+    "value_compatible_with_two_head_d128_attention_attention": true
+  },
+  "non_claims": [
+    "not a full transformer block proof",
+    "not attention plus MLP in one native proof object",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not timing evidence",
+    "not production-ready zkML"
+  ],
+  "payload_commitment": "blake2b-256:43160652bbebbe704fbc57fdc2916238d183561359b0622d59078a5211b9028c",
+  "result": "D128_ATTENTION_DERIVED_D128_MLP_SURFACE_REGENERATED_FROM_VALUE_COMPATIBLE_ATTENTION_OUTPUTS",
+  "schema": "zkai-d128-attention-derived-d128-native-mlp-surface-gate-v1",
+  "source_artifacts": [
+    {
+      "id": "d128_attention_attention_source",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-two-head-seq32-bounded-softmax-table-proof-2026-05.json",
+      "payload_sha256": "f27675fef8c15ab95e362b087536e8359101c1cdfdc77aee03d0323e076d0c8b",
+      "sha256": "9ee88cf571cb705a3451ad074938eda4f3769eef3295c178918f4e0a4393160b"
+    },
+    {
+      "id": "d128_attention_derived_input",
+      "path": "docs/engineering/evidence/zkai-d128-attention-derived-d128-input-2026-05.json",
+      "payload_sha256": "8f50b62fdc58e9688fa6c4952e01955fc04cbf77882f3b9bfd297eba79dffe5a",
+      "sha256": "fa37beb536e976b462accdeb07934c0fd5a1470ab331c4e3a2c66a02fdc59a66"
+    },
+    {
+      "id": "d128_attention_derived_rmsnorm_wrapper",
+      "path": "docs/engineering/evidence/zkai-d128-attention-derived-d128-rmsnorm-public-row-2026-05.json",
+      "payload_sha256": "388ca2165b928189ff108c6fc7b8bf4d0f46b4da4bdc19dd66df915a3cce6175",
+      "sha256": "38abe30464e08caa7cd215590baf12aa71b229c41399be60a9244b20dd747959"
+    }
+  ],
+  "summary": {
+    "activation_statement_commitment": "blake2b-256:54f57d68add40a1269919d1bc60677e52c2e8bc3179c97a6ecee29f77e646b3d",
+    "bridge_statement_commitment": "blake2b-256:4a17138ffb064228c68eb55ebeff6690e030ad88f46b2e053755345e895c9438",
+    "d128_attention_adapter_mismatches": 0,
+    "down_statement_commitment": "blake2b-256:5dbc8ff3d638cf2986618b4cf94de7b5c71cfad755c9777c03e96485ea50d526",
+    "fused_json_ratio": 0.402039,
+    "fused_proof_json_bytes": 76592,
+    "fused_typed_bytes": 24832,
+    "fused_typed_ratio": 0.435833,
+    "gate_value_statement_commitment": "blake2b-256:614a46cc06f1dea4165886518f84814d6e7919b0d8c69d81aaf3bae5ed74dc64",
+    "input_activation_commitment": "blake2b-256:086f65c7f1a79ef3ba1b56a51479bff381ef21efb49b6a5fa7b06156191d07ca",
+    "json_saving_bytes": 113917,
+    "residual_statement_commitment": "blake2b-256:77617872ed74b45a05357c93a74ac972ffa2d113b1352653f6264b249490d42b",
+    "rmsnorm_statement_commitment": "blake2b-256:045fa5c8a6f928cd6e62376e10081fc025ce068416859731a539745516817a24",
+    "separate_component_json_bytes": 190509,
+    "separate_component_typed_bytes": 56976,
+    "typed_saving_bytes": 32144
+  },
+  "validation_commands": [
+    "python3.10 scripts/zkai_d128_attention_derived_d128_mlp_surface_gate.py --write-inputs --write-json docs/engineering/evidence/zkai-d128-attention-derived-d128-native-mlp-surface-2026-05.json --write-tsv docs/engineering/evidence/zkai-d128-attention-derived-d128-native-mlp-surface-2026-05.tsv",
+    "python3.10 -m py_compile scripts/zkai_d128_attention_derived_d128_mlp_surface_gate.py scripts/tests/test_zkai_d128_attention_derived_d128_mlp_surface_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_d128_attention_derived_d128_mlp_surface_gate",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend d128_native_rmsnorm_mlp_fused_proof --lib",
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
+  ]
+}
