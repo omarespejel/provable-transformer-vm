@@ -113,10 +113,10 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 97. `docs/engineering/zkai-stwo-query-grinding-budget-2026-05-19.md`
 98. `docs/engineering/zkai-stwo-attempt-domain-binding-2026-05-19.md`
 99. `docs/engineering/zkai-stwo-inner-attempt-domain-statement-2026-05-19.md`
-100. `docs/engineering/zkai-proof-pressure-slope-table-2026-05-24.md`
-101. `docs/engineering/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05-24.md`
-102. `docs/engineering/reproducibility.md`
-103. `git status --short --branch`
+105. `docs/engineering/zkai-proof-pressure-slope-table-2026-05-24.md`
+106. `docs/engineering/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05-24.md`
+107. `docs/engineering/reproducibility.md`
+108. `git status --short --branch`
 
 ## Current lane split
 

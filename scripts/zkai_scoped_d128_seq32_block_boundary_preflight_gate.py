@@ -55,6 +55,8 @@ VALIDATION_COMMANDS = (
     "python3.10 -m py_compile scripts/zkai_scoped_d128_seq32_block_boundary_preflight_gate.py scripts/tests/test_zkai_scoped_d128_seq32_block_boundary_preflight_gate.py",
     "python3.10 -m unittest scripts.tests.test_zkai_scoped_d128_seq32_block_boundary_preflight_gate",
     "git diff --check",
+    "just gate-fast",
+    "just gate",
 )
 
 NON_CLAIMS = (
@@ -197,6 +199,11 @@ def require_str(value: Any, label: str) -> str:
     if not isinstance(value, str) or not value:
         raise ScopedBlockPreflightError(f"{label} must be a non-empty string")
     return value
+
+
+def require_str_tuple(value: Any, label: str) -> tuple[str, ...]:
+    items = require_list(value, label)
+    return tuple(require_str(item, f"{label}[{index}]") for index, item in enumerate(items))
 
 
 def require_int(value: Any, label: str) -> int:
@@ -589,12 +596,12 @@ def validate_payload(
     validate_summary(payload)
     validate_rows(payload)
 
-    non_claims = tuple(require_list(payload.get("non_claims"), "non claims"))
+    non_claims = require_str_tuple(payload.get("non_claims"), "non claims")
     expect_equal(non_claims, NON_CLAIMS, "non claims")
-    validation_commands = tuple(require_list(payload.get("validation_commands"), "validation commands"))
+    validation_commands = require_str_tuple(payload.get("validation_commands"), "validation commands")
     expect_equal(validation_commands, VALIDATION_COMMANDS, "validation commands")
-    go_gate = tuple(require_list(payload.get("go_gate"), "go gate"))
-    no_go_gate = tuple(require_list(payload.get("no_go_gate"), "no-go gate"))
+    go_gate = require_str_tuple(payload.get("go_gate"), "go gate")
+    no_go_gate = require_str_tuple(payload.get("no_go_gate"), "no-go gate")
     if len(go_gate) != 4 or len(no_go_gate) != 4:
         raise ScopedBlockPreflightError("GO/NO-GO gates must each have four items")
     if not any("matched split local frontier" in item for item in go_gate):
@@ -685,6 +692,10 @@ def ensure_output_path(path: pathlib.Path, root: pathlib.Path) -> pathlib.Path:
         raise ScopedBlockPreflightError(f"unable to resolve output path: {path}") from error
     if resolved != root_resolved and root_resolved not in resolved.parents:
         raise ScopedBlockPreflightError(f"output path must stay inside {root.relative_to(ROOT)}: {path}")
+    if resolved == root_resolved or (resolved.exists() and resolved.is_dir()):
+        raise ScopedBlockPreflightError(f"output path must be a file: {path}")
+    if resolved.parent.exists() and not resolved.parent.is_dir():
+        raise ScopedBlockPreflightError(f"output path parent must be a directory: {path}")
     return resolved
 
 

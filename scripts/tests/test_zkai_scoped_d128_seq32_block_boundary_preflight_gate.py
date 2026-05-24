@@ -1,5 +1,7 @@
 import csv
+import copy
 import json
+import re
 import tempfile
 import unittest
 
@@ -7,9 +9,8 @@ from scripts import zkai_scoped_d128_seq32_block_boundary_preflight_gate as gate
 
 
 class ScopedD128Seq32BlockBoundaryPreflightGateTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        cls.payload = gate.build_payload()
+    def setUp(self) -> None:
+        self.payload = gate.build_payload()
 
     def test_records_scoped_boundary_decision_without_overclaim(self) -> None:
         gate.validate_payload(self.payload)
@@ -72,6 +73,19 @@ class ScopedD128Seq32BlockBoundaryPreflightGateTests(unittest.TestCase):
             with self.assertRaises(gate.ScopedBlockPreflightError, msg=name):
                 gate.validate_payload(mutated, require_mutations=False)
 
+    def test_malformed_string_lists_reject_with_gate_error(self) -> None:
+        malformed_cases = (
+            ("go gate[0]", ("go_gate", 0, None)),
+            ("no-go gate[0]", ("no_go_gate", 0, 42)),
+            ("non claims[0]", ("non_claims", 0, False)),
+            ("validation commands[0]", ("validation_commands", 0, None)),
+        )
+        for pattern, (field, index, value) in malformed_cases:
+            malformed = copy.deepcopy(self.payload)
+            malformed[field][index] = value
+            with self.assertRaisesRegex(gate.ScopedBlockPreflightError, re.escape(pattern)):
+                gate.validate_payload(malformed, require_mutations=False)
+
     def test_write_outputs_round_trip(self) -> None:
         with tempfile.TemporaryDirectory(dir=gate.EVIDENCE_DIR, prefix=".tmp-scoped-d128-preflight-test-") as tmp:
             tmp_path = gate.pathlib.Path(tmp)
@@ -117,6 +131,13 @@ class ScopedD128Seq32BlockBoundaryPreflightGateTests(unittest.TestCase):
         )
         for writer, path in traversal_cases:
             with self.assertRaisesRegex(gate.ScopedBlockPreflightError, "inside"):
+                writer(path, self.payload)
+        for writer, path in (
+            (gate.write_json, gate.EVIDENCE_DIR),
+            (gate.write_tsv, gate.EVIDENCE_DIR),
+            (gate.write_md, gate.DOCS_DIR),
+        ):
+            with self.assertRaisesRegex(gate.ScopedBlockPreflightError, "file"):
                 writer(path, self.payload)
 
 
