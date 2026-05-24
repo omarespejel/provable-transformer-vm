@@ -335,7 +335,9 @@ work through multiple proof objects, the composition boundary must preserve the
 statement. If we fuse transformer work into one proof object, the fused boundary
 still needs to say which model surface and application claim it certifies.
 Proof-boundary optimization without statement-boundary discipline creates
-valid-looking fragments.
+valid-looking fragments. Appendix
+[Statement Validity for zkML Proof Artifacts](appendix-zkml-statement-validity-2026.md)
+states this boundary discipline in a self-contained form.
 
 ---
 
