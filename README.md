@@ -65,6 +65,11 @@ Hardening and merge discipline for trusted-core work is formalized in:
 - [`docs/engineering/hardening-policy.md`](docs/engineering/hardening-policy.md)
 - [`docs/engineering/hardening-strategy.md`](docs/engineering/hardening-strategy.md)
 
+Current paper-facing zkML architecture drafts:
+
+- [`docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md`](docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md)
+- [`docs/paper/appendix-zkml-statement-validity-2026.md`](docs/paper/appendix-zkml-statement-validity-2026.md)
+
 Current public proof surfaces:
 
 - native-ISA `statement-v1` arithmetic proofs

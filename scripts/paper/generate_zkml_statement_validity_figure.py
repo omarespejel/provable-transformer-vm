@@ -22,6 +22,7 @@ FIGURE_DIR.mkdir(parents=True, exist_ok=True)
 
 STEM = "zkml-statement-validity-boundary-2026-05"
 
+plt.style.use("tableau-colorblind10")
 plt.rcParams.update(
     {
         "font.family": "serif",
