@@ -1,0 +1,2 @@
+schema	decision	input_activation_commitment	source_attention_statement_commitment	min_q8	max_q8	sum_q8
+zkai-d128-attention-derived-d128-input-gate-v1	GO_D128_ATTENTION_DERIVED_D128_INPUT_FIXTURE	blake2b-256:086f65c7f1a79ef3ba1b56a51479bff381ef21efb49b6a5fa7b06156191d07ca	blake2b-256:b1b08efc40dc4c22e9d133d787603100539f672b9ebb7ec2797a180becb9f9c6	-10	8	-128

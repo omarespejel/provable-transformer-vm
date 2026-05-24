@@ -1,0 +1,1342 @@
+{
+  "decision": "GO_INPUT_FOR_D128_RESIDUAL_ADD_AIR_PROOF",
+  "input_activation_commitment": "blake2b-256:086f65c7f1a79ef3ba1b56a51479bff381ef21efb49b6a5fa7b06156191d07ca",
+  "input_q8": [
+    -2,
+    1,
+    1,
+    -1,
+    3,
+    0,
+    5,
+    -8,
+    -5,
+    -8,
+    0,
+    -3,
+    4,
+    0,
+    -1,
+    1,
+    1,
+    0,
+    -7,
+    -8,
+    -2,
+    -4,
+    -5,
+    -1,
+    -1,
+    -1,
+    -1,
+    8,
+    4,
+    -6,
+    -8,
+    -3,
+    -5,
+    1,
+    2,
+    7,
+    -2,
+    -2,
+    1,
+    2,
+    -4,
+    -6,
+    2,
+    -9,
+    -6,
+    -3,
+    -3,
+    3,
+    2,
+    7,
+    3,
+    -9,
+    -3,
+    -4,
+    -2,
+    2,
+    -1,
+    -1,
+    -3,
+    -1,
+    0,
+    7,
+    -2,
+    0,
+    -5,
+    -2,
+    6,
+    5,
+    1,
+    -3,
+    -3,
+    2,
+    4,
+    -2,
+    1,
+    -2,
+    -8,
+    -8,
+    -3,
+    2,
+    4,
+    7,
+    3,
+    0,
+    -10,
+    -6,
+    -2,
+    -2,
+    6,
+    -5,
+    -4,
+    -4,
+    3,
+    6,
+    6,
+    -3,
+    -6,
+    -5,
+    -3,
+    2,
+    4,
+    7,
+    4,
+    -1,
+    -8,
+    -6,
+    -5,
+    0,
+    -3,
+    1,
+    0,
+    -3,
+    1,
+    3,
+    4,
+    -1,
+    -5,
+    -7,
+    -5,
+    -2,
+    -2,
+    -1,
+    6,
+    4,
+    1,
+    -1,
+    -5,
+    -6
+  ],
+  "next_backend_step": "compose all checked d128 slice receipts into one statement-bound block receipt before benchmarking",
+  "non_claims": [
+    "not recursive composition of all d128 proof slices",
+    "not private parameter-opening proof",
+    "not model-scale transformer inference",
+    "not verifier-time benchmark evidence for the full d128 block",
+    "not onchain deployment evidence"
+  ],
+  "output_activation_commitment": "blake2b-256:cb290a42f0704acda021b61aebf5e5c9d6c3d6e98b89af0383513e7ff9890640",
+  "output_q8": [
+    -10059,
+    -4505,
+    3115,
+    -8606,
+    -851,
+    -3410,
+    -4447,
+    910,
+    -12654,
+    5929,
+    6182,
+    1332,
+    -3357,
+    -11943,
+    3708,
+    4787,
+    5747,
+    -16770,
+    -17505,
+    9779,
+    -11820,
+    3126,
+    2891,
+    -2756,
+    -4115,
+    -3198,
+    -753,
+    12369,
+    8208,
+    -9238,
+    10107,
+    1954,
+    13215,
+    -10116,
+    -9670,
+    -2357,
+    3945,
+    3383,
+    -1287,
+    1831,
+    2671,
+    16479,
+    -70,
+    5103,
+    -13382,
+    -2185,
+    8797,
+    1394,
+    -5358,
+    1117,
+    -10693,
+    -8320,
+    -15837,
+    -4781,
+    -3399,
+    1842,
+    -12807,
+    6625,
+    905,
+    -13781,
+    9597,
+    -90,
+    8523,
+    -10379,
+    3995,
+    -10675,
+    3670,
+    -624,
+    6614,
+    -13770,
+    11433,
+    -4074,
+    1,
+    -7471,
+    -2710,
+    2622,
+    869,
+    -14074,
+    -3863,
+    -839,
+    2631,
+    -2847,
+    -739,
+    5825,
+    8140,
+    -2821,
+    -13270,
+    10546,
+    13575,
+    -529,
+    -8955,
+    3794,
+    -11508,
+    -5148,
+    -7086,
+    4031,
+    -928,
+    3397,
+    -10275,
+    13116,
+    -331,
+    7079,
+    3325,
+    -15882,
+    -3091,
+    -19798,
+    2772,
+    5574,
+    3815,
+    -5994,
+    -783,
+    14398,
+    5001,
+    6602,
+    -6505,
+    7654,
+    4701,
+    -1948,
+    3769,
+    -2507,
+    363,
+    -6251,
+    -6024,
+    -5818,
+    -6033,
+    -3848,
+    5919,
+    4492
+  ],
+  "proof_native_parameter_commitment": "blake2b-256:d410ca32205aa820983c07dcfe34a2ab449a2915fd1510eeeefdc04919733660",
+  "proof_verifier_hardening": [
+    "source RMSNorm input activation commitment recomputation before proof verification",
+    "source down-projection residual-delta commitment recomputation before proof verification",
+    "residual-add row commitment recomputation before proof verification",
+    "final output activation commitment recomputation before proof verification",
+    "AIR residual-add relation for every checked d128 output coordinate",
+    "q8 semantic bound only for the original input activation",
+    "signed-M31 bounds for residual delta and final output activations",
+    "intermediate commitment relabeling rejection",
+    "fixed PCS verifier profile before commitment-root recomputation",
+    "bounded proof bytes before JSON deserialization",
+    "commitment-vector length check before commitment indexing"
+  ],
+  "public_instance_commitment": "blake2b-256:007de492f93a8b7ce8115ff93f64d4dde8345abb2693bfb6c3cfa897a818b2ed",
+  "range_policy": "input_activation_q8_semantic_bound_1024; residual_delta_and_output_signed_m31",
+  "required_backend_version": "stwo-rmsnorm-swiglu-residual-d128-v1",
+  "residual_add_row_commitment": "blake2b-256:d352acf37bbfbd55b6f795836882cc422897b5d002d13f544aafa36163c3d977",
+  "residual_delta_commitment": "blake2b-256:d3cd3b7002b15bd9c9d10952f926e1cfc91461428e16801781c600405e0fd320",
+  "residual_delta_q8": [
+    -10057,
+    -4506,
+    3114,
+    -8605,
+    -854,
+    -3410,
+    -4452,
+    918,
+    -12649,
+    5937,
+    6182,
+    1335,
+    -3361,
+    -11943,
+    3709,
+    4786,
+    5746,
+    -16770,
+    -17498,
+    9787,
+    -11818,
+    3130,
+    2896,
+    -2755,
+    -4114,
+    -3197,
+    -752,
+    12361,
+    8204,
+    -9232,
+    10115,
+    1957,
+    13220,
+    -10117,
+    -9672,
+    -2364,
+    3947,
+    3385,
+    -1288,
+    1829,
+    2675,
+    16485,
+    -72,
+    5112,
+    -13376,
+    -2182,
+    8800,
+    1391,
+    -5360,
+    1110,
+    -10696,
+    -8311,
+    -15834,
+    -4777,
+    -3397,
+    1840,
+    -12806,
+    6626,
+    908,
+    -13780,
+    9597,
+    -97,
+    8525,
+    -10379,
+    4000,
+    -10673,
+    3664,
+    -629,
+    6613,
+    -13767,
+    11436,
+    -4076,
+    -3,
+    -7469,
+    -2711,
+    2624,
+    877,
+    -14066,
+    -3860,
+    -841,
+    2627,
+    -2854,
+    -742,
+    5825,
+    8150,
+    -2815,
+    -13268,
+    10548,
+    13569,
+    -524,
+    -8951,
+    3798,
+    -11511,
+    -5154,
+    -7092,
+    4034,
+    -922,
+    3402,
+    -10272,
+    13114,
+    -335,
+    7072,
+    3321,
+    -15881,
+    -3083,
+    -19792,
+    2777,
+    5574,
+    3818,
+    -5995,
+    -783,
+    14401,
+    5000,
+    6599,
+    -6509,
+    7655,
+    4706,
+    -1941,
+    3774,
+    -2505,
+    365,
+    -6250,
+    -6030,
+    -5822,
+    -6034,
+    -3847,
+    5924,
+    4498
+  ],
+  "residual_delta_remainder_q8": [
+    420,
+    16,
+    104,
+    258,
+    133,
+    227,
+    200,
+    124,
+    363,
+    94,
+    489,
+    131,
+    130,
+    457,
+    37,
+    278,
+    274,
+    20,
+    88,
+    3,
+    235,
+    413,
+    212,
+    239,
+    416,
+    443,
+    370,
+    381,
+    224,
+    321,
+    26,
+    135,
+    195,
+    418,
+    23,
+    410,
+    388,
+    120,
+    183,
+    386,
+    31,
+    190,
+    354,
+    436,
+    310,
+    270,
+    87,
+    97,
+    253,
+    114,
+    291,
+    343,
+    414,
+    4,
+    353,
+    94,
+    394,
+    375,
+    142,
+    193,
+    391,
+    257,
+    445,
+    4,
+    353,
+    358,
+    449,
+    210,
+    124,
+    480,
+    183,
+    472,
+    281,
+    220,
+    150,
+    22,
+    256,
+    139,
+    83,
+    347,
+    220,
+    267,
+    503,
+    211,
+    409,
+    290,
+    169,
+    397,
+    321,
+    291,
+    221,
+    172,
+    138,
+    469,
+    442,
+    128,
+    356,
+    390,
+    320,
+    285,
+    8,
+    303,
+    385,
+    449,
+    204,
+    421,
+    460,
+    501,
+    274,
+    414,
+    486,
+    144,
+    263,
+    50,
+    26,
+    349,
+    195,
+    74,
+    44,
+    139,
+    511,
+    303,
+    476,
+    382,
+    453,
+    240,
+    102,
+    197
+  ],
+  "residual_delta_remainder_sha256": "5fc15b85046c29ec26ad7315f9b2b27d45c3534b2a265503bf23c31c8c5b0146",
+  "residual_delta_scale_divisor": 512,
+  "row_count": 128,
+  "rows": [
+    {
+      "input_q8": -2,
+      "output_q8": -10059,
+      "residual_delta_q8": -10057,
+      "row_index": 0
+    },
+    {
+      "input_q8": 1,
+      "output_q8": -4505,
+      "residual_delta_q8": -4506,
+      "row_index": 1
+    },
+    {
+      "input_q8": 1,
+      "output_q8": 3115,
+      "residual_delta_q8": 3114,
+      "row_index": 2
+    },
+    {
+      "input_q8": -1,
+      "output_q8": -8606,
+      "residual_delta_q8": -8605,
+      "row_index": 3
+    },
+    {
+      "input_q8": 3,
+      "output_q8": -851,
+      "residual_delta_q8": -854,
+      "row_index": 4
+    },
+    {
+      "input_q8": 0,
+      "output_q8": -3410,
+      "residual_delta_q8": -3410,
+      "row_index": 5
+    },
+    {
+      "input_q8": 5,
+      "output_q8": -4447,
+      "residual_delta_q8": -4452,
+      "row_index": 6
+    },
+    {
+      "input_q8": -8,
+      "output_q8": 910,
+      "residual_delta_q8": 918,
+      "row_index": 7
+    },
+    {
+      "input_q8": -5,
+      "output_q8": -12654,
+      "residual_delta_q8": -12649,
+      "row_index": 8
+    },
+    {
+      "input_q8": -8,
+      "output_q8": 5929,
+      "residual_delta_q8": 5937,
+      "row_index": 9
+    },
+    {
+      "input_q8": 0,
+      "output_q8": 6182,
+      "residual_delta_q8": 6182,
+      "row_index": 10
+    },
+    {
+      "input_q8": -3,
+      "output_q8": 1332,
+      "residual_delta_q8": 1335,
+      "row_index": 11
+    },
+    {
+      "input_q8": 4,
+      "output_q8": -3357,
+      "residual_delta_q8": -3361,
+      "row_index": 12
+    },
+    {
+      "input_q8": 0,
+      "output_q8": -11943,
+      "residual_delta_q8": -11943,
+      "row_index": 13
+    },
+    {
+      "input_q8": -1,
+      "output_q8": 3708,
+      "residual_delta_q8": 3709,
+      "row_index": 14
+    },
+    {
+      "input_q8": 1,
+      "output_q8": 4787,
+      "residual_delta_q8": 4786,
+      "row_index": 15
+    },
+    {
+      "input_q8": 1,
+      "output_q8": 5747,
+      "residual_delta_q8": 5746,
+      "row_index": 16
+    },
+    {
+      "input_q8": 0,
+      "output_q8": -16770,
+      "residual_delta_q8": -16770,
+      "row_index": 17
+    },
+    {
+      "input_q8": -7,
+      "output_q8": -17505,
+      "residual_delta_q8": -17498,
+      "row_index": 18
+    },
+    {
+      "input_q8": -8,
+      "output_q8": 9779,
+      "residual_delta_q8": 9787,
+      "row_index": 19
+    },
+    {
+      "input_q8": -2,
+      "output_q8": -11820,
+      "residual_delta_q8": -11818,
+      "row_index": 20
+    },
+    {
+      "input_q8": -4,
+      "output_q8": 3126,
+      "residual_delta_q8": 3130,
+      "row_index": 21
+    },
+    {
+      "input_q8": -5,
+      "output_q8": 2891,
+      "residual_delta_q8": 2896,
+      "row_index": 22
+    },
+    {
+      "input_q8": -1,
+      "output_q8": -2756,
+      "residual_delta_q8": -2755,
+      "row_index": 23
+    },
+    {
+      "input_q8": -1,
+      "output_q8": -4115,
+      "residual_delta_q8": -4114,
+      "row_index": 24
+    },
+    {
+      "input_q8": -1,
+      "output_q8": -3198,
+      "residual_delta_q8": -3197,
+      "row_index": 25
+    },
+    {
+      "input_q8": -1,
+      "output_q8": -753,
+      "residual_delta_q8": -752,
+      "row_index": 26
+    },
+    {
+      "input_q8": 8,
+      "output_q8": 12369,
+      "residual_delta_q8": 12361,
+      "row_index": 27
+    },
+    {
+      "input_q8": 4,
+      "output_q8": 8208,
+      "residual_delta_q8": 8204,
+      "row_index": 28
+    },
+    {
+      "input_q8": -6,
+      "output_q8": -9238,
+      "residual_delta_q8": -9232,
+      "row_index": 29
+    },
+    {
+      "input_q8": -8,
+      "output_q8": 10107,
+      "residual_delta_q8": 10115,
+      "row_index": 30
+    },
+    {
+      "input_q8": -3,
+      "output_q8": 1954,
+      "residual_delta_q8": 1957,
+      "row_index": 31
+    },
+    {
+      "input_q8": -5,
+      "output_q8": 13215,
+      "residual_delta_q8": 13220,
+      "row_index": 32
+    },
+    {
+      "input_q8": 1,
+      "output_q8": -10116,
+      "residual_delta_q8": -10117,
+      "row_index": 33
+    },
+    {
+      "input_q8": 2,
+      "output_q8": -9670,
+      "residual_delta_q8": -9672,
+      "row_index": 34
+    },
+    {
+      "input_q8": 7,
+      "output_q8": -2357,
+      "residual_delta_q8": -2364,
+      "row_index": 35
+    },
+    {
+      "input_q8": -2,
+      "output_q8": 3945,
+      "residual_delta_q8": 3947,
+      "row_index": 36
+    },
+    {
+      "input_q8": -2,
+      "output_q8": 3383,
+      "residual_delta_q8": 3385,
+      "row_index": 37
+    },
+    {
+      "input_q8": 1,
+      "output_q8": -1287,
+      "residual_delta_q8": -1288,
+      "row_index": 38
+    },
+    {
+      "input_q8": 2,
+      "output_q8": 1831,
+      "residual_delta_q8": 1829,
+      "row_index": 39
+    },
+    {
+      "input_q8": -4,
+      "output_q8": 2671,
+      "residual_delta_q8": 2675,
+      "row_index": 40
+    },
+    {
+      "input_q8": -6,
+      "output_q8": 16479,
+      "residual_delta_q8": 16485,
+      "row_index": 41
+    },
+    {
+      "input_q8": 2,
+      "output_q8": -70,
+      "residual_delta_q8": -72,
+      "row_index": 42
+    },
+    {
+      "input_q8": -9,
+      "output_q8": 5103,
+      "residual_delta_q8": 5112,
+      "row_index": 43
+    },
+    {
+      "input_q8": -6,
+      "output_q8": -13382,
+      "residual_delta_q8": -13376,
+      "row_index": 44
+    },
+    {
+      "input_q8": -3,
+      "output_q8": -2185,
+      "residual_delta_q8": -2182,
+      "row_index": 45
+    },
+    {
+      "input_q8": -3,
+      "output_q8": 8797,
+      "residual_delta_q8": 8800,
+      "row_index": 46
+    },
+    {
+      "input_q8": 3,
+      "output_q8": 1394,
+      "residual_delta_q8": 1391,
+      "row_index": 47
+    },
+    {
+      "input_q8": 2,
+      "output_q8": -5358,
+      "residual_delta_q8": -5360,
+      "row_index": 48
+    },
+    {
+      "input_q8": 7,
+      "output_q8": 1117,
+      "residual_delta_q8": 1110,
+      "row_index": 49
+    },
+    {
+      "input_q8": 3,
+      "output_q8": -10693,
+      "residual_delta_q8": -10696,
+      "row_index": 50
+    },
+    {
+      "input_q8": -9,
+      "output_q8": -8320,
+      "residual_delta_q8": -8311,
+      "row_index": 51
+    },
+    {
+      "input_q8": -3,
+      "output_q8": -15837,
+      "residual_delta_q8": -15834,
+      "row_index": 52
+    },
+    {
+      "input_q8": -4,
+      "output_q8": -4781,
+      "residual_delta_q8": -4777,
+      "row_index": 53
+    },
+    {
+      "input_q8": -2,
+      "output_q8": -3399,
+      "residual_delta_q8": -3397,
+      "row_index": 54
+    },
+    {
+      "input_q8": 2,
+      "output_q8": 1842,
+      "residual_delta_q8": 1840,
+      "row_index": 55
+    },
+    {
+      "input_q8": -1,
+      "output_q8": -12807,
+      "residual_delta_q8": -12806,
+      "row_index": 56
+    },
+    {
+      "input_q8": -1,
+      "output_q8": 6625,
+      "residual_delta_q8": 6626,
+      "row_index": 57
+    },
+    {
+      "input_q8": -3,
+      "output_q8": 905,
+      "residual_delta_q8": 908,
+      "row_index": 58
+    },
+    {
+      "input_q8": -1,
+      "output_q8": -13781,
+      "residual_delta_q8": -13780,
+      "row_index": 59
+    },
+    {
+      "input_q8": 0,
+      "output_q8": 9597,
+      "residual_delta_q8": 9597,
+      "row_index": 60
+    },
+    {
+      "input_q8": 7,
+      "output_q8": -90,
+      "residual_delta_q8": -97,
+      "row_index": 61
+    },
+    {
+      "input_q8": -2,
+      "output_q8": 8523,
+      "residual_delta_q8": 8525,
+      "row_index": 62
+    },
+    {
+      "input_q8": 0,
+      "output_q8": -10379,
+      "residual_delta_q8": -10379,
+      "row_index": 63
+    },
+    {
+      "input_q8": -5,
+      "output_q8": 3995,
+      "residual_delta_q8": 4000,
+      "row_index": 64
+    },
+    {
+      "input_q8": -2,
+      "output_q8": -10675,
+      "residual_delta_q8": -10673,
+      "row_index": 65
+    },
+    {
+      "input_q8": 6,
+      "output_q8": 3670,
+      "residual_delta_q8": 3664,
+      "row_index": 66
+    },
+    {
+      "input_q8": 5,
+      "output_q8": -624,
+      "residual_delta_q8": -629,
+      "row_index": 67
+    },
+    {
+      "input_q8": 1,
+      "output_q8": 6614,
+      "residual_delta_q8": 6613,
+      "row_index": 68
+    },
+    {
+      "input_q8": -3,
+      "output_q8": -13770,
+      "residual_delta_q8": -13767,
+      "row_index": 69
+    },
+    {
+      "input_q8": -3,
+      "output_q8": 11433,
+      "residual_delta_q8": 11436,
+      "row_index": 70
+    },
+    {
+      "input_q8": 2,
+      "output_q8": -4074,
+      "residual_delta_q8": -4076,
+      "row_index": 71
+    },
+    {
+      "input_q8": 4,
+      "output_q8": 1,
+      "residual_delta_q8": -3,
+      "row_index": 72
+    },
+    {
+      "input_q8": -2,
+      "output_q8": -7471,
+      "residual_delta_q8": -7469,
+      "row_index": 73
+    },
+    {
+      "input_q8": 1,
+      "output_q8": -2710,
+      "residual_delta_q8": -2711,
+      "row_index": 74
+    },
+    {
+      "input_q8": -2,
+      "output_q8": 2622,
+      "residual_delta_q8": 2624,
+      "row_index": 75
+    },
+    {
+      "input_q8": -8,
+      "output_q8": 869,
+      "residual_delta_q8": 877,
+      "row_index": 76
+    },
+    {
+      "input_q8": -8,
+      "output_q8": -14074,
+      "residual_delta_q8": -14066,
+      "row_index": 77
+    },
+    {
+      "input_q8": -3,
+      "output_q8": -3863,
+      "residual_delta_q8": -3860,
+      "row_index": 78
+    },
+    {
+      "input_q8": 2,
+      "output_q8": -839,
+      "residual_delta_q8": -841,
+      "row_index": 79
+    },
+    {
+      "input_q8": 4,
+      "output_q8": 2631,
+      "residual_delta_q8": 2627,
+      "row_index": 80
+    },
+    {
+      "input_q8": 7,
+      "output_q8": -2847,
+      "residual_delta_q8": -2854,
+      "row_index": 81
+    },
+    {
+      "input_q8": 3,
+      "output_q8": -739,
+      "residual_delta_q8": -742,
+      "row_index": 82
+    },
+    {
+      "input_q8": 0,
+      "output_q8": 5825,
+      "residual_delta_q8": 5825,
+      "row_index": 83
+    },
+    {
+      "input_q8": -10,
+      "output_q8": 8140,
+      "residual_delta_q8": 8150,
+      "row_index": 84
+    },
+    {
+      "input_q8": -6,
+      "output_q8": -2821,
+      "residual_delta_q8": -2815,
+      "row_index": 85
+    },
+    {
+      "input_q8": -2,
+      "output_q8": -13270,
+      "residual_delta_q8": -13268,
+      "row_index": 86
+    },
+    {
+      "input_q8": -2,
+      "output_q8": 10546,
+      "residual_delta_q8": 10548,
+      "row_index": 87
+    },
+    {
+      "input_q8": 6,
+      "output_q8": 13575,
+      "residual_delta_q8": 13569,
+      "row_index": 88
+    },
+    {
+      "input_q8": -5,
+      "output_q8": -529,
+      "residual_delta_q8": -524,
+      "row_index": 89
+    },
+    {
+      "input_q8": -4,
+      "output_q8": -8955,
+      "residual_delta_q8": -8951,
+      "row_index": 90
+    },
+    {
+      "input_q8": -4,
+      "output_q8": 3794,
+      "residual_delta_q8": 3798,
+      "row_index": 91
+    },
+    {
+      "input_q8": 3,
+      "output_q8": -11508,
+      "residual_delta_q8": -11511,
+      "row_index": 92
+    },
+    {
+      "input_q8": 6,
+      "output_q8": -5148,
+      "residual_delta_q8": -5154,
+      "row_index": 93
+    },
+    {
+      "input_q8": 6,
+      "output_q8": -7086,
+      "residual_delta_q8": -7092,
+      "row_index": 94
+    },
+    {
+      "input_q8": -3,
+      "output_q8": 4031,
+      "residual_delta_q8": 4034,
+      "row_index": 95
+    },
+    {
+      "input_q8": -6,
+      "output_q8": -928,
+      "residual_delta_q8": -922,
+      "row_index": 96
+    },
+    {
+      "input_q8": -5,
+      "output_q8": 3397,
+      "residual_delta_q8": 3402,
+      "row_index": 97
+    },
+    {
+      "input_q8": -3,
+      "output_q8": -10275,
+      "residual_delta_q8": -10272,
+      "row_index": 98
+    },
+    {
+      "input_q8": 2,
+      "output_q8": 13116,
+      "residual_delta_q8": 13114,
+      "row_index": 99
+    },
+    {
+      "input_q8": 4,
+      "output_q8": -331,
+      "residual_delta_q8": -335,
+      "row_index": 100
+    },
+    {
+      "input_q8": 7,
+      "output_q8": 7079,
+      "residual_delta_q8": 7072,
+      "row_index": 101
+    },
+    {
+      "input_q8": 4,
+      "output_q8": 3325,
+      "residual_delta_q8": 3321,
+      "row_index": 102
+    },
+    {
+      "input_q8": -1,
+      "output_q8": -15882,
+      "residual_delta_q8": -15881,
+      "row_index": 103
+    },
+    {
+      "input_q8": -8,
+      "output_q8": -3091,
+      "residual_delta_q8": -3083,
+      "row_index": 104
+    },
+    {
+      "input_q8": -6,
+      "output_q8": -19798,
+      "residual_delta_q8": -19792,
+      "row_index": 105
+    },
+    {
+      "input_q8": -5,
+      "output_q8": 2772,
+      "residual_delta_q8": 2777,
+      "row_index": 106
+    },
+    {
+      "input_q8": 0,
+      "output_q8": 5574,
+      "residual_delta_q8": 5574,
+      "row_index": 107
+    },
+    {
+      "input_q8": -3,
+      "output_q8": 3815,
+      "residual_delta_q8": 3818,
+      "row_index": 108
+    },
+    {
+      "input_q8": 1,
+      "output_q8": -5994,
+      "residual_delta_q8": -5995,
+      "row_index": 109
+    },
+    {
+      "input_q8": 0,
+      "output_q8": -783,
+      "residual_delta_q8": -783,
+      "row_index": 110
+    },
+    {
+      "input_q8": -3,
+      "output_q8": 14398,
+      "residual_delta_q8": 14401,
+      "row_index": 111
+    },
+    {
+      "input_q8": 1,
+      "output_q8": 5001,
+      "residual_delta_q8": 5000,
+      "row_index": 112
+    },
+    {
+      "input_q8": 3,
+      "output_q8": 6602,
+      "residual_delta_q8": 6599,
+      "row_index": 113
+    },
+    {
+      "input_q8": 4,
+      "output_q8": -6505,
+      "residual_delta_q8": -6509,
+      "row_index": 114
+    },
+    {
+      "input_q8": -1,
+      "output_q8": 7654,
+      "residual_delta_q8": 7655,
+      "row_index": 115
+    },
+    {
+      "input_q8": -5,
+      "output_q8": 4701,
+      "residual_delta_q8": 4706,
+      "row_index": 116
+    },
+    {
+      "input_q8": -7,
+      "output_q8": -1948,
+      "residual_delta_q8": -1941,
+      "row_index": 117
+    },
+    {
+      "input_q8": -5,
+      "output_q8": 3769,
+      "residual_delta_q8": 3774,
+      "row_index": 118
+    },
+    {
+      "input_q8": -2,
+      "output_q8": -2507,
+      "residual_delta_q8": -2505,
+      "row_index": 119
+    },
+    {
+      "input_q8": -2,
+      "output_q8": 363,
+      "residual_delta_q8": 365,
+      "row_index": 120
+    },
+    {
+      "input_q8": -1,
+      "output_q8": -6251,
+      "residual_delta_q8": -6250,
+      "row_index": 121
+    },
+    {
+      "input_q8": 6,
+      "output_q8": -6024,
+      "residual_delta_q8": -6030,
+      "row_index": 122
+    },
+    {
+      "input_q8": 4,
+      "output_q8": -5818,
+      "residual_delta_q8": -5822,
+      "row_index": 123
+    },
+    {
+      "input_q8": 1,
+      "output_q8": -6033,
+      "residual_delta_q8": -6034,
+      "row_index": 124
+    },
+    {
+      "input_q8": -1,
+      "output_q8": -3848,
+      "residual_delta_q8": -3847,
+      "row_index": 125
+    },
+    {
+      "input_q8": -5,
+      "output_q8": 5919,
+      "residual_delta_q8": 5924,
+      "row_index": 126
+    },
+    {
+      "input_q8": -6,
+      "output_q8": 4492,
+      "residual_delta_q8": 4498,
+      "row_index": 127
+    }
+  ],
+  "schema": "zkai-d128-residual-add-air-proof-input-v1",
+  "source_down_projection_proof_version": "stwo-d128-down-projection-air-proof-v1",
+  "source_down_projection_public_instance_commitment": "blake2b-256:06bf03b9df08ad8e1097c5554670a0b92b7c82b2e88cac6952efc8f5cbd07ae1",
+  "source_down_projection_statement_commitment": "blake2b-256:5dbc8ff3d638cf2986618b4cf94de7b5c71cfad755c9777c03e96485ea50d526",
+  "source_rmsnorm_proof_version": "zkai-d128-attention-derived-d128-input-gate-v1",
+  "source_rmsnorm_statement_commitment": "blake2b-256:b1b08efc40dc4c22e9d133d787603100539f672b9ebb7ec2797a180becb9f9c6",
+  "statement_commitment": "blake2b-256:77617872ed74b45a05357c93a74ac972ffa2d113b1352653f6264b249490d42b",
+  "target_id": "rmsnorm-swiglu-residual-d128-v1",
+  "validation_commands": [
+    "python3.10 scripts/zkai_d128_attention_derived_d128_mlp_surface_gate.py --write-inputs",
+    "python3.10 -m unittest scripts.tests.test_zkai_d128_attention_derived_d128_mlp_surface_gate",
+    "cargo +nightly-2025-07-14 test d128_native_residual_add_proof --lib --features stwo-backend",
+    "just gate-fast",
+    "just gate"
+  ],
+  "verifier_domain": "ptvm:zkai:d128-rmsnorm-swiglu-statement-target:v1",
+  "width": 128
+}

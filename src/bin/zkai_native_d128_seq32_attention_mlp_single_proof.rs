@@ -236,6 +236,9 @@ fn build_input_adapter_mode(mode: &str) -> Option<ZkAiNativeD128Seq32AttentionMl
         "build-input" => {
             Some(ZkAiNativeD128Seq32AttentionMlpAdapterMode::DuplicateBasePreprocessed)
         }
+        "build-input-model-faithful" => Some(
+            ZkAiNativeD128Seq32AttentionMlpAdapterMode::D128AttentionDerivedDuplicateBasePreprocessed,
+        ),
         "build-input-compact" => {
             Some(ZkAiNativeD128Seq32AttentionMlpAdapterMode::CompactBaseReferencedFixed)
         }
@@ -367,7 +370,7 @@ fn build_input_with_adapter_mode_and_attempt_profile(
 #[cfg(feature = "stwo-backend")]
 fn usage() -> String {
     "usage: zkai_native_d128_seq32_attention_mlp_single_proof \
-build-input|build-input-compact|build-input-preprocessed-anchor|build-input-rmsnorm-fused|build-input-rmsnorm-fused-label-probe-a|build-input-rmsnorm-fused-label-probe-b|build-input-rmsnorm-fused-adjacent|build-input-rmsnorm-fused-adjacent-label-probe-a|build-input-rmsnorm-fused-adjacent-label-probe-b|build-input-rmsnorm-fused-adjacent-label-probe-a-compact-transcript|build-input-rmsnorm-fused-adjacent-label-probe-b-compact-transcript|build-input-rmsnorm-fused-adjacent-label-probe-a-statement-only-transcript|build-input-rmsnorm-fused-adjacent-label-probe-b-statement-only-transcript|build-input-rmsnorm-fused-adjacent-seed-00|build-input-rmsnorm-fused-adjacent-seed-01|build-input-rmsnorm-fused-adjacent-seed-02|build-input-rmsnorm-fused-adjacent-seed-03|build-input-rmsnorm-fused-adjacent-seed-04|build-input-rmsnorm-fused-adjacent-seed-05|build-input-rmsnorm-fused-post-tail|build-input-rmsnorm-fused-post-tail-label-probe-a|build-input-rmsnorm-fused-post-tail-label-probe-b \
+build-input|build-input-model-faithful|build-input-compact|build-input-preprocessed-anchor|build-input-rmsnorm-fused|build-input-rmsnorm-fused-label-probe-a|build-input-rmsnorm-fused-label-probe-b|build-input-rmsnorm-fused-adjacent|build-input-rmsnorm-fused-adjacent-label-probe-a|build-input-rmsnorm-fused-adjacent-label-probe-b|build-input-rmsnorm-fused-adjacent-label-probe-a-compact-transcript|build-input-rmsnorm-fused-adjacent-label-probe-b-compact-transcript|build-input-rmsnorm-fused-adjacent-label-probe-a-statement-only-transcript|build-input-rmsnorm-fused-adjacent-label-probe-b-statement-only-transcript|build-input-rmsnorm-fused-adjacent-seed-00|build-input-rmsnorm-fused-adjacent-seed-01|build-input-rmsnorm-fused-adjacent-seed-02|build-input-rmsnorm-fused-adjacent-seed-03|build-input-rmsnorm-fused-adjacent-seed-04|build-input-rmsnorm-fused-adjacent-seed-05|build-input-rmsnorm-fused-post-tail|build-input-rmsnorm-fused-post-tail-label-probe-a|build-input-rmsnorm-fused-post-tail-label-probe-b \
 <attention-source.json> <mlp-input.json> <single-input.json> | prove <single-input.json> <envelope.json> | verify <envelope.json> | sample-openings <single-input.json> <sampler.json>"
         .to_string()
 }
