@@ -610,13 +610,7 @@ fn read_contained_bounded_file(
             path.display()
         ));
     }
-    if metadata.len() > max_bytes as u64 {
-        return Err(format!(
-            "{label} exceeds max size: got {} bytes, limit {} bytes",
-            metadata.len(),
-            max_bytes
-        ));
-    }
+    enforce_byte_cap(metadata.len(), max_bytes, label)?;
     let file = fs::File::open(&canonical_path)
         .map_err(|error| format!("failed to open {} {}: {error}", label, path.display()))?;
     let mut raw = Vec::new();
@@ -629,6 +623,16 @@ fn read_contained_bounded_file(
         ));
     }
     Ok(raw)
+}
+
+#[cfg(feature = "stwo-backend")]
+fn enforce_byte_cap(len: u64, max_bytes: usize, label: &str) -> Result<(), String> {
+    if len > max_bytes as u64 {
+        return Err(format!(
+            "{label} exceeds max size: got {len} bytes, limit {max_bytes} bytes",
+        ));
+    }
+    Ok(())
 }
 
 #[cfg(feature = "stwo-backend")]
@@ -700,6 +704,28 @@ mod tests {
         let error =
             read_contained_bounded_file(&canonical_root, &path, 5, "test file").unwrap_err();
         assert!(error.contains("exceeds max size"));
+    }
+
+    #[test]
+    fn envelope_cap_accepts_exact_limit() {
+        assert!(enforce_byte_cap(
+            MAX_ENVELOPE_JSON_BYTES as u64,
+            MAX_ENVELOPE_JSON_BYTES,
+            "envelope JSON"
+        )
+        .is_ok());
+    }
+
+    #[test]
+    fn envelope_cap_rejects_over_limit() {
+        let error = enforce_byte_cap(
+            MAX_ENVELOPE_JSON_BYTES as u64 + 1,
+            MAX_ENVELOPE_JSON_BYTES,
+            "envelope JSON",
+        )
+        .unwrap_err();
+        assert!(error.contains("exceeds max size"));
+        assert!(error.contains(&(MAX_ENVELOPE_JSON_BYTES + 1).to_string()));
     }
 
     #[test]
