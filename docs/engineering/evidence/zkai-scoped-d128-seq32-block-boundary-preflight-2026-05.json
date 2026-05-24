@@ -1,0 +1,301 @@
+{
+  "all_mutations_rejected": true,
+  "claim_boundary": "PREFLIGHT_FOR_SCOPED_D128_SEQ32_TRANSFORMER_BOUNDARY;SOURCE_BOUNDARY_AND_PROOF_SIZE_DECISION_ONLY;NOT_FULL_BLOCK_NOT_SPEED_CLAIM_NOT_EXTERNAL_COMPARISON",
+  "decision": "GO_SCOPED_D128_SEQ32_BLOCK_BOUNDARY_PREFLIGHT",
+  "go_gate": [
+    "source artifacts and exact sizes remain pinned",
+    "d128 attention source output can be value-bound into the d128 MLP surface",
+    "the new scoped boundary beats its matched split local frontier before any external comparison",
+    "mutation gates reject source drift, envelope mismatch, VK mismatch, model-surface mismatch, and overclaim wording"
+  ],
+  "issue": 715,
+  "mutation_results": [
+    {
+      "error": "slope_table sha256 drift: expected '1bae947f83b9fd49238751391c8445e575e05b464bc6af47a079be4cd1782e2e', got '0000000000000000000000000000000000000000000000000000000000000000'",
+      "name": "source_digest_drift",
+      "rejected": true
+    },
+    {
+      "error": "route_matrix bytes drift: expected 92871, got 92872",
+      "name": "source_size_drift",
+      "rejected": true
+    },
+    {
+      "error": "issue drift: expected 715, got 716",
+      "name": "issue_drift",
+      "rejected": true
+    },
+    {
+      "error": "decision drift: expected 'GO_SCOPED_D128_SEQ32_BLOCK_BOUNDARY_PREFLIGHT', got 'GO_FULL_BLOCK_NOW'",
+      "name": "decision_drift",
+      "rejected": true
+    },
+    {
+      "error": "summary.primary_next_gate drift: expected 'scoped_d128_seq32_transformer_block_boundary_implementation', got 'd256_h2_seq64_primary_gate'",
+      "name": "next_gate_drift",
+      "rejected": true
+    },
+    {
+      "error": "summary.recommended_action drift: expected 'IMPLEMENT_SCOPED_D128_SEQ32_BOUNDARY_BEFORE_D256_SEQ64', got 'IMPLEMENT_D256_SEQ64_BEFORE_SCOPED_D128_SEQ32'",
+      "name": "d256_primary_overclaim",
+      "rejected": true
+    },
+    {
+      "error": "summary.proof_size_comparable_external_rows drift: expected 0, got 1",
+      "name": "external_comparison_overclaim",
+      "rejected": true
+    },
+    {
+      "error": "claim boundary missing NOT_FULL_BLOCK",
+      "name": "full_block_overclaim",
+      "rejected": true
+    },
+    {
+      "error": "champion saving drift: expected 5120, got 5121",
+      "name": "seq32_champion_metric_drift",
+      "rejected": true
+    },
+    {
+      "error": "d128 attention fused proof bytes drift: expected 445888, got 445889",
+      "name": "d128_attention_metric_drift",
+      "rejected": true
+    },
+    {
+      "error": "MLP adapter mismatches drift: expected 0, got 1",
+      "name": "mlp_surface_metric_drift",
+      "rejected": true
+    },
+    {
+      "error": "d128 sequence lookup growth drift: expected 3.72973, got 1.0",
+      "name": "sequence_slope_drift",
+      "rejected": true
+    },
+    {
+      "error": "width caution status drift: expected 'CAUTION_DO_NOT_JUMP_TO_D256_SEQ64_AS_PRIMARY_GATE', got 'GO_JUMP_TO_D256_SEQ64'",
+      "name": "width_caution_drift",
+      "rejected": true
+    },
+    {
+      "error": "next_scoped_boundary_gate.action must be a non-empty string",
+      "name": "row_missing_required_field",
+      "rejected": true
+    },
+    {
+      "error": "non claims drift: expected ('not a full transformer block proof', 'not a public proving-speed benchmark', 'not an external zkML comparison', 'not a NANOZK proof-size win', 'not exact real-valued Softmax', 'not full autoregressive inference', 'not production throughput evidence'), got ('not a full transformer block proof', 'not a public proving-speed benchmark', 'not an external zkML comparison', 'not a NANOZK proof-size win', 'not exact real-valued Softmax', 'not full autoregressive inference')",
+      "name": "non_claim_removed",
+      "rejected": true
+    },
+    {
+      "error": "validation commands drift: expected ('python3.10 scripts/zkai_scoped_d128_seq32_block_boundary_preflight_gate.py --write-json docs/engineering/evidence/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05.json --write-tsv docs/engineering/evidence/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05.tsv --write-md docs/engineering/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05-24.md', 'python3.10 -m py_compile scripts/zkai_scoped_d128_seq32_block_boundary_preflight_gate.py scripts/tests/test_zkai_scoped_d128_seq32_block_boundary_preflight_gate.py', 'python3.10 -m unittest scripts.tests.test_zkai_scoped_d128_seq32_block_boundary_preflight_gate', 'git diff --check'), got ('python3.10 scripts/other.py', 'python3.10 -m py_compile scripts/zkai_scoped_d128_seq32_block_boundary_preflight_gate.py scripts/tests/test_zkai_scoped_d128_seq32_block_boundary_preflight_gate.py', 'python3.10 -m unittest scripts.tests.test_zkai_scoped_d128_seq32_block_boundary_preflight_gate', 'git diff --check')",
+      "name": "validation_command_drift",
+      "rejected": true
+    },
+    {
+      "error": "payload commitment drift: expected 'blake2b-256:1b0bf2496d0ed64fbd66daa5dd3c827376f23e9704c19ffb703d742f46a54cf0', got 'blake2b-256:0000000000000000000000000000000000000000000000000000000000000000'",
+      "name": "payload_commitment_drift",
+      "rejected": true
+    }
+  ],
+  "mutations_checked": 17,
+  "mutations_rejected": 17,
+  "no_go_gate": [
+    "source-to-MLP value adapter cannot be pinned without relabeling",
+    "the scoped proof is equal or heavier than the matched split frontier",
+    "the only positive story requires treating d256 seq64 as the primary path",
+    "the result needs a full-block, speed, NANOZK, or production-throughput claim to sound interesting"
+  ],
+  "non_claims": [
+    "not a full transformer block proof",
+    "not a public proving-speed benchmark",
+    "not an external zkML comparison",
+    "not a NANOZK proof-size win",
+    "not exact real-valued Softmax",
+    "not full autoregressive inference",
+    "not production throughput evidence"
+  ],
+  "payload_commitment": "blake2b-256:cbf8ded2fedb54e5a1e4ea87313c2f0892d429606fc974545e17335e852c3e2d",
+  "result": "ATTACK_SCOPED_D128_SEQ32_BOUNDARY_BEFORE_D256_SEQ64_STRESS",
+  "rows": [
+    {
+      "action": "preserve_as_regression_baseline_not_as_full_block_claim",
+      "fused_or_single_bytes": 42068,
+      "fused_proof_growth": null,
+      "interpretation": "One checked seq32 attention plus d128 MLP native proof already beats its matched value-compatible two-proof frontier.",
+      "kind": "checked_native_boundary",
+      "lookup_growth": null,
+      "metric_scope": "typed_and_json_local_proof_bytes",
+      "ratio": 0.891498,
+      "row_id": "existing_seq32_d128_single_proof_champion",
+      "saving_bytes": 5120,
+      "split_or_reference_bytes": 47188,
+      "status": "REGRESSION_BASELINE_GO",
+      "trace_growth": null
+    },
+    {
+      "action": "use_as_d128_attention_source_for_scoped_boundary",
+      "fused_or_single_bytes": 445888,
+      "fused_proof_growth": null,
+      "interpretation": "The d128 two-head seq32 attention route is proof-size positive against its matched split source plus sidecar.",
+      "kind": "attention_source_route",
+      "lookup_claims": 1184,
+      "lookup_growth": null,
+      "metric_scope": "raw_proof_bytes",
+      "ratio": 0.932282,
+      "row_id": "d128_two_head_seq32_attention_route",
+      "saving_bytes": 32388,
+      "split_or_reference_bytes": 478276,
+      "status": "GO_ATTENTION_SOURCE_FOR_SCOPED_GATE",
+      "trace_growth": null,
+      "trace_rows": 2048
+    },
+    {
+      "action": "use_as_d128_mlp_surface_if_source_value_adapter_stays_pinned",
+      "adapter_mismatches": 0,
+      "fused_or_single_bytes": 24272,
+      "fused_proof_growth": null,
+      "interpretation": "The seq32-derived d128 MLP surface is value-compatible and preserves a large local fusion saving.",
+      "kind": "mlp_source_surface",
+      "lookup_growth": null,
+      "metric_scope": "typed_bytes",
+      "ratio": 0.446702,
+      "row_id": "seq32_derived_d128_mlp_surface",
+      "saving_bytes": 30064,
+      "split_or_reference_bytes": 54336,
+      "status": "GO_MLP_SOURCE_FOR_SCOPED_GATE",
+      "trace_growth": null
+    },
+    {
+      "action": "treat_seq64_as_followup_after_scoped_seq32_boundary",
+      "fused_or_single_bytes": 481870,
+      "fused_proof_growth": 1.080697,
+      "interpretation": "For d128 two-head attention, seq32 to seq64 grows lookup work much faster than fused proof bytes.",
+      "kind": "scaling_signal",
+      "lookup_growth": 3.72973,
+      "metric_scope": "raw_proof_bytes_growth",
+      "ratio": 0.922792,
+      "row_id": "d128_two_head_seq32_sequence_slope",
+      "saving_bytes": 40317,
+      "split_or_reference_bytes": 522187,
+      "status": "GO_SEQUENCE_AXIS_SUPPORTS_SCOPED_D128_FIRST",
+      "trace_growth": 4.0
+    },
+    {
+      "action": "keep_d256_seq64_as_stress_or_falsification_after_scoped_d128_gate",
+      "d64_to_d128_fused_proof_growth": 1.760615,
+      "fused_or_single_bytes": 821398,
+      "fused_proof_growth": 1.842162,
+      "interpretation": "Width still beats split locally, but proof growth is the cost center and should not lead the paper path.",
+      "kind": "claim_guardrail",
+      "lookup_growth": 1.0,
+      "metric_scope": "raw_proof_bytes_growth",
+      "ratio": 0.964602,
+      "row_id": "width_axis_caution",
+      "saving_bytes": 30143,
+      "split_or_reference_bytes": 851541,
+      "status": "CAUTION_DO_NOT_JUMP_TO_D256_SEQ64_AS_PRIMARY_GATE",
+      "trace_growth": 1.0
+    },
+    {
+      "action": "IMPLEMENT_SCOPED_D128_SEQ32_BOUNDARY_BEFORE_D256_SEQ64",
+      "fused_or_single_bytes": null,
+      "fused_proof_growth": null,
+      "interpretation": "Build the smallest scoped d128 seq32 boundary that binds the d128 attention source, the d128 MLP surface, source handles, and the typed statement envelope.",
+      "kind": "implementation_gate",
+      "lookup_growth": null,
+      "metric_scope": "decision_gate",
+      "ratio": null,
+      "row_id": "next_scoped_boundary_gate",
+      "saving_bytes": null,
+      "split_or_reference_bytes": null,
+      "status": "ATTACK_NEXT",
+      "trace_growth": null
+    }
+  ],
+  "schema": "zkai-scoped-d128-seq32-block-boundary-preflight-v1",
+  "source_artifacts": [
+    {
+      "bytes": 10939,
+      "decision": "GO_PAPER_SLOPE_TABLE_WITH_SCOPED_BLOCK_NEXT_GATE",
+      "id": "slope_table",
+      "path": "docs/engineering/evidence/zkai-proof-pressure-slope-table-2026-05.json",
+      "schema": "zkai-proof-pressure-slope-table-v1",
+      "sha256": "1bae947f83b9fd49238751391c8445e575e05b464bc6af47a079be4cd1782e2e"
+    },
+    {
+      "bytes": 92871,
+      "decision": "GO_NATIVE_STWO_FUSED_SOFTMAX_TABLE_CONTROLLED_ROUTE_MATRIX",
+      "id": "route_matrix",
+      "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
+      "schema": "zkai-attention-kv-fused-softmax-table-route-matrix-v1",
+      "sha256": "f8da6eb33454011e3ef20b7b80cdcce4ff9086764d7b4a3868c684046b434701"
+    },
+    {
+      "bytes": 9033,
+      "decision": "GO_NATIVE_SEQ32_ATTENTION_MLP_SINGLE_PROOF_OBJECT_BEATS_MATCHED_FRONTIER",
+      "id": "seq32_single",
+      "path": "docs/engineering/evidence/zkai-native-seq32-attention-mlp-single-proof-2026-05.json",
+      "schema": "zkai-native-seq32-attention-mlp-single-proof-gate-v1",
+      "sha256": "d4732af4966599264e34b893d9e24333cabd32e1c9caa45d8d8aac10b6fc98ab"
+    },
+    {
+      "bytes": 8807,
+      "decision": "GO_PIN_SEQ32_VALUE_COMPATIBLE_TWO_PROOF_FRONTIER_FOR_NEXT_NATIVE_BOUNDARY",
+      "id": "seq32_frontier",
+      "path": "docs/engineering/evidence/zkai-seq32-value-compatible-boundary-frontier-2026-05.json",
+      "schema": "zkai-seq32-value-compatible-boundary-frontier-v1",
+      "sha256": "406a1b65574c694f208652d4a181e323dd5d66a53b4b58c685e61358dfb58c3d"
+    },
+    {
+      "bytes": 12412,
+      "decision": "GO_NATIVE_STWO_FUSED_ATTENTION_ARITHMETIC_AND_SOFTMAX_TABLE_LOGUP_MEMBERSHIP",
+      "id": "d128_attention",
+      "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-two-head-seq32-fused-softmax-table-gate-2026-05.json",
+      "schema": "zkai-attention-kv-stwo-native-d128-two-head-seq32-fused-softmax-table-gate-v1",
+      "sha256": "7e7d26cd08b53a34557e9b80f118b815be46cbf4de32d1957c2e7741071514ef"
+    },
+    {
+      "bytes": 3742,
+      "decision": "GO_SEQ32_DERIVED_D128_MLP_SURFACE_INPUTS_READY_FOR_NATIVE_PROOF",
+      "id": "d128_mlp",
+      "path": "docs/engineering/evidence/zkai-seq32-derived-d128-native-mlp-surface-2026-05.json",
+      "schema": "zkai-seq32-derived-d128-native-mlp-surface-gate-v1",
+      "sha256": "96fdc2435fa7c14f9596f7fbe2a1006861fd8bc7be3c219cf49ac43096cdf1c2"
+    }
+  ],
+  "summary": {
+    "d128_attention_fused_proof_bytes": 445888,
+    "d128_attention_fused_ratio": 0.932282,
+    "d128_attention_lookup_claims": 1184,
+    "d128_attention_saving_bytes": 32388,
+    "d128_attention_split_raw_proof_bytes": 478276,
+    "d128_attention_trace_rows": 2048,
+    "d128_mlp_adapter_mismatches": 0,
+    "d128_mlp_fused_typed_bytes": 24272,
+    "d128_mlp_separate_typed_bytes": 54336,
+    "d128_mlp_typed_saving_bytes": 30064,
+    "d128_sequence_fused_proof_growth": 1.080697,
+    "d128_sequence_lookup_growth": 3.72973,
+    "d128_sequence_target_saving_bytes": 40317,
+    "d128_sequence_trace_growth": 4.0,
+    "d256_width_fused_proof_growth": 1.842162,
+    "d256_width_fused_ratio": 0.964602,
+    "existing_seq32_d128_frontier_typed_bytes": 47188,
+    "existing_seq32_d128_single_typed_bytes": 42068,
+    "existing_seq32_d128_typed_ratio": 0.891498,
+    "existing_seq32_d128_typed_saving_bytes": 5120,
+    "paper_claim_status": "NARROW_CLAIM_READY_FOR_SCOPED_BLOCK_PREFLIGHT_NOT_FULL_BLOCK",
+    "primary_next_gate": "scoped_d128_seq32_transformer_block_boundary_implementation",
+    "proof_size_comparable_external_rows": 0,
+    "recommended_action": "IMPLEMENT_SCOPED_D128_SEQ32_BOUNDARY_BEFORE_D256_SEQ64",
+    "slope_table_recommended_next_gate": "scoped_d128_seq32_transformer_block_boundary_preflight; d256_seq64_remains_a_stress_test_not_the_primary_paper_gate",
+    "stress_gate": "d256_h2_seq64_falsification_after_scoped_d128_gate",
+    "value_compatible_frontier_typed_bytes": 47188
+  },
+  "timing_policy": "proof_size_preflight_only_no_new_timing_claim",
+  "validation_commands": [
+    "python3.10 scripts/zkai_scoped_d128_seq32_block_boundary_preflight_gate.py --write-json docs/engineering/evidence/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05.json --write-tsv docs/engineering/evidence/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05.tsv --write-md docs/engineering/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05-24.md",
+    "python3.10 -m py_compile scripts/zkai_scoped_d128_seq32_block_boundary_preflight_gate.py scripts/tests/test_zkai_scoped_d128_seq32_block_boundary_preflight_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_scoped_d128_seq32_block_boundary_preflight_gate",
+    "git diff --check"
+  ]
+}

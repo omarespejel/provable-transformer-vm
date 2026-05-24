@@ -4,7 +4,7 @@ This is the tracked GitHub-safe mirror of the local `.codex` handoff notes.
 If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 `.codex/HANDOFF.md` first. This file is the durable shared resume surface.
 
-**Mainline tip at last refresh:** `982e73b8d1c4e3e1e55ad3576108582e7a80d419` (matches
+**Mainline tip at last refresh:** `806b9916b6c19be78cf8f3bcb100dd6d29ec314b` (matches
 `.codex/HANDOFF.md` “Mainline reference at refresh”; update both together).
 
 ## Read order for a fresh agent
@@ -113,8 +113,10 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 97. `docs/engineering/zkai-stwo-query-grinding-budget-2026-05-19.md`
 98. `docs/engineering/zkai-stwo-attempt-domain-binding-2026-05-19.md`
 99. `docs/engineering/zkai-stwo-inner-attempt-domain-statement-2026-05-19.md`
-100. `docs/engineering/reproducibility.md`
-101. `git status --short --branch`
+100. `docs/engineering/zkai-proof-pressure-slope-table-2026-05-24.md`
+101. `docs/engineering/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05-24.md`
+102. `docs/engineering/reproducibility.md`
+103. `git status --short --branch`
 
 ## Current lane split
 
@@ -126,6 +128,23 @@ truth under `.codex/research/`. Fresh agents should read
 before opening or executing frontier issues. The north star is STARK-native
 proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
+
+Latest scoped-block preflight: issue `#715` now has a generated
+`d128 seq32` transformer-boundary preflight gate. This is not a new proof
+object. It binds the current slope table, the `d128_two_head_seq32` attention
+route, the seq32-derived d128 MLP surface, and the existing seq32+d128
+one-proof champion into the next execution decision:
+`IMPLEMENT_SCOPED_D128_SEQ32_BOUNDARY_BEFORE_D256_SEQ64`. The pinned evidence
+is: existing seq32+d128 single proof `42,068` typed bytes versus the `47,188`
+typed-byte matched frontier, saving `5,120`; `d128_two_head_seq32` attention
+fused proof `445,888` raw proof bytes versus `478,276` split bytes, saving
+`32,388`; seq32-derived d128 MLP fused surface `24,272` typed bytes versus
+`54,336` separate typed bytes, saving `30,064`; and the d128 sequence slope
+where lookup claims grow `3.729730x` and trace rows `4.000000x` while fused
+proof bytes grow `1.080697x`. The gate rejects `17 / 17` mutations and keeps
+`d256_h2_seq64` as a stress/falsification target after the scoped d128 gate,
+not the primary paper path. See
+`docs/engineering/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05-24.md`.
 
 Latest proof-pressure route extension: issue `#715` now has the
 `d128_single_head_seq16` native Stwo fused Softmax-table anchor row. The

@@ -2,7 +2,7 @@
 
 Last refreshed: 2026-05-24
 Repository: `/Users/espejelomar/StarkNet/provable-transformer-vm`
-Mainline reference at refresh: `b47bf8aea2f5ec4fe75c77264bef24d12f72f045`
+Mainline reference at refresh: `806b9916b6c19be78cf8f3bcb100dd6d29ec314b`
 
 ## Immediate orientation
 
@@ -19,6 +19,23 @@ truth under `.codex/research/`. Fresh agents should read
 before opening or executing frontier issues. The north star is STARK-native
 proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
+
+Latest scoped-block preflight: issue `#715` now has a generated
+`d128 seq32` transformer-boundary preflight gate. This is not a new proof
+object. It binds the current slope table, the `d128_two_head_seq32` attention
+route, the seq32-derived d128 MLP surface, and the existing seq32+d128
+one-proof champion into the next execution decision:
+`IMPLEMENT_SCOPED_D128_SEQ32_BOUNDARY_BEFORE_D256_SEQ64`. The pinned evidence
+is: existing seq32+d128 single proof `42,068` typed bytes versus the `47,188`
+typed-byte matched frontier, saving `5,120`; `d128_two_head_seq32` attention
+fused proof `445,888` raw proof bytes versus `478,276` split bytes, saving
+`32,388`; seq32-derived d128 MLP fused surface `24,272` typed bytes versus
+`54,336` separate typed bytes, saving `30,064`; and the d128 sequence slope
+where lookup claims grow `3.729730x` and trace rows `4.000000x` while fused
+proof bytes grow `1.080697x`. The gate rejects `17 / 17` mutations and keeps
+`d256_h2_seq64` as a stress/falsification target after the scoped d128 gate,
+not the primary paper path. See
+`docs/engineering/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05-24.md`.
 
 Latest proof-pressure synthesis: issue `#715` now has a generated paper-facing
 slope table over the checked d64, d128, and d256 attention rows. The strong
