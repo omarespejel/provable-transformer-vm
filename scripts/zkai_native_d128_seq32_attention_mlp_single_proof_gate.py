@@ -48,6 +48,8 @@ SINGLE_ENVELOPE_JSON_BYTES = 25_409_456
 SINGLE_INPUT_JSON_BYTES = 18_752_185
 MAX_SINGLE_INPUT_JSON_BYTES = 32 * 1024 * 1024
 MAX_SINGLE_ENVELOPE_JSON_BYTES = 32 * 1024 * 1024
+MAX_ACCOUNTING_JSON_BYTES = 1 * 1024 * 1024
+MAX_PREFLIGHT_JSON_BYTES = 1 * 1024 * 1024
 SPLIT_PROOF_JSON_BYTES = 520_399
 SPLIT_TYPED_BYTES = 209_172
 PROOF_JSON_SAVING_BYTES = 15_881
@@ -142,7 +144,7 @@ def payload_commitment(payload: dict[str, Any]) -> str:
     return "blake2b-256:" + digest.hexdigest()
 
 
-def read_repo_file(path: pathlib.Path, label: str) -> bytes:
+def read_repo_file(path: pathlib.Path, label: str, max_bytes: int | None = None) -> bytes:
     root = ROOT.resolve()
     candidate = pathlib.Path(os.path.abspath(path if path.is_absolute() else ROOT / path))
     try:
@@ -157,9 +159,23 @@ def read_repo_file(path: pathlib.Path, label: str) -> bytes:
                 raise NativeD128Seq32SingleProofGateError(f"{label} must not traverse symlinks")
         fd = os.open(candidate, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
         try:
+            file_stat = os.fstat(fd)
+            if not stat.S_ISREG(file_stat.st_mode):
+                raise NativeD128Seq32SingleProofGateError(f"{label} must be a regular file")
+            if max_bytes is not None and file_stat.st_size > max_bytes:
+                raise NativeD128Seq32SingleProofGateError(
+                    f"{label} exceeds max size: got {file_stat.st_size} bytes, limit {max_bytes} bytes"
+                )
             with os.fdopen(fd, "rb") as handle:
                 fd = None
-                return handle.read()
+                if max_bytes is None:
+                    return handle.read()
+                raw = handle.read(max_bytes + 1)
+                if len(raw) > max_bytes:
+                    raise NativeD128Seq32SingleProofGateError(
+                        f"{label} exceeds max size: got more than {max_bytes} bytes, limit {max_bytes} bytes"
+                    )
+                return raw
         finally:
             if fd is not None:
                 os.close(fd)
@@ -167,8 +183,8 @@ def read_repo_file(path: pathlib.Path, label: str) -> bytes:
         raise NativeD128Seq32SingleProofGateError(f"failed to read {label}: {err}") from err
 
 
-def read_json(path: pathlib.Path, label: str) -> tuple[dict[str, Any], bytes]:
-    raw = read_repo_file(path, label)
+def read_json(path: pathlib.Path, label: str, max_bytes: int | None = None) -> tuple[dict[str, Any], bytes]:
+    raw = read_repo_file(path, label, max_bytes)
     try:
         value = json.loads(raw)
     except json.JSONDecodeError as err:
@@ -178,8 +194,13 @@ def read_json(path: pathlib.Path, label: str) -> tuple[dict[str, Any], bytes]:
     return value, raw
 
 
-def source_artifact(artifact_id: str, path: pathlib.Path, label: str) -> dict[str, Any]:
-    payload, raw = read_json(path, label)
+def source_artifact(
+    artifact_id: str,
+    path: pathlib.Path,
+    label: str,
+    max_bytes: int | None = None,
+) -> dict[str, Any]:
+    payload, raw = read_json(path, label, max_bytes)
     return {
         "id": artifact_id,
         "path": path.relative_to(ROOT).as_posix(),
@@ -194,12 +215,32 @@ def require(condition: bool, message: str) -> None:
         raise NativeD128Seq32SingleProofGateError(message)
 
 
+SourceArtifactSpec = tuple[str, pathlib.Path, str, int | None]
+
+
+def source_artifact_specs() -> tuple[SourceArtifactSpec, ...]:
+    return (
+        ("scoped_input", INPUT_PATH, "scoped input", MAX_SINGLE_INPUT_JSON_BYTES),
+        ("scoped_envelope", ENVELOPE_PATH, "scoped envelope", MAX_SINGLE_ENVELOPE_JSON_BYTES),
+        ("single_accounting", SINGLE_ACCOUNTING_PATH, "single accounting", MAX_ACCOUNTING_JSON_BYTES),
+        ("split_accounting", SPLIT_ACCOUNTING_PATH, "split accounting", MAX_ACCOUNTING_JSON_BYTES),
+        ("preflight_gate", PREFLIGHT_PATH, "preflight gate", MAX_PREFLIGHT_JSON_BYTES),
+    )
+
+
+def expected_source_artifacts() -> list[dict[str, Any]]:
+    return [
+        source_artifact(artifact_id, path, label, max_bytes)
+        for artifact_id, path, label, max_bytes in source_artifact_specs()
+    ]
+
+
 def build_payload() -> dict[str, Any]:
-    input_payload, input_raw = read_json(INPUT_PATH, "scoped input")
-    envelope, envelope_raw = read_json(ENVELOPE_PATH, "scoped envelope")
-    single_accounting, _ = read_json(SINGLE_ACCOUNTING_PATH, "single accounting")
-    split_accounting, _ = read_json(SPLIT_ACCOUNTING_PATH, "split accounting")
-    preflight, _ = read_json(PREFLIGHT_PATH, "preflight gate")
+    input_payload, input_raw = read_json(INPUT_PATH, "scoped input", MAX_SINGLE_INPUT_JSON_BYTES)
+    envelope, envelope_raw = read_json(ENVELOPE_PATH, "scoped envelope", MAX_SINGLE_ENVELOPE_JSON_BYTES)
+    single_accounting, _ = read_json(SINGLE_ACCOUNTING_PATH, "single accounting", MAX_ACCOUNTING_JSON_BYTES)
+    split_accounting, _ = read_json(SPLIT_ACCOUNTING_PATH, "split accounting", MAX_ACCOUNTING_JSON_BYTES)
+    preflight, _ = read_json(PREFLIGHT_PATH, "preflight gate", MAX_PREFLIGHT_JSON_BYTES)
 
     proof = envelope.get("proof")
     require(isinstance(proof, list), "envelope proof must be a list")
@@ -281,16 +322,13 @@ def build_payload() -> dict[str, Any]:
             "max_single_envelope_json_bytes": MAX_SINGLE_ENVELOPE_JSON_BYTES,
             "single_input_headroom_bytes": MAX_SINGLE_INPUT_JSON_BYTES - SINGLE_INPUT_JSON_BYTES,
             "single_envelope_headroom_bytes": MAX_SINGLE_ENVELOPE_JSON_BYTES - SINGLE_ENVELOPE_JSON_BYTES,
-            "parsing_model": "whole-buffer serde_json over repo-local evidence artifacts",
+            "parsing_model": (
+                "Python gate bounded-read plus whole-buffer json.loads over repo-local evidence artifacts; "
+                "Rust CLIs use whole-buffer serde_json under matching repo-local byte caps"
+            ),
             "threat_model": "local research CLI evidence, not untrusted service ingestion",
         },
-        "source_artifacts": [
-            source_artifact("scoped_input", INPUT_PATH, "scoped input"),
-            source_artifact("scoped_envelope", ENVELOPE_PATH, "scoped envelope"),
-            source_artifact("single_accounting", SINGLE_ACCOUNTING_PATH, "single accounting"),
-            source_artifact("split_accounting", SPLIT_ACCOUNTING_PATH, "split accounting"),
-            source_artifact("preflight_gate", PREFLIGHT_PATH, "preflight gate"),
-        ],
+        "source_artifacts": expected_source_artifacts(),
         "non_claims": list(NON_CLAIMS),
         "validation_commands": list(VALIDATION_COMMANDS),
     }
@@ -321,6 +359,21 @@ def validate_payload(payload: dict[str, Any]) -> None:
         require(summary.get(field) == expected, f"summary drift: {field}")
     require(tuple(payload.get("non_claims", ())) == NON_CLAIMS, "non-claims drift")
     require(tuple(payload.get("validation_commands", ())) == VALIDATION_COMMANDS, "validation commands drift")
+    artifacts = payload.get("source_artifacts")
+    require(isinstance(artifacts, list), "source artifacts must be list")
+    expected_artifacts = expected_source_artifacts()
+    require(len(artifacts) == len(expected_artifacts), "source artifact count drift")
+    for got, expected in zip(artifacts, expected_artifacts):
+        require(isinstance(got, dict), "source artifact entry must be object")
+        artifact_id = expected["id"]
+        require(got.get("id") == artifact_id, f"source artifact id drift: {artifact_id}")
+        require(got.get("path") == expected["path"], f"source artifact path drift: {artifact_id}")
+        require(got.get("size_bytes") == expected["size_bytes"], f"source artifact size drift: {artifact_id}")
+        require(got.get("sha256") == expected["sha256"], f"source artifact sha256 drift: {artifact_id}")
+        require(
+            got.get("payload_sha256") == expected["payload_sha256"],
+            f"source artifact payload sha256 drift: {artifact_id}",
+        )
     resource = payload.get("resource_limit_analysis")
     require(isinstance(resource, dict), "resource limit analysis must be object")
     require(resource.get("max_single_input_json_bytes") == MAX_SINGLE_INPUT_JSON_BYTES, "input cap drift")
@@ -364,6 +417,8 @@ def run_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
     for name, mutate in mutation_cases():
         candidate = copy.deepcopy(payload)
         mutate(candidate)
+        if name != "payload_commitment_drift":
+            candidate["payload_commitment"] = payload_commitment(candidate)
         try:
             validate_payload(candidate)
         except NativeD128Seq32SingleProofGateError as err:

@@ -1,4 +1,6 @@
 import copy
+import os
+import tempfile
 import unittest
 
 from scripts import zkai_native_d128_seq32_attention_mlp_single_proof_gate as gate
@@ -42,12 +44,31 @@ class NativeD128Seq32AttentionMlpSingleProofGateTests(unittest.TestCase):
         with self.assertRaises(gate.NativeD128Seq32SingleProofGateError):
             gate.validate_payload(candidate)
 
+    def test_source_artifact_drift_rejected_even_with_recomputed_commitment(self) -> None:
+        candidate = copy.deepcopy(self.payload)
+        candidate["source_artifacts"][0]["sha256"] = "0" * 64
+        candidate["payload_commitment"] = gate.payload_commitment(candidate)
+        with self.assertRaises(gate.NativeD128Seq32SingleProofGateError):
+            gate.validate_payload(candidate)
+
+    def test_bounded_repo_read_accepts_exact_cap_and_rejects_over_cap(self) -> None:
+        handle = tempfile.NamedTemporaryFile(prefix=".codex-gate-cap-", dir=gate.ROOT, delete=False)
+        try:
+            with handle:
+                handle.write(b"abcd")
+            self.assertEqual(gate.read_repo_file(gate.ROOT / handle.name, "test artifact", max_bytes=4), b"abcd")
+            with self.assertRaises(gate.NativeD128Seq32SingleProofGateError):
+                gate.read_repo_file(gate.ROOT / handle.name, "test artifact", max_bytes=3)
+        finally:
+            os.unlink(gate.ROOT / handle.name)
+
     def test_resource_caps_are_pinned_close_to_artifact_sizes(self) -> None:
         resource = self.payload["resource_limit_analysis"]
         self.assertEqual(resource["max_single_input_json_bytes"], 32 * 1024 * 1024)
         self.assertEqual(resource["max_single_envelope_json_bytes"], 32 * 1024 * 1024)
         self.assertGreater(resource["single_input_headroom_bytes"], 0)
         self.assertGreater(resource["single_envelope_headroom_bytes"], 0)
+        self.assertIn("bounded-read", resource["parsing_model"])
 
     def test_validation_commands_include_full_gate(self) -> None:
         self.assertEqual(self.payload["validation_commands"][-2:], ["just gate-fast", "just gate"])

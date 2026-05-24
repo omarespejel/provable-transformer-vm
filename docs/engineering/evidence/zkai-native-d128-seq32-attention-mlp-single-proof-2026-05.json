@@ -54,7 +54,7 @@
       "rejected": true
     },
     {
-      "error": "payload commitment drift",
+      "error": "source artifact sha256 drift: scoped_input",
       "name": "source_digest_drift",
       "rejected": true
     },
@@ -77,11 +77,11 @@
     "not timing evidence",
     "not production-ready zkML"
   ],
-  "payload_commitment": "blake2b-256:56204d9e461a659823284bb49096d187dfe87217aae062f4eab27b5984a35f0a",
+  "payload_commitment": "blake2b-256:27e13019140cb1914b6d98d2703aa91b89cddb4d5f26b2402bce862a047a1d75",
   "resource_limit_analysis": {
     "max_single_envelope_json_bytes": 33554432,
     "max_single_input_json_bytes": 33554432,
-    "parsing_model": "whole-buffer serde_json over repo-local evidence artifacts",
+    "parsing_model": "Python gate bounded-read plus whole-buffer json.loads over repo-local evidence artifacts; Rust CLIs use whole-buffer serde_json under matching repo-local byte caps",
     "single_envelope_headroom_bytes": 8144976,
     "single_envelope_json_bytes": 25409456,
     "single_input_headroom_bytes": 14802247,
