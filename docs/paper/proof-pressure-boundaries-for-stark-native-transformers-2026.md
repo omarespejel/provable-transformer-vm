@@ -10,9 +10,9 @@ StarkWare
 
 ## Abstract
 
-Most zkML comparisons ask whether a proof system can swallow an entire model or
-whether a single framework has a better headline proof size. This paper studies a
-narrower proof-architecture question: where should the proof boundary be placed
+A common question in zkML is whether a proof system can handle an entire model,
+or whether one framework has a better headline proof size. This paper studies a
+narrower architectural question: where should the proof boundary be placed
 inside transformer inference?
 
 We evaluate STARK-native attention surfaces built over bounded integer
@@ -51,12 +51,12 @@ system benchmark, or a proof-family dominance claim.
 
 ## 1. Introduction
 
-Transformer proving is often discussed with the wrong mental object. The model is
-treated as one black box, and the proof system is judged by whether it can wrap
-that box. That is not how the engineering pressure appears. Transformer
-inference is structured: attention arithmetic, lookup-heavy nonlinear policies,
-dense projections, residual surfaces, carried state, and verifier-facing
-statement boundaries do not stress the prover in the same way.
+Transformer proving is often discussed as if the model were a single black-box
+object and the proof system were a wrapper around it. That abstraction hides the
+different sources of proof pressure inside inference. Attention arithmetic,
+lookup-heavy nonlinear policies, dense projections, residual surfaces, carried
+state, and verifier-facing statement boundaries do not stress the prover in the
+same way.
 
 If different regions create different proof pressure, a monolithic boundary is
 not automatically the right research object. The useful question becomes:
@@ -81,12 +81,12 @@ about six and a half percent. The relevant shape is that work grows quickly,
 proof bytes grow slowly, and the saving is attributable to shared proof
 plumbing.
 
-The result should not be oversold. The measured timing rows do not show fused
-proving is faster. At `d64`, prove and verify timings grow near the work axis.
-The d256 width-stress row still saves proof bytes against the split frontier, but
-its fused proof ratio weakens to `0.964602x`, and measured timing is not a speed win.
-That weakness is useful. It says the right paper is not "one big STARK proof wins
-forever." The better claim is:
+The measured timing rows do not show that fused proving is faster. At `d64`,
+prove and verify timings grow near the work axis. The d256 width-stress row
+still saves proof bytes against the split frontier, but its fused proof ratio
+weakens to `0.964602x`, and measured timing is not a speed win. The evidence
+therefore supports a boundary-selection claim rather than a universal
+monolithic-fusion claim:
 
 > Transformer zkML should choose proof boundaries around proof pressure. In the
 > attention surfaces studied here, STARK-native fusion amortizes lookup-heavy
