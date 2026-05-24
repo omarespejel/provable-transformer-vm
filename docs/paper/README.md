@@ -9,6 +9,9 @@ It also contains a newer proof-boundary draft:
 - `proof-pressure-boundaries-for-stark-native-transformers-2026.md`
 - `appendix-zkml-statement-validity-2026.md`
 
+The repository root README links these two zkML architecture drafts for
+top-level discoverability.
+
 That draft is the current home for the May 2026 STARK-native transformer
 proof-pressure result: lookup and trace work grow quickly on checked sequence
 rows while fused proof bytes grow slowly. It should be read as a scoped
