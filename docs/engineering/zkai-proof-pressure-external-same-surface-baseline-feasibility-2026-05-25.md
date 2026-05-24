@@ -71,6 +71,41 @@ An external baseline can be called same-surface only if it pins:
 If any of these are changed, the row may still be useful but should be labeled
 as a semantic-neighbor baseline rather than same-surface.
 
+## Byte Accounting Method
+
+Any external baseline row must report byte categories with file-level
+measurement rules. The measurement method is `stat -f%z <file>` on macOS or
+`wc -c <file>` on portable shells, recorded against exact artifact paths and
+source digests.
+
+Included byte categories:
+
+- `proof_bytes`: the serialized EZKL proof or zkVM receipt artifact exactly as
+  verified by its verifier.
+- `verification_key_bytes`: the serialized verifier key, proving settings, image
+  identifier, or verifier artifact required by the verifier and not derivable
+  from the proof bytes alone.
+- `settings_bytes`: EZKL settings, model metadata, or equivalent configuration
+  required to reproduce verification.
+- `setup_assumptions_bytes`: SRS, trusted setup handle, image ID, or versioned
+  setup reference. If the object is a handle rather than a byte artifact, report
+  `not_byte_sized_handle` and record the handle value separately.
+- `statement_envelope_bytes`: the typed statement envelope that binds model or
+  kernel identity, input commitment, output commitment, numeric policy, verifier
+  domain, source digest, and non-claims.
+
+Excluded from the primary proof-size row:
+
+- source JSON fixtures used only to generate the witness;
+- human-readable notes;
+- logs, stdout, timing captures, and temporary build directories;
+- duplicate copies of artifacts already counted in a category above.
+
+If a category is unavailable because no proof or export artifact exists, the row
+must say `unavailable_not_generated` rather than using zero. That distinction is
+important: zero means the artifact is unnecessary; unavailable means the probe
+has not produced a comparable proof object.
+
 ## EZKL Feasibility
 
 ### GO path
@@ -119,15 +154,15 @@ Softmax-table fused attention surface used in the proof-pressure paper.
 Recommended next issue work:
 
 ```bash
-python3 scripts/zkai_attention_kv_ezkl_same_surface_export_probe.py \
+python3.10 scripts/zkai_attention_kv_ezkl_same_surface_export_probe.py \
   --source docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-two-head-seq32-bounded-softmax-table-proof-2026-05.json \
   --write-dir target/zkai-ezkl-same-surface-d64-h2-seq32 \
   --write-note docs/engineering/zkai-proof-pressure-ezkl-same-surface-export-probe-2026-05.md
 ```
 
-That script does not exist yet. Its first responsibility should be semantic
-export and accounting classification, not proving. It should fail closed if the
-ONNX export cannot preserve the table policy and public output semantics.
+The first probe script's responsibility is semantic export and accounting
+classification, not proving. It should fail closed if the ONNX export cannot
+preserve the table policy and public output semantics.
 
 ## Paper Usage
 
