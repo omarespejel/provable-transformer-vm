@@ -10,7 +10,10 @@ or imply a proving-speed win.
 from __future__ import annotations
 
 import csv
+import os
 from pathlib import Path
+
+os.environ.setdefault("SOURCE_DATE_EPOCH", "1779667200")
 
 import matplotlib
 
@@ -113,6 +116,7 @@ plt.rcParams.update(
         "pdf.fonttype": 42,
         "ps.fonttype": 42,
         "svg.fonttype": "none",
+        "svg.hashsalt": "zkai-proof-pressure-boundaries-2026-05",
         "savefig.bbox": "tight",
     }
 )
@@ -136,10 +140,16 @@ def write_figure(fig: plt.Figure, stem: str) -> None:
     png_path = FIGURE_DIR / f"{stem}.png"
     fig.savefig(pdf_path)
     fig.savefig(svg_path)
+    normalize_svg(svg_path)
     fig.savefig(png_path, dpi=300)
     print(f"wrote {pdf_path}")
     print(f"wrote {svg_path}")
     print(f"wrote {png_path}")
+
+
+def normalize_svg(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    path.write_text("\n".join(line.rstrip() for line in text.splitlines()) + "\n", encoding="utf-8")
 
 
 def write_tsv(stem: str, fieldnames: list[str], rows: list[dict[str, object]]) -> None:
