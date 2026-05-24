@@ -1,0 +1,456 @@
+#!/usr/bin/env python3.10
+"""Gate the scoped d128 seq32 attention plus d128 MLP single proof object."""
+
+from __future__ import annotations
+
+import argparse
+import copy
+import csv
+import hashlib
+import io
+import json
+import os
+import pathlib
+import stat
+import sys
+from typing import Any, Callable
+
+
+if sys.version_info < (3, 10):
+    raise RuntimeError("zkai_native_d128_seq32_attention_mlp_single_proof_gate requires Python 3.10+")
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+EVIDENCE_DIR = ROOT / "docs" / "engineering" / "evidence"
+
+INPUT_PATH = EVIDENCE_DIR / "zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.input.json"
+ENVELOPE_PATH = EVIDENCE_DIR / "zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.envelope.json"
+SINGLE_ACCOUNTING_PATH = (
+    EVIDENCE_DIR / "zkai-native-d128-seq32-attention-mlp-single-proof-binary-accounting-2026-05.json"
+)
+SPLIT_ACCOUNTING_PATH = (
+    EVIDENCE_DIR / "zkai-native-d128-seq32-attention-mlp-split-frontier-binary-accounting-2026-05.json"
+)
+PREFLIGHT_PATH = EVIDENCE_DIR / "zkai-scoped-d128-seq32-block-boundary-preflight-2026-05.json"
+
+JSON_OUT = EVIDENCE_DIR / "zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.json"
+TSV_OUT = EVIDENCE_DIR / "zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.tsv"
+MD_OUT = ROOT / "docs" / "engineering" / "zkai-native-d128-seq32-attention-mlp-single-proof-2026-05-24.md"
+
+SCHEMA = "zkai-native-d128-seq32-attention-mlp-single-proof-gate-v1"
+DECISION = "GO_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_BEATS_SCOPED_SPLIT_FRONTIER"
+RESULT = "SCOPED_D128_SEQ32_SINGLE_PROOF_SAVES_17395_JSON_AND_4608_TYPED_BYTES"
+PAYLOAD_DOMAIN = "ptvm:zkai:native-d128-seq32-attention-mlp-single-proof-gate:v1"
+ISSUE = 715
+
+SINGLE_PROOF_JSON_BYTES = 503_004
+SINGLE_TYPED_BYTES = 204_564
+SINGLE_ENVELOPE_JSON_BYTES = 25_397_332
+SINGLE_INPUT_JSON_BYTES = 18_752_179
+SPLIT_PROOF_JSON_BYTES = 520_399
+SPLIT_TYPED_BYTES = 209_172
+PROOF_JSON_SAVING_BYTES = 17_395
+TYPED_SAVING_BYTES = 4_608
+PROOF_JSON_RATIO = "0.966574"
+TYPED_RATIO = "0.977970"
+STATEMENT_COMMITMENT = "blake2b-256:0f0e55d67e8311803cc2d79d4fb8ff71a1c687ecbe6b4e2443fdec0239e5b0f1"
+PUBLIC_INSTANCE_COMMITMENT = "blake2b-256:c49f0ddbdcb4850333f86a5a9f5ff2b1b607334a8ed22834c1ac3eb417ac8e4d"
+PROOF_SHA256 = "a9f6e26f30f5da5a1126dae187a35b6faf2e9924efbe8ae98dc39e3d988daf24"
+ENVELOPE_SHA256 = "bb62d9063f3e1f10dea2245f529372b33da5eaf335a45130d91610cadcbd7093"
+
+EXPECTED_INPUT_METADATA = {
+    "schema": "zkai-native-d128-seq32-attention-mlp-single-proof-object-input-v1",
+    "decision": "GO_INPUT_FOR_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_OBJECT_PROBE",
+    "target_id": "attention-kv-d128-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
+    "verifier_domain": "ptvm:zkai:native-d128-seq32-attention-mlp-single-proof-object:v1",
+    "attention_lookup_claims": 1_184,
+    "attention_table_rows": 9,
+    "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER",
+    "adapter_trace_cells": 1_536,
+    "pcs_lifting_log_size": 19,
+    "current_two_proof_frontier_typed_bytes": SPLIT_PROOF_JSON_BYTES,
+    "current_attention_fused_typed_bytes": 445_888,
+    "current_derived_mlp_fused_typed_bytes": 24_272,
+}
+
+EXPECTED_ENVELOPE_METADATA = {
+    "proof_backend": "stwo",
+    "proof_backend_version": "stwo-native-d128-seq32-attention-mlp-single-proof-object-native-adapter-v1",
+    "proof_schema_version": "stwo-native-d128-seq32-attention-mlp-single-proof-object-native-adapter-payload-v1",
+    "statement_version": "zkai-native-d128-seq32-attention-mlp-single-proof-object-native-adapter-statement-v1",
+    "semantic_scope": (
+        "d128_two_head_seq32_attention_softmax_table_public_adapter_and_seq32_derived_d128_"
+        "rmsnorm_mlp_surfaces_in_one_native_stwo_proof_object"
+    ),
+    "decision": "GO_SINGLE_NATIVE_STWO_PROOF_OBJECT_WITH_NATIVE_D128_SEQ32_ATTENTION_TO_D128_MLP_ADAPTER_AIR",
+    "target_id": EXPECTED_INPUT_METADATA["target_id"],
+    "verifier_domain": EXPECTED_INPUT_METADATA["verifier_domain"],
+}
+
+NON_CLAIMS = (
+    "not a full transformer block proof",
+    "not a model-faithful d128 attention-to-MLP adapter",
+    "not a NANOZK proof-size win",
+    "not a matched external zkML benchmark",
+    "not exact real-valued Softmax",
+    "not full autoregressive inference",
+    "not timing evidence",
+    "not production-ready zkML",
+)
+
+VALIDATION_COMMANDS = (
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_d128_seq32_attention_mlp_single_proof -- build-input docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.input.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_d128_seq32_attention_mlp_single_proof -- prove docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.input.json docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_d128_seq32_attention_mlp_single_proof -- verify docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.envelope.json > docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-binary-accounting-2026-05.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_stwo_proof_binary_accounting -- --evidence-dir docs/engineering/evidence docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-two-head-seq32-fused-softmax-table-proof-2026-05.envelope.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.envelope.json > docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-split-frontier-binary-accounting-2026-05.json",
+    "python3.10 scripts/zkai_native_d128_seq32_attention_mlp_single_proof_gate.py --write-json docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.json --write-tsv docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.tsv --write-md docs/engineering/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05-24.md",
+    "python3.10 -m py_compile scripts/zkai_native_d128_seq32_attention_mlp_single_proof_gate.py scripts/tests/test_zkai_native_d128_seq32_attention_mlp_single_proof_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_native_d128_seq32_attention_mlp_single_proof_gate",
+    "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_d128_seq32_attention_mlp_single_proof --lib",
+    "git diff --check",
+    "just gate-fast",
+)
+
+
+class NativeD128Seq32SingleProofGateError(ValueError):
+    pass
+
+
+def canonical_json_bytes(value: Any) -> bytes:
+    try:
+        return json.dumps(
+            value,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=True,
+            allow_nan=False,
+        ).encode("utf-8")
+    except (TypeError, ValueError) as err:
+        raise NativeD128Seq32SingleProofGateError(f"invalid JSON value: {err}") from err
+
+
+def payload_commitment(payload: dict[str, Any]) -> str:
+    material = {key: value for key, value in payload.items() if key != "payload_commitment"}
+    digest = hashlib.blake2b(digest_size=32)
+    digest.update(PAYLOAD_DOMAIN.encode("utf-8"))
+    digest.update(b"\0")
+    digest.update(canonical_json_bytes(material))
+    return "blake2b-256:" + digest.hexdigest()
+
+
+def read_repo_file(path: pathlib.Path, label: str) -> bytes:
+    root = ROOT.resolve()
+    candidate = pathlib.Path(os.path.abspath(path if path.is_absolute() else ROOT / path))
+    try:
+        relative = candidate.relative_to(root)
+    except ValueError as err:
+        raise NativeD128Seq32SingleProofGateError(f"{label} escapes repo root: {path}") from err
+    current = root
+    try:
+        for part in relative.parts:
+            current = current / part
+            if stat.S_ISLNK(current.lstat().st_mode):
+                raise NativeD128Seq32SingleProofGateError(f"{label} must not traverse symlinks")
+        fd = os.open(candidate, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+        try:
+            with os.fdopen(fd, "rb") as handle:
+                fd = None
+                return handle.read()
+        finally:
+            if fd is not None:
+                os.close(fd)
+    except OSError as err:
+        raise NativeD128Seq32SingleProofGateError(f"failed to read {label}: {err}") from err
+
+
+def read_json(path: pathlib.Path, label: str) -> tuple[dict[str, Any], bytes]:
+    raw = read_repo_file(path, label)
+    try:
+        value = json.loads(raw)
+    except json.JSONDecodeError as err:
+        raise NativeD128Seq32SingleProofGateError(f"{label} is not valid JSON: {err}") from err
+    if not isinstance(value, dict):
+        raise NativeD128Seq32SingleProofGateError(f"{label} must be a JSON object")
+    return value, raw
+
+
+def source_artifact(artifact_id: str, path: pathlib.Path, label: str) -> dict[str, Any]:
+    payload, raw = read_json(path, label)
+    return {
+        "id": artifact_id,
+        "path": path.relative_to(ROOT).as_posix(),
+        "size_bytes": len(raw),
+        "sha256": hashlib.sha256(raw).hexdigest(),
+        "payload_sha256": hashlib.sha256(canonical_json_bytes(payload)).hexdigest(),
+    }
+
+
+def require(condition: bool, message: str) -> None:
+    if not condition:
+        raise NativeD128Seq32SingleProofGateError(message)
+
+
+def build_payload() -> dict[str, Any]:
+    input_payload, input_raw = read_json(INPUT_PATH, "scoped input")
+    envelope, envelope_raw = read_json(ENVELOPE_PATH, "scoped envelope")
+    single_accounting, _ = read_json(SINGLE_ACCOUNTING_PATH, "single accounting")
+    split_accounting, _ = read_json(SPLIT_ACCOUNTING_PATH, "split accounting")
+    preflight, _ = read_json(PREFLIGHT_PATH, "preflight gate")
+
+    proof = envelope.get("proof")
+    require(isinstance(proof, list), "envelope proof must be a list")
+    proof_bytes = bytes(int(value) for value in proof)
+    proof_sha = hashlib.sha256(proof_bytes).hexdigest()
+    envelope_sha = hashlib.sha256(envelope_raw).hexdigest()
+
+    single_rows = single_accounting.get("rows")
+    split_rows = split_accounting.get("rows")
+    require(isinstance(single_rows, list) and len(single_rows) == 1, "single accounting row count drift")
+    require(isinstance(split_rows, list) and len(split_rows) == 2, "split accounting row count drift")
+    single_row = single_rows[0]
+    single_typed = single_row["local_binary_accounting"]["typed_size_estimate_bytes"]
+    split_json = sum(row["proof_json_size_bytes"] for row in split_rows)
+    split_typed = sum(row["local_binary_accounting"]["typed_size_estimate_bytes"] for row in split_rows)
+
+    for field, expected in EXPECTED_INPUT_METADATA.items():
+        require(input_payload.get(field) == expected, f"input metadata drift: {field}")
+    for field, expected in EXPECTED_ENVELOPE_METADATA.items():
+        require(envelope.get(field) == expected, f"envelope metadata drift: {field}")
+    require(input_payload.get("statement_commitment") == STATEMENT_COMMITMENT, "input statement drift")
+    require(input_payload.get("public_instance_commitment") == PUBLIC_INSTANCE_COMMITMENT, "input public drift")
+    require(envelope.get("input", {}).get("statement_commitment") == STATEMENT_COMMITMENT, "envelope input statement drift")
+    require(len(proof_bytes) == SINGLE_PROOF_JSON_BYTES, "single proof JSON byte drift")
+    require(len(input_raw) == SINGLE_INPUT_JSON_BYTES, "single input JSON byte drift")
+    require(len(envelope_raw) == SINGLE_ENVELOPE_JSON_BYTES, "single envelope JSON byte drift")
+    require(proof_sha == PROOF_SHA256, "proof sha drift")
+    require(envelope_sha == ENVELOPE_SHA256, "envelope sha drift")
+    require(single_typed == SINGLE_TYPED_BYTES, "single typed byte drift")
+    require(split_json == SPLIT_PROOF_JSON_BYTES, "split proof JSON byte drift")
+    require(split_typed == SPLIT_TYPED_BYTES, "split typed byte drift")
+    require(preflight.get("decision") == "GO_SCOPED_D128_SEQ32_BLOCK_BOUNDARY_PREFLIGHT", "preflight decision drift")
+
+    payload = {
+        "schema": SCHEMA,
+        "decision": DECISION,
+        "result": RESULT,
+        "issue": ISSUE,
+        "summary": {
+            "single_proof_json_bytes": SINGLE_PROOF_JSON_BYTES,
+            "split_proof_json_bytes": SPLIT_PROOF_JSON_BYTES,
+            "proof_json_saving_bytes": PROOF_JSON_SAVING_BYTES,
+            "proof_json_ratio": PROOF_JSON_RATIO,
+            "single_typed_bytes": SINGLE_TYPED_BYTES,
+            "split_typed_bytes": SPLIT_TYPED_BYTES,
+            "typed_saving_bytes": TYPED_SAVING_BYTES,
+            "typed_ratio": TYPED_RATIO,
+            "single_input_json_bytes": SINGLE_INPUT_JSON_BYTES,
+            "single_envelope_json_bytes": SINGLE_ENVELOPE_JSON_BYTES,
+            "statement_commitment": STATEMENT_COMMITMENT,
+            "public_instance_commitment": PUBLIC_INSTANCE_COMMITMENT,
+            "proof_sha256": PROOF_SHA256,
+            "envelope_sha256": ENVELOPE_SHA256,
+            "d128_attention_fused_proof_json_bytes": 445_888,
+            "seq32_derived_d128_mlp_fused_proof_json_bytes": 74_511,
+            "d128_attention_fused_typed_bytes": 184_900,
+            "seq32_derived_d128_mlp_fused_typed_bytes": 24_272,
+            "proof_size_comparable_external_rows": 0,
+            "primary_next_gate": "regenerate_model-faithful_d128_mlp_surface_or_d128_seq64_stress",
+        },
+        "interpretation": {
+            "human_read": (
+                "One native Stwo proof now binds the real d128 two-head seq32 fused attention source, "
+                "a verifier-recomputed d128 adapter, and the seq32-derived d128 RMSNorm/MLP surface."
+            ),
+            "interesting_signal": (
+                "The scoped proof is smaller than the matched local split frontier in both proof JSON bytes "
+                "and local typed accounting, so the d128 boundary still amortizes some proof plumbing."
+            ),
+            "guardrail": (
+                "The adapter is a scoped public binding device for this experiment, not a model-faithful "
+                "transformer-block handoff."
+            ),
+        },
+        "source_artifacts": [
+            source_artifact("scoped_input", INPUT_PATH, "scoped input"),
+            source_artifact("scoped_envelope", ENVELOPE_PATH, "scoped envelope"),
+            source_artifact("single_accounting", SINGLE_ACCOUNTING_PATH, "single accounting"),
+            source_artifact("split_accounting", SPLIT_ACCOUNTING_PATH, "split accounting"),
+            source_artifact("preflight_gate", PREFLIGHT_PATH, "preflight gate"),
+        ],
+        "non_claims": list(NON_CLAIMS),
+        "validation_commands": list(VALIDATION_COMMANDS),
+    }
+    payload["payload_commitment"] = payload_commitment(payload)
+    validate_payload(payload)
+    return payload
+
+
+def validate_payload(payload: dict[str, Any]) -> None:
+    require(payload.get("schema") == SCHEMA, "schema drift")
+    require(payload.get("decision") == DECISION, "decision drift")
+    require(payload.get("result") == RESULT, "result drift")
+    require(payload.get("issue") == ISSUE, "issue drift")
+    summary = payload.get("summary")
+    require(isinstance(summary, dict), "summary must be object")
+    expected_summary = {
+        "single_proof_json_bytes": SINGLE_PROOF_JSON_BYTES,
+        "split_proof_json_bytes": SPLIT_PROOF_JSON_BYTES,
+        "proof_json_saving_bytes": PROOF_JSON_SAVING_BYTES,
+        "proof_json_ratio": PROOF_JSON_RATIO,
+        "single_typed_bytes": SINGLE_TYPED_BYTES,
+        "split_typed_bytes": SPLIT_TYPED_BYTES,
+        "typed_saving_bytes": TYPED_SAVING_BYTES,
+        "typed_ratio": TYPED_RATIO,
+        "proof_size_comparable_external_rows": 0,
+    }
+    for field, expected in expected_summary.items():
+        require(summary.get(field) == expected, f"summary drift: {field}")
+    require(tuple(payload.get("non_claims", ())) == NON_CLAIMS, "non-claims drift")
+    require(tuple(payload.get("validation_commands", ())) == VALIDATION_COMMANDS, "validation commands drift")
+    require(payload.get("payload_commitment") == payload_commitment(payload), "payload commitment drift")
+
+
+Mutation = tuple[str, Callable[[dict[str, Any]], None]]
+
+
+def mutation_cases() -> tuple[Mutation, ...]:
+    return (
+        ("proof_json_metric_drift", lambda p: p["summary"].__setitem__("single_proof_json_bytes", SINGLE_PROOF_JSON_BYTES + 1)),
+        ("typed_metric_drift", lambda p: p["summary"].__setitem__("single_typed_bytes", SINGLE_TYPED_BYTES + 1)),
+        ("split_frontier_drift", lambda p: p["summary"].__setitem__("split_typed_bytes", SPLIT_TYPED_BYTES - 1)),
+        ("external_overclaim", lambda p: p["summary"].__setitem__("proof_size_comparable_external_rows", 1)),
+        ("decision_drift", lambda p: p.__setitem__("decision", "GO_FULL_BLOCK")),
+        ("issue_drift", lambda p: p.__setitem__("issue", ISSUE + 1)),
+        ("non_claim_removed", lambda p: p.__setitem__("non_claims", p["non_claims"][:-1])),
+        ("validation_command_drift", lambda p: p["validation_commands"].__setitem__(0, "python3.10 scripts/other.py")),
+        ("source_digest_drift", lambda p: p["source_artifacts"][0].__setitem__("sha256", "0" * 64)),
+        ("payload_commitment_drift", lambda p: p.__setitem__("payload_commitment", "blake2b-256:" + "0" * 64)),
+    )
+
+
+def run_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    results = []
+    for name, mutate in mutation_cases():
+        candidate = copy.deepcopy(payload)
+        mutate(candidate)
+        try:
+            validate_payload(candidate)
+        except NativeD128Seq32SingleProofGateError as err:
+            results.append({"name": name, "rejected": True, "error": str(err)})
+        else:
+            results.append({"name": name, "rejected": False, "error": ""})
+    return results
+
+
+def write_json(path: pathlib.Path, payload: dict[str, Any], mutation_results: list[dict[str, Any]]) -> None:
+    out = dict(payload)
+    out["mutations_checked"] = len(mutation_results)
+    out["mutations_rejected"] = sum(1 for result in mutation_results if result["rejected"])
+    out["all_mutations_rejected"] = all(result["rejected"] for result in mutation_results)
+    out["mutation_results"] = mutation_results
+    path.write_text(json.dumps(out, sort_keys=True, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+
+
+def write_tsv(path: pathlib.Path, payload: dict[str, Any]) -> None:
+    columns = [
+        "decision",
+        "single_proof_json_bytes",
+        "split_proof_json_bytes",
+        "proof_json_saving_bytes",
+        "proof_json_ratio",
+        "single_typed_bytes",
+        "split_typed_bytes",
+        "typed_saving_bytes",
+        "typed_ratio",
+    ]
+    row = {"decision": payload["decision"], **payload["summary"]}
+    output = io.StringIO()
+    writer = csv.DictWriter(
+        output,
+        fieldnames=columns,
+        delimiter="\t",
+        extrasaction="ignore",
+        lineterminator="\n",
+    )
+    writer.writeheader()
+    writer.writerow(row)
+    path.write_text(output.getvalue(), encoding="utf-8")
+
+
+def write_md(path: pathlib.Path, payload: dict[str, Any]) -> None:
+    s = payload["summary"]
+    body = f"""# Native D128 Seq32 Attention + D128 MLP Single Proof
+
+Issue: #715
+
+Status: `{payload['decision']}`.
+
+This gate builds one native Stwo proof object over the real d128 two-head
+`seq32` fused attention source, a verifier-recomputed d128 adapter, and the
+seq32-derived d128 RMSNorm/MLP surface.
+
+## Result
+
+| object | proof JSON bytes | typed bytes |
+| --- | ---: | ---: |
+| matched scoped split frontier | `{s['split_proof_json_bytes']:,}` | `{s['split_typed_bytes']:,}` |
+| native scoped single proof | `{s['single_proof_json_bytes']:,}` | `{s['single_typed_bytes']:,}` |
+| saving | `{s['proof_json_saving_bytes']:,}` | `{s['typed_saving_bytes']:,}` |
+| ratio | `{s['proof_json_ratio']}x` | `{s['typed_ratio']}x` |
+
+## Meaning
+
+The d128 scoped boundary is still a local one-proof size win. The win is
+smaller than the earlier seq32 champion, which is useful evidence: width
+pressure is real, but the boundary still shares enough proof plumbing to beat
+the matched split local frontier.
+
+## Guardrail
+
+The adapter is a scoped public binding device for this experiment. This is not
+a model-faithful full transformer block and not an external-system comparison.
+
+## Evidence
+
+- JSON gate: `docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.json`
+- TSV gate: `docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.tsv`
+- Input: `docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.input.json`
+- Envelope: `docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.envelope.json`
+- Single accounting: `docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-binary-accounting-2026-05.json`
+- Split accounting: `docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-split-frontier-binary-accounting-2026-05.json`
+
+## Non-Claims
+
+{chr(10).join(f'- {claim}.' for claim in NON_CLAIMS)}
+
+## Reproduce
+
+```bash
+{chr(10).join(VALIDATION_COMMANDS)}
+```
+"""
+    path.write_text(body, encoding="utf-8")
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--write-json", type=pathlib.Path)
+    parser.add_argument("--write-tsv", type=pathlib.Path)
+    parser.add_argument("--write-md", type=pathlib.Path)
+    args = parser.parse_args(argv)
+
+    payload = build_payload()
+    mutation_results = run_mutations(payload)
+    if args.write_json:
+        write_json(args.write_json, payload, mutation_results)
+    if args.write_tsv:
+        write_tsv(args.write_tsv, payload)
+    if args.write_md:
+        write_md(args.write_md, payload)
+    rejected = sum(1 for result in mutation_results if result["rejected"])
+    print(f"{DECISION}: {rejected}/{len(mutation_results)} mutations rejected")
+    return 0 if rejected == len(mutation_results) else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

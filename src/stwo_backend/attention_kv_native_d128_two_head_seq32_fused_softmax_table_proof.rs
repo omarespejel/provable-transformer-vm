@@ -100,7 +100,7 @@ const EXPECTED_NON_CLAIMS: &[&str] = &[
 relation!(AttentionKvD128TwoHeadSeq32FusedSoftmaxTableRelation, 2);
 
 #[derive(Debug, Clone)]
-struct AttentionKvNativeD128TwoHeadSeq32FusedSoftmaxTableEval {
+pub(super) struct AttentionKvNativeD128TwoHeadSeq32FusedSoftmaxTableEval {
     lookup_elements: AttentionKvD128TwoHeadSeq32FusedSoftmaxTableRelation,
 }
 
@@ -542,13 +542,13 @@ fn validate_envelope(
     Ok(())
 }
 
-fn validate_source_input(
+pub(super) fn validate_source_input(
     input: &ZkAiAttentionKvNativeD128TwoHeadSeq32BoundedSoftmaxTableProofInput,
 ) -> Result<()> {
     validate_zkai_attention_kv_native_d128_two_head_seq32_bounded_softmax_table_input(input)
 }
 
-fn fused_summary(
+pub(super) fn fused_summary(
     input: &ZkAiAttentionKvNativeD128TwoHeadSeq32BoundedSoftmaxTableProofInput,
 ) -> Result<ZkAiAttentionKvNativeD128TwoHeadSeq32FusedSoftmaxTableSummary> {
     let mut multiplicities = input
@@ -633,7 +633,7 @@ fn build_fused_bundle(
     })
 }
 
-fn fused_preprocessed_trace(
+pub(super) fn fused_preprocessed_trace(
     input: &ZkAiAttentionKvNativeD128TwoHeadSeq32BoundedSoftmaxTableProofInput,
     summary: &ZkAiAttentionKvNativeD128TwoHeadSeq32FusedSoftmaxTableSummary,
 ) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
@@ -686,7 +686,7 @@ fn fused_preprocessed_trace(
         .collect())
 }
 
-fn fused_base_trace(
+pub(super) fn fused_base_trace(
     input: &ZkAiAttentionKvNativeD128TwoHeadSeq32BoundedSoftmaxTableProofInput,
 ) -> Result<ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>> {
     let domain = CanonicCoset::new(LOG_SIZE).circle_domain();
@@ -960,7 +960,7 @@ fn fused_commitment_roots(
     Ok(commitment_scheme.roots())
 }
 
-fn fused_interaction_trace(
+pub(super) fn fused_interaction_trace(
     log_size: u32,
     base_trace: &ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
     preprocessed_trace: &ColumnVec<CircleEvaluation<SimdBackend, BaseField, BitReversedOrder>>,
@@ -995,8 +995,18 @@ fn fused_interaction_trace(
 fn fused_component(
     lookup_elements: AttentionKvD128TwoHeadSeq32FusedSoftmaxTableRelation,
 ) -> FrameworkComponent<AttentionKvNativeD128TwoHeadSeq32FusedSoftmaxTableEval> {
-    FrameworkComponent::new(
+    fused_component_with_allocator(
         &mut TraceLocationAllocator::new_with_preprocessed_columns(&fused_preprocessed_column_ids()),
+        lookup_elements,
+    )
+}
+
+pub(super) fn fused_component_with_allocator(
+    allocator: &mut TraceLocationAllocator,
+    lookup_elements: AttentionKvD128TwoHeadSeq32FusedSoftmaxTableRelation,
+) -> FrameworkComponent<AttentionKvNativeD128TwoHeadSeq32FusedSoftmaxTableEval> {
+    FrameworkComponent::new(
+        allocator,
         AttentionKvNativeD128TwoHeadSeq32FusedSoftmaxTableEval { lookup_elements },
         SecureField::zero(),
     )
@@ -1132,7 +1142,7 @@ fn fused_preprocessed_column_index(ids: &[PreProcessedColumnId], target: &str) -
         .ok_or_else(|| fused_error(format!("missing fused preprocessed column id: {target}")))
 }
 
-fn fused_preprocessed_column_ids() -> Vec<PreProcessedColumnId> {
+pub(super) fn fused_preprocessed_column_ids() -> Vec<PreProcessedColumnId> {
     let mut ids = fused_row_column_ids()
         .iter()
         .map(|id| preprocessed_column_id(id))

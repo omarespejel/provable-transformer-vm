@@ -4,7 +4,7 @@ This is the tracked GitHub-safe mirror of the local `.codex` handoff notes.
 If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 `.codex/HANDOFF.md` first. This file is the durable shared resume surface.
 
-**Mainline tip at last refresh:** `806b9916b6c19be78cf8f3bcb100dd6d29ec314b` (matches
+**Mainline tip at last refresh:** `f49d0a4f2da639833320963d16908d7b6f383aa0` (matches
 `.codex/HANDOFF.md` “Mainline reference at refresh”; update both together).
 
 ## Read order for a fresh agent
@@ -115,8 +115,9 @@ If you are in a local checkout, prefer `AGENTS.md`, `.codex/START_HERE.md`, and
 104. `docs/engineering/zkai-stwo-inner-attempt-domain-statement-2026-05-19.md`
 105. `docs/engineering/zkai-proof-pressure-slope-table-2026-05-24.md`
 106. `docs/engineering/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05-24.md`
-107. `docs/engineering/reproducibility.md`
-108. `git status --short --branch`
+107. `docs/engineering/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05-24.md`
+108. `docs/engineering/reproducibility.md`
+109. `git status --short --branch`
 
 ## Current lane split
 
@@ -129,7 +130,22 @@ before opening or executing frontier issues. The north star is STARK-native
 proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
 
-Latest scoped-block preflight: issue `#715` now has a generated
+Latest scoped d128 implementation gate: issue `#715` now has a real one-proof
+scoped `d128 seq32` attention-plus-MLP boundary result. The single native Stwo
+proof binds the real d128 two-head seq32 fused attention source, a
+verifier-recomputed scoped d128 adapter, and the seq32-derived d128 RMSNorm/MLP
+surface. It beats the matched scoped split frontier: `503,004` proof JSON bytes
+versus `520,399`, saving `17,395` (`0.966574x`), and `204,564` typed bytes
+versus `209,172`, saving `4,608` (`0.977970x`). The gate rejects `10 / 10`
+mutations and pins source digests, binary accounting, reproduction commands,
+and non-claims. This is not a full transformer block proof, not a
+model-faithful d128 attention-to-MLP adapter, not an external benchmark, and
+not a NANOZK comparison. Next decision gate: either regenerate a model-faithful
+d128 MLP surface from the d128 attention output, or run a d128 seq64 stress
+gate. See
+`docs/engineering/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05-24.md`.
+
+Previous scoped-block preflight: issue `#715` has a generated
 `d128 seq32` transformer-boundary preflight gate. This is not a new proof
 object. It binds the current slope table, the `d128_two_head_seq32` attention
 route, the seq32-derived d128 MLP surface, and the existing seq32+d128
