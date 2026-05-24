@@ -1,0 +1,9 @@
+row_id	label	axis	target_fused_to_split_ratio	target_saving_bytes
+d64_h1_to_h4_seq16_head_axis	d64 seq16 h1 to h4	head	0.911430	23089
+d64_h2_seq32_to_seq64_sequence_axis	d64 h2 seq32 to 64	sequence	0.888152	34334
+d64_h4_seq32_to_seq64_sequence_axis	d64 h4 seq32 to 64	sequence	0.875605	39282
+d128_h2_seq32_to_seq64_sequence_axis	d128 h2 seq32 to 64	sequence	0.922792	40317
+d128_h4_seq32_to_seq64_sequence_axis	d128 h4 seq32 to 64	sequence	0.918810	43816
+d64_to_d128_h1_seq16_width_axis	h1 seq16 d64 to 128	width	0.957286	16971
+d64_to_d128_h2_seq32_width_axis	h2 seq32 d64 to 128	width	0.932282	32388
+d128_to_d256_h2_seq32_width_axis	h2 seq32 d128 to 256	width	0.964602	30143

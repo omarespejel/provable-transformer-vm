@@ -1,0 +1,5 @@
+row_id	label	lookup_growth	trace_growth	fused_proof_growth
+d64_h2_seq32_to_seq64	d64 h2	3.729730	4.000000	1.076519
+d64_h4_seq32_to_seq64	d64 h4	3.729730	4.000000	1.080558
+d128_h2_seq32_to_seq64	d128 h2	3.729730	4.000000	1.080697
+d128_h4_seq32_to_seq64	d128 h4	3.729730	4.000000	1.064910

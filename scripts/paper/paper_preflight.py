@@ -38,6 +38,7 @@ PUBLICATION_METADATA_FILES = [
 ]
 
 PAPER_FILES = [
+    "docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md",
     "docs/paper/stark-transformer-alignment-2026.md",
     "docs/paper/abstract-tablero-2026.md",
     "docs/paper/tablero-typed-verifier-boundaries-2026.md",
