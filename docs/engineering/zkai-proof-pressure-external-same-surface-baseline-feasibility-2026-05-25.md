@@ -149,18 +149,20 @@ The existing RISC Zero attention receipts in this repository are useful controls
 for statement binding and carried-state semantics, but they are not the same
 Softmax-table fused attention surface used in the proof-pressure paper.
 
-## Next Implementation Command Path
+## Next Implementation Artifact Contract
 
-Recommended next issue work:
+The next implementation should be a separate probe artifact, not a command hidden
+inside this appendix PR. It should take this source evidence file:
 
-```bash
-python3.10 scripts/zkai_attention_kv_ezkl_same_surface_export_probe.py \
-  --source docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-two-head-seq32-bounded-softmax-table-proof-2026-05.json \
-  --write-dir target/zkai-ezkl-same-surface-d64-h2-seq32 \
-  --write-note docs/engineering/zkai-proof-pressure-ezkl-same-surface-export-probe-2026-05.md
-```
+- `docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-two-head-seq32-bounded-softmax-table-proof-2026-05.json`
 
-The first probe script's responsibility is semantic export and accounting
+It should write:
+
+- a machine-readable probe payload under `target/`;
+- a public engineering note under `docs/engineering/`;
+- an exact reproduction command in that note after the script exists.
+
+The first probe artifact's responsibility is semantic export and accounting
 classification, not proving. It should fail closed if the ONNX export cannot
 preserve the table policy and public output semantics.
 
