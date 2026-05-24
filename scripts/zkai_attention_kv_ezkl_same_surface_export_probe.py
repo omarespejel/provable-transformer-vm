@@ -12,8 +12,10 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import importlib.util
 import json
 import pathlib
+import re
 import subprocess
 from typing import Any
 
@@ -25,6 +27,11 @@ DEFAULT_SOURCE = (
     / "engineering"
     / "evidence"
     / "zkai-attention-kv-stwo-native-d64-two-head-seq32-bounded-softmax-table-proof-2026-05.json"
+)
+SOURCE_INPUT_SCRIPT = (
+    ROOT
+    / "scripts"
+    / "zkai_attention_kv_stwo_native_d64_two_head_seq32_bounded_softmax_table_proof_input.py"
 )
 DEFAULT_WRITE_DIR = ROOT / "target" / "zkai-ezkl-same-surface-d64-h2-seq32"
 DEFAULT_NOTE = ROOT / "docs" / "engineering" / "zkai-proof-pressure-ezkl-same-surface-export-probe-2026-05.md"
@@ -51,10 +58,43 @@ SOURCE_SHAPE_TSV_COLUMNS = (
     "field",
     "value",
 )
+STATEMENT_SHAPE_TSV_COLUMNS = (
+    "statement_field",
+    "source_field",
+    "binding",
+    "commitment_field",
+)
+ACCOUNTING_TSV_COLUMNS = (
+    "byte_category",
+    "status",
+    "bytes",
+    "artifact",
+)
+GATE_CRITERIA_TSV_COLUMNS = (
+    "criterion",
+    "status",
+    "evidence",
+)
+COMMITMENT_PATTERN = re.compile(r"^blake2b-256:[0-9a-f]{64}$")
 
 
 class SameSurfaceExportProbeError(ValueError):
     pass
+
+
+def load_source_input_module() -> Any:
+    spec = importlib.util.spec_from_file_location(
+        "zkai_attention_kv_stwo_native_d64_two_head_seq32_bounded_softmax_table_proof_input",
+        SOURCE_INPUT_SCRIPT,
+    )
+    if spec is None or spec.loader is None:
+        raise SameSurfaceExportProbeError(f"failed to load source input script: {SOURCE_INPUT_SCRIPT}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+SOURCE_INPUT = load_source_input_module()
 
 
 def canonical_json_bytes(value: Any) -> bytes:
@@ -110,7 +150,18 @@ def load_source(path: pathlib.Path) -> dict[str, Any]:
     return payload
 
 
-def source_shape(source: dict[str, Any], source_path: pathlib.Path) -> dict[str, Any]:
+def require_blake2b_commitment(value: Any, key: str) -> str:
+    if not isinstance(value, str) or COMMITMENT_PATTERN.fullmatch(value) is None:
+        raise SameSurfaceExportProbeError(f"missing or invalid commitment field {key}")
+    return value
+
+
+def source_shape(
+    source: dict[str, Any],
+    source_path: pathlib.Path,
+    *,
+    source_sha256: str | None = None,
+) -> dict[str, Any]:
     required_scalars = {
         "schema": SOURCE_SCHEMA,
         "target_id": SOURCE_TARGET_ID,
@@ -147,17 +198,17 @@ def source_shape(source: dict[str, Any], source_path: pathlib.Path) -> dict[str,
         raise SameSurfaceExportProbeError("weight_table shape drift")
 
     required_commitments = (
+        "initial_kv_cache_commitment",
         "input_steps_commitment",
+        "final_kv_cache_commitment",
         "outputs_commitment",
+        "proof_native_parameter_commitment",
         "public_instance_commitment",
         "score_row_commitment",
         "statement_commitment",
         "weight_table_commitment",
     )
-    for key in required_commitments:
-        value = source.get(key)
-        if not isinstance(value, str) or not value.startswith("blake2b-256:"):
-            raise SameSurfaceExportProbeError(f"missing or invalid commitment field {key}")
+    commitments = {key: require_blake2b_commitment(source.get(key), key) for key in required_commitments}
 
     non_claims = source.get("non_claims")
     if not isinstance(non_claims, list) or "not exact Softmax attention" not in non_claims:
@@ -165,9 +216,14 @@ def source_shape(source: dict[str, Any], source_path: pathlib.Path) -> dict[str,
     if "not full transformer inference" not in non_claims:
         raise SameSurfaceExportProbeError("source full-inference non-claim drift")
 
+    try:
+        SOURCE_INPUT.validate_payload(source)
+    except Exception as err:
+        raise SameSurfaceExportProbeError(f"source payload validation failed: {err}") from err
+
     return {
         "source_path": display_path(source_path),
-        "source_sha256": sha256_file(source_path),
+        "source_sha256": source_sha256 or sha256_file(source_path),
         "schema": source["schema"],
         "target_id": source["target_id"],
         "statement_version": source["statement_version"],
@@ -184,7 +240,7 @@ def source_shape(source: dict[str, Any], source_path: pathlib.Path) -> dict[str,
         "weight_policy": source["weight_policy"],
         "semantics": source["semantics"],
         "masking_policy": source["masking_policy"],
-        "commitments": {key: source[key] for key in required_commitments},
+        "commitments": commitments,
         "non_claim_count": len(non_claims),
     }
 
@@ -234,7 +290,7 @@ def candidate_adapters() -> list[dict[str, Any]]:
             "next_action": "Use only under a new approximate-statement target with separate non-claims.",
         },
         {
-            "candidate_adapter": "zkvm_receipt_fallback",
+            "candidate_adapter": "zkv_receipt_fallback",
             "gate": "GO_FOR_RECEIPT_BASELINE_NOT_PROOF_BOUNDARY_BASELINE",
             "same_surface_claim": "SEMANTIC_CONTROL_ONLY",
             "proof_generated": False,
@@ -255,12 +311,143 @@ def expected_non_claims() -> list[str]:
     ]
 
 
+def expected_prior_evidence() -> dict[str, str]:
+    return {
+        "d64_external_adapter_surface_probe": "docs/engineering/zkai-d64-external-adapter-surface-probe-2026-05-01.md",
+        "interpretation": "prior exact integer zkAI surface already recorded NO-GO for vanilla ONNX as a same-statement path",
+    }
+
+
+def onnx_export_artifact_status() -> dict[str, Any]:
+    return {
+        "artifact": None,
+        "status": "NOT_PRODUCED_NO_GO_DIRECT_BASELINE",
+        "reason": "no checked ONNX or EZKL export preserves the bounded integer table policy, public outputs, and statement bindings",
+    }
+
+
+def statement_shape() -> list[dict[str, str]]:
+    return [
+        {
+            "statement_field": "model_or_kernel_identifier",
+            "source_field": "target_id",
+            "binding": "exact_string_match",
+            "commitment_field": "statement_commitment",
+        },
+        {
+            "statement_field": "verifier_domain",
+            "source_field": "verifier_domain",
+            "binding": "exact_string_match",
+            "commitment_field": "statement_commitment",
+        },
+        {
+            "statement_field": "public_inputs",
+            "source_field": "input_steps_commitment",
+            "binding": "recomputed_blake2b_256_commitment",
+            "commitment_field": "public_instance_commitment",
+        },
+        {
+            "statement_field": "public_outputs",
+            "source_field": "outputs_commitment",
+            "binding": "recomputed_blake2b_256_commitment",
+            "commitment_field": "public_instance_commitment",
+        },
+        {
+            "statement_field": "numeric_policy",
+            "source_field": "weight_policy",
+            "binding": "exact_string_match",
+            "commitment_field": "proof_native_parameter_commitment",
+        },
+        {
+            "statement_field": "table_identity",
+            "source_field": "weight_table_commitment",
+            "binding": "recomputed_blake2b_256_commitment",
+            "commitment_field": "statement_commitment",
+        },
+    ]
+
+
+def byte_accounting() -> list[dict[str, Any]]:
+    return [
+        {
+            "byte_category": "proof_bytes",
+            "status": "UNAVAILABLE_NO_EZKL_PROOF_GENERATED",
+            "bytes": None,
+            "artifact": "not_generated",
+        },
+        {
+            "byte_category": "verification_key_bytes",
+            "status": "UNAVAILABLE_NO_EZKL_SETUP_GENERATED",
+            "bytes": None,
+            "artifact": "not_generated",
+        },
+        {
+            "byte_category": "settings_bytes",
+            "status": "UNAVAILABLE_NO_EZKL_SETTINGS_GENERATED",
+            "bytes": None,
+            "artifact": "not_generated",
+        },
+        {
+            "byte_category": "setup_assumptions_bytes",
+            "status": "NOT_BYTE_SIZED_IN_THIS_PROBE",
+            "bytes": None,
+            "artifact": "not_generated",
+        },
+        {
+            "byte_category": "statement_envelope_bytes",
+            "status": "NOT_GENERATED_UNTIL_EXPORT_ARTIFACT_EXISTS",
+            "bytes": None,
+            "artifact": "not_generated",
+        },
+    ]
+
+
+def gate_criteria() -> list[dict[str, str]]:
+    return [
+        {
+            "criterion": "source_shape",
+            "status": "GO",
+            "evidence": "source scalar fields, row counts, output shape, and recomputed commitments validate",
+        },
+        {
+            "criterion": "semantics_and_policy_preservation",
+            "status": "NO_GO_DIRECT_ONNX",
+            "evidence": "no ONNX/EZKL export artifact is produced that preserves table policy and rounding",
+        },
+        {
+            "criterion": "public_io_statement_shape",
+            "status": "GO_SOURCE_BOUNDARY_ONLY",
+            "evidence": "input and output commitments are recomputed and listed as statement fields",
+        },
+        {
+            "criterion": "separated_byte_accounting",
+            "status": "GO_UNAVAILABLE_VALUES_REPORTED_SEPARATELY",
+            "evidence": "proof, verification key, settings, setup, and envelope byte categories are separated",
+        },
+        {
+            "criterion": "mutation_rejection",
+            "status": "GO",
+            "evidence": "tests reject provenance, commitment, verifier-domain, output, accounting, and prior-evidence drift",
+        },
+        {
+            "criterion": "paper_baseline_row",
+            "status": "NO_GO",
+            "evidence": "same-surface proof bytes are unavailable because the export artifact is not produced",
+        },
+    ]
+
+
 def build_probe(source_path: pathlib.Path = DEFAULT_SOURCE) -> dict[str, Any]:
     source = load_source(source_path)
-    shape = source_shape(source, source_path)
+    source_sha256 = sha256_file(source_path)
+    shape = source_shape(source, source_path, source_sha256=source_sha256)
     candidates = candidate_adapters()
     conditions = equality_conditions()
     non_claims = expected_non_claims()
+    statement_rows = statement_shape()
+    accounting_rows = byte_accounting()
+    gate_rows = gate_criteria()
+    export_status = onnx_export_artifact_status()
     return {
         "schema": SCHEMA,
         "git_commit": git_commit(),
@@ -276,15 +463,33 @@ def build_probe(source_path: pathlib.Path = DEFAULT_SOURCE) -> dict[str, Any]:
             candidates,
             "ptvm:zkai:attention-kv-ezkl-same-surface-candidates:v1",
         ),
-        "prior_evidence": {
-            "d64_external_adapter_surface_probe": "docs/engineering/zkai-d64-external-adapter-surface-probe-2026-05-01.md",
-            "interpretation": "prior exact integer zkAI surface already recorded NO-GO for vanilla ONNX as a same-statement path",
-        },
+        "statement_shape": statement_rows,
+        "statement_shape_commitment": blake2b_commitment(
+            statement_rows,
+            "ptvm:zkai:attention-kv-ezkl-same-surface-statement-shape:v1",
+        ),
+        "onnx_export_artifact": export_status,
+        "byte_accounting": accounting_rows,
+        "byte_accounting_commitment": blake2b_commitment(
+            accounting_rows,
+            "ptvm:zkai:attention-kv-ezkl-same-surface-byte-accounting:v1",
+        ),
+        "gate_criteria": gate_rows,
+        "gate_criteria_commitment": blake2b_commitment(
+            gate_rows,
+            "ptvm:zkai:attention-kv-ezkl-same-surface-gate-criteria:v1",
+        ),
+        "prior_evidence": expected_prior_evidence(),
         "non_claims": non_claims,
     }
 
 
-def validate_probe(payload: dict[str, Any], source_path: pathlib.Path = DEFAULT_SOURCE) -> None:
+def validate_probe(
+    payload: dict[str, Any],
+    source_path: pathlib.Path = DEFAULT_SOURCE,
+    *,
+    expected_shape: dict[str, Any] | None = None,
+) -> None:
     expected_fields = {
         "schema",
         "git_commit",
@@ -294,6 +499,13 @@ def validate_probe(payload: dict[str, Any], source_path: pathlib.Path = DEFAULT_
         "equality_conditions_commitment",
         "candidate_adapters",
         "candidate_matrix_commitment",
+        "statement_shape",
+        "statement_shape_commitment",
+        "onnx_export_artifact",
+        "byte_accounting",
+        "byte_accounting_commitment",
+        "gate_criteria",
+        "gate_criteria_commitment",
         "prior_evidence",
         "non_claims",
     }
@@ -301,9 +513,14 @@ def validate_probe(payload: dict[str, Any], source_path: pathlib.Path = DEFAULT_
         raise SameSurfaceExportProbeError("payload field set mismatch")
     if payload["schema"] != SCHEMA:
         raise SameSurfaceExportProbeError("schema mismatch")
+    if payload["git_commit"] != git_commit():
+        raise SameSurfaceExportProbeError("git_commit provenance drift")
     if payload["decision"] != DECISION:
         raise SameSurfaceExportProbeError("decision drift")
-    if payload["source_shape"] != source_shape(load_source(source_path), source_path):
+    expected_source_shape = expected_shape
+    if expected_source_shape is None:
+        expected_source_shape = source_shape(load_source(source_path), source_path)
+    if payload["source_shape"] != expected_source_shape:
         raise SameSurfaceExportProbeError("source shape drift")
     if payload["equality_conditions"] != equality_conditions():
         raise SameSurfaceExportProbeError("equality conditions drift")
@@ -322,12 +539,36 @@ def validate_probe(payload: dict[str, Any], source_path: pathlib.Path = DEFAULT_
     for candidate in payload["candidate_adapters"]:
         if candidate["proof_generated"] is not False:
             raise SameSurfaceExportProbeError("probe must not claim proof generation")
+    if payload["statement_shape"] != statement_shape():
+        raise SameSurfaceExportProbeError("statement shape drift")
+    if payload["statement_shape_commitment"] != blake2b_commitment(
+        statement_shape(),
+        "ptvm:zkai:attention-kv-ezkl-same-surface-statement-shape:v1",
+    ):
+        raise SameSurfaceExportProbeError("statement shape commitment drift")
+    if payload["onnx_export_artifact"] != onnx_export_artifact_status():
+        raise SameSurfaceExportProbeError("ONNX export artifact status drift")
+    if payload["byte_accounting"] != byte_accounting():
+        raise SameSurfaceExportProbeError("byte accounting drift")
+    if payload["byte_accounting_commitment"] != blake2b_commitment(
+        byte_accounting(),
+        "ptvm:zkai:attention-kv-ezkl-same-surface-byte-accounting:v1",
+    ):
+        raise SameSurfaceExportProbeError("byte accounting commitment drift")
+    if payload["gate_criteria"] != gate_criteria():
+        raise SameSurfaceExportProbeError("gate criteria drift")
+    if payload["gate_criteria_commitment"] != blake2b_commitment(
+        gate_criteria(),
+        "ptvm:zkai:attention-kv-ezkl-same-surface-gate-criteria:v1",
+    ):
+        raise SameSurfaceExportProbeError("gate criteria commitment drift")
+    if payload["prior_evidence"] != expected_prior_evidence():
+        raise SameSurfaceExportProbeError("prior evidence drift")
     if payload["non_claims"] != expected_non_claims():
         raise SameSurfaceExportProbeError("non-claims drift")
 
 
 def rows_for_tsv(payload: dict[str, Any], source_path: pathlib.Path = DEFAULT_SOURCE) -> list[dict[str, Any]]:
-    validate_probe(payload, source_path)
     return [
         {
             "candidate_adapter": row["candidate_adapter"],
@@ -342,7 +583,6 @@ def rows_for_tsv(payload: dict[str, Any], source_path: pathlib.Path = DEFAULT_SO
 
 
 def source_shape_rows(payload: dict[str, Any], source_path: pathlib.Path = DEFAULT_SOURCE) -> list[dict[str, str]]:
-    validate_probe(payload, source_path)
     shape = payload["source_shape"]
     simple_fields = (
         "source_sha256",
@@ -367,8 +607,42 @@ def source_shape_rows(payload: dict[str, Any], source_path: pathlib.Path = DEFAU
     return [{"field": key, "value": json.dumps(shape[key], sort_keys=True)} for key in simple_fields]
 
 
+def statement_shape_rows(payload: dict[str, Any]) -> list[dict[str, str]]:
+    return [
+        {
+            "statement_field": row["statement_field"],
+            "source_field": row["source_field"],
+            "binding": row["binding"],
+            "commitment_field": row["commitment_field"],
+        }
+        for row in payload["statement_shape"]
+    ]
+
+
+def accounting_rows(payload: dict[str, Any]) -> list[dict[str, str]]:
+    return [
+        {
+            "byte_category": row["byte_category"],
+            "status": row["status"],
+            "bytes": "" if row["bytes"] is None else str(row["bytes"]),
+            "artifact": row["artifact"],
+        }
+        for row in payload["byte_accounting"]
+    ]
+
+
+def gate_criteria_rows(payload: dict[str, Any]) -> list[dict[str, str]]:
+    return [
+        {
+            "criterion": row["criterion"],
+            "status": row["status"],
+            "evidence": row["evidence"],
+        }
+        for row in payload["gate_criteria"]
+    ]
+
+
 def render_note(payload: dict[str, Any], source_path: pathlib.Path = DEFAULT_SOURCE) -> str:
-    validate_probe(payload, source_path)
     shape = payload["source_shape"]
     return f"""# EZKL Same-Surface Export Probe for Bounded Attention
 
@@ -408,6 +682,33 @@ and statement binding.
 |---|---|---|---|---|
 {chr(10).join(f"| `{row['candidate_adapter']}` | `{row['gate']}` | `{row['same_surface_claim']}` | `{str(row['proof_generated']).lower()}` | {row['primary_blocker']} |" for row in payload["candidate_adapters"])}
 
+## Gate Criteria
+
+| criterion | status | evidence |
+|---|---|---|
+{chr(10).join(f"| `{row['criterion']}` | `{row['status']}` | {row['evidence']} |" for row in payload["gate_criteria"])}
+
+## Public I/O Statement Shape
+
+| statement field | source field | binding | commitment field |
+|---|---|---|---|
+{chr(10).join(f"| `{row['statement_field']}` | `{row['source_field']}` | `{row['binding']}` | `{row['commitment_field']}` |" for row in payload["statement_shape"])}
+
+## Separated Byte Accounting
+
+No EZKL proof, verification key, settings, setup, or statement-envelope bytes are
+reported as a benchmark row in this probe. The categories are still separated so
+future export work cannot collapse them into a single ambiguous number.
+
+| byte category | status | bytes | artifact |
+|---|---|---:|---|
+{chr(10).join(f"| `{row['byte_category']}` | `{row['status']}` | {'-' if row['bytes'] is None else row['bytes']} | `{row['artifact']}` |" for row in payload["byte_accounting"])}
+
+## Export Artifact Status
+
+- ONNX or EZKL export artifact: `{payload["onnx_export_artifact"]["status"]}`
+- reason: {payload["onnx_export_artifact"]["reason"]}
+
 ## Prior Evidence
 
 The earlier `d64` external-adapter surface probe already recorded `NO-GO` for a
@@ -427,7 +728,7 @@ verifier-domain meaning, label it semantic-neighbor rather than same-surface.
 ## Reproduce
 
 ```bash
-python3 scripts/zkai_attention_kv_ezkl_same_surface_export_probe.py \\
+python3.10 scripts/zkai_attention_kv_ezkl_same_surface_export_probe.py \\
   --source {shape["source_path"]} \\
   --write-dir target/zkai-ezkl-same-surface-d64-h2-seq32 \\
   --write-note docs/engineering/zkai-proof-pressure-ezkl-same-surface-export-probe-2026-05.md
@@ -435,8 +736,15 @@ python3 scripts/zkai_attention_kv_ezkl_same_surface_export_probe.py \\
 """
 
 
-def write_outputs(payload: dict[str, Any], write_dir: pathlib.Path, write_note: pathlib.Path, source_path: pathlib.Path) -> None:
-    validate_probe(payload, source_path)
+def write_outputs(
+    payload: dict[str, Any],
+    write_dir: pathlib.Path,
+    write_note: pathlib.Path,
+    source_path: pathlib.Path,
+    *,
+    expected_shape: dict[str, Any] | None = None,
+) -> None:
+    validate_probe(payload, source_path, expected_shape=expected_shape)
     try:
         write_dir.mkdir(parents=True, exist_ok=True)
         (write_dir / "probe.json").write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -448,6 +756,18 @@ def write_outputs(payload: dict[str, Any], write_dir: pathlib.Path, write_note: 
             writer = csv.DictWriter(handle, fieldnames=SOURCE_SHAPE_TSV_COLUMNS, delimiter="\t", lineterminator="\n")
             writer.writeheader()
             writer.writerows(source_shape_rows(payload, source_path))
+        with (write_dir / "statement_shape.tsv").open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=STATEMENT_SHAPE_TSV_COLUMNS, delimiter="\t", lineterminator="\n")
+            writer.writeheader()
+            writer.writerows(statement_shape_rows(payload))
+        with (write_dir / "accounting.tsv").open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=ACCOUNTING_TSV_COLUMNS, delimiter="\t", lineterminator="\n")
+            writer.writeheader()
+            writer.writerows(accounting_rows(payload))
+        with (write_dir / "gate_criteria.tsv").open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=GATE_CRITERIA_TSV_COLUMNS, delimiter="\t", lineterminator="\n")
+            writer.writeheader()
+            writer.writerows(gate_criteria_rows(payload))
         write_note.parent.mkdir(parents=True, exist_ok=True)
         write_note.write_text(render_note(payload, source_path), encoding="utf-8")
     except OSError as err:
@@ -471,8 +791,7 @@ def main() -> int:
     write_dir = args.write_dir if args.write_dir.is_absolute() else ROOT / args.write_dir
     write_note = args.write_note if args.write_note.is_absolute() else ROOT / args.write_note
     payload = build_probe(source_path)
-    validate_probe(payload, source_path)
-    write_outputs(payload, write_dir, write_note, source_path)
+    write_outputs(payload, write_dir, write_note, source_path, expected_shape=payload["source_shape"])
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:

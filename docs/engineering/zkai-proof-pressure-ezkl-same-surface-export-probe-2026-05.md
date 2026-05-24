@@ -37,7 +37,48 @@ and statement binding.
 | `vanilla_onnx_ezkl_direct_export` | `NO_GO_SAME_SURFACE_TODAY` | `NO_GO` | `false` | no_checked_export_preserves_integer_table_policy_and_statement_bindings |
 | `custom_integer_table_ezkl_export_probe` | `IMPLEMENT_PROBE_NEXT` | `NOT_CHECKED` | `false` | requires_custom_export_that_preserves_table_policy_rounding_and_public_outputs |
 | `float_onnx_semantic_neighbor` | `NO_GO_FOR_SAME_SURFACE` | `NO_GO` | `false` | float_export_would_define_a_different_statement |
-| `zkvm_receipt_fallback` | `GO_FOR_RECEIPT_BASELINE_NOT_PROOF_BOUNDARY_BASELINE` | `SEMANTIC_CONTROL_ONLY` | `false` | receipt_bytes_are_not_a_matched_proof_boundary_comparator |
+| `zkv_receipt_fallback` | `GO_FOR_RECEIPT_BASELINE_NOT_PROOF_BOUNDARY_BASELINE` | `SEMANTIC_CONTROL_ONLY` | `false` | receipt_bytes_are_not_a_matched_proof_boundary_comparator |
+
+## Gate Criteria
+
+| criterion | status | evidence |
+|---|---|---|
+| `source_shape` | `GO` | source scalar fields, row counts, output shape, and recomputed commitments validate |
+| `semantics_and_policy_preservation` | `NO_GO_DIRECT_ONNX` | no ONNX/EZKL export artifact is produced that preserves table policy and rounding |
+| `public_io_statement_shape` | `GO_SOURCE_BOUNDARY_ONLY` | input and output commitments are recomputed and listed as statement fields |
+| `separated_byte_accounting` | `GO_UNAVAILABLE_VALUES_REPORTED_SEPARATELY` | proof, verification key, settings, setup, and envelope byte categories are separated |
+| `mutation_rejection` | `GO` | tests reject provenance, commitment, verifier-domain, output, accounting, and prior-evidence drift |
+| `paper_baseline_row` | `NO_GO` | same-surface proof bytes are unavailable because the export artifact is not produced |
+
+## Public I/O Statement Shape
+
+| statement field | source field | binding | commitment field |
+|---|---|---|---|
+| `model_or_kernel_identifier` | `target_id` | `exact_string_match` | `statement_commitment` |
+| `verifier_domain` | `verifier_domain` | `exact_string_match` | `statement_commitment` |
+| `public_inputs` | `input_steps_commitment` | `recomputed_blake2b_256_commitment` | `public_instance_commitment` |
+| `public_outputs` | `outputs_commitment` | `recomputed_blake2b_256_commitment` | `public_instance_commitment` |
+| `numeric_policy` | `weight_policy` | `exact_string_match` | `proof_native_parameter_commitment` |
+| `table_identity` | `weight_table_commitment` | `recomputed_blake2b_256_commitment` | `statement_commitment` |
+
+## Separated Byte Accounting
+
+No EZKL proof, verification key, settings, setup, or statement-envelope bytes are
+reported as a benchmark row in this probe. The categories are still separated so
+future export work cannot collapse them into a single ambiguous number.
+
+| byte category | status | bytes | artifact |
+|---|---|---:|---|
+| `proof_bytes` | `UNAVAILABLE_NO_EZKL_PROOF_GENERATED` | - | `not_generated` |
+| `verification_key_bytes` | `UNAVAILABLE_NO_EZKL_SETUP_GENERATED` | - | `not_generated` |
+| `settings_bytes` | `UNAVAILABLE_NO_EZKL_SETTINGS_GENERATED` | - | `not_generated` |
+| `setup_assumptions_bytes` | `NOT_BYTE_SIZED_IN_THIS_PROBE` | - | `not_generated` |
+| `statement_envelope_bytes` | `NOT_GENERATED_UNTIL_EXPORT_ARTIFACT_EXISTS` | - | `not_generated` |
+
+## Export Artifact Status
+
+- ONNX or EZKL export artifact: `NOT_PRODUCED_NO_GO_DIRECT_BASELINE`
+- reason: no checked ONNX or EZKL export preserves the bounded integer table policy, public outputs, and statement bindings
 
 ## Prior Evidence
 
@@ -63,7 +104,7 @@ verifier-domain meaning, label it semantic-neighbor rather than same-surface.
 ## Reproduce
 
 ```bash
-python3 scripts/zkai_attention_kv_ezkl_same_surface_export_probe.py \
+python3.10 scripts/zkai_attention_kv_ezkl_same_surface_export_probe.py \
   --source docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-two-head-seq32-bounded-softmax-table-proof-2026-05.json \
   --write-dir target/zkai-ezkl-same-surface-d64-h2-seq32 \
   --write-note docs/engineering/zkai-proof-pressure-ezkl-same-surface-export-probe-2026-05.md
