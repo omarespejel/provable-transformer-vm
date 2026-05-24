@@ -93,7 +93,7 @@ def normalize_svg(path: Path) -> None:
 
 
 def main() -> None:
-    fig, ax = plt.subplots(figsize=(7.2, 2.9), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(8.4, 2.9), constrained_layout=True)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis("off")
@@ -101,7 +101,7 @@ def main() -> None:
     add_box(
         ax,
         (0.03, 0.25),
-        0.27,
+        0.23,
         0.5,
         "Raw proof",
         ["proof bytes", "verification key", "public instance"],
@@ -109,7 +109,7 @@ def main() -> None:
     )
     add_box(
         ax,
-        (0.365, 0.18),
+        (0.37, 0.18),
         0.29,
         0.64,
         "Typed statement boundary",
@@ -118,16 +118,16 @@ def main() -> None:
     )
     add_box(
         ax,
-        (0.72, 0.25),
-        0.25,
+        (0.77, 0.25),
+        0.21,
         0.5,
         "Application claim",
         ["receipt meaning", "allowed action", "audit context"],
         "#AA4499",
     )
 
-    add_arrow(ax, (0.305, 0.5), (0.36, 0.5), "verify")
-    add_arrow(ax, (0.66, 0.5), (0.715, 0.5), "bind meaning")
+    add_arrow(ax, (0.275, 0.5), (0.36, 0.5), "verify")
+    add_arrow(ax, (0.67, 0.5), (0.76, 0.5), "bind")
 
     ax.text(
         0.5,
