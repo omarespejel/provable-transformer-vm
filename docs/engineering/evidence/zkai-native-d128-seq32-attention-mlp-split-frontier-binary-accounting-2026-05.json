@@ -279,7 +279,7 @@
   ],
   "safety": {
     "commitment": "sha256_over_repo_owned_canonical_local_binary_accounting_record_stream",
-    "max_envelope_json_bytes": 67108864,
+    "max_envelope_json_bytes": 33554432,
     "max_proof_json_bytes": 2097152,
     "path_policy": "inputs_must_be_regular_non_symlink_files_inside_canonical_evidence_dir"
   },

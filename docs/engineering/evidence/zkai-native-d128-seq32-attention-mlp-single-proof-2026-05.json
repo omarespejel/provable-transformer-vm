@@ -1,9 +1,9 @@
 {
   "all_mutations_rejected": true,
-  "decision": "GO_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_BEATS_SCOPED_SPLIT_FRONTIER",
+  "decision": "GO_COLOCATED_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_BEATS_SCOPED_SPLIT_FRONTIER",
   "interpretation": {
-    "guardrail": "The adapter is a scoped public binding device for this experiment, not a model-faithful transformer-block handoff.",
-    "human_read": "One native Stwo proof now binds the real d128 two-head seq32 fused attention source, a verifier-recomputed d128 adapter, and the seq32-derived d128 RMSNorm/MLP surface.",
+    "guardrail": "The adapter proves quotient and remainder consistency for the co-located rows, but it does not enforce derivation of the d128 MLP input from attention outputs.",
+    "human_read": "One native Stwo proof now co-locates the real d128 two-head seq32 fused attention source, a verifier-recomputed co-location adapter, and the seq32-derived d128 RMSNorm/MLP surface.",
     "interesting_signal": "The scoped proof is smaller than the matched local split frontier in both proof JSON bytes and local typed accounting, so the d128 boundary still amortizes some proof plumbing."
   },
   "issue": 715,
@@ -49,6 +49,11 @@
       "rejected": true
     },
     {
+      "error": "envelope cap drift",
+      "name": "resource_cap_drift",
+      "rejected": true
+    },
+    {
       "error": "payload commitment drift",
       "name": "source_digest_drift",
       "rejected": true
@@ -59,11 +64,12 @@
       "rejected": true
     }
   ],
-  "mutations_checked": 10,
-  "mutations_rejected": 10,
+  "mutations_checked": 11,
+  "mutations_rejected": 11,
   "non_claims": [
     "not a full transformer block proof",
     "not a model-faithful d128 attention-to-MLP adapter",
+    "not enforcing d128 MLP input derivation from attention outputs",
     "not a NANOZK proof-size win",
     "not a matched external zkML benchmark",
     "not exact real-valued Softmax",
@@ -71,36 +77,46 @@
     "not timing evidence",
     "not production-ready zkML"
   ],
-  "payload_commitment": "blake2b-256:362780766a7a6cf1a43b3d1e8040a61c7a4c0439b56d0993bbbdbbeebed3bd06",
-  "result": "SCOPED_D128_SEQ32_SINGLE_PROOF_SAVES_17395_JSON_AND_4608_TYPED_BYTES",
+  "payload_commitment": "blake2b-256:56204d9e461a659823284bb49096d187dfe87217aae062f4eab27b5984a35f0a",
+  "resource_limit_analysis": {
+    "max_single_envelope_json_bytes": 33554432,
+    "max_single_input_json_bytes": 33554432,
+    "parsing_model": "whole-buffer serde_json over repo-local evidence artifacts",
+    "single_envelope_headroom_bytes": 8144976,
+    "single_envelope_json_bytes": 25409456,
+    "single_input_headroom_bytes": 14802247,
+    "single_input_json_bytes": 18752185,
+    "threat_model": "local research CLI evidence, not untrusted service ingestion"
+  },
+  "result": "SCOPED_D128_SEQ32_SINGLE_PROOF_SAVES_15881_JSON_AND_4608_TYPED_BYTES",
   "schema": "zkai-native-d128-seq32-attention-mlp-single-proof-gate-v1",
   "source_artifacts": [
     {
       "id": "scoped_input",
       "path": "docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.input.json",
-      "payload_sha256": "4e75f475ef16493c6e518a8afee27583670e01ac23042de8ee3b32b341b8872d",
-      "sha256": "e1a2289731dd81d5f23571ca58480ac0465bc6211d7057bc6429c07dadbb1135",
-      "size_bytes": 18752179
+      "payload_sha256": "aebc1005b31ade0dd0bfc21a7949e5cb50416370ff1daa9c9b91f4ce31243776",
+      "sha256": "04af1c3b534f68bdc2ed8438a6d532c38526fdb80647d95fe61c6eb1921412d7",
+      "size_bytes": 18752185
     },
     {
       "id": "scoped_envelope",
       "path": "docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.envelope.json",
-      "payload_sha256": "a17aa6e177419aca13cdfdfae8bbb8cf93063794a9d8b8a5492c5db61d516183",
-      "sha256": "bb62d9063f3e1f10dea2245f529372b33da5eaf335a45130d91610cadcbd7093",
-      "size_bytes": 25397332
+      "payload_sha256": "ab28896b52a7bad0af1e45ab78337867d02590e5db6765d2d42fb20e01a9a729",
+      "sha256": "d0048ea0afbb80e72814b4aee9be3cd2f5ecf950c261daeccf738807e7a5b3b6",
+      "size_bytes": 25409456
     },
     {
       "id": "single_accounting",
       "path": "docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-binary-accounting-2026-05.json",
-      "payload_sha256": "0c0d632aa8e3dd2f749b359faceb54315a8969543279e9c76e6703bc142e3a66",
-      "sha256": "63fd8c077246ae2e49666b116c94b8a031aeb93e4555680279d0a1ee256faec5",
+      "payload_sha256": "0c3b9dfb855a25ad6137f621be6ada1710a4758f195685993bd0916118babfdd",
+      "sha256": "476588c014c6ec340ad3383e3173f14910b54d855f407a22fd30c1c6da12e927",
       "size_bytes": 5942
     },
     {
       "id": "split_accounting",
       "path": "docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-split-frontier-binary-accounting-2026-05.json",
-      "payload_sha256": "f7a09b701f2b2655a052ba1c4a60dc151842eb9ea4ec0c0269c998c1fa2c99f0",
-      "sha256": "8e58fc102d064912c2ef62be38ddcf541028c6f6773993fd253aaf41fea32b17",
+      "payload_sha256": "301ed1677d02422e6096ad9d64c63476a8accbce155f805d4d35cd4f8a857f6f",
+      "sha256": "e9b8be3394841ee1a7805b4425270a9b14c0879cc353740dd0606abe3f670323",
       "size_bytes": 10696
     },
     {
@@ -114,22 +130,22 @@
   "summary": {
     "d128_attention_fused_proof_json_bytes": 445888,
     "d128_attention_fused_typed_bytes": 184900,
-    "envelope_sha256": "bb62d9063f3e1f10dea2245f529372b33da5eaf335a45130d91610cadcbd7093",
+    "envelope_sha256": "d0048ea0afbb80e72814b4aee9be3cd2f5ecf950c261daeccf738807e7a5b3b6",
     "primary_next_gate": "regenerate_model-faithful_d128_mlp_surface_or_d128_seq64_stress",
-    "proof_json_ratio": "0.966574",
-    "proof_json_saving_bytes": 17395,
-    "proof_sha256": "a9f6e26f30f5da5a1126dae187a35b6faf2e9924efbe8ae98dc39e3d988daf24",
+    "proof_json_ratio": "0.969483",
+    "proof_json_saving_bytes": 15881,
+    "proof_sha256": "c4949199aa72e61992a6cccb52a77b9617a1a055b80d15cb11f8dd058008739e",
     "proof_size_comparable_external_rows": 0,
-    "public_instance_commitment": "blake2b-256:c49f0ddbdcb4850333f86a5a9f5ff2b1b607334a8ed22834c1ac3eb417ac8e4d",
+    "public_instance_commitment": "blake2b-256:b1d870de6352c1b89e06a1a6292aa98278ce5386b838d91ee7c5fdeccb409f08",
     "seq32_derived_d128_mlp_fused_proof_json_bytes": 74511,
     "seq32_derived_d128_mlp_fused_typed_bytes": 24272,
-    "single_envelope_json_bytes": 25397332,
-    "single_input_json_bytes": 18752179,
-    "single_proof_json_bytes": 503004,
+    "single_envelope_json_bytes": 25409456,
+    "single_input_json_bytes": 18752185,
+    "single_proof_json_bytes": 504518,
     "single_typed_bytes": 204564,
     "split_proof_json_bytes": 520399,
     "split_typed_bytes": 209172,
-    "statement_commitment": "blake2b-256:0f0e55d67e8311803cc2d79d4fb8ff71a1c687ecbe6b4e2443fdec0239e5b0f1",
+    "statement_commitment": "blake2b-256:21eeba5327c21c558433ef7f979702bb4c56c9700e7a0afd44cddb4527069680",
     "typed_ratio": "0.977970",
     "typed_saving_bytes": 4608
   },
@@ -144,6 +160,7 @@
     "python3.10 -m unittest scripts.tests.test_zkai_native_d128_seq32_attention_mlp_single_proof_gate",
     "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_d128_seq32_attention_mlp_single_proof --lib",
     "git diff --check",
-    "just gate-fast"
+    "just gate-fast",
+    "just gate"
   ]
 }

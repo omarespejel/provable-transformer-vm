@@ -13,7 +13,7 @@
         "target_id": "attention-kv-d128-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1",
         "verifier_domain": "ptvm:zkai:native-d128-seq32-attention-mlp-single-proof-object:v1"
       },
-      "envelope_sha256": "bb62d9063f3e1f10dea2245f529372b33da5eaf335a45130d91610cadcbd7093",
+      "envelope_sha256": "d0048ea0afbb80e72814b4aee9be3cd2f5ecf950c261daeccf738807e7a5b3b6",
       "evidence_relative_path": "zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.envelope.json",
       "local_binary_accounting": {
         "component_sum_bytes": 204564,
@@ -27,8 +27,8 @@
           "queries_values": 78276,
           "trace_decommitments": 6784
         },
-        "json_minus_local_typed_bytes": 298440,
-        "json_over_local_typed_ratio": 2.458908,
+        "json_minus_local_typed_bytes": 299954,
+        "json_over_local_typed_ratio": 2.466309,
         "record_count": 13,
         "record_stream_bytes": 1084,
         "record_stream_sha256": "1b42536d29a0b4af5f8efbc7cb1558847f83a294814751bd5cb8127a0b9a5a67",
@@ -137,13 +137,13 @@
         "upstream_stwo_serialization_status": "NOT_UPSTREAM_STWO_SERIALIZATION_LOCAL_ACCOUNTING_RECORD_STREAM_ONLY"
       },
       "path": "docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.envelope.json",
-      "proof_json_size_bytes": 503004,
-      "proof_sha256": "a9f6e26f30f5da5a1126dae187a35b6faf2e9924efbe8ae98dc39e3d988daf24"
+      "proof_json_size_bytes": 504518,
+      "proof_sha256": "c4949199aa72e61992a6cccb52a77b9617a1a055b80d15cb11f8dd058008739e"
     }
   ],
   "safety": {
     "commitment": "sha256_over_repo_owned_canonical_local_binary_accounting_record_stream",
-    "max_envelope_json_bytes": 67108864,
+    "max_envelope_json_bytes": 33554432,
     "max_proof_json_bytes": 2097152,
     "path_policy": "inputs_must_be_regular_non_symlink_files_inside_canonical_evidence_dir"
   },

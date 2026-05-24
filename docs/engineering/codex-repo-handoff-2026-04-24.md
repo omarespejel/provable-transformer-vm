@@ -131,18 +131,18 @@ proof architecture as the backbone for production zkML later; issues are
 hypotheses with explicit GO/NO-GO gates, required artifacts, and non-claims.
 
 Latest scoped d128 implementation gate: issue `#715` now has a real one-proof
-scoped `d128 seq32` attention-plus-MLP boundary result. The single native Stwo
-proof binds the real d128 two-head seq32 fused attention source, a
-verifier-recomputed scoped d128 adapter, and the seq32-derived d128 RMSNorm/MLP
-surface. It beats the matched scoped split frontier: `503,004` proof JSON bytes
-versus `520,399`, saving `17,395` (`0.966574x`), and `204,564` typed bytes
-versus `209,172`, saving `4,608` (`0.977970x`). The gate rejects `10 / 10`
-mutations and pins source digests, binary accounting, reproduction commands,
-and non-claims. This is not a full transformer block proof, not a
-model-faithful d128 attention-to-MLP adapter, not an external benchmark, and
-not a NANOZK comparison. Next decision gate: either regenerate a model-faithful
-d128 MLP surface from the d128 attention output, or run a d128 seq64 stress
-gate. See
+scoped `d128 seq32` attention-plus-MLP size result. The single native Stwo proof
+co-locates the real d128 two-head seq32 fused attention source, a
+verifier-recomputed co-location adapter, and the seq32-derived d128 RMSNorm/MLP
+surface. It beats the matched scoped split frontier: `504,518` proof JSON bytes
+versus `520,399`, saving `15,881` (`0.969483x`), and `204,564` typed bytes
+versus `209,172`, saving `4,608` (`0.977970x`). The gate rejects `11 / 11`
+mutations and pins source digests, binary accounting, resource caps,
+reproduction commands, and non-claims. This is not a full transformer block
+proof, not a model-faithful d128 attention-to-MLP adapter, not enforcing d128
+MLP input derivation from attention outputs, not an external benchmark, and not
+a NANOZK comparison. Next decision gate: regenerate a model-faithful d128 MLP
+surface from the d128 attention output, or run a d128 seq64 stress gate. See
 `docs/engineering/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05-24.md`.
 
 Previous scoped-block preflight: issue `#715` has a generated
