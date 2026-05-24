@@ -2,10 +2,10 @@
 
 Issue: #715
 
-Status: `GO_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_BEATS_SCOPED_SPLIT_FRONTIER`.
+Status: `GO_COLOCATED_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_BEATS_SCOPED_SPLIT_FRONTIER`.
 
 This gate builds one native Stwo proof object over the real d128 two-head
-`seq32` fused attention source, a verifier-recomputed d128 adapter, and the
+`seq32` fused attention source, a verifier-recomputed co-location adapter, and the
 seq32-derived d128 RMSNorm/MLP surface.
 
 ## Result
@@ -13,9 +13,9 @@ seq32-derived d128 RMSNorm/MLP surface.
 | object | proof JSON bytes | typed bytes |
 | --- | ---: | ---: |
 | matched scoped split frontier | `520,399` | `209,172` |
-| native scoped single proof | `503,004` | `204,564` |
-| saving | `17,395` | `4,608` |
-| ratio | `0.966574x` | `0.977970x` |
+| native scoped single proof | `504,518` | `204,564` |
+| saving | `15,881` | `4,608` |
+| ratio | `0.969483x` | `0.977970x` |
 
 ## Meaning
 
@@ -26,8 +26,18 @@ the matched split local frontier.
 
 ## Guardrail
 
-The adapter is a scoped public binding device for this experiment. This is not
-a model-faithful full transformer block and not an external-system comparison.
+The adapter proves quotient and remainder consistency for the co-located rows.
+It does not prove that the d128 MLP input was derived from the d128 attention
+outputs. That semantics gap is the next decision gate, not something hidden in
+this result.
+
+## Resource Bounds
+
+The single input is `18,752,185` JSON bytes and the
+single envelope is `25,409,456` JSON bytes. The Rust
+CLIs cap both at `33,554,432` bytes because they parse
+whole JSON buffers with `serde_json`. These artifacts are repo-local evidence
+inputs, not untrusted service payloads.
 
 ## Evidence
 
@@ -42,6 +52,7 @@ a model-faithful full transformer block and not an external-system comparison.
 
 - not a full transformer block proof.
 - not a model-faithful d128 attention-to-MLP adapter.
+- not enforcing d128 MLP input derivation from attention outputs.
 - not a NANOZK proof-size win.
 - not a matched external zkML benchmark.
 - not exact real-valued Softmax.
@@ -63,4 +74,5 @@ python3.10 -m unittest scripts.tests.test_zkai_native_d128_seq32_attention_mlp_s
 cargo +nightly-2025-07-14 test --locked --features stwo-backend native_d128_seq32_attention_mlp_single_proof --lib
 git diff --check
 just gate-fast
+just gate
 ```

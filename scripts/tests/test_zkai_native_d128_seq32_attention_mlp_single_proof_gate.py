@@ -18,10 +18,10 @@ class NativeD128Seq32AttentionMlpSingleProofGateTests(unittest.TestCase):
 
     def test_proof_json_saving_is_pinned(self) -> None:
         summary = self.payload["summary"]
-        self.assertEqual(summary["single_proof_json_bytes"], 503_004)
+        self.assertEqual(summary["single_proof_json_bytes"], 504_518)
         self.assertEqual(summary["split_proof_json_bytes"], 520_399)
-        self.assertEqual(summary["proof_json_saving_bytes"], 17_395)
-        self.assertEqual(summary["proof_json_ratio"], "0.966574")
+        self.assertEqual(summary["proof_json_saving_bytes"], 15_881)
+        self.assertEqual(summary["proof_json_ratio"], "0.969483")
 
     def test_typed_saving_is_pinned(self) -> None:
         summary = self.payload["summary"]
@@ -41,6 +41,16 @@ class NativeD128Seq32AttentionMlpSingleProofGateTests(unittest.TestCase):
         candidate["non_claims"] = candidate["non_claims"][:-1]
         with self.assertRaises(gate.NativeD128Seq32SingleProofGateError):
             gate.validate_payload(candidate)
+
+    def test_resource_caps_are_pinned_close_to_artifact_sizes(self) -> None:
+        resource = self.payload["resource_limit_analysis"]
+        self.assertEqual(resource["max_single_input_json_bytes"], 32 * 1024 * 1024)
+        self.assertEqual(resource["max_single_envelope_json_bytes"], 32 * 1024 * 1024)
+        self.assertGreater(resource["single_input_headroom_bytes"], 0)
+        self.assertGreater(resource["single_envelope_headroom_bytes"], 0)
+
+    def test_validation_commands_include_full_gate(self) -> None:
+        self.assertEqual(self.payload["validation_commands"][-2:], ["just gate-fast", "just gate"])
 
 
 if __name__ == "__main__":

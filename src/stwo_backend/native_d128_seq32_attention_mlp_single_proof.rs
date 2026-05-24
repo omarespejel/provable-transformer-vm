@@ -85,18 +85,21 @@ pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_STATEMENT_VERSION: &
 pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_SEMANTIC_SCOPE: &str =
     "d128_two_head_seq32_attention_softmax_table_public_adapter_and_seq32_derived_d128_rmsnorm_mlp_surfaces_in_one_native_stwo_proof_object";
 pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_DECISION: &str =
-    "GO_SINGLE_NATIVE_STWO_PROOF_OBJECT_WITH_NATIVE_D128_SEQ32_ATTENTION_TO_D128_MLP_ADAPTER_AIR";
+    "GO_SINGLE_NATIVE_STWO_PROOF_OBJECT_WITH_COLOCATED_D128_SEQ32_ATTENTION_AND_D128_MLP_ADAPTER_AIR";
 pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_ROUTE_ID: &str =
     "native_stwo_d128_two_head_seq32_attention_softmax_table_plus_seq32_derived_d128_rmsnorm_mlp_single_proof_object_probe";
 pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_TARGET_ID: &str =
     "attention-kv-d128-two-head-seq32-fused-softmax-table-plus-seq32-derived-d128-rmsnorm-mlp-v1";
 pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_VERIFIER_DOMAIN: &str =
     "ptvm:zkai:native-d128-seq32-attention-mlp-single-proof-object:v1";
+// Current checked artifacts are about 18.8 MiB for the single-proof input and
+// 25.4 MiB for the envelope. Keep the whole-buffer JSON cap close to that
+// evidence size so local CLIs do not silently widen availability risk.
 pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_MAX_INPUT_JSON_BYTES: usize =
-    67_108_864;
+    32 * 1024 * 1024;
 pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_MAX_PROOF_BYTES: usize = 2_097_152;
 pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_MAX_ENVELOPE_JSON_BYTES: usize =
-    134_217_728;
+    32 * 1024 * 1024;
 pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_OPENING_SAMPLER_SCHEMA: &str =
     "zkai-native-d128-seq32-attention-mlp-dry-run-opening-sampler-v1";
 pub const ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_OPENING_SAMPLER_DECISION: &str =
@@ -175,13 +178,13 @@ const ATTEMPT_POLICY_NON_CLAIMS: &[&str] = &[
     "not a NANOZK proof-size comparison",
 ];
 
-const EXPECTED_ADAPTER_STATUS: &str = "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER";
+const EXPECTED_ADAPTER_STATUS: &str = "NATIVE_AIR_PROVEN_COLOCATED_D128_ADAPTER_QUOTIENT_CHECK";
 const EXPECTED_COMPACT_ADAPTER_STATUS: &str =
-    "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_COMPACT_BASE_REFERENCED_FIXED_COLUMNS";
+    "NATIVE_AIR_PROVEN_COLOCATED_D128_ADAPTER_COMPACT_BASE_REFERENCED_FIXED_COLUMNS";
 const EXPECTED_PREPROCESSED_OUTPUT_ANCHOR_ADAPTER_STATUS: &str =
-    "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_PREPROCESSED_FIXED_COLUMNS_WITH_OUTPUT_ANCHOR";
+    "NATIVE_AIR_PROVEN_COLOCATED_D128_ADAPTER_PREPROCESSED_FIXED_COLUMNS_WITH_OUTPUT_ANCHOR";
 const EXPECTED_RMSNORM_INPUT_FUSED_ADAPTER_STATUS: &str =
-    "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER_FUSED_INTO_RMSNORM_INPUT_COMPONENT";
+    "NATIVE_AIR_PROVEN_COLOCATED_D128_ADAPTER_FUSED_INTO_RMSNORM_INPUT_COMPONENT";
 const ADAPTER_COLUMN_IDS: [&str; ADAPTER_TRACE_COLUMNS] = [
     "zkai/native-attention-mlp/adapter/row-index",
     "zkai/native-attention-mlp/adapter/primary-source-index",
@@ -213,6 +216,7 @@ const RMSNORM_INPUT_FUSED_POST_TAIL_ADAPTER_BACKEND_VERSION: &str =
 const EXPECTED_NON_CLAIMS: &[&str] = &[
     "not a full transformer block proof",
     "not a model-faithful d128 attention-to-MLP adapter",
+    "not enforcing d128 MLP input derivation from attention outputs",
     "not a NANOZK proof-size win",
     "not a matched external zkML benchmark",
     "not exact real-valued Softmax",
@@ -225,8 +229,7 @@ const EXPECTED_PROOF_VERIFIER_HARDENING: &[&str] = &[
     "attention fused summary recomputed before relation draw",
     "attention LogUp interaction trace committed in the same proof object",
     "attention output commitment pinned to the statement-bound d128 adapter source",
-    "native adapter AIR proves scoped public binding from d128 two-head seq32 attention outputs to seq32-derived d128 RMSNorm input rows",
-    "native adapter AIR proves quotient/remainder semantics for every d128 adapter coordinate",
+    "native adapter AIR proves quotient/remainder consistency for a scoped co-location adapter, not derivation of d128 MLP inputs from attention outputs",
     "native adapter AIR remainder bits are boolean-constrained inside the same proof object",
     "d128 RMSNorm-MLP fused input validated before proof construction",
     "d128 MLP input activation commitment pinned to the approved attention-derived vector",
@@ -251,6 +254,7 @@ const EXPECTED_VALIDATION_COMMANDS: &[&str] = &[
     "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_d128_seq32_attention_mlp_single_proof --lib",
     "git diff --check",
     "just gate-fast",
+    "just gate",
 ];
 const EXPECTED_SEQ32_ADAPTER_VARIANT_SELECTOR_VALIDATION_COMMANDS: &[&str] = &[
     "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_native_d128_seq32_attention_mlp_single_proof -- build-input docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-two-head-seq32-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/zkai-seq32-derived-d128-rmsnorm-mlp-fused-proof-2026-05.input.json docs/engineering/evidence/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05.input.json",
@@ -3557,6 +3561,20 @@ mod tests {
         let mut input = fixture_input();
         input.mlp_input.rmsnorm_input.rows[0].input_q8 += 1;
         assert!(validate_single_input(&input).is_err());
+    }
+
+    #[test]
+    fn output_derived_adapter_bias_documents_non_derivation_boundary() {
+        let primary_q8 = 3;
+        let mix_q8 = -2;
+        let bias_a = adapter_bias_q8(0, primary_q8, mix_q8, 7);
+        let bias_b = adapter_bias_q8(0, primary_q8, mix_q8, 8);
+        assert_ne!(bias_a, bias_b);
+        assert!(EXPECTED_NON_CLAIMS
+            .contains(&"not enforcing d128 MLP input derivation from attention outputs"));
+        assert!(EXPECTED_PROOF_VERIFIER_HARDENING
+            .iter()
+            .any(|claim| claim.contains("not derivation")));
     }
 
     #[test]

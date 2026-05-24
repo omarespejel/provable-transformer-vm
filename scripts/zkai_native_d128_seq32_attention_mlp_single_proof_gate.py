@@ -37,25 +37,27 @@ TSV_OUT = EVIDENCE_DIR / "zkai-native-d128-seq32-attention-mlp-single-proof-2026
 MD_OUT = ROOT / "docs" / "engineering" / "zkai-native-d128-seq32-attention-mlp-single-proof-2026-05-24.md"
 
 SCHEMA = "zkai-native-d128-seq32-attention-mlp-single-proof-gate-v1"
-DECISION = "GO_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_BEATS_SCOPED_SPLIT_FRONTIER"
-RESULT = "SCOPED_D128_SEQ32_SINGLE_PROOF_SAVES_17395_JSON_AND_4608_TYPED_BYTES"
+DECISION = "GO_COLOCATED_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_BEATS_SCOPED_SPLIT_FRONTIER"
+RESULT = "SCOPED_D128_SEQ32_SINGLE_PROOF_SAVES_15881_JSON_AND_4608_TYPED_BYTES"
 PAYLOAD_DOMAIN = "ptvm:zkai:native-d128-seq32-attention-mlp-single-proof-gate:v1"
 ISSUE = 715
 
-SINGLE_PROOF_JSON_BYTES = 503_004
+SINGLE_PROOF_JSON_BYTES = 504_518
 SINGLE_TYPED_BYTES = 204_564
-SINGLE_ENVELOPE_JSON_BYTES = 25_397_332
-SINGLE_INPUT_JSON_BYTES = 18_752_179
+SINGLE_ENVELOPE_JSON_BYTES = 25_409_456
+SINGLE_INPUT_JSON_BYTES = 18_752_185
+MAX_SINGLE_INPUT_JSON_BYTES = 32 * 1024 * 1024
+MAX_SINGLE_ENVELOPE_JSON_BYTES = 32 * 1024 * 1024
 SPLIT_PROOF_JSON_BYTES = 520_399
 SPLIT_TYPED_BYTES = 209_172
-PROOF_JSON_SAVING_BYTES = 17_395
+PROOF_JSON_SAVING_BYTES = 15_881
 TYPED_SAVING_BYTES = 4_608
-PROOF_JSON_RATIO = "0.966574"
+PROOF_JSON_RATIO = "0.969483"
 TYPED_RATIO = "0.977970"
-STATEMENT_COMMITMENT = "blake2b-256:0f0e55d67e8311803cc2d79d4fb8ff71a1c687ecbe6b4e2443fdec0239e5b0f1"
-PUBLIC_INSTANCE_COMMITMENT = "blake2b-256:c49f0ddbdcb4850333f86a5a9f5ff2b1b607334a8ed22834c1ac3eb417ac8e4d"
-PROOF_SHA256 = "a9f6e26f30f5da5a1126dae187a35b6faf2e9924efbe8ae98dc39e3d988daf24"
-ENVELOPE_SHA256 = "bb62d9063f3e1f10dea2245f529372b33da5eaf335a45130d91610cadcbd7093"
+STATEMENT_COMMITMENT = "blake2b-256:21eeba5327c21c558433ef7f979702bb4c56c9700e7a0afd44cddb4527069680"
+PUBLIC_INSTANCE_COMMITMENT = "blake2b-256:b1d870de6352c1b89e06a1a6292aa98278ce5386b838d91ee7c5fdeccb409f08"
+PROOF_SHA256 = "c4949199aa72e61992a6cccb52a77b9617a1a055b80d15cb11f8dd058008739e"
+ENVELOPE_SHA256 = "d0048ea0afbb80e72814b4aee9be3cd2f5ecf950c261daeccf738807e7a5b3b6"
 
 EXPECTED_INPUT_METADATA = {
     "schema": "zkai-native-d128-seq32-attention-mlp-single-proof-object-input-v1",
@@ -64,7 +66,7 @@ EXPECTED_INPUT_METADATA = {
     "verifier_domain": "ptvm:zkai:native-d128-seq32-attention-mlp-single-proof-object:v1",
     "attention_lookup_claims": 1_184,
     "attention_table_rows": 9,
-    "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER",
+    "adapter_status": "NATIVE_AIR_PROVEN_COLOCATED_D128_ADAPTER_QUOTIENT_CHECK",
     "adapter_trace_cells": 1_536,
     "pcs_lifting_log_size": 19,
     "current_two_proof_frontier_typed_bytes": SPLIT_PROOF_JSON_BYTES,
@@ -81,7 +83,7 @@ EXPECTED_ENVELOPE_METADATA = {
         "d128_two_head_seq32_attention_softmax_table_public_adapter_and_seq32_derived_d128_"
         "rmsnorm_mlp_surfaces_in_one_native_stwo_proof_object"
     ),
-    "decision": "GO_SINGLE_NATIVE_STWO_PROOF_OBJECT_WITH_NATIVE_D128_SEQ32_ATTENTION_TO_D128_MLP_ADAPTER_AIR",
+    "decision": "GO_SINGLE_NATIVE_STWO_PROOF_OBJECT_WITH_COLOCATED_D128_SEQ32_ATTENTION_AND_D128_MLP_ADAPTER_AIR",
     "target_id": EXPECTED_INPUT_METADATA["target_id"],
     "verifier_domain": EXPECTED_INPUT_METADATA["verifier_domain"],
 }
@@ -89,6 +91,7 @@ EXPECTED_ENVELOPE_METADATA = {
 NON_CLAIMS = (
     "not a full transformer block proof",
     "not a model-faithful d128 attention-to-MLP adapter",
+    "not enforcing d128 MLP input derivation from attention outputs",
     "not a NANOZK proof-size win",
     "not a matched external zkML benchmark",
     "not exact real-valued Softmax",
@@ -109,6 +112,7 @@ VALIDATION_COMMANDS = (
     "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_d128_seq32_attention_mlp_single_proof --lib",
     "git diff --check",
     "just gate-fast",
+    "just gate",
 )
 
 
@@ -258,17 +262,27 @@ def build_payload() -> dict[str, Any]:
         },
         "interpretation": {
             "human_read": (
-                "One native Stwo proof now binds the real d128 two-head seq32 fused attention source, "
-                "a verifier-recomputed d128 adapter, and the seq32-derived d128 RMSNorm/MLP surface."
+                "One native Stwo proof now co-locates the real d128 two-head seq32 fused attention source, "
+                "a verifier-recomputed co-location adapter, and the seq32-derived d128 RMSNorm/MLP surface."
             ),
             "interesting_signal": (
                 "The scoped proof is smaller than the matched local split frontier in both proof JSON bytes "
                 "and local typed accounting, so the d128 boundary still amortizes some proof plumbing."
             ),
             "guardrail": (
-                "The adapter is a scoped public binding device for this experiment, not a model-faithful "
-                "transformer-block handoff."
+                "The adapter proves quotient and remainder consistency for the co-located rows, but it does "
+                "not enforce derivation of the d128 MLP input from attention outputs."
             ),
+        },
+        "resource_limit_analysis": {
+            "single_input_json_bytes": SINGLE_INPUT_JSON_BYTES,
+            "single_envelope_json_bytes": SINGLE_ENVELOPE_JSON_BYTES,
+            "max_single_input_json_bytes": MAX_SINGLE_INPUT_JSON_BYTES,
+            "max_single_envelope_json_bytes": MAX_SINGLE_ENVELOPE_JSON_BYTES,
+            "single_input_headroom_bytes": MAX_SINGLE_INPUT_JSON_BYTES - SINGLE_INPUT_JSON_BYTES,
+            "single_envelope_headroom_bytes": MAX_SINGLE_ENVELOPE_JSON_BYTES - SINGLE_ENVELOPE_JSON_BYTES,
+            "parsing_model": "whole-buffer serde_json over repo-local evidence artifacts",
+            "threat_model": "local research CLI evidence, not untrusted service ingestion",
         },
         "source_artifacts": [
             source_artifact("scoped_input", INPUT_PATH, "scoped input"),
@@ -307,6 +321,22 @@ def validate_payload(payload: dict[str, Any]) -> None:
         require(summary.get(field) == expected, f"summary drift: {field}")
     require(tuple(payload.get("non_claims", ())) == NON_CLAIMS, "non-claims drift")
     require(tuple(payload.get("validation_commands", ())) == VALIDATION_COMMANDS, "validation commands drift")
+    resource = payload.get("resource_limit_analysis")
+    require(isinstance(resource, dict), "resource limit analysis must be object")
+    require(resource.get("max_single_input_json_bytes") == MAX_SINGLE_INPUT_JSON_BYTES, "input cap drift")
+    require(
+        resource.get("max_single_envelope_json_bytes") == MAX_SINGLE_ENVELOPE_JSON_BYTES,
+        "envelope cap drift",
+    )
+    require(
+        resource.get("single_input_headroom_bytes") == MAX_SINGLE_INPUT_JSON_BYTES - SINGLE_INPUT_JSON_BYTES,
+        "input headroom drift",
+    )
+    require(
+        resource.get("single_envelope_headroom_bytes")
+        == MAX_SINGLE_ENVELOPE_JSON_BYTES - SINGLE_ENVELOPE_JSON_BYTES,
+        "envelope headroom drift",
+    )
     require(payload.get("payload_commitment") == payload_commitment(payload), "payload commitment drift")
 
 
@@ -323,6 +353,7 @@ def mutation_cases() -> tuple[Mutation, ...]:
         ("issue_drift", lambda p: p.__setitem__("issue", ISSUE + 1)),
         ("non_claim_removed", lambda p: p.__setitem__("non_claims", p["non_claims"][:-1])),
         ("validation_command_drift", lambda p: p["validation_commands"].__setitem__(0, "python3.10 scripts/other.py")),
+        ("resource_cap_drift", lambda p: p["resource_limit_analysis"].__setitem__("max_single_envelope_json_bytes", 64 * 1024 * 1024)),
         ("source_digest_drift", lambda p: p["source_artifacts"][0].__setitem__("sha256", "0" * 64)),
         ("payload_commitment_drift", lambda p: p.__setitem__("payload_commitment", "blake2b-256:" + "0" * 64)),
     )
@@ -386,7 +417,7 @@ Issue: #715
 Status: `{payload['decision']}`.
 
 This gate builds one native Stwo proof object over the real d128 two-head
-`seq32` fused attention source, a verifier-recomputed d128 adapter, and the
+`seq32` fused attention source, a verifier-recomputed co-location adapter, and the
 seq32-derived d128 RMSNorm/MLP surface.
 
 ## Result
@@ -407,8 +438,18 @@ the matched split local frontier.
 
 ## Guardrail
 
-The adapter is a scoped public binding device for this experiment. This is not
-a model-faithful full transformer block and not an external-system comparison.
+The adapter proves quotient and remainder consistency for the co-located rows.
+It does not prove that the d128 MLP input was derived from the d128 attention
+outputs. That semantics gap is the next decision gate, not something hidden in
+this result.
+
+## Resource Bounds
+
+The single input is `{s['single_input_json_bytes']:,}` JSON bytes and the
+single envelope is `{s['single_envelope_json_bytes']:,}` JSON bytes. The Rust
+CLIs cap both at `{MAX_SINGLE_INPUT_JSON_BYTES:,}` bytes because they parse
+whole JSON buffers with `serde_json`. These artifacts are repo-local evidence
+inputs, not untrusted service payloads.
 
 ## Evidence
 

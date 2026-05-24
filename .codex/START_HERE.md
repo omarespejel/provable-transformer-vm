@@ -219,13 +219,14 @@ This repository currently has three live lanes.
      `docs/engineering/zkai-native-seq32-attention-mlp-single-proof-2026-05-19.md`.
    - The current scoped d128 seq32 attention-plus-MLP implementation gate now
      verifies locally as one real Stwo proof over the d128 two-head seq32 fused
-     attention source, a verifier-recomputed scoped d128 adapter, and the
-     seq32-derived d128 RMSNorm-MLP fused surface. It is `503,004` proof JSON
+     attention source, a verifier-recomputed co-location adapter, and the
+     seq32-derived d128 RMSNorm-MLP fused surface. It is `504,518` proof JSON
      bytes / `204,564` typed bytes versus the matched scoped split frontier at
-     `520,399` proof JSON bytes / `209,172` typed bytes, saving `17,395` JSON
-     bytes (`0.966574x`) and `4,608` typed bytes (`0.977970x`). This is a
-     scoped boundary result, not a full transformer block proof and not a
-     model-faithful d128 attention-to-MLP adapter; see
+     `520,399` proof JSON bytes / `209,172` typed bytes, saving `15,881` JSON
+     bytes (`0.969483x`) and `4,608` typed bytes (`0.977970x`). This is a
+     scoped one-proof size result, not a full transformer block proof, not a
+     model-faithful d128 attention-to-MLP adapter, and not enforcing d128 MLP
+     input derivation from attention outputs; see
      `docs/engineering/zkai-native-d128-seq32-attention-mlp-single-proof-2026-05-24.md`.
    - The first seq32+d128 adapter-variant selector is a checked NO-GO for
      improving that champion through base-cell removal alone. Five variants

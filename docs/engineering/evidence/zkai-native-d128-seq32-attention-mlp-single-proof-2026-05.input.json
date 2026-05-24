@@ -19,7 +19,7 @@
   "mlp_output_activation_commitment": "blake2b-256:864505937d7fe562b549dacdb2143e2c8290c2757978a3dd4b2ebbf0a4696b98",
   "mlp_row_count": 197504,
   "adapter_mode": "duplicate_base_preprocessed_v1",
-  "adapter_status": "NATIVE_AIR_PROVEN_ATTENTION_OUTPUT_TO_D128_INPUT_ADAPTER",
+  "adapter_status": "NATIVE_AIR_PROVEN_COLOCATED_D128_ADAPTER_QUOTIENT_CHECK",
   "adapter_row_count": 128,
   "adapter_value_columns": 9,
   "adapter_remainder_bit_columns": 3,
@@ -29,9 +29,9 @@
   "current_attention_fused_typed_bytes": 445888,
   "current_derived_mlp_fused_typed_bytes": 24272,
   "nanozk_reported_d128_block_proof_bytes": 6900,
-  "statement_commitment": "blake2b-256:0f0e55d67e8311803cc2d79d4fb8ff71a1c687ecbe6b4e2443fdec0239e5b0f1",
-  "public_instance_commitment": "blake2b-256:c49f0ddbdcb4850333f86a5a9f5ff2b1b607334a8ed22834c1ac3eb417ac8e4d",
-  "proof_native_parameter_commitment": "blake2b-256:dfa8a6b66b426f66bf0b0261fcba21106f8081c86d84e30fb779b37e0fd5ea2d",
+  "statement_commitment": "blake2b-256:21eeba5327c21c558433ef7f979702bb4c56c9700e7a0afd44cddb4527069680",
+  "public_instance_commitment": "blake2b-256:b1d870de6352c1b89e06a1a6292aa98278ce5386b838d91ee7c5fdeccb409f08",
+  "proof_native_parameter_commitment": "blake2b-256:a2ce6dc40081af01c1a529f0e68bd8279bb17863144a0578455b1037ae871575",
   "attention_source_input": {
     "schema": "zkai-attention-kv-stwo-native-d128-two-head-seq32-bounded-softmax-table-air-proof-input-v1",
     "decision": "GO_INPUT_FOR_STWO_NATIVE_ATTENTION_KV_D128_TWO_HEAD_SEQ32_BOUNDED_SOFTMAX_TABLE_AIR_PROOF",
@@ -1309569,6 +1309569,7 @@
   "non_claims": [
     "not a full transformer block proof",
     "not a model-faithful d128 attention-to-MLP adapter",
+    "not enforcing d128 MLP input derivation from attention outputs",
     "not a NANOZK proof-size win",
     "not a matched external zkML benchmark",
     "not exact real-valued Softmax",
@@ -1309581,8 +1309582,7 @@
     "attention fused summary recomputed before relation draw",
     "attention LogUp interaction trace committed in the same proof object",
     "attention output commitment pinned to the statement-bound d128 adapter source",
-    "native adapter AIR proves scoped public binding from d128 two-head seq32 attention outputs to seq32-derived d128 RMSNorm input rows",
-    "native adapter AIR proves quotient/remainder semantics for every d128 adapter coordinate",
+    "native adapter AIR proves quotient/remainder consistency for a scoped co-location adapter, not derivation of d128 MLP inputs from attention outputs",
     "native adapter AIR remainder bits are boolean-constrained inside the same proof object",
     "d128 RMSNorm-MLP fused input validated before proof construction",
     "d128 MLP input activation commitment pinned to the approved attention-derived vector",
@@ -1309606,6 +1309606,7 @@
     "python3.10 -m unittest scripts.tests.test_zkai_native_d128_seq32_attention_mlp_single_proof_gate",
     "cargo +nightly-2025-07-14 test --locked --features stwo-backend native_d128_seq32_attention_mlp_single_proof --lib",
     "git diff --check",
-    "just gate-fast"
+    "just gate-fast",
+    "just gate"
   ]
 }
