@@ -4,7 +4,10 @@
 from __future__ import annotations
 
 import csv
+import os
 from pathlib import Path
+
+os.environ.setdefault("SOURCE_DATE_EPOCH", "1779667200")
 
 import matplotlib
 
@@ -27,6 +30,7 @@ plt.rcParams.update(
         "pdf.fonttype": 42,
         "ps.fonttype": 42,
         "svg.fonttype": "none",
+        "svg.hashsalt": "zkml-statement-validity-boundary-2026-05",
         "savefig.bbox": "tight",
     }
 )
@@ -83,6 +87,11 @@ def write_tsv() -> None:
     print(f"wrote {tsv_path}")
 
 
+def normalize_svg(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    path.write_text("\n".join(line.rstrip() for line in text.splitlines()) + "\n", encoding="utf-8")
+
+
 def main() -> None:
     fig, ax = plt.subplots(figsize=(7.2, 2.9), constrained_layout=True)
     ax.set_xlim(0, 1)
@@ -137,6 +146,8 @@ def main() -> None:
             fig.savefig(path, dpi=300)
         else:
             fig.savefig(path)
+            if ext == "svg":
+                normalize_svg(path)
         print(f"wrote {path}")
 
 
