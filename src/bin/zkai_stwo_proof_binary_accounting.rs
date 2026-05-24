@@ -27,7 +27,7 @@ use stwo::core::vcs::blake2_hash::Blake2sHash;
 use stwo::core::vcs_lifted::blake2_merkle::Blake2sM31MerkleHasher;
 
 #[cfg(feature = "stwo-backend")]
-const MAX_ENVELOPE_JSON_BYTES: usize = 16 * 1024 * 1024;
+const MAX_ENVELOPE_JSON_BYTES: usize = 64 * 1024 * 1024;
 #[cfg(feature = "stwo-backend")]
 const MAX_PROOF_JSON_BYTES: usize = 2 * 1024 * 1024;
 #[cfg(feature = "stwo-backend")]

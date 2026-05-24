@@ -241,6 +241,8 @@ mod lookup_prover;
 #[cfg(feature = "stwo-backend")]
 mod native_attention_mlp_single_proof;
 #[cfg(feature = "stwo-backend")]
+mod native_d128_seq32_attention_mlp_single_proof;
+#[cfg(feature = "stwo-backend")]
 mod native_seq32_attention_mlp_single_proof;
 #[cfg(feature = "stwo-backend")]
 mod normalization_component;
@@ -2203,6 +2205,36 @@ pub use native_attention_mlp_single_proof::{
     ZKAI_NATIVE_ATTENTION_MLP_SINGLE_PROOF_STATEMENT_VERSION,
     ZKAI_NATIVE_ATTENTION_MLP_SINGLE_PROOF_TARGET_ID,
     ZKAI_NATIVE_ATTENTION_MLP_SINGLE_PROOF_VERIFIER_DOMAIN,
+};
+#[cfg(feature = "stwo-backend")]
+pub use native_d128_seq32_attention_mlp_single_proof::{
+    build_zkai_native_d128_seq32_attention_mlp_single_proof_input,
+    build_zkai_native_d128_seq32_attention_mlp_single_proof_input_with_adapter_mode,
+    build_zkai_native_d128_seq32_attention_mlp_single_proof_input_with_adapter_mode_and_attempt_profile,
+    prove_zkai_native_d128_seq32_attention_mlp_single_proof_envelope,
+    sample_zkai_native_d128_seq32_attention_mlp_openings,
+    verify_zkai_native_d128_seq32_attention_mlp_single_proof_envelope,
+    zkai_native_d128_seq32_attention_mlp_single_proof_envelope_from_json_slice,
+    zkai_native_d128_seq32_attention_mlp_single_proof_input_from_json_str,
+    ZkAiNativeD128Seq32AttentionMlpAdapterMode,
+    ZkAiNativeD128Seq32AttentionMlpAttemptPolicyProfile,
+    ZkAiNativeD128Seq32AttentionMlpOpeningSampler,
+    ZkAiNativeD128Seq32AttentionMlpSingleProofEnvelope,
+    ZkAiNativeD128Seq32AttentionMlpSingleProofInput,
+    ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_OPENING_SAMPLER_MAX_JSON_BYTES,
+    ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_BACKEND_VERSION,
+    ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_DECISION,
+    ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_INPUT_DECISION,
+    ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_INPUT_SCHEMA,
+    ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_MAX_ENVELOPE_JSON_BYTES,
+    ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_MAX_INPUT_JSON_BYTES,
+    ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_MAX_PROOF_BYTES,
+    ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_PROOF_VERSION,
+    ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_ROUTE_ID,
+    ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_SEMANTIC_SCOPE,
+    ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_STATEMENT_VERSION,
+    ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_TARGET_ID,
+    ZKAI_NATIVE_D128_SEQ32_ATTENTION_MLP_SINGLE_PROOF_VERIFIER_DOMAIN,
 };
 #[cfg(feature = "stwo-backend")]
 pub use native_seq32_attention_mlp_single_proof::{
