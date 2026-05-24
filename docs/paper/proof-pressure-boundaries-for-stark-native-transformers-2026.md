@@ -351,10 +351,13 @@ deployment and proof-system surfaces for verifiable computation [5-9].
 These systems motivate, rather than settle, the boundary-selection question
 studied here. Their public artifacts do not expose the same scoped object as the
 fused attention plus Softmax-table boundary in this paper, so the paper does not
-rank them by headline proof size. The comparison is architectural: many zkML
-systems are already choosing specialized proof boundaries, and the evidence here
-shows one STARK-native boundary where lookup-heavy attention work amortizes
-proof bytes.
+rank them by headline proof size. In this draft, NANOZK, Jolt Atlas, and
+zkLLM/zkAttn are treated as paper-reported related work; DeepProve is treated as
+docs-reported related work; and EZKL, RISC Zero, SP1, and Stwo are treated as
+docs or source-reported infrastructure references. The comparison is
+architectural: many zkML systems are already choosing specialized proof
+boundaries, and the evidence here shows one STARK-native boundary where
+lookup-heavy attention work amortizes proof bytes.
 
 ---
 
