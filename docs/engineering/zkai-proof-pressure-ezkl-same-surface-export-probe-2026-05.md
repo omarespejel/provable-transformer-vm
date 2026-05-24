@@ -46,7 +46,7 @@ and statement binding.
 | `source_shape` | `GO` | source scalar fields, row counts, output shape, and recomputed commitments validate |
 | `semantics_and_policy_preservation` | `NO_GO_DIRECT_ONNX` | no ONNX/EZKL export artifact is produced that preserves table policy and rounding |
 | `public_io_statement_shape` | `GO_SOURCE_BOUNDARY_ONLY` | input and output commitments are recomputed and listed as statement fields |
-| `separated_byte_accounting` | `GO_UNAVAILABLE_VALUES_REPORTED_SEPARATELY` | proof, verification key, settings, setup, and envelope byte categories are separated |
+| `separated_byte_accounting` | `GO_UNAVAILABLE_VALUES_REPORTED_SEPARATELY` | proof, verification key, settings, setup, envelope, and verifier-domain byte categories are separated |
 | `mutation_rejection` | `GO` | tests reject provenance, commitment, verifier-domain, output, accounting, and prior-evidence drift |
 | `paper_baseline_row` | `NO_GO` | same-surface proof bytes are unavailable because the export artifact is not produced |
 
@@ -65,15 +65,18 @@ and statement binding.
 
 No EZKL proof, verification key, settings, setup, or statement-envelope bytes are
 reported as a benchmark row in this probe. The categories are still separated so
-future export work cannot collapse them into a single ambiguous number.
+future export work cannot collapse them into a single ambiguous number. The
+verifier-domain identifier is byte-accounted as a literal statement identifier,
+not as a proof artifact.
 
 | byte category | status | bytes | artifact |
 |---|---|---:|---|
-| `proof_bytes` | `UNAVAILABLE_NO_EZKL_PROOF_GENERATED` | - | `not_generated` |
-| `verification_key_bytes` | `UNAVAILABLE_NO_EZKL_SETUP_GENERATED` | - | `not_generated` |
-| `settings_bytes` | `UNAVAILABLE_NO_EZKL_SETTINGS_GENERATED` | - | `not_generated` |
-| `setup_assumptions_bytes` | `NOT_BYTE_SIZED_IN_THIS_PROBE` | - | `not_generated` |
-| `statement_envelope_bytes` | `NOT_GENERATED_UNTIL_EXPORT_ARTIFACT_EXISTS` | - | `not_generated` |
+| `proof_bytes` | `UNAVAILABLE_NO_EZKL_PROOF_GENERATED` | UNAVAILABLE | `not_generated` |
+| `verification_key_bytes` | `UNAVAILABLE_NO_EZKL_SETUP_GENERATED` | UNAVAILABLE | `not_generated` |
+| `settings_bytes` | `UNAVAILABLE_NO_EZKL_SETTINGS_GENERATED` | UNAVAILABLE | `not_generated` |
+| `setup_assumptions_bytes` | `NOT_BYTE_SIZED_IN_THIS_PROBE` | UNAVAILABLE | `not_generated` |
+| `statement_envelope_bytes` | `NOT_GENERATED_UNTIL_EXPORT_ARTIFACT_EXISTS` | UNAVAILABLE | `not_generated` |
+| `verifier_domain_identifier_bytes` | `ACCOUNTED_LITERAL_IDENTIFIER_NOT_A_PROOF_ARTIFACT` | 78 | `ptvm:zkai:attention-kv-stwo-native-d64-two-head-seq32-bounded-softmax-table:v1` |
 
 ## Export Artifact Status
 
