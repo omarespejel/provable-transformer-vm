@@ -104,7 +104,7 @@ plt.style.use("tableau-colorblind10")
 plt.rcParams.update(
     {
         "font.family": "serif",
-        "font.serif": ["STIX Two Text", "Times New Roman", "DejaVu Serif"],
+        "font.serif": ["DejaVu Serif"],
         "mathtext.fontset": "stix",
         "font.size": 9,
         "axes.labelsize": 9,
@@ -163,7 +163,18 @@ def write_tsv(stem: str, fieldnames: list[str], rows: list[dict[str, object]]) -
 
 
 def ordered_rows(rows: list[dict[str, str]], key: str, order: tuple[str, ...]) -> list[dict[str, str]]:
-    by_id = {row[key]: row for row in rows}
+    by_id: dict[str, dict[str, str]] = {}
+    duplicates: list[str] = []
+    for row_number, row in enumerate(rows, start=2):
+        if key not in row:
+            raise SystemExit(f"missing key {key!r} in TSV row {row_number}: {row!r}")
+        row_id = row[key]
+        if row_id in by_id:
+            duplicates.append(row_id)
+            continue
+        by_id[row_id] = row
+    if duplicates:
+        raise SystemExit(f"duplicate {key!r} values in TSV: {sorted(set(duplicates))}")
     missing = [row_id for row_id in order if row_id not in by_id]
     if missing:
         raise SystemExit(f"missing expected rows in TSV: {missing}")
@@ -288,14 +299,31 @@ def render_boundary_selection_figure() -> None:
 
 def render_mechanism_figure() -> None:
     section_rows = read_tsv(SECTION_DELTA_TSV)
+    if not section_rows:
+        raise SystemExit(f"SECTION_DELTA_TSV is empty: {SECTION_DELTA_TSV}")
     total_saving = sum(int(float_field(row, "fused_saves_vs_source_plus_sidecar_bytes")) for row in section_rows)
     opening_saving = sum(int(float_field(row, "opening_bucket_savings_bytes")) for row in section_rows)
     non_opening_saving = total_saving - opening_saving
+    if total_saving <= 0:
+        raise SystemExit(
+            "non-positive attention total saving from "
+            f"{SECTION_DELTA_TSV}: total_saving={total_saving}, "
+            f"opening_saving={opening_saving}"
+        )
 
-    mlp_row = read_tsv(MLP_ATTRIBUTION_TSV)[0]
+    mlp_rows = read_tsv(MLP_ATTRIBUTION_TSV)
+    if not mlp_rows:
+        raise SystemExit(f"MLP_ATTRIBUTION_TSV is empty: {MLP_ATTRIBUTION_TSV}")
+    mlp_row = mlp_rows[0]
     mlp_total = int(float_field(mlp_row, "typed_saving_vs_separate_bytes"))
     mlp_opening = int(float_field(mlp_row, "opening_plumbing_saved_bytes"))
     mlp_non_opening = mlp_total - mlp_opening
+    if mlp_total <= 0:
+        raise SystemExit(
+            "non-positive MLP total saving from "
+            f"{MLP_ATTRIBUTION_TSV}: mlp_total={mlp_total}, "
+            f"mlp_opening={mlp_opening}"
+        )
 
     labels = ["Attention + LogUp\nserialized section delta", "d128 MLP-side\nlocal typed accounting"]
     opening_values = [opening_saving, mlp_opening]
