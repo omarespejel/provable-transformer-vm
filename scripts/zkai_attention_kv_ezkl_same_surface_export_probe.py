@@ -94,7 +94,18 @@ def load_source_input_module() -> Any:
     return module
 
 
-SOURCE_INPUT = load_source_input_module()
+_SOURCE_INPUT_CACHE: Any | None = None
+
+
+def source_input_module() -> Any:
+    global _SOURCE_INPUT_CACHE
+    if _SOURCE_INPUT_CACHE is None:
+        _SOURCE_INPUT_CACHE = load_source_input_module()
+    return _SOURCE_INPUT_CACHE
+
+
+def unavailable_bytes(value: int | None) -> str:
+    return "UNAVAILABLE" if value is None else str(value)
 
 
 def canonical_json_bytes(value: Any) -> bytes:
@@ -217,7 +228,7 @@ def source_shape(
         raise SameSurfaceExportProbeError("source full-inference non-claim drift")
 
     try:
-        SOURCE_INPUT.validate_payload(source)
+        source_input_module().validate_payload(source)
     except Exception as err:
         raise SameSurfaceExportProbeError(f"source payload validation failed: {err}") from err
 
@@ -399,6 +410,12 @@ def byte_accounting() -> list[dict[str, Any]]:
             "bytes": None,
             "artifact": "not_generated",
         },
+        {
+            "byte_category": "verifier_domain_identifier_bytes",
+            "status": "ACCOUNTED_LITERAL_IDENTIFIER_NOT_A_PROOF_ARTIFACT",
+            "bytes": len(SOURCE_VERIFIER_DOMAIN.encode("utf-8")),
+            "artifact": SOURCE_VERIFIER_DOMAIN,
+        },
     ]
 
 
@@ -422,7 +439,7 @@ def gate_criteria() -> list[dict[str, str]]:
         {
             "criterion": "separated_byte_accounting",
             "status": "GO_UNAVAILABLE_VALUES_REPORTED_SEPARATELY",
-            "evidence": "proof, verification key, settings, setup, and envelope byte categories are separated",
+            "evidence": "proof, verification key, settings, setup, envelope, and verifier-domain byte categories are separated",
         },
         {
             "criterion": "mutation_rejection",
@@ -624,7 +641,7 @@ def accounting_rows(payload: dict[str, Any]) -> list[dict[str, str]]:
         {
             "byte_category": row["byte_category"],
             "status": row["status"],
-            "bytes": "" if row["bytes"] is None else str(row["bytes"]),
+            "bytes": unavailable_bytes(row["bytes"]),
             "artifact": row["artifact"],
         }
         for row in payload["byte_accounting"]
@@ -698,11 +715,13 @@ and statement binding.
 
 No EZKL proof, verification key, settings, setup, or statement-envelope bytes are
 reported as a benchmark row in this probe. The categories are still separated so
-future export work cannot collapse them into a single ambiguous number.
+future export work cannot collapse them into a single ambiguous number. The
+verifier-domain identifier is byte-accounted as a literal statement identifier,
+not as a proof artifact.
 
 | byte category | status | bytes | artifact |
 |---|---|---:|---|
-{chr(10).join(f"| `{row['byte_category']}` | `{row['status']}` | {'-' if row['bytes'] is None else row['bytes']} | `{row['artifact']}` |" for row in payload["byte_accounting"])}
+{chr(10).join(f"| `{row['byte_category']}` | `{row['status']}` | {unavailable_bytes(row['bytes'])} | `{row['artifact']}` |" for row in payload["byte_accounting"])}
 
 ## Export Artifact Status
 

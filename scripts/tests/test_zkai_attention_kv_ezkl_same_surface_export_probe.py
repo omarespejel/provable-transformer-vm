@@ -66,6 +66,21 @@ class ZkAIAttentionKVEzklSameSurfaceExportProbeTests(unittest.TestCase):
         self.assertEqual(rows[0]["proof_generated"], "false")
         self.assertEqual(rows[1]["candidate_adapter"], "custom_integer_table_ezkl_export_probe")
 
+    def test_byte_accounting_separates_unavailable_and_verifier_domain_bytes(self) -> None:
+        payload = copy.deepcopy(self.payload)
+        rows = {row["byte_category"]: row for row in payload["byte_accounting"]}
+
+        self.assertIsNone(rows["proof_bytes"]["bytes"])
+        self.assertEqual(rows["verifier_domain_identifier_bytes"]["bytes"], len(PROBE.SOURCE_VERIFIER_DOMAIN.encode("utf-8")))
+        self.assertEqual(rows["verifier_domain_identifier_bytes"]["artifact"], PROBE.SOURCE_VERIFIER_DOMAIN)
+
+        tsv_rows = {row["byte_category"]: row for row in PROBE.accounting_rows(payload)}
+        self.assertEqual(tsv_rows["proof_bytes"]["bytes"], "UNAVAILABLE")
+        self.assertEqual(
+            tsv_rows["verifier_domain_identifier_bytes"]["bytes"],
+            str(len(PROBE.SOURCE_VERIFIER_DOMAIN.encode("utf-8"))),
+        )
+
     def test_source_shape_validation_rejects_mutated_policy(self) -> None:
         source = copy.deepcopy(self.source)
         source["weight_policy"] = "float_softmax"
