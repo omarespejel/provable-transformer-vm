@@ -88,4 +88,6 @@ python3.10 scripts/zkai_scoped_d128_seq32_block_boundary_preflight_gate.py --wri
 python3.10 -m py_compile scripts/zkai_scoped_d128_seq32_block_boundary_preflight_gate.py scripts/tests/test_zkai_scoped_d128_seq32_block_boundary_preflight_gate.py
 python3.10 -m unittest scripts.tests.test_zkai_scoped_d128_seq32_block_boundary_preflight_gate
 git diff --check
+just gate-fast
+just gate
 ```

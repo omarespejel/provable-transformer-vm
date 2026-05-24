@@ -86,12 +86,12 @@
       "rejected": true
     },
     {
-      "error": "validation commands drift: expected ('python3.10 scripts/zkai_scoped_d128_seq32_block_boundary_preflight_gate.py --write-json docs/engineering/evidence/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05.json --write-tsv docs/engineering/evidence/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05.tsv --write-md docs/engineering/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05-24.md', 'python3.10 -m py_compile scripts/zkai_scoped_d128_seq32_block_boundary_preflight_gate.py scripts/tests/test_zkai_scoped_d128_seq32_block_boundary_preflight_gate.py', 'python3.10 -m unittest scripts.tests.test_zkai_scoped_d128_seq32_block_boundary_preflight_gate', 'git diff --check'), got ('python3.10 scripts/other.py', 'python3.10 -m py_compile scripts/zkai_scoped_d128_seq32_block_boundary_preflight_gate.py scripts/tests/test_zkai_scoped_d128_seq32_block_boundary_preflight_gate.py', 'python3.10 -m unittest scripts.tests.test_zkai_scoped_d128_seq32_block_boundary_preflight_gate', 'git diff --check')",
+      "error": "validation commands drift: expected ('python3.10 scripts/zkai_scoped_d128_seq32_block_boundary_preflight_gate.py --write-json docs/engineering/evidence/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05.json --write-tsv docs/engineering/evidence/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05.tsv --write-md docs/engineering/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05-24.md', 'python3.10 -m py_compile scripts/zkai_scoped_d128_seq32_block_boundary_preflight_gate.py scripts/tests/test_zkai_scoped_d128_seq32_block_boundary_preflight_gate.py', 'python3.10 -m unittest scripts.tests.test_zkai_scoped_d128_seq32_block_boundary_preflight_gate', 'git diff --check', 'just gate-fast', 'just gate'), got ('python3.10 scripts/other.py', 'python3.10 -m py_compile scripts/zkai_scoped_d128_seq32_block_boundary_preflight_gate.py scripts/tests/test_zkai_scoped_d128_seq32_block_boundary_preflight_gate.py', 'python3.10 -m unittest scripts.tests.test_zkai_scoped_d128_seq32_block_boundary_preflight_gate', 'git diff --check', 'just gate-fast', 'just gate')",
       "name": "validation_command_drift",
       "rejected": true
     },
     {
-      "error": "payload commitment drift: expected 'blake2b-256:1b0bf2496d0ed64fbd66daa5dd3c827376f23e9704c19ffb703d742f46a54cf0', got 'blake2b-256:0000000000000000000000000000000000000000000000000000000000000000'",
+      "error": "payload commitment drift: expected 'blake2b-256:f68442944eb9ac02855a9b8728c3de1fc42958a2104bf7bb9e001a22bef08d4a', got 'blake2b-256:0000000000000000000000000000000000000000000000000000000000000000'",
       "name": "payload_commitment_drift",
       "rejected": true
     }
@@ -113,7 +113,7 @@
     "not full autoregressive inference",
     "not production throughput evidence"
   ],
-  "payload_commitment": "blake2b-256:cbf8ded2fedb54e5a1e4ea87313c2f0892d429606fc974545e17335e852c3e2d",
+  "payload_commitment": "blake2b-256:672c400e7926dd7ce9c29d316d232d206df96896f030b8f7ecfeef1dc1d7aeec",
   "result": "ATTACK_SCOPED_D128_SEQ32_BOUNDARY_BEFORE_D256_SEQ64_STRESS",
   "rows": [
     {
@@ -296,6 +296,8 @@
     "python3.10 scripts/zkai_scoped_d128_seq32_block_boundary_preflight_gate.py --write-json docs/engineering/evidence/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05.json --write-tsv docs/engineering/evidence/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05.tsv --write-md docs/engineering/zkai-scoped-d128-seq32-block-boundary-preflight-2026-05-24.md",
     "python3.10 -m py_compile scripts/zkai_scoped_d128_seq32_block_boundary_preflight_gate.py scripts/tests/test_zkai_scoped_d128_seq32_block_boundary_preflight_gate.py",
     "python3.10 -m unittest scripts.tests.test_zkai_scoped_d128_seq32_block_boundary_preflight_gate",
-    "git diff --check"
+    "git diff --check",
+    "just gate-fast",
+    "just gate"
   ]
 }
