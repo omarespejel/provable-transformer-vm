@@ -49,6 +49,11 @@
       "rejected": true
     },
     {
+      "error": "backend_version_metadata drift",
+      "name": "backend_version_metadata_drift",
+      "rejected": true
+    },
+    {
       "error": "selector drift",
       "name": "headline_anchor_relabeling",
       "rejected": true
@@ -99,8 +104,8 @@
       "rejected": true
     }
   ],
-  "mutations_checked": 15,
-  "mutations_rejected": 15,
+  "mutations_checked": 16,
+  "mutations_rejected": 16,
   "next_policy_status": "START_DETERMINISTIC_ROUTE_LAYOUT_POLICY_ON_FAST_SEQUENCE_TARGET",
   "non_claims": [
     "not a new proof-size result",
@@ -114,7 +119,7 @@
     "not exact real-valued Softmax",
     "not full transformer inference"
   ],
-  "payload_commitment": "blake2b-256:e93d27a40c979bf2f23c7dd073c4fd4857f41b1b64ad12da2916572165cea947",
+  "payload_commitment": "blake2b-256:6d94bef36a6566d0d52bdba3753236084dbd052cece334a7e8f2ec84e3ce3264",
   "policy_metric_rows": [
     {
       "axis_role": "baseline",
