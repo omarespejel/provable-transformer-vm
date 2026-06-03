@@ -49,11 +49,11 @@ class AttentionKvFusedSoftmaxTableSectionDeltaGateTests(unittest.TestCase):
         self.assertEqual(aggregate["section_totals_by_role"]["delta"], gate.EXPECTED_SECTION_DELTA_TOTALS)
         self.assertEqual(aggregate["bucket_totals_by_role"]["delta"], gate.EXPECTED_BUCKET_DELTA_TOTALS)
         self.assertEqual(aggregate["json_wrapper_totals_by_role"], gate.EXPECTED_WRAPPER_TOTALS)
-        self.assertEqual(aggregate["largest_savings_profile_id"], "d64_four_head_seq64")
-        self.assertEqual(aggregate["largest_savings_profile_bytes"], 39282)
-        self.assertEqual(aggregate["largest_delta_section"], "fri_proof")
-        self.assertEqual(aggregate["largest_delta_section_bytes"], 129316)
-        self.assertEqual(aggregate["opening_bucket_savings_share"], 0.933903)
+        self.assertEqual(aggregate["largest_savings_profile_id"], gate.EXPECTED_LARGEST_SAVINGS_PROFILE_ID)
+        self.assertEqual(aggregate["largest_savings_profile_bytes"], gate.EXPECTED_LARGEST_SAVINGS_BYTES)
+        self.assertEqual(aggregate["largest_delta_section"], gate.EXPECTED_LARGEST_DELTA_SECTION)
+        self.assertEqual(aggregate["largest_delta_section_bytes"], gate.EXPECTED_LARGEST_DELTA_SECTION_BYTES)
+        self.assertEqual(aggregate["opening_bucket_savings_share"], gate.EXPECTED_OPENING_BUCKET_SAVINGS_SHARE)
         self.assertEqual(aggregate["proof_schema_versions_by_role"], gate.EXPECTED_PROOF_SCHEMA_VERSIONS_BY_ROLE)
 
     def test_profile_rows_bind_matched_source_sidecar_and_fused_sections(self):
