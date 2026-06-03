@@ -176,6 +176,14 @@ Validate(statement_boundary, application_claim) = true
 
 That second line is the point of this paper.
 
+There is one important security distinction. Some fields are **hard-bound**:
+they appear in the proof's public instance, or the public instance contains a
+commitment that the verifier or receipt validator checks against them. Other
+fields are only envelope metadata. Those fields can be useful for routing,
+display, and audit logs, but they are advisory until validation ties them back
+to a hard-bound commitment. A serious receipt should make that distinction
+visible.
+
 ---
 
 ## 6. Where Tablero Enters
@@ -311,4 +319,3 @@ commitments, and input-output commitments. They are not full production model
 receipts. A production receipt would extend the same boundary pattern to the
 model checkpoint, tokenizer, deployment policy, source event, and operational
 claim.
-
