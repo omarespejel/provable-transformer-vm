@@ -108,13 +108,36 @@ NON_CLAIMS = (
     "not full transformer inference",
 )
 VALIDATION_COMMANDS = (
+    "just gate-fast",
     "python3.10 scripts/zkai_stwo_ai_route_layout_policy_gate.py --write-json docs/engineering/evidence/zkai-stwo-ai-route-layout-policy-2026-06.json --write-tsv docs/engineering/evidence/zkai-stwo-ai-route-layout-policy-2026-06.tsv --write-md docs/engineering/zkai-stwo-ai-route-layout-policy-2026-06-04.md",
     "python3.10 -m py_compile scripts/zkai_stwo_ai_route_layout_policy_gate.py scripts/tests/test_zkai_stwo_ai_route_layout_policy_gate.py",
     "python3.10 -m unittest scripts.tests.test_zkai_stwo_ai_route_layout_policy_gate",
     "git diff --check",
+    "just gate-no-nightly",
 )
 EXPECTED_PROFILE_IDS = tuple(section_delta.EXPECTED_PROFILE_IDS)
 EXPECTED_PROFILE_COUNT = len(EXPECTED_PROFILE_IDS)
+ROUTE_MATRIX_NON_SECTION_PROFILE_IDS = (
+    "d32_single_head_seq8",
+    "d32_two_head_seq8",
+    "d16_two_head_seq32",
+    "d32_two_head_seq16",
+    "d32_four_head_seq16",
+    "d32_two_head_seq32",
+    "d32_four_head_seq32",
+    "d64_single_head_seq16",
+    "d64_two_head_seq16",
+    "d64_four_head_seq16",
+    "d64_two_head_seq32",
+    "d64_two_head_seq64",
+    "d64_four_head_seq32",
+    "d128_single_head_seq16",
+    "d128_two_head_seq32",
+    "d128_two_head_seq64",
+    "d128_four_head_seq32",
+    "d128_four_head_seq64",
+    "d256_two_head_seq32",
+)
 EXPECTED_MUTATION_NAMES = (
     "decision_overclaim",
     "fork_status_premature_promotion",
@@ -187,11 +210,11 @@ def ratio(numerator: int, denominator: int) -> float:
 def read_json(path: pathlib.Path, expected_sha256: str, label: str) -> dict[str, Any]:
     if not path.is_file():
         raise StwoAiRouteLayoutPolicyGateError(f"missing {label}: {path}")
-    actual_sha256 = sha256_file(path)
+    raw = path.read_bytes()
+    actual_sha256 = hashlib.sha256(raw).hexdigest()
     if actual_sha256 != expected_sha256:
         raise StwoAiRouteLayoutPolicyGateError(f"{label} sha256 drift")
-    with path.open("r", encoding="utf-8") as handle:
-        payload = json.load(handle)
+    payload = json.loads(raw.decode("utf-8"))
     if not isinstance(payload, dict):
         raise StwoAiRouteLayoutPolicyGateError(f"{label} must be object")
     return payload
@@ -296,10 +319,15 @@ def build_policy_metric_rows(
     route_payload: dict[str, Any],
 ) -> list[dict[str, Any]]:
     route_by_id = route_rows_by_profile(route_payload)
+    section_profile_ids = [
+        require_str(row.get("profile_id"), f"section row {index} profile_id")
+        for index, row in enumerate(section_payload["profile_rows"])
+    ]
+    expected_route_ids = set(section_profile_ids) | set(ROUTE_MATRIX_NON_SECTION_PROFILE_IDS)
+    if set(route_by_id) != expected_route_ids:
+        raise StwoAiRouteLayoutPolicyGateError("route matrix profile set drift")
     rows = []
     for row in section_payload["profile_rows"]:
-        if row["profile_id"] not in route_by_id:
-            raise StwoAiRouteLayoutPolicyGateError("route matrix missing section-delta profile")
         rows.append(build_policy_metric_row(row, route_by_id[row["profile_id"]]))
     if [row["profile_id"] for row in rows] != list(EXPECTED_PROFILE_IDS):
         raise StwoAiRouteLayoutPolicyGateError("policy metric row order drift")
@@ -437,6 +465,7 @@ def build_base_payload() -> dict[str, Any]:
             "section_delta_sha256": SECTION_DELTA_SHA256,
             "route_matrix_json": str(ROUTE_MATRIX_JSON.relative_to(ROOT)),
             "route_matrix_sha256": ROUTE_MATRIX_SHA256,
+            "route_matrix_non_section_profile_ids": list(ROUTE_MATRIX_NON_SECTION_PROFILE_IDS),
         },
         "profile_ids": list(EXPECTED_PROFILE_IDS),
         "policy_metric_rows": rows,
@@ -716,6 +745,7 @@ def validate_payload(
         "section_delta_sha256": SECTION_DELTA_SHA256,
         "route_matrix_json": str(ROUTE_MATRIX_JSON.relative_to(ROOT)),
         "route_matrix_sha256": ROUTE_MATRIX_SHA256,
+        "route_matrix_non_section_profile_ids": list(ROUTE_MATRIX_NON_SECTION_PROFILE_IDS),
     }
     if artifacts != expected_artifacts:
         raise StwoAiRouteLayoutPolicyGateError("source artifact digest drift")

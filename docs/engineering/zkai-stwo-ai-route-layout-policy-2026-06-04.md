@@ -37,8 +37,10 @@ Prototype a verifier-bound deterministic route-layout policy on `d8_two_head_seq
 ## Reproduce
 
 ```bash
+just gate-fast
 python3.10 scripts/zkai_stwo_ai_route_layout_policy_gate.py --write-json docs/engineering/evidence/zkai-stwo-ai-route-layout-policy-2026-06.json --write-tsv docs/engineering/evidence/zkai-stwo-ai-route-layout-policy-2026-06.tsv --write-md docs/engineering/zkai-stwo-ai-route-layout-policy-2026-06-04.md
 python3.10 -m py_compile scripts/zkai_stwo_ai_route_layout_policy_gate.py scripts/tests/test_zkai_stwo_ai_route_layout_policy_gate.py
 python3.10 -m unittest scripts.tests.test_zkai_stwo_ai_route_layout_policy_gate
 git diff --check
+just gate-no-nightly
 ```

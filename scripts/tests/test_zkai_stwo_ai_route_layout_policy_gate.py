@@ -100,6 +100,13 @@ class StwoAiRouteLayoutPolicyGateTests(unittest.TestCase):
         with self.assertRaisesRegex(gate.StwoAiRouteLayoutPolicyGateError, "duplicate route matrix profile_id: x"):
             gate.route_rows_by_profile({"route_rows": [{"profile_id": "x"}, {"profile_id": "x"}]})
 
+    def test_policy_rows_reject_extra_route_profiles(self):
+        with self.assertRaisesRegex(gate.StwoAiRouteLayoutPolicyGateError, "route matrix profile set drift"):
+            gate.build_policy_metric_rows(
+                {"profile_rows": [{"profile_id": "x"}]},
+                {"route_rows": [{"profile_id": "x"}, {"profile_id": "y"}]},
+            )
+
     def test_policy_plan_keeps_safe_next_action(self):
         plan = self.payload["policy_plan"]
         self.assertEqual(plan["immediate_target"], "d8_two_head_seq32")

@@ -114,7 +114,7 @@
     "not exact real-valued Softmax",
     "not full transformer inference"
   ],
-  "payload_commitment": "blake2b-256:1db55f6cba8fa1a9da9efa16f5663e37f9cd1bb04ebce5d6a678e63ad2c71305",
+  "payload_commitment": "blake2b-256:e93d27a40c979bf2f23c7dd073c4fd4857f41b1b64ad12da2916572165cea947",
   "policy_metric_rows": [
     {
       "axis_role": "baseline",
@@ -412,6 +412,27 @@
   },
   "source_artifacts": {
     "route_matrix_json": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
+    "route_matrix_non_section_profile_ids": [
+      "d32_single_head_seq8",
+      "d32_two_head_seq8",
+      "d16_two_head_seq32",
+      "d32_two_head_seq16",
+      "d32_four_head_seq16",
+      "d32_two_head_seq32",
+      "d32_four_head_seq32",
+      "d64_single_head_seq16",
+      "d64_two_head_seq16",
+      "d64_four_head_seq16",
+      "d64_two_head_seq32",
+      "d64_two_head_seq64",
+      "d64_four_head_seq32",
+      "d128_single_head_seq16",
+      "d128_two_head_seq32",
+      "d128_two_head_seq64",
+      "d128_four_head_seq32",
+      "d128_four_head_seq64",
+      "d256_two_head_seq32"
+    ],
     "route_matrix_sha256": "f8da6eb33454011e3ef20b7b80cdcce4ff9086764d7b4a3868c684046b434701",
     "section_delta_json": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-section-delta-2026-05.json",
     "section_delta_sha256": "046b9997b673f22a9f45eb02c75f2c5f23255eb3fa3b88922dcd8cfe5a27e14d"
@@ -419,9 +440,11 @@
   "source_issue": 531,
   "timing_policy": "no_timing_claim_no_public_benchmark",
   "validation_commands": [
+    "just gate-fast",
     "python3.10 scripts/zkai_stwo_ai_route_layout_policy_gate.py --write-json docs/engineering/evidence/zkai-stwo-ai-route-layout-policy-2026-06.json --write-tsv docs/engineering/evidence/zkai-stwo-ai-route-layout-policy-2026-06.tsv --write-md docs/engineering/zkai-stwo-ai-route-layout-policy-2026-06-04.md",
     "python3.10 -m py_compile scripts/zkai_stwo_ai_route_layout_policy_gate.py scripts/tests/test_zkai_stwo_ai_route_layout_policy_gate.py",
     "python3.10 -m unittest scripts.tests.test_zkai_stwo_ai_route_layout_policy_gate",
-    "git diff --check"
+    "git diff --check",
+    "just gate-no-nightly"
   ]
 }
