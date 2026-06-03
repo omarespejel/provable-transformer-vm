@@ -144,6 +144,7 @@ EXPECTED_MUTATION_NAMES = (
     "post_query_policy_smuggling",
     "source_artifact_digest_drift",
     "route_matrix_digest_drift",
+    "backend_version_metadata_drift",
     "headline_anchor_relabeling",
     "fast_sequence_target_relabeling",
     "fast_target_metric_smuggling",
@@ -811,6 +812,10 @@ def mutation_cases_for(payload: dict[str, Any]) -> list[dict[str, Any]]:
     add("post_query_policy_smuggling", lambda p: p.__setitem__("security_policy", "choose_layout_after_query_draw"))
     add("source_artifact_digest_drift", lambda p: p["source_artifacts"].__setitem__("section_delta_sha256", "00" * 32))
     add("route_matrix_digest_drift", lambda p: p["source_artifacts"].__setitem__("route_matrix_sha256", "11" * 32))
+    add(
+        "backend_version_metadata_drift",
+        lambda p: p["backend_version_metadata"].__setitem__("stwo_crate", "forked-stwo 0.0.0"),
+    )
     add("headline_anchor_relabeling", lambda p: p["selector"].__setitem__("headline_pressure_anchor_profile_id", "d8_two_head_seq32"))
     add("fast_sequence_target_relabeling", lambda p: p["selector"].__setitem__("fast_sequence_target_profile_id", "d64_four_head_seq64"))
     add(

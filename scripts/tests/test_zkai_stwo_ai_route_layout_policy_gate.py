@@ -142,6 +142,10 @@ class StwoAiRouteLayoutPolicyGateTests(unittest.TestCase):
         self.assert_rejects(payload, "source artifact digest drift")
 
         payload = self.strip_mutation_summary(self.payload)
+        payload["backend_version_metadata"]["stwo_crate"] = "forked-stwo 0.0.0"
+        self.assert_rejects(payload, "backend_version_metadata drift")
+
+        payload = self.strip_mutation_summary(self.payload)
         gate.find_row(payload["policy_metric_rows"], "d8_two_head_seq32")["query_bucket_savings_bytes"] += 1
         self.assert_rejects(payload, "policy metric row drift")
 
