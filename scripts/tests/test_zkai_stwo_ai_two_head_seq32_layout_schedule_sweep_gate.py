@@ -54,9 +54,11 @@ class LayoutScheduleSweepGateTests(unittest.TestCase):
         self.assertEqual(aggregate["best_query_delta_vs_baseline_bytes"], 80)
         self.assertEqual(aggregate["worst_schedule_id"], "chunk8")
         self.assertEqual(aggregate["worst_proof_delta_vs_baseline_bytes"], 4050)
+        self.assertEqual(payload["baseline_artifact"]["proof_backend"], "stwo")
 
     def test_variant_rows_bind_same_workload_and_statement_commitments(self):
         chunk4 = self.row("chunk4")
+        self.assertEqual(chunk4["proof_backend"], "stwo")
         self.assertEqual(chunk4["proof_size_bytes"], 65998)
         self.assertEqual(chunk4["saves_vs_baseline_bytes"], 329)
         self.assertEqual(chunk4["proof_delta_vs_baseline_bytes"], -329)
@@ -96,6 +98,10 @@ class LayoutScheduleSweepGateTests(unittest.TestCase):
         self.assert_rejects(payload, "variant row drift")
 
         payload = self.strip_mutation_summary(self.payload)
+        gate.find_row(payload["variant_rows"], "chunk4")["proof_backend"] = "forked-stwo"
+        self.assert_rejects(payload, "proof_backend drift")
+
+        payload = self.strip_mutation_summary(self.payload)
         gate.find_row(payload["variant_rows"], "chunk4")["statement_commitment"] = "blake2b-256:" + "aa" * 32
         self.assert_rejects(payload, "variant row drift")
 
@@ -117,6 +123,7 @@ class LayoutScheduleSweepGateTests(unittest.TestCase):
         self.assertIn("Stwo-AI Two-Head Seq32 Layout Schedule Sweep", md)
         self.assertIn("`chunk4` is the first checked route-layout win", md)
         self.assertIn("`329` bytes", md)
+        self.assertIn("Proof backend: `stwo`", md)
         self.assertIn("not a Stwo fork", md)
 
     def test_relative_output_paths_resolve_from_repo_root(self):
@@ -144,6 +151,12 @@ class LayoutScheduleSweepGateTests(unittest.TestCase):
                 gate.write_outputs(self.payload, gate.JSON_OUT, tmp_path / "out.tsv", gate.MD_OUT)
             with self.assertRaisesRegex(gate.LayoutScheduleSweepGateError, "markdown output path"):
                 gate.write_outputs(self.payload, gate.JSON_OUT, gate.TSV_OUT, tmp_path / "out.md")
+
+    def test_missing_artifact_uses_gate_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            missing = pathlib.Path(tmp) / "missing.json"
+            with self.assertRaisesRegex(gate.LayoutScheduleSweepGateError, "missing artifact: missing.json"):
+                gate.sha256_file(missing)
 
 
 if __name__ == "__main__":

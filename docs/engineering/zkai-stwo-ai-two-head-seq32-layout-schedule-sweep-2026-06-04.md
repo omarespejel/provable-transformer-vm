@@ -5,6 +5,9 @@
 - Fork status: `NO_GO_FORK_STWO_FROM_CHUNK4_SWEEP`
 - Promotion status: `NO_GO_D64_PROMOTION_UNTIL_POLICY_IS_IMPLEMENTED_AND_REPROVED_ON_D64`
 - Verify policy: `best_chunk4_envelope_native_verify_required`
+- Proof backend: `stwo`
+- Proof backend version: `stwo-attention-kv-two-head-seq32-fused-bounded-softmax-table-logup-v1`
+- Statement version: `zkai-attention-kv-stwo-native-two-head-seq32-fused-softmax-table-logup-statement-v1`
 
 ## Result
 
@@ -39,10 +42,12 @@ This does not justify a Stwo fork. It says deterministic row scheduling can move
 ## Reproduce
 
 ```bash
+just gate-fast
 python3.10 scripts/zkai_stwo_ai_two_head_seq32_layout_schedule_sweep_gate.py --write-json docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-schedule-sweep-2026-06.json --write-tsv docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-schedule-sweep-2026-06.tsv --write-md docs/engineering/zkai-stwo-ai-two-head-seq32-layout-schedule-sweep-2026-06-04.md
 python3.10 -m py_compile scripts/zkai_stwo_ai_two_head_seq32_layout_schedule_sweep_gate.py scripts/tests/test_zkai_stwo_ai_two_head_seq32_layout_schedule_sweep_gate.py
 python3.10 -m unittest scripts.tests.test_zkai_stwo_ai_two_head_seq32_layout_schedule_sweep_gate
 cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_two_head_seq32_fused_softmax_table_proof -- verify docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-chunk4-fused.envelope.json
 for f in docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-*-fused.envelope.json; do cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_two_head_seq32_fused_softmax_table_proof -- verify "$f"; done
 git diff --check
+just gate-no-nightly
 ```
