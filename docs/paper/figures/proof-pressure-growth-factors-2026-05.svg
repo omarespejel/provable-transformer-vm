@@ -321,37 +321,37 @@ L 519.59952 218.553639
    </g>
    <g id="legend_1">
     <g id="patch_17">
-     <path d="M 137.733666 16.47875
-L 153.733666 16.47875
-L 153.733666 10.87875
-L 137.733666 10.87875
+     <path d="M 120.623666 16.47875
+L 136.623666 16.47875
+L 136.623666 10.87875
+L 120.623666 10.87875
 z
 " style="fill: #0072b2"/>
     </g>
     <g id="text_24">
-     <text style="font: 8px 'DejaVu Serif', serif; text-anchor: start" x="160.133666" y="16.47875" transform="rotate(-0 160.133666 16.47875)">Lookup claims</text>
+     <text style="font: 8px 'DejaVu Serif', serif; text-anchor: start" x="143.023666" y="16.47875" transform="rotate(-0 143.023666 16.47875)">Lookup claims</text>
     </g>
     <g id="patch_18">
-     <path d="M 234.801166 16.47875
-L 250.801166 16.47875
-L 250.801166 10.87875
-L 234.801166 10.87875
+     <path d="M 217.691166 16.47875
+L 233.691166 16.47875
+L 233.691166 10.87875
+L 217.691166 10.87875
 z
 " style="fill: #009e73"/>
     </g>
     <g id="text_25">
-     <text style="font: 8px 'DejaVu Serif', serif; text-anchor: start" x="257.201166" y="16.47875" transform="rotate(-0 257.201166 16.47875)">Trace rows</text>
+     <text style="font: 8px 'DejaVu Serif', serif; text-anchor: start" x="240.091166" y="16.47875" transform="rotate(-0 240.091166 16.47875)">Trace rows</text>
     </g>
     <g id="patch_19">
-     <path d="M 318.481166 16.47875
-L 334.481166 16.47875
-L 334.481166 10.87875
-L 318.481166 10.87875
+     <path d="M 301.371166 16.47875
+L 317.371166 16.47875
+L 317.371166 10.87875
+L 301.371166 10.87875
 z
 " style="fill: #d55e00"/>
     </g>
     <g id="text_26">
-     <text style="font: 8px 'DejaVu Serif', serif; text-anchor: start" x="340.881166" y="16.47875" transform="rotate(-0 340.881166 16.47875)">Fused proof bytes</text>
+     <text style="font: 8px 'DejaVu Serif', serif; text-anchor: start" x="323.771166" y="16.47875" transform="rotate(-0 323.771166 16.47875)">Fused proof payload bytes</text>
     </g>
    </g>
   </g>

@@ -171,10 +171,10 @@ opening geometry, host memory, or timing measurements.
 The experimental object is a family of native Stwo proof artifacts for bounded
 integer attention fixtures. Each matched row records:
 
-- source arithmetic proof bytes;
-- LogUp sidecar proof bytes;
-- source plus sidecar split frontier bytes;
-- fused proof bytes;
+- source arithmetic proof payload bytes;
+- LogUp sidecar proof payload bytes;
+- source plus sidecar split frontier payload bytes;
+- fused proof payload bytes;
 - lookup-claim count;
 - trace-row count;
 - artifact validation and mutation rejection results.
@@ -248,7 +248,7 @@ Figure 1 shows the central result. Across four sequence-axis rows, lookup claims
 and trace rows grow by about four times from `seq32` to `seq64`, while fused
 proof payload bytes grow only about `1.06x` to `1.08x`.
 
-![Figure 1: Growth in lookup claims and trace rows versus growth in fused proof bytes.](figures/proof-pressure-growth-factors-2026-05.svg)
+![Figure 1: Growth in lookup claims and trace rows versus growth in fused proof payload bytes.](figures/proof-pressure-growth-factors-2026-05.svg)
 
 This is the proof-size signal. It does not say the prover did four times less
 work. It also does not say the split proof frontier grows linearly with trace
@@ -283,11 +283,11 @@ reported grid suggests a more selective rule: fusion is most useful where it
 eliminates duplicated proof plumbing, and less compelling where the boundary is
 dominated by dense-width costs.
 
-Figure 2 plots the fused proof bytes divided by the matched split frontier for
+Figure 2 plots the fused proof payload bytes divided by the matched split frontier for
 the slope rows. Values below `1.0` mean the fused boundary is smaller than the
 split comparator on proof bytes.
 
-![Figure 2: Fused proof bytes divided by the matched split proof frontier across head, sequence, and width stress rows.](figures/proof-pressure-boundary-selection-2026-05.svg)
+![Figure 2: Fused proof payload bytes divided by the matched split proof frontier across head, sequence, and width stress rows.](figures/proof-pressure-boundary-selection-2026-05.svg)
 
 The head and sequence rows show the cleanest proof-size amortization. Width
 growth is different. The `d128` to `d256` two-head `seq32` row still saves

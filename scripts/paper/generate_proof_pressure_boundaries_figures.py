@@ -194,7 +194,7 @@ def render_growth_factor_figure() -> None:
     bars = [
         ax.bar([i - width for i in x], lookup, width, label="Lookup claims", color=COLORS["lookup"]),
         ax.bar(x, trace, width, label="Trace rows", color=COLORS["trace"]),
-        ax.bar([i + width for i in x], fused, width, label="Fused proof bytes", color=COLORS["fused"]),
+        ax.bar([i + width for i in x], fused, width, label="Fused proof payload bytes", color=COLORS["fused"]),
     ]
 
     ax.axhline(1.0, color="#555555", linewidth=0.8, linestyle=":")
@@ -254,7 +254,7 @@ def render_boundary_selection_figure() -> None:
     ax.scatter(x, ratios, s=70, c=colors, edgecolor="#222222", linewidth=0.5, zorder=3)
     ax.plot(x, ratios, color="#777777", linewidth=0.8, alpha=0.45, zorder=2)
     ax.axhline(1.0, color="#222222", linewidth=1.0, linestyle="--")
-    ax.set_ylabel("Fused proof bytes / matched split frontier")
+    ax.set_ylabel("Fused proof payload bytes / matched split frontier")
     ax.set_xlabel("Boundary stress row")
     ax.set_xticks(x)
     ax.set_xticklabels(labels, rotation=25, ha="right")

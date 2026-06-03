@@ -62,8 +62,8 @@ NON_CLAIMS = (
     "not recursion or PCD",
 )
 VALIDATION_COMMANDS = (
-    "python3 scripts/zkai_attention_kv_fused_softmax_table_section_delta_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-section-delta-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-section-delta-2026-05.tsv",
-    "python3 -m unittest scripts.tests.test_zkai_attention_kv_fused_softmax_table_section_delta_gate",
+    "python3.10 scripts/zkai_attention_kv_fused_softmax_table_section_delta_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-section-delta-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-section-delta-2026-05.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_fused_softmax_table_section_delta_gate",
     "just gate-fast",
     "just gate",
 )
