@@ -155,7 +155,7 @@ def normalize_svg(path: Path) -> None:
 def write_tsv(stem: str, fieldnames: list[str], rows: list[dict[str, object]]) -> None:
     tsv_path = FIGURE_DIR / f"{stem}.tsv"
     with tsv_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter="\t")
+        writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter="\t", lineterminator="\n")
         writer.writeheader()
         for row in rows:
             writer.writerow(row)

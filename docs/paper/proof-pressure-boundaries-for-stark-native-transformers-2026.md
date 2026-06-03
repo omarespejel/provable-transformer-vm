@@ -33,16 +33,17 @@ median-of-five timing on the measured `d64` sequence rows grows near the work
 axis, so the result is proof-size amortization rather than a proving-speed
 result.
 
-The mechanism is visible in artifact accounting. In a ten-profile attention plus
-LogUp serialized proof-section slice, `92.7722%` of saved serialized proof bytes
-came from the opening bucket, dominated by FRI proof and decommitment material.
-In an attention-derived `d128` MLP-side typed-accounting slice, `90.5135%` of
-saved typed bytes came from opening and decommitment plumbing. These are
-artifact-level accounting results, not backend-internal semantic byte labels.
-They support a bounded thesis: transformer proving should choose boundaries
-around actual proof pressure. STARK-native fusion is useful where it shares
-commitment, opening, and decommitment structure; width-heavy dense arithmetic
-may need different boundaries or side protocols.
+The mechanism is visible in artifact accounting. In an eleven-profile attention
+plus LogUp serialized proof-section slice, now including the
+`d64_four_head_seq64` decision-gate row, `93.3903%` of saved serialized proof
+bytes came from the opening bucket, dominated by FRI proof and decommitment
+material. In an attention-derived `d128` MLP-side typed-accounting slice,
+`90.5135%` of saved typed bytes came from opening and decommitment plumbing.
+These are artifact-level accounting results, not backend-internal semantic byte
+labels. They support a bounded thesis: transformer proving should choose
+boundaries around actual proof pressure. STARK-native fusion is useful where it
+shares commitment, opening, and decommitment structure; width-heavy dense
+arithmetic may need different boundaries or side protocols.
 
 The paper also separates proof validity from statement validity. A proof can
 verify while the application misstates the model, input, output, numeric policy,
@@ -210,9 +211,14 @@ fused routes:
 
 The large `d128_h4_seq64` row is represented by checked gate and route-matrix
 evidence with proof commitments, exact byte counts, mutation rejection, and
-regeneration commands; its full source, sidecar, and fused envelopes are too
-large for the normal paper checkout. Treat that row as a proof-size artifact
-row, not as a timing or external-comparison row.
+regeneration commands. Its source input plus source, sidecar, and fused
+envelopes are about `118` to `141` MB each, above GitHub's `100` MB blob limit,
+so they are not tracked in the checkout. They are pinned by the digest manifest
+`docs/engineering/evidence/zkai-attention-kv-stwo-native-d128-four-head-seq64-large-artifacts-2026-05.json`,
+which records artifact sizes, `sha256` digests, per-artifact
+`regenerate_command` entries, the `blake2b-256` source-statement commitment,
+and native `verify` commands. Treat that row as a proof-size artifact row, not
+as a timing or external-comparison row.
 
 The primary artifact records are:
 
@@ -313,23 +319,27 @@ accounting evidence points instead to a proof-system explanation, with an
 important scope limit: the analysis is over serialized proof sections and typed
 engineering accounting, not over a backend-internal binary PCS trace.
 
-Figure 3 summarizes two independent attribution slices. The first is a ten-row
-attention plus LogUp serialized section-delta analysis. The second is an
-attention-derived `d128` MLP-side typed-accounting analysis.
+Figure 3 summarizes two independent attribution streams. The first is an
+eleven-row attention plus LogUp serialized section-delta analysis, including the
+`d64_four_head_seq64` decision-gate row. The second is an attention-derived
+`d128` MLP-side typed-accounting analysis.
 
-![Figure 3: Saved bytes are dominated by opening and decommitment material in two checked attribution slices.](figures/proof-pressure-opening-mechanism-2026-05.svg)
+![Figure 3: Saved bytes are dominated by opening and decommitment material in two checked attribution streams.](figures/proof-pressure-opening-mechanism-2026-05.svg)
 
 In the attention plus LogUp serialized proof-section slice:
 
-- source arithmetic proofs total `591,286` bytes;
-- LogUp sidecar proofs total `222,856` bytes;
-- source plus sidecar total is `814,142` bytes;
-- fused proofs total `629,466` bytes;
-- fused saving is `184,676` bytes;
-- opening bucket saving is `171,328` bytes, or `92.7722%` of the saving.
+- source arithmetic proofs total `863,924` bytes;
+- LogUp sidecar proofs total `266,003` bytes;
+- source plus sidecar total is `1,129,927` bytes;
+- fused proofs total `905,969` bytes;
+- fused saving is `223,958` bytes;
+- opening bucket saving is `209,155` bytes, or `93.3903%` of the saving.
 
-The opening bucket itself splits into `102,304` bytes of FRI proof saving and
-`69,024` bytes of decommitment saving.
+The opening bucket itself splits into `129,316` bytes of FRI proof saving and
+`79,839` bytes of decommitment saving. The included `d64_four_head_seq64` row
+alone saves `39,282` proof payload bytes; `37,827` of those bytes are in the
+opening bucket, split between `27,012` bytes of FRI proof saving and `10,815`
+bytes of decommitment saving.
 
 In the attention-derived `d128` MLP-side typed-accounting slice:
 
@@ -339,13 +349,13 @@ In the attention-derived `d128` MLP-side typed-accounting slice:
 - FRI plus trace decommitments account for `33,280` bytes, or `90.5135%` of
   the saving.
 
-These two slices study different surfaces and use different accounting regimes,
-but they agree on the mechanism. The fused proof is smaller mostly because it
-avoids carrying another opening surface. This is the STARK-native story in a
-form that can be inspected from the artifacts. It is not a claim that the
-serialized proof labels every byte as "attention arithmetic" or "lookup"; the
-checked section-delta gate explicitly records that such a backend-internal split
-is unavailable from the serialized proof object.
+These two attribution streams study different surfaces and use different
+accounting regimes, but they agree on the mechanism. The fused proof is smaller
+mostly because it avoids carrying another opening surface. This is the
+STARK-native story in a form that can be inspected from the artifacts. It is not
+a claim that the serialized proof labels every byte as "attention arithmetic" or
+"lookup"; the checked section-delta gate explicitly records that such a
+backend-internal split is unavailable from the serialized proof object.
 
 The same evidence also blocks a tempting but wrong conclusion. The largest saved
 bucket is verifier opening witness material. It cannot simply be deleted from a
@@ -441,6 +451,14 @@ The scope of the result is limited in several ways.
    upstream Stwo binary wire format.
 8. **Deployment.** No Starknet verifier, calldata accounting, or deployment
    hardening is claimed here.
+9. **Proof configuration.** The checked rows use a fixed low-query engineering
+   Stwo configuration: proof-of-work `10` bits, FRI log blowup `1` (blowup
+   factor `2`), FRI query count `3`, and FRI fold step `1`. The reported proof
+   bytes and fused-to-split ratios are measurements under that fixed
+   experimental configuration, not production-security constants. Changing the
+   query count, blowup factor, or proof-of-work setting can move both absolute
+   proof bytes and fused-to-split ratios; this paper does not measure that
+   higher-soundness regime.
 
 These limitations narrow the contribution to a specific systems claim: the
 reported artifacts expose a proof-size scaling pattern and a plausible mechanism

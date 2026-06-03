@@ -109,6 +109,7 @@ EXPECTED_PROFILE_IDS = (
     "d8_two_head_seq32",
     "d16_two_head_seq8",
     "d16_two_head_seq16",
+    "d64_four_head_seq64",
 )
 EXPECTED_ROUTE_METADATA = {
     "d8_single_head_seq8": {
@@ -211,6 +212,16 @@ EXPECTED_ROUTE_METADATA = {
         "trace_rows": 512,
         "table_rows": 9,
     },
+    "d64_four_head_seq64": {
+        "axis_role": "combined_width_head_sequence_axis_d64_seq64_decision_gate",
+        "key_width": 64,
+        "value_width": 64,
+        "head_count": 4,
+        "steps_per_head": 64,
+        "lookup_claims": 8832,
+        "trace_rows": 16384,
+        "table_rows": 9,
+    },
 }
 EXPECTED_PROOF_SCHEMA_VERSIONS = {
     "d8_single_head_seq8": {
@@ -263,6 +274,11 @@ EXPECTED_PROOF_SCHEMA_VERSIONS = {
         "sidecar": None,
         "fused": "stwo-attention-kv-d16-two-head-longseq-fused-bounded-softmax-table-logup-proof-v1",
     },
+    "d64_four_head_seq64": {
+        "source": None,
+        "sidecar": None,
+        "fused": "stwo-attention-kv-d64-four-head-seq64-fused-bounded-softmax-table-logup-proof-v1",
+    },
 }
 EXPECTED_PROOF_SCHEMA_VERSIONS_BY_ROLE = {
     "source": [None],
@@ -271,6 +287,7 @@ EXPECTED_PROOF_SCHEMA_VERSIONS_BY_ROLE = {
         "stwo-attention-kv-d16-fused-bounded-softmax-table-logup-proof-v1",
         "stwo-attention-kv-d16-two-head-fused-bounded-softmax-table-logup-proof-v1",
         "stwo-attention-kv-d16-two-head-longseq-fused-bounded-softmax-table-logup-proof-v1",
+        "stwo-attention-kv-d64-four-head-seq64-fused-bounded-softmax-table-logup-proof-v1",
         "stwo-attention-kv-d8-fused-bounded-softmax-table-logup-proof-v1",
         "stwo-attention-kv-eight-head-fused-bounded-softmax-table-logup-proof-v1",
         "stwo-attention-kv-four-head-fused-bounded-softmax-table-logup-proof-v1",
@@ -281,40 +298,40 @@ EXPECTED_PROOF_SCHEMA_VERSIONS_BY_ROLE = {
     ],
 }
 EXPECTED_TOTALS = {
-    "source_proof_size_bytes": 591_286,
-    "sidecar_proof_size_bytes": 222_856,
-    "source_plus_sidecar_raw_proof_bytes": 814_142,
-    "fused_proof_size_bytes": 629_466,
-    "fused_saves_vs_source_plus_sidecar_bytes": 184_676,
+    "source_proof_size_bytes": 863_924,
+    "sidecar_proof_size_bytes": 266_003,
+    "source_plus_sidecar_raw_proof_bytes": 1_129_927,
+    "fused_proof_size_bytes": 905_969,
+    "fused_saves_vs_source_plus_sidecar_bytes": 223_958,
 }
 EXPECTED_WRAPPER_TOTALS = {
-    "source": 1_250,
-    "sidecar": 1_250,
-    "source_plus_sidecar": 2_500,
-    "fused": 1_250,
-    "delta": 1_250,
+    "source": 1_375,
+    "sidecar": 1_375,
+    "source_plus_sidecar": 2_750,
+    "fused": 1_375,
+    "delta": 1_375,
 }
 EXPECTED_SECTION_DELTA_TOTALS = {
-    "config": 1_360,
-    "commitments": 3_456,
-    "sampled_values": 4_291,
-    "decommitments": 69_024,
-    "queried_values": 2_963,
-    "proof_of_work": 28,
-    "fri_proof": 102_304,
+    "config": 1_496,
+    "commitments": 3_797,
+    "sampled_values": 4_750,
+    "decommitments": 79_839,
+    "queried_values": 3_354,
+    "proof_of_work": 31,
+    "fri_proof": 129_316,
 }
 EXPECTED_BUCKET_DELTA_TOTALS = {
-    "commitment_bucket_bytes": 3_456,
-    "query_bucket_bytes": 7_254,
-    "opening_bucket_bytes": 171_328,
-    "config_and_pow_bytes": 1_388,
-    "json_wrapper_bytes": 1_250,
+    "commitment_bucket_bytes": 3_797,
+    "query_bucket_bytes": 8_104,
+    "opening_bucket_bytes": 209_155,
+    "config_and_pow_bytes": 1_527,
+    "json_wrapper_bytes": 1_375,
 }
-EXPECTED_LARGEST_SAVINGS_PROFILE_ID = "d8_two_head_seq32"
-EXPECTED_LARGEST_SAVINGS_BYTES = 31_685
+EXPECTED_LARGEST_SAVINGS_PROFILE_ID = "d64_four_head_seq64"
+EXPECTED_LARGEST_SAVINGS_BYTES = 39_282
 EXPECTED_LARGEST_DELTA_SECTION = "fri_proof"
-EXPECTED_LARGEST_DELTA_SECTION_BYTES = 102_304
-EXPECTED_OPENING_BUCKET_SAVINGS_SHARE = 0.927722
+EXPECTED_LARGEST_DELTA_SECTION_BYTES = 129_316
+EXPECTED_OPENING_BUCKET_SAVINGS_SHARE = 0.933903
 EXPECTED_MUTATION_NAMES = (
     "decision_relabeling",
     "claim_boundary_overclaim",
