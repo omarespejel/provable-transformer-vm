@@ -1,0 +1,12 @@
+profile_id	policy_role	key_width	head_count	steps_per_head	lookup_claims	trace_rows	fused_proof_size_bytes	source_plus_sidecar_raw_proof_bytes	fused_saves_vs_source_plus_sidecar_bytes	opening_bucket_savings_bytes	opening_savings_share	sidecar_opening_absorption_share	query_bucket_savings_bytes	fused_opening_minus_source_opening_bytes	selector_reason
+d8_single_head_seq8	context_profile	8	1	8	52	64	47698	59437	11739	10480	0.892751	0.850718	657	1839	context row for selector stability
+d16_single_head_seq8	context_profile	16	1	8	52	64	64503	74961	10458	9156	0.875502	0.830928	681	1863	context row for selector stability
+d8_two_head_seq8	context_profile	8	2	8	104	128	49508	65208	15700	14456	0.920764	0.921704	634	1228	context row for selector stability
+d8_four_head_seq8	head_axis_fallback	8	4	8	208	256	53468	74529	21061	19742	0.937372	1.020258	702	-392	lowest-cost head-axis fallback with fused opening smaller than source opening
+d8_eight_head_seq8	context_profile	8	8	8	416	512	59375	74086	14711	13509	0.918292	0.700674	595	5771	context row for selector stability
+d8_sixteen_head_seq8	context_profile	8	16	8	832	1024	65006	88711	23705	22366	0.943514	0.872275	729	3275	context row for selector stability
+d8_two_head_seq16	context_profile	8	2	16	336	512	60502	79444	18942	17643	0.931422	0.715508	703	7015	context row for selector stability
+d8_two_head_seq32	fast_sequence_iteration_target	8	2	32	1184	2048	66327	98012	31685	30203	0.953227	0.926899	846	2382	smallest checked seq32 target above the lookup-pressure threshold and below the fast-iteration byte cap
+d16_two_head_seq8	context_profile	16	2	8	104	128	78211	91596	13385	11946	0.892492	0.762689	834	3717	context row for selector stability
+d16_two_head_seq16	absorption_sanity_check	16	2	16	336	512	84868	108158	23290	21827	0.937183	0.973811	873	587	highest sub-unit sidecar-opening absorption sanity row among low-cost width-plus-sequence fixtures
+d64_four_head_seq64	headline_pressure_anchor	64	4	64	8832	16384	276503	315785	39282	37827	0.96296	0.928931	850	2894	largest checked fused saving and exact headline d64 section-delta row
