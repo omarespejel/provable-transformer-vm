@@ -49,7 +49,10 @@ The paper also separates proof validity from statement validity. A proof can
 verify while the application misstates the model, input, output, numeric policy,
 verifier domain, or deployment event that the proof is allowed to mean. We
 therefore treat typed statement envelopes, in the Tablero style, as a correctness
-layer around proof artifacts rather than as a performance decoration.
+layer around proof artifacts rather than as a performance decoration. The
+companion paper
+[Proof Validity Is Not Statement Validity](proof-validity-is-not-statement-validity-2026.md)
+develops that boundary in reader-facing terms.
 
 The scope is deliberately limited to proof-boundary behavior on scoped
 transformer surfaces. It is not presented as full LLM inference, an external

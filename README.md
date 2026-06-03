@@ -68,6 +68,7 @@ Hardening and merge discipline for trusted-core work is formalized in:
 Current paper-facing zkML architecture drafts:
 
 - [`docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md`](docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md)
+- [`docs/paper/proof-validity-is-not-statement-validity-2026.md`](docs/paper/proof-validity-is-not-statement-validity-2026.md)
 - [`docs/paper/appendix-zkml-statement-validity-2026.md`](docs/paper/appendix-zkml-statement-validity-2026.md)
 
 Current public proof surfaces:
