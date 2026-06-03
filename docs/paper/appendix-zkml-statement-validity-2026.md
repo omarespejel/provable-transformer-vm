@@ -107,6 +107,12 @@ fields when they are part of the application claim.
 The exact field set is application-specific. The important rule is that the
 boundary must bind every public fact the next layer is allowed to rely on.
 
+Binding has two strengths. A field is **hard-bound** when the verifier's public
+instance contains the field or contains a commitment that the verifier or receipt
+validator checks against the field. A field carried only as envelope metadata is
+advisory until it is checked against such a committed value; advisory metadata
+can guide software, but it is not a cryptographic statement by itself.
+
 In the proof-pressure artifacts that motivate this appendix, the implemented
 field set is narrower than a production receipt. It covers a scoped transformer
 surface and its proof artifacts. A full zkML receipt would extend the same

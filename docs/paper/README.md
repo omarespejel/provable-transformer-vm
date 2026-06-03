@@ -4,21 +4,24 @@ This directory contains the technical-review paper package for:
 
 `Tablero: Typed Verifier Boundaries for Layered STARK Systems, with Evidence from STARK-zkML`
 
-It also contains a newer proof-boundary draft:
+It also contains newer zkML proof-boundary drafts:
 
 - `proof-pressure-boundaries-for-stark-native-transformers-2026.md`
+- `proof-validity-is-not-statement-validity-2026.md`
 - `appendix-zkml-statement-validity-2026.md`
 
-The repository root README links these two zkML architecture drafts for
+The repository root README links these zkML architecture drafts for
 top-level discoverability.
 
-That draft is the current home for the May 2026 STARK-native transformer
-proof-pressure result: lookup and trace work grow quickly on checked sequence
-rows while fused proof bytes grow slowly. It should be read as a scoped
-proof-architecture paper, not as a replacement for the Tablero statement-validity
-paper. The statement-validity appendix is a short companion note that explains
-how proof artifacts are bound to model, input, output, policy, verifier-domain,
-and application-claim meaning.
+The proof-pressure draft is the current home for the May 2026 STARK-native
+transformer result: lookup and trace work grow quickly on checked sequence rows
+while fused proof bytes grow slowly. It should be read as a scoped
+proof-architecture paper, not as a replacement for the Tablero
+statement-validity paper. The statement-validity companion explains the problem
+in human terms before naming Tablero: proof verification says a narrow
+cryptographic statement accepted, while the application still has to bind the
+model, input, output, policy, verifier domain, and deployment meaning. The older
+appendix remains a short technical note for the same boundary.
 
 Primary presentation files:
 
