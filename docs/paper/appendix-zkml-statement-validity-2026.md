@@ -22,6 +22,13 @@ the source handles that produced them, and the replay dependencies the next
 layer is allowed to skip. The contribution here is not a new proving protocol.
 It is a boundary discipline for making proof artifacts safe to compose.
 
+The current proof-pressure artifacts use this discipline at a scoped model
+surface, not at a full production model boundary. They bind proof artifacts to
+verifier domains, source handles, target identifiers, statement commitments, and
+input-output commitments for the measured surface. They do not yet bind a full
+checkpoint, tokenizer, deployment policy, or operational event. Those are the
+next receipt-layer fields a production zkML system would need to bind.
+
 This note complements the proof-pressure paper. Proof-pressure boundaries choose
 where transformer work should be fused or split for proof-size reasons. Statement
 boundaries specify what each resulting proof artifact certifies.
@@ -100,6 +107,12 @@ fields when they are part of the application claim.
 The exact field set is application-specific. The important rule is that the
 boundary must bind every public fact the next layer is allowed to rely on.
 
+In the proof-pressure artifacts that motivate this appendix, the implemented
+field set is narrower than a production receipt. It covers a scoped transformer
+surface and its proof artifacts. A full zkML receipt would extend the same
+pattern to the model checkpoint, tokenizer, input provenance, deployment policy,
+and event that downstream software is allowed to act on.
+
 ---
 
 ## 4. Example: Verifying the Wrong Claim
@@ -131,8 +144,8 @@ same structure.
 
 The proof-pressure paper studies where transformer work should share a proof
 object. It reports a proof-size scaling pattern: lookup and trace work can grow
-quickly while fused proof bytes grow slowly when attention arithmetic and
-lookup-heavy table membership share one STARK-native proof object.
+quickly while fused proof payload bytes grow slowly when attention arithmetic
+and lookup-heavy table membership share one STARK-native proof object.
 
 That result is a proof-architecture result. It does not remove the need for a
 statement boundary. If the transformer surface is split across several proof
@@ -144,6 +157,11 @@ The two ideas are therefore complementary:
 
 - proof-pressure boundaries choose efficient proof structure;
 - Tablero-style statement boundaries preserve application meaning.
+
+For this draft, "preserve application meaning" should be read at the stated
+artifact scope. The checked artifacts preserve the meaning of the scoped proof
+surface. They are not yet a receipt for a complete model run or a deployed
+production action.
 
 ---
 
@@ -172,10 +190,16 @@ security review, model provenance, or deployment policy.
 The claim is narrower: when a proof artifact is used as a zkML receipt, the
 statement boundary should be explicit, typed, and bound to the proof. Without
 that boundary, proof validity can be mistaken for a stronger application claim.
+The checked artifacts in the companion paper demonstrate that boundary pattern
+on scoped transformer surfaces; they do not close the full production receipt
+surface.
 
 ---
 
 ## 8. Reproduction
+
+Use a Python environment with the paper dependencies installed from
+`scripts/requirements.txt`.
 
 Generate the figure:
 

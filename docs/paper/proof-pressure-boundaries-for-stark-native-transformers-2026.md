@@ -18,24 +18,31 @@ inside transformer inference?
 We evaluate STARK-native attention surfaces built over bounded integer
 transformer fixtures. The core experiment compares one fused proof object for
 attention arithmetic plus Softmax-table membership against a matched split
-frontier consisting of a source arithmetic proof and a LogUp sidecar proof. On
-four sequence-axis rows, moving from `seq32` to `seq64` grows lookup claims by
-`3.729730x` and trace rows by `4.000000x`, while fused proof bytes grow only
-`1.064910x` to `1.080697x`. The same fused objects remain smaller than their
-matched split frontiers, with target fused ratios from `0.875605x` to
-`0.922792x` on those rows. Local median-of-five timing on the measured `d64`
-sequence rows grows near the work axis, so the result is proof-size
-amortization rather than a proving-speed result.
+frontier consisting of a source arithmetic proof and a LogUp sidecar proof. The
+headline byte columns are serialized Stwo proof-payload bytes recorded inside
+the checked envelopes or checked gate records, not full envelope JSON size and
+not a stable upstream binary wire-format claim.
+
+On four sequence-axis rows, moving from `seq32` to `seq64` grows lookup claims
+by `3.729730x` and trace rows by `4.000000x`, while fused proof payload bytes
+grow only `1.064910x` to `1.080697x`. The split frontier is also sublinear, as
+expected for STARK proofs. The fusion result is that the fused object keeps the
+lower proof-size frontier against the matched source-plus-sidecar comparator,
+with fused ratios from `0.875605x` to `0.922792x` on those rows. Local
+median-of-five timing on the measured `d64` sequence rows grows near the work
+axis, so the result is proof-size amortization rather than a proving-speed
+result.
 
 The mechanism is visible in artifact accounting. In a ten-profile attention plus
-LogUp section-delta slice, `92.7722%` of saved serialized proof bytes came from
-the opening bucket, dominated by FRI proof and decommitment material. In an
-attention-derived `d128` MLP-side typed-accounting slice, `90.5135%` of saved
-typed bytes came from opening and decommitment plumbing. This supports a bounded
-thesis: transformer proving should choose boundaries around actual proof
-pressure. STARK-native fusion is useful where it shares commitment, opening, and
-decommitment structure; width-heavy dense arithmetic may need different
-boundaries or side protocols.
+LogUp serialized proof-section slice, `92.7722%` of saved serialized proof bytes
+came from the opening bucket, dominated by FRI proof and decommitment material.
+In an attention-derived `d128` MLP-side typed-accounting slice, `90.5135%` of
+saved typed bytes came from opening and decommitment plumbing. These are
+artifact-level accounting results, not backend-internal semantic byte labels.
+They support a bounded thesis: transformer proving should choose boundaries
+around actual proof pressure. STARK-native fusion is useful where it shares
+commitment, opening, and decommitment structure; width-heavy dense arithmetic
+may need different boundaries or side protocols.
 
 The paper also separates proof validity from statement validity. A proof can
 verify while the application misstates the model, input, output, numeric policy,
@@ -73,13 +80,14 @@ avoids paying the same expensive structure twice.
 
 The main empirical result is intentionally narrow. In the attention
 experiments, fusing bounded attention arithmetic with Softmax-table membership
-keeps proof bytes almost flat under a sequence-axis stress that multiplies lookup
-claims and trace rows. The measured sequence rows are not small toy deltas:
-`seq32` to `seq64` multiplies lookup claims by `3.729730x` and trace rows by
-`4.000000x`. Yet fused proof bytes grow only about eight percent, and in one row
-about six and a half percent. The relevant shape is that work grows quickly,
-proof bytes grow slowly, and the saving is attributable to shared proof
-plumbing.
+keeps serialized proof payload bytes almost flat under a sequence-axis stress
+that multiplies lookup claims and trace rows. The measured sequence rows are not
+small toy deltas: `seq32` to `seq64` multiplies lookup claims by `3.729730x` and
+trace rows by `4.000000x`. Yet fused proof payload bytes grow only about eight
+percent, and in one row about six and a half percent. The split frontier also
+grows slowly. The relevant shape is therefore not that only one route has
+sublinear growth. It is: the STARK proof payload grows sublinearly on both
+routes, and fusion keeps a lower frontier by avoiding duplicated proof plumbing.
 
 The measured timing rows do not show that fused proving is faster. At `d64`,
 prove and verify timings grow near the work axis. The d256 width-stress row
@@ -100,7 +108,7 @@ The paper makes four contributions.
    proof-system plumbing.
 2. **Sequence-axis evidence.** We report four sequence-axis rows
    in which lookup claims grow `3.729730x` and trace rows grow `4.000000x`, while
-   fused proof bytes grow only `1.064910x` to `1.080697x`.
+   fused proof payload bytes grow only `1.064910x` to `1.080697x`.
 3. **Mechanism evidence.** We connect the proof-size result to opening and
    decommitment accounting, showing that saved bytes are dominated by shared
    opening material rather than by vague serialization effects.
@@ -149,6 +157,13 @@ proof can save bytes while still taking comparable or greater time to prove. In
 this paper, proof-size amortization is the positive result. Proving speed is a
 caveat.
 
+The pressure columns in this paper are proxies, not a complete prover-cost
+model. `lookup claims` count table-membership checks that the LogUp sidecar or
+fused boundary has to represent. `trace rows` count AIR execution rows in the
+native attention surface. They are useful because they expose the scaling axis
+being stressed, but they do not replace committed-column counts, backend
+opening geometry, host memory, or timing measurements.
+
 ---
 
 ## 3. Experimental Object
@@ -169,6 +184,36 @@ Softmax. They do not claim tokenization, imported model weights, accuracy,
 perplexity, or full autoregressive decoding. They are proof-system experiments
 over transformer-shaped attention surfaces.
 
+The byte accounting used for the main table is deliberately narrow. The
+headline `proof bytes` are the length of the serialized Stwo proof payload stored
+in each envelope's `proof` byte array, after decoding the payload as a
+`{"stark_proof": ...}` object. They exclude the larger statement envelope JSON,
+source input JSON, and generated fixture data. They also exclude the separate
+project-local `typed bytes` accounting stream used in some engineering gates.
+Those typed bytes are useful for internal comparison, but they are not presented
+as the same object as the serialized Stwo proof payload.
+
+The split frontier is computed as source proof payload bytes plus sidecar proof
+payload bytes. The sidecar is an actual generated LogUp proof artifact in the
+checked rows, not an estimate. The raw checked envelopes for the smaller
+sequence rows parse to the same proof configuration on source, sidecar, and
+fused routes:
+
+| parameter | value |
+|---|---:|
+| proof of work bits | `10` |
+| FRI log blowup factor | `1` |
+| FRI last-layer degree-bound log | `0` |
+| FRI query count | `3` |
+| FRI fold step | `1` |
+| PCS lifting log size | `None` |
+
+The large `d128_h4_seq64` row is represented by checked gate and route-matrix
+evidence with proof commitments, exact byte counts, mutation rejection, and
+regeneration commands; its full source, sidecar, and fused envelopes are too
+large for the normal paper checkout. Treat that row as a proof-size artifact
+row, not as a timing or external-comparison row.
+
 The primary artifact records are:
 
 - main evidence:
@@ -184,12 +229,12 @@ The primary artifact records are:
 
 The main sequence-axis rows are:
 
-| row | lookup growth | trace growth | fused proof growth | target fused bytes | split frontier bytes | saving | fused ratio |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| `d64_h2_seq32_to_seq64` | `3.729730x` | `4.000000x` | `1.076519x` | `272,636` | `306,970` | `34,334` | `0.888152x` |
-| `d64_h4_seq32_to_seq64` | `3.729730x` | `4.000000x` | `1.080558x` | `276,503` | `315,785` | `39,282` | `0.875605x` |
-| `d128_h2_seq32_to_seq64` | `3.729730x` | `4.000000x` | `1.080697x` | `481,870` | `522,187` | `40,317` | `0.922792x` |
-| `d128_h4_seq32_to_seq64` | `3.729730x` | `4.000000x` | `1.064910x` | `495,854` | `539,670` | `43,816` | `0.918810x` |
+| row | lookup growth | trace growth | fused proof growth | split proof growth | target fused bytes | split frontier bytes | saving | fused ratio |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `d64_h2_seq32_to_seq64` | `3.729730x` | `4.000000x` | `1.076519x` | `1.076702x` | `272,636` | `306,970` | `34,334` | `0.888152x` |
+| `d64_h4_seq32_to_seq64` | `3.729730x` | `4.000000x` | `1.080558x` | `1.095365x` | `276,503` | `315,785` | `39,282` | `0.875605x` |
+| `d128_h2_seq32_to_seq64` | `3.729730x` | `4.000000x` | `1.080697x` | `1.091811x` | `481,870` | `522,187` | `40,317` | `0.922792x` |
+| `d128_h4_seq32_to_seq64` | `3.729730x` | `4.000000x` | `1.064910x` | `1.068793x` | `495,854` | `539,670` | `43,816` | `0.918810x` |
 
 The `d64` sequence rows also have median-of-five release timing. Those
 timings grow near the work axis, so they support the timing caveat rather than a
@@ -201,13 +246,15 @@ speed claim.
 
 Figure 1 shows the central result. Across four sequence-axis rows, lookup claims
 and trace rows grow by about four times from `seq32` to `seq64`, while fused
-proof bytes grow only about `1.06x` to `1.08x`.
+proof payload bytes grow only about `1.06x` to `1.08x`.
 
 ![Figure 1: Growth in lookup claims and trace rows versus growth in fused proof bytes.](figures/proof-pressure-growth-factors-2026-05.svg)
 
 This is the proof-size signal. It does not say the prover did four times less
-work. It says the emitted fused proof object did not grow in proportion to the
-lookup and trace work represented by the artifact.
+work. It also does not say the split proof frontier grows linearly with trace
+rows; it does not. It says the emitted fused proof object did not grow in
+proportion to the lookup and trace work represented by the artifact, and that it
+remained below the matched split frontier at each measured endpoint.
 
 For the `d64` four-head row, the full sequence read is:
 
@@ -223,7 +270,9 @@ The larger row is not merely still positive. It improves the fused ratio against
 the matched split frontier.
 
 The same pattern appears in the other sequence-axis rows. The result is strongest
-as a slope claim, not as a single proof-size anecdote.
+as a slope claim plus a frontier claim: sublinear proof payload growth under the
+sequence stress, with the fused route staying smaller than the matched split
+route.
 
 ---
 
@@ -235,7 +284,7 @@ eliminates duplicated proof plumbing, and less compelling where the boundary is
 dominated by dense-width costs.
 
 Figure 2 plots the fused proof bytes divided by the matched split frontier for
-the slope rows. Values below `1.0` mean the fused boundary beats the
+the slope rows. Values below `1.0` mean the fused boundary is smaller than the
 split comparator on proof bytes.
 
 ![Figure 2: Fused proof bytes divided by the matched split proof frontier across head, sequence, and width stress rows.](figures/proof-pressure-boundary-selection-2026-05.svg)
@@ -259,8 +308,10 @@ side protocols for dense projection or MLP regions where they are a better fit.
 
 ## 6. Mechanism: Shared Opening Plumbing
 
-The proof-size result could in principle be a serialization artifact. The
-accounting evidence points instead to a proof-system explanation.
+The proof-size result could in principle be only a serialization artifact. The
+accounting evidence points instead to a proof-system explanation, with an
+important scope limit: the analysis is over serialized proof sections and typed
+engineering accounting, not over a backend-internal binary PCS trace.
 
 Figure 3 summarizes two independent attribution slices. The first is a ten-row
 attention plus LogUp serialized section-delta analysis. The second is an
@@ -268,7 +319,7 @@ attention-derived `d128` MLP-side typed-accounting analysis.
 
 ![Figure 3: Saved bytes are dominated by opening and decommitment material in two checked attribution slices.](figures/proof-pressure-opening-mechanism-2026-05.svg)
 
-In the attention plus LogUp section-delta slice:
+In the attention plus LogUp serialized proof-section slice:
 
 - source arithmetic proofs total `591,286` bytes;
 - LogUp sidecar proofs total `222,856` bytes;
@@ -291,7 +342,10 @@ In the attention-derived `d128` MLP-side typed-accounting slice:
 These two slices study different surfaces and use different accounting regimes,
 but they agree on the mechanism. The fused proof is smaller mostly because it
 avoids carrying another opening surface. This is the STARK-native story in a
-form that can be inspected from the artifacts.
+form that can be inspected from the artifacts. It is not a claim that the
+serialized proof labels every byte as "attention arithmetic" or "lookup"; the
+checked section-delta gate explicitly records that such a backend-internal split
+is unavailable from the serialized proof object.
 
 The same evidence also blocks a tempting but wrong conclusion. The largest saved
 bucket is verifier opening witness material. It cannot simply be deleted from a
@@ -381,8 +435,10 @@ The scope of the result is limited in several ways.
 6. **External benchmarks.** NANOZK, DeepProve, Jolt Atlas, zkLLM, EZKL,
    RISC Zero, and SP1 are discussed as related systems and future baselines, not
    as matched proof-size rows.
-7. **Serialization.** Typed accounting is a project-level accounting stream,
-   not a claim about a stable upstream Stwo proof binary format.
+7. **Serialization.** The headline proof-size rows count serialized Stwo
+   proof-payload bytes inside the proof envelope. Typed accounting is a
+   separate project-level stream, and neither stream is claimed to be a stable
+   upstream Stwo binary wire format.
 8. **Deployment.** No Starknet verifier, calldata accounting, or deployment
    hardening is claimed here.
 
@@ -393,6 +449,10 @@ for it.
 ---
 
 ## 10. Artifact Availability and Reproduction
+
+Use a Python environment with the paper dependencies installed from
+`scripts/requirements.txt` before running the figure scripts. The evidence gates
+below use `python3.10`.
 
 The figure source is `scripts/paper/generate_proof_pressure_boundaries_figures.py`.
 It reads the checked TSV artifacts listed in Section 3 and writes the paper
@@ -447,7 +507,7 @@ python3.10 scripts/zkai_proof_pressure_slope_table_gate.py \
 Section-delta evidence:
 
 ```bash
-python3 scripts/zkai_attention_kv_fused_softmax_table_section_delta_gate.py \
+python3.10 scripts/zkai_attention_kv_fused_softmax_table_section_delta_gate.py \
   --write-json docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-section-delta-2026-05.json \
   --write-tsv docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-section-delta-2026-05.tsv
 ```
@@ -455,7 +515,7 @@ python3 scripts/zkai_attention_kv_fused_softmax_table_section_delta_gate.py \
 MLP-side attribution:
 
 ```bash
-python3 scripts/zkai_attention_derived_d128_mlp_fusion_attribution_gate.py \
+python3.10 scripts/zkai_attention_derived_d128_mlp_fusion_attribution_gate.py \
   --write-json docs/engineering/evidence/zkai-attention-derived-d128-mlp-fusion-attribution-2026-05.json \
   --write-tsv docs/engineering/evidence/zkai-attention-derived-d128-mlp-fusion-attribution-2026-05.tsv
 ```
@@ -465,11 +525,12 @@ python3 scripts/zkai_attention_derived_d128_mlp_fusion_attribution_gate.py \
 ## 11. Discussion
 
 The result is strongest as a boundary-selection result, not as a final zkML
-system benchmark. It shows that, on the reported attention surfaces, proof bytes
-can grow much more slowly than lookup claims and trace rows when arithmetic and
-table membership share one STARK-native proof object. It also shows that the
-effect should not be generalized blindly: width pressure weakens the fused
-ratio, and measured timing does not track the proof-size improvement.
+system benchmark. It shows that, on the reported attention surfaces, proof
+payload bytes can grow much more slowly than lookup claims and trace rows when
+arithmetic and table membership share one STARK-native proof object. It also
+shows that the effect should not be generalized blindly: the split frontier is
+sublinear too, width pressure weakens the fused ratio, and measured timing does
+not track the proof-size improvement.
 
 This distinction matters for full transformer systems. A full block proof built
 without boundary analysis may be larger than necessary or may place the
