@@ -1,4 +1,5 @@
 import copy
+import os
 import pathlib
 import tempfile
 import unittest
@@ -40,6 +41,7 @@ class StwoAiRouteLayoutPolicyGateTests(unittest.TestCase):
         self.assertEqual(payload["fork_status"], gate.FORK_STATUS)
         self.assertEqual(payload["next_policy_status"], gate.NEXT_POLICY_STATUS)
         self.assertEqual(payload["prover_policy"], gate.PROVER_POLICY)
+        self.assertEqual(payload["backend_version_metadata"], gate.BACKEND_VERSION_METADATA)
         self.assertEqual(payload["profile_ids"], list(gate.EXPECTED_PROFILE_IDS))
         self.assertIn("not a Stwo fork", payload["non_claims"])
 
@@ -154,6 +156,8 @@ class StwoAiRouteLayoutPolicyGateTests(unittest.TestCase):
         md = gate.to_markdown(self.payload)
         self.assertIn("Stwo-AI Route-Layout Policy Selector", md)
         self.assertIn("The next Stwo-AI step is not a fork.", md)
+        self.assertIn("stwo 2.2.0", md)
+        self.assertIn(gate.DECISION, md)
         self.assertIn("`d8_two_head_seq32`", md)
         self.assertIn("`d64_four_head_seq64`", md)
 
@@ -166,6 +170,22 @@ class StwoAiRouteLayoutPolicyGateTests(unittest.TestCase):
                 gate.write_outputs(self.payload, gate.JSON_OUT, tmp_path / "out.tsv", gate.MD_OUT)
             with self.assertRaisesRegex(gate.StwoAiRouteLayoutPolicyGateError, "markdown output path"):
                 gate.write_outputs(self.payload, gate.JSON_OUT, gate.TSV_OUT, tmp_path / "out.md")
+
+    def test_relative_output_paths_resolve_from_repo_root(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            previous_cwd = pathlib.Path.cwd()
+            try:
+                os.chdir(tmp)
+                evidence_path = gate.require_evidence_output_path(
+                    pathlib.Path("docs/engineering/evidence/zkai-stwo-ai-route-layout-policy-2026-06.json")
+                )
+                docs_path = gate.require_docs_output_path(
+                    pathlib.Path("docs/engineering/zkai-stwo-ai-route-layout-policy-2026-06-04.md")
+                )
+            finally:
+                os.chdir(previous_cwd)
+        self.assertEqual(evidence_path, gate.JSON_OUT.resolve())
+        self.assertEqual(docs_path, gate.MD_OUT.resolve())
 
 
 if __name__ == "__main__":

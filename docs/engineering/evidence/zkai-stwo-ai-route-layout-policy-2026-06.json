@@ -9,6 +9,15 @@
     "total_opening_savings_share": 0.933903
   },
   "all_mutations_rejected": true,
+  "backend_version_metadata": {
+    "evidence_base_commit": "11411122c02e56ca434a90f54e0afb1988211b8d",
+    "fast_target_version_const": "ZKAI_ATTENTION_KV_NATIVE_TWO_HEAD_SEQ32_FUSED_SOFTMAX_TABLE_BACKEND_VERSION=stwo-attention-kv-two-head-seq32-fused-bounded-softmax-table-logup-v1",
+    "pressure_anchor_version_const": "ZKAI_ATTENTION_KV_NATIVE_D64_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_BACKEND_VERSION=stwo-attention-kv-d64-four-head-seq64-fused-bounded-softmax-table-logup-v1",
+    "stwo_constraint_framework_checksum": "47aca0d5d36d4b015703fb14f162a23cb685e67f8aa08dbe7faf39bd66fe93f1",
+    "stwo_constraint_framework_crate": "stwo-constraint-framework 2.2.0",
+    "stwo_crate": "stwo 2.2.0",
+    "stwo_crate_checksum": "d400ae91acbeafa6f80070a03e1117a794a95f295050f44538a4c7dd55abd491"
+  },
   "claim_boundary": "EXPERIMENTAL_STWO_AI_ROUTE_LAYOUT_POLICY_SELECTION_FROM_CHECKED_SECTION_DELTA_EVIDENCE_NOT_A_NEW_PROOF_SIZE_FRONTIER_NOT_A_STWO_FORK_NOT_POST_QUERY_SELECTION",
   "decision": "GO_ROUTE_LAYOUT_POLICY_SELECTOR_FROM_EXISTING_SECTION_DELTA_NO_PROVER_RUN",
   "fork_status": "NO_GO_FORK_UNTIL_ROUTE_POLICY_HITS_MEASURED_INTERNAL_WALL",
@@ -105,7 +114,7 @@
     "not exact real-valued Softmax",
     "not full transformer inference"
   ],
-  "payload_commitment": "blake2b-256:f493f9136661ac48fc43c41468622e4e0f218d5b0aa0aeb9217ba4bcb2959c1d",
+  "payload_commitment": "blake2b-256:1db55f6cba8fa1a9da9efa16f5663e37f9cd1bb04ebce5d6a678e63ad2c71305",
   "policy_metric_rows": [
     {
       "axis_role": "baseline",
@@ -412,6 +421,7 @@
   "validation_commands": [
     "python3.10 scripts/zkai_stwo_ai_route_layout_policy_gate.py --write-json docs/engineering/evidence/zkai-stwo-ai-route-layout-policy-2026-06.json --write-tsv docs/engineering/evidence/zkai-stwo-ai-route-layout-policy-2026-06.tsv --write-md docs/engineering/zkai-stwo-ai-route-layout-policy-2026-06-04.md",
     "python3.10 -m py_compile scripts/zkai_stwo_ai_route_layout_policy_gate.py scripts/tests/test_zkai_stwo_ai_route_layout_policy_gate.py",
-    "python3.10 -m unittest scripts.tests.test_zkai_stwo_ai_route_layout_policy_gate"
+    "python3.10 -m unittest scripts.tests.test_zkai_stwo_ai_route_layout_policy_gate",
+    "git diff --check"
   ]
 }

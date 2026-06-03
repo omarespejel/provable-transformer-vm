@@ -17,6 +17,7 @@ import json
 import pathlib
 import sys
 import tempfile
+from io import StringIO
 from typing import Any
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -51,6 +52,21 @@ TIMING_POLICY = "no_timing_claim_no_public_benchmark"
 SECURITY_POLICY = (
     "route_layout_policy_must_be_fixed_before_proof_generation_and_verifier_bound_before_any_query_draw"
 )
+BACKEND_VERSION_METADATA = {
+    "stwo_crate": "stwo 2.2.0",
+    "stwo_crate_checksum": "d400ae91acbeafa6f80070a03e1117a794a95f295050f44538a4c7dd55abd491",
+    "stwo_constraint_framework_crate": "stwo-constraint-framework 2.2.0",
+    "stwo_constraint_framework_checksum": "47aca0d5d36d4b015703fb14f162a23cb685e67f8aa08dbe7faf39bd66fe93f1",
+    "evidence_base_commit": "11411122c02e56ca434a90f54e0afb1988211b8d",
+    "fast_target_version_const": (
+        "ZKAI_ATTENTION_KV_NATIVE_TWO_HEAD_SEQ32_FUSED_SOFTMAX_TABLE_BACKEND_VERSION="
+        "stwo-attention-kv-two-head-seq32-fused-bounded-softmax-table-logup-v1"
+    ),
+    "pressure_anchor_version_const": (
+        "ZKAI_ATTENTION_KV_NATIVE_D64_FOUR_HEAD_SEQ64_FUSED_SOFTMAX_TABLE_BACKEND_VERSION="
+        "stwo-attention-kv-d64-four-head-seq64-fused-bounded-softmax-table-logup-v1"
+    ),
+}
 SECTION_DELTA_SHA256 = "046b9997b673f22a9f45eb02c75f2c5f23255eb3fa3b88922dcd8cfe5a27e14d"
 ROUTE_MATRIX_SHA256 = "f8da6eb33454011e3ef20b7b80cdcce4ff9086764d7b4a3868c684046b434701"
 HEADLINE_PRESSURE_ANCHOR_PROFILE_ID = "d64_four_head_seq64"
@@ -95,6 +111,7 @@ VALIDATION_COMMANDS = (
     "python3.10 scripts/zkai_stwo_ai_route_layout_policy_gate.py --write-json docs/engineering/evidence/zkai-stwo-ai-route-layout-policy-2026-06.json --write-tsv docs/engineering/evidence/zkai-stwo-ai-route-layout-policy-2026-06.tsv --write-md docs/engineering/zkai-stwo-ai-route-layout-policy-2026-06-04.md",
     "python3.10 -m py_compile scripts/zkai_stwo_ai_route_layout_policy_gate.py scripts/tests/test_zkai_stwo_ai_route_layout_policy_gate.py",
     "python3.10 -m unittest scripts.tests.test_zkai_stwo_ai_route_layout_policy_gate",
+    "git diff --check",
 )
 EXPECTED_PROFILE_IDS = tuple(section_delta.EXPECTED_PROFILE_IDS)
 EXPECTED_PROFILE_COUNT = len(EXPECTED_PROFILE_IDS)
@@ -183,10 +200,7 @@ def read_json(path: pathlib.Path, expected_sha256: str, label: str) -> dict[str,
 def load_source_artifacts() -> tuple[dict[str, Any], dict[str, Any]]:
     section_payload = read_json(SECTION_DELTA_JSON, SECTION_DELTA_SHA256, "section delta evidence")
     route_payload = read_json(ROUTE_MATRIX_JSON, ROUTE_MATRIX_SHA256, "route matrix evidence")
-    section_delta.validate_payload(
-        section_payload,
-        expected_rows=section_payload["profile_rows"],
-    )
+    section_delta.validate_payload(section_payload)
     route_matrix.validate_result(route_payload)
     return section_payload, route_payload
 
@@ -411,6 +425,7 @@ def build_base_payload() -> dict[str, Any]:
         "prover_policy": PROVER_POLICY,
         "timing_policy": TIMING_POLICY,
         "security_policy": SECURITY_POLICY,
+        "backend_version_metadata": copy.deepcopy(BACKEND_VERSION_METADATA),
         "source_artifacts": {
             "section_delta_json": str(SECTION_DELTA_JSON.relative_to(ROOT)),
             "section_delta_sha256": SECTION_DELTA_SHA256,
@@ -652,6 +667,7 @@ def validate_payload(
         "prover_policy",
         "timing_policy",
         "security_policy",
+        "backend_version_metadata",
         "source_artifacts",
         "profile_ids",
         "policy_metric_rows",
@@ -680,6 +696,7 @@ def validate_payload(
         "prover_policy": PROVER_POLICY,
         "timing_policy": TIMING_POLICY,
         "security_policy": SECURITY_POLICY,
+        "backend_version_metadata": BACKEND_VERSION_METADATA,
         "profile_ids": list(EXPECTED_PROFILE_IDS),
         "non_claims": list(NON_CLAIMS),
         "validation_commands": list(VALIDATION_COMMANDS),
@@ -826,7 +843,6 @@ def to_tsv(payload: dict[str, Any], *, validate: bool = True) -> str:
     rows = []
     for row in payload["policy_metric_rows"]:
         rows.append({column: row[column] for column in TSV_COLUMNS})
-    from io import StringIO
 
     output = StringIO()
     writer = csv.DictWriter(output, fieldnames=TSV_COLUMNS, delimiter="\t", lineterminator="\n")
@@ -849,6 +865,8 @@ def to_markdown(payload: dict[str, Any]) -> str:
             f"- Decision: `{DECISION}`",
             f"- Fork status: `{FORK_STATUS}`",
             f"- Prover policy: `{PROVER_POLICY}`",
+            f"- Backend metadata: `{BACKEND_VERSION_METADATA['stwo_crate']}` / `{BACKEND_VERSION_METADATA['stwo_constraint_framework_crate']}` at evidence base commit `{BACKEND_VERSION_METADATA['evidence_base_commit']}`",
+            f"- Version constants: `{BACKEND_VERSION_METADATA['fast_target_version_const']}`; `{BACKEND_VERSION_METADATA['pressure_anchor_version_const']}`",
             "",
             "## Result",
             "",
@@ -879,6 +897,8 @@ def to_markdown(payload: dict[str, Any]) -> str:
 
 
 def require_evidence_output_path(path: pathlib.Path) -> pathlib.Path:
+    if not path.is_absolute():
+        path = ROOT / path
     resolved = path.resolve()
     if resolved.parent != EVIDENCE_DIR.resolve():
         raise StwoAiRouteLayoutPolicyGateError("evidence output path must be under docs/engineering/evidence")
@@ -886,6 +906,8 @@ def require_evidence_output_path(path: pathlib.Path) -> pathlib.Path:
 
 
 def require_docs_output_path(path: pathlib.Path) -> pathlib.Path:
+    if not path.is_absolute():
+        path = ROOT / path
     resolved = path.resolve()
     if resolved.parent != DOCS_DIR.resolve():
         raise StwoAiRouteLayoutPolicyGateError("markdown output path must be under docs/engineering")
