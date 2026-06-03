@@ -1,0 +1,436 @@
+{
+  "aggregate": {
+    "baseline_proof_size_bytes": 66327,
+    "best_decommitment_delta_vs_baseline_bytes": -42,
+    "best_fri_delta_vs_baseline_bytes": -353,
+    "best_opening_delta_vs_baseline_bytes": -395,
+    "best_proof_size_bytes": 65998,
+    "best_query_delta_vs_baseline_bytes": 80,
+    "best_saves_vs_baseline_bytes": 329,
+    "best_schedule_id": "chunk4",
+    "variants_checked": 7,
+    "worst_proof_delta_vs_baseline_bytes": 4050,
+    "worst_schedule_id": "chunk8"
+  },
+  "all_mutations_rejected": true,
+  "baseline_artifact": {
+    "bucket_bytes": {
+      "commitment_bucket_bytes": 452,
+      "config_and_pow_bytes": 140,
+      "json_wrapper_bytes": 125,
+      "opening_bucket_bytes": 30064,
+      "query_bucket_bytes": 35546
+    },
+    "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-fused-softmax-table-proof-2026-05.envelope.json",
+    "proof_size_bytes": 66327,
+    "section_bytes": {
+      "commitments": 452,
+      "config": 136,
+      "decommitments": 12696,
+      "fri_proof": 17368,
+      "proof_of_work": 4,
+      "queried_values": 14007,
+      "sampled_values": 21539
+    },
+    "sha256": "550adc4681dca0f5075b65cb046ef4e027364d34d6f70925c5f82d5190afc933",
+    "statement_commitment": "blake2b-256:03267fbc084726c1249fbd6025cc3ec3fdc30214f7c75693810c5b72188ace55"
+  },
+  "baseline_policy": "checked_existing_alternating_input_step_order",
+  "claim_boundary": "EXPERIMENTAL_D8_TWO_HEAD_SEQ32_DETERMINISTIC_SOURCE_LAYOUT_SCHEDULE_SWEEP_SAME_WORKLOAD_ONE_SMALL_PROOF_SIZE_REDUCTION_NOT_A_STWO_FORK_NOT_D64_PROMOTION",
+  "decision": "GO_DETERMINISTIC_CHUNK4_LAYOUT_REDUCES_FUSED_PROOF_BYTES_NO_STWO_FORK",
+  "fork_status": "NO_GO_FORK_STWO_FROM_CHUNK4_SWEEP",
+  "issue": 757,
+  "mutation_cases": [
+    {
+      "error": "decision drift",
+      "name": "decision_overclaim",
+      "rejected": true
+    },
+    {
+      "error": "fork_status drift",
+      "name": "fork_status_promotion",
+      "rejected": true
+    },
+    {
+      "error": "promotion_status drift",
+      "name": "d64_promotion_overclaim",
+      "rejected": true
+    },
+    {
+      "error": "variant row drift",
+      "name": "post_query_policy_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "baseline artifact drift",
+      "name": "baseline_digest_drift",
+      "rejected": true
+    },
+    {
+      "error": "variant row drift",
+      "name": "artifact_digest_drift",
+      "rejected": true
+    },
+    {
+      "error": "aggregate drift",
+      "name": "best_schedule_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "variant row drift",
+      "name": "proof_byte_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "variant row drift",
+      "name": "statement_commitment_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "validation_commands drift",
+      "name": "native_verify_removed",
+      "rejected": true
+    },
+    {
+      "error": "non_claims drift",
+      "name": "non_claim_removed",
+      "rejected": true
+    },
+    {
+      "error": "payload commitment drift",
+      "name": "payload_commitment_drift",
+      "rejected": true
+    },
+    {
+      "error": "payload field drift",
+      "name": "unknown_field_injection",
+      "rejected": true
+    }
+  ],
+  "mutations_checked": 13,
+  "mutations_rejected": 13,
+  "non_claims": [
+    "not a Stwo fork",
+    "not a backend patch",
+    "not post-query schedule selection",
+    "not transcript grinding",
+    "not a d64 or d128 result",
+    "not a production route policy",
+    "not timing evidence",
+    "not exact real-valued Softmax",
+    "not full transformer inference"
+  ],
+  "payload_commitment": "blake2b-256:3934df7b260f483068ab727d069e84cde3f90f1cbdc93349fba2e50cd1f05fcf",
+  "promotion_status": "NO_GO_D64_PROMOTION_UNTIL_POLICY_IS_IMPLEMENTED_AND_REPROVED_ON_D64",
+  "route_id": "local_stwo_ai_two_head_seq32_layout_schedule_sweep",
+  "schedule_ids": [
+    "reverse_alternating",
+    "chunk2",
+    "chunk4",
+    "chunk8",
+    "chunk16",
+    "head_blocked",
+    "head1_blocked"
+  ],
+  "schema": "zkai-stwo-ai-two-head-seq32-layout-schedule-sweep-v1",
+  "source_surface_issue": 537,
+  "timing_policy": "no_timing_claim_no_public_benchmark",
+  "validation_commands": [
+    "python3.10 scripts/zkai_stwo_ai_two_head_seq32_layout_schedule_sweep_gate.py --write-json docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-schedule-sweep-2026-06.json --write-tsv docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-schedule-sweep-2026-06.tsv --write-md docs/engineering/zkai-stwo-ai-two-head-seq32-layout-schedule-sweep-2026-06-04.md",
+    "python3.10 -m py_compile scripts/zkai_stwo_ai_two_head_seq32_layout_schedule_sweep_gate.py scripts/tests/test_zkai_stwo_ai_two_head_seq32_layout_schedule_sweep_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_stwo_ai_two_head_seq32_layout_schedule_sweep_gate",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_two_head_seq32_fused_softmax_table_proof -- verify docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-chunk4-fused.envelope.json",
+    "for f in docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-*-fused.envelope.json; do cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_two_head_seq32_fused_softmax_table_proof -- verify \"$f\"; done",
+    "git diff --check"
+  ],
+  "variant_rows": [
+    {
+      "bucket_delta_vs_baseline_bytes": {
+        "commitment_bucket_bytes": 4,
+        "config_and_pow_bytes": 0,
+        "json_wrapper_bytes": 0,
+        "opening_bucket_bytes": 3869,
+        "query_bucket_bytes": 104
+      },
+      "envelope_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-reverse-alternating-fused.envelope.json",
+      "envelope_sha256": "85ab4b30bb1e0b55075ed25d92553a1c780b2ab9dd3177ec4e5a64813c38db9c",
+      "envelope_size_bytes": 896877,
+      "file_slug": "reverse-alternating",
+      "input_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-reverse-alternating-input.json",
+      "input_sha256": "95babd06f046ed12de8cf71957a62de1e438a87a87301b98544873ee2c9ce7eb",
+      "proof_delta_vs_baseline_bytes": 3977,
+      "proof_size_bytes": 70304,
+      "public_instance_commitment": "blake2b-256:f215e5891abb855e3e48b846556d78043e49e58a7ec6100020980dbe2ee6d6cc",
+      "same_workload": {
+        "head_count": 2,
+        "key_width": 8,
+        "lookup_claims": 1184,
+        "sequence_length": 32,
+        "source_plus_sidecar_raw_proof_bytes": 98012,
+        "table_rows": 9,
+        "trace_rows": 2048,
+        "value_width": 8
+      },
+      "saves_vs_baseline_bytes": -3977,
+      "schedule_id": "reverse_alternating",
+      "schedule_policy": "reverse the existing alternating step order",
+      "section_delta_vs_baseline_bytes": {
+        "commitments": 4,
+        "config": 0,
+        "decommitments": 1315,
+        "fri_proof": 2554,
+        "proof_of_work": 0,
+        "queried_values": 8,
+        "sampled_values": 96
+      },
+      "statement_commitment": "blake2b-256:e73be0d0b87713884a284ae1c4da601210556a85724d9ea9ff2e26eeb3c648ad"
+    },
+    {
+      "bucket_delta_vs_baseline_bytes": {
+        "commitment_bucket_bytes": -3,
+        "config_and_pow_bytes": 0,
+        "json_wrapper_bytes": 0,
+        "opening_bucket_bytes": -335,
+        "query_bucket_bytes": 72
+      },
+      "envelope_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-chunk2-fused.envelope.json",
+      "envelope_sha256": "0a87e669d64b950d84d41da02c4b2a936028b9b27a65d4abcedef62b2a51b52b",
+      "envelope_size_bytes": 884148,
+      "file_slug": "chunk2",
+      "input_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-chunk2-input.json",
+      "input_sha256": "56b1e486549b61eb7cde2d534d26b383638296f0ea6e9fa6636d213542c8a493",
+      "proof_delta_vs_baseline_bytes": -266,
+      "proof_size_bytes": 66061,
+      "public_instance_commitment": "blake2b-256:59272a83b41ffc9c93939447f595d225d5cdbe81d40db9551f8d42cd3285b289",
+      "same_workload": {
+        "head_count": 2,
+        "key_width": 8,
+        "lookup_claims": 1184,
+        "sequence_length": 32,
+        "source_plus_sidecar_raw_proof_bytes": 98012,
+        "table_rows": 9,
+        "trace_rows": 2048,
+        "value_width": 8
+      },
+      "saves_vs_baseline_bytes": 266,
+      "schedule_id": "chunk2",
+      "schedule_policy": "two-row deterministic source chunks",
+      "section_delta_vs_baseline_bytes": {
+        "commitments": -3,
+        "config": 0,
+        "decommitments": 37,
+        "fri_proof": -372,
+        "proof_of_work": 0,
+        "queried_values": 17,
+        "sampled_values": 55
+      },
+      "statement_commitment": "blake2b-256:0575a46db8fdc68e3006324717761b4fbaa422379d1384a57414fbf8ff48e13c"
+    },
+    {
+      "bucket_delta_vs_baseline_bytes": {
+        "commitment_bucket_bytes": -12,
+        "config_and_pow_bytes": -2,
+        "json_wrapper_bytes": 0,
+        "opening_bucket_bytes": -395,
+        "query_bucket_bytes": 80
+      },
+      "envelope_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-chunk4-fused.envelope.json",
+      "envelope_sha256": "e446a1ac6ce98387b7ef14e95ed61ff513cc5f65ff0116fe71ef83dc8fdc2e70",
+      "envelope_size_bytes": 883959,
+      "file_slug": "chunk4",
+      "input_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-chunk4-input.json",
+      "input_sha256": "3c68b609318aa8bfe513b709a4ad16aabc63ba2b222fb69d643801dfa4ab5c96",
+      "proof_delta_vs_baseline_bytes": -329,
+      "proof_size_bytes": 65998,
+      "public_instance_commitment": "blake2b-256:47166b34b0e1d8d81f53d6f32719e214ff4611a9b7089c16a1e20042111c8413",
+      "same_workload": {
+        "head_count": 2,
+        "key_width": 8,
+        "lookup_claims": 1184,
+        "sequence_length": 32,
+        "source_plus_sidecar_raw_proof_bytes": 98012,
+        "table_rows": 9,
+        "trace_rows": 2048,
+        "value_width": 8
+      },
+      "saves_vs_baseline_bytes": 329,
+      "schedule_id": "chunk4",
+      "schedule_policy": "four-row deterministic source chunks",
+      "section_delta_vs_baseline_bytes": {
+        "commitments": -12,
+        "config": 0,
+        "decommitments": -42,
+        "fri_proof": -353,
+        "proof_of_work": -2,
+        "queried_values": 1,
+        "sampled_values": 79
+      },
+      "statement_commitment": "blake2b-256:b1d5550c3bb5401b2198db8e8693e04a1f34e949d9b2502cb5ee5bbe26321ab7"
+    },
+    {
+      "bucket_delta_vs_baseline_bytes": {
+        "commitment_bucket_bytes": -2,
+        "config_and_pow_bytes": -1,
+        "json_wrapper_bytes": 0,
+        "opening_bucket_bytes": 3935,
+        "query_bucket_bytes": 118
+      },
+      "envelope_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-chunk8-fused.envelope.json",
+      "envelope_sha256": "bebd10ca7ab35d7532cf69724890c18c82ea5e57ec725acca1ec9d7bc5dbbb12",
+      "envelope_size_bytes": 897096,
+      "file_slug": "chunk8",
+      "input_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-chunk8-input.json",
+      "input_sha256": "41d6d3fb1199197d38c65d10a6bc6986dd50f4e6e6d0795266b869e56b056b13",
+      "proof_delta_vs_baseline_bytes": 4050,
+      "proof_size_bytes": 70377,
+      "public_instance_commitment": "blake2b-256:9810162dabff542111945adf3dd9554ddc7478030a6acd7cf22c0da101ea943b",
+      "same_workload": {
+        "head_count": 2,
+        "key_width": 8,
+        "lookup_claims": 1184,
+        "sequence_length": 32,
+        "source_plus_sidecar_raw_proof_bytes": 98012,
+        "table_rows": 9,
+        "trace_rows": 2048,
+        "value_width": 8
+      },
+      "saves_vs_baseline_bytes": -4050,
+      "schedule_id": "chunk8",
+      "schedule_policy": "eight-row deterministic source chunks",
+      "section_delta_vs_baseline_bytes": {
+        "commitments": -2,
+        "config": 0,
+        "decommitments": 1384,
+        "fri_proof": 2551,
+        "proof_of_work": -1,
+        "queried_values": 18,
+        "sampled_values": 100
+      },
+      "statement_commitment": "blake2b-256:c118003accc98196eb989589686ee7043d33015c626fee7aa98e6f66fb4a2e81"
+    },
+    {
+      "bucket_delta_vs_baseline_bytes": {
+        "commitment_bucket_bytes": 5,
+        "config_and_pow_bytes": -1,
+        "json_wrapper_bytes": 0,
+        "opening_bucket_bytes": 1191,
+        "query_bucket_bytes": 30
+      },
+      "envelope_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-chunk16-fused.envelope.json",
+      "envelope_sha256": "ca9b6a53ec579a57fb43d8b342edbdaf2b7bd00bb0d09b714bc3817688ce89cd",
+      "envelope_size_bytes": 888621,
+      "file_slug": "chunk16",
+      "input_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-chunk16-input.json",
+      "input_sha256": "7873e319100f81a9d967c7abd062d70c1aeb282b6f3069b01616f2496d8422ca",
+      "proof_delta_vs_baseline_bytes": 1225,
+      "proof_size_bytes": 67552,
+      "public_instance_commitment": "blake2b-256:a650e1d13cf82e657a1157638b40cbfb4c5a895ea9b656ee8b38b86041dce145",
+      "same_workload": {
+        "head_count": 2,
+        "key_width": 8,
+        "lookup_claims": 1184,
+        "sequence_length": 32,
+        "source_plus_sidecar_raw_proof_bytes": 98012,
+        "table_rows": 9,
+        "trace_rows": 2048,
+        "value_width": 8
+      },
+      "saves_vs_baseline_bytes": -1225,
+      "schedule_id": "chunk16",
+      "schedule_policy": "sixteen-row deterministic source chunks",
+      "section_delta_vs_baseline_bytes": {
+        "commitments": 5,
+        "config": 0,
+        "decommitments": 436,
+        "fri_proof": 755,
+        "proof_of_work": -1,
+        "queried_values": -26,
+        "sampled_values": 56
+      },
+      "statement_commitment": "blake2b-256:ae18a87eecec2de4902a4cc2f54f1ed18d270454faad9c2f7661346831c0be18"
+    },
+    {
+      "bucket_delta_vs_baseline_bytes": {
+        "commitment_bucket_bytes": -4,
+        "config_and_pow_bytes": -2,
+        "json_wrapper_bytes": 0,
+        "opening_bucket_bytes": 2549,
+        "query_bucket_bytes": 1
+      },
+      "envelope_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-head-blocked-fused.envelope.json",
+      "envelope_sha256": "a0fb09abfd067572383a20b705d27d76bed145bae87749ba249df18768649af8",
+      "envelope_size_bytes": 892578,
+      "file_slug": "head-blocked",
+      "input_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-head-blocked-input.json",
+      "input_sha256": "0ad5c6b9b1a4c33461cc29e2c3598510690249a6d56b52c93246c25edfae5819",
+      "proof_delta_vs_baseline_bytes": 2544,
+      "proof_size_bytes": 68871,
+      "public_instance_commitment": "blake2b-256:3d1e99b24e268482553e83be8fe5ec2bff2cc0a04a4ce7cab39c4c4751499462",
+      "same_workload": {
+        "head_count": 2,
+        "key_width": 8,
+        "lookup_claims": 1184,
+        "sequence_length": 32,
+        "source_plus_sidecar_raw_proof_bytes": 98012,
+        "table_rows": 9,
+        "trace_rows": 2048,
+        "value_width": 8
+      },
+      "saves_vs_baseline_bytes": -2544,
+      "schedule_id": "head_blocked",
+      "schedule_policy": "head-zero rows then head-one rows",
+      "section_delta_vs_baseline_bytes": {
+        "commitments": -4,
+        "config": 0,
+        "decommitments": 942,
+        "fri_proof": 1607,
+        "proof_of_work": -2,
+        "queried_values": -31,
+        "sampled_values": 32
+      },
+      "statement_commitment": "blake2b-256:f127e9c9d29d6ce24cecacaa255cefd81a74b8e359198e03d4f30604896f2f03"
+    },
+    {
+      "bucket_delta_vs_baseline_bytes": {
+        "commitment_bucket_bytes": 3,
+        "config_and_pow_bytes": 0,
+        "json_wrapper_bytes": 0,
+        "opening_bucket_bytes": 3958,
+        "query_bucket_bytes": 70
+      },
+      "envelope_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-head1-blocked-fused.envelope.json",
+      "envelope_sha256": "89d235d12f0831635bf7fb81f5597b65b5775dabf3a1ca5ce09f8c8a4c2b1452",
+      "envelope_size_bytes": 897039,
+      "file_slug": "head1-blocked",
+      "input_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-head1-blocked-input.json",
+      "input_sha256": "5108315dabadc30e2ec8d2f0301b9e79095500ded789de05da1ac2372136148e",
+      "proof_delta_vs_baseline_bytes": 4031,
+      "proof_size_bytes": 70358,
+      "public_instance_commitment": "blake2b-256:f2bcec1c9295c7c02d5d27e39fc5f12efc54c9240ba73d3a68229f3936dabe77",
+      "same_workload": {
+        "head_count": 2,
+        "key_width": 8,
+        "lookup_claims": 1184,
+        "sequence_length": 32,
+        "source_plus_sidecar_raw_proof_bytes": 98012,
+        "table_rows": 9,
+        "trace_rows": 2048,
+        "value_width": 8
+      },
+      "saves_vs_baseline_bytes": -4031,
+      "schedule_id": "head1_blocked",
+      "schedule_policy": "head-one rows then head-zero rows",
+      "section_delta_vs_baseline_bytes": {
+        "commitments": 3,
+        "config": 0,
+        "decommitments": 1427,
+        "fri_proof": 2531,
+        "proof_of_work": 0,
+        "queried_values": 23,
+        "sampled_values": 47
+      },
+      "statement_commitment": "blake2b-256:b09dfe56db32ef5cdc25e04aa49944187d320174ee62a2f18789b35fcaecaa3e"
+    }
+  ],
+  "verify_policy": "best_chunk4_envelope_native_verify_required"
+}

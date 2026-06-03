@@ -1,0 +1,8 @@
+schedule_id	proof_size_bytes	saves_vs_baseline_bytes	proof_delta_vs_baseline_bytes	opening_delta_vs_baseline_bytes	fri_delta_vs_baseline_bytes	decommitment_delta_vs_baseline_bytes	query_delta_vs_baseline_bytes	statement_commitment	schedule_policy
+reverse_alternating	70304	-3977	3977	3869	2554	1315	104	blake2b-256:e73be0d0b87713884a284ae1c4da601210556a85724d9ea9ff2e26eeb3c648ad	reverse the existing alternating step order
+chunk2	66061	266	-266	-335	-372	37	72	blake2b-256:0575a46db8fdc68e3006324717761b4fbaa422379d1384a57414fbf8ff48e13c	two-row deterministic source chunks
+chunk4	65998	329	-329	-395	-353	-42	80	blake2b-256:b1d5550c3bb5401b2198db8e8693e04a1f34e949d9b2502cb5ee5bbe26321ab7	four-row deterministic source chunks
+chunk8	70377	-4050	4050	3935	2551	1384	118	blake2b-256:c118003accc98196eb989589686ee7043d33015c626fee7aa98e6f66fb4a2e81	eight-row deterministic source chunks
+chunk16	67552	-1225	1225	1191	755	436	30	blake2b-256:ae18a87eecec2de4902a4cc2f54f1ed18d270454faad9c2f7661346831c0be18	sixteen-row deterministic source chunks
+head_blocked	68871	-2544	2544	2549	1607	942	1	blake2b-256:f127e9c9d29d6ce24cecacaa255cefd81a74b8e359198e03d4f30604896f2f03	head-zero rows then head-one rows
+head1_blocked	70358	-4031	4031	3958	2531	1427	70	blake2b-256:b09dfe56db32ef5cdc25e04aa49944187d320174ee62a2f18789b35fcaecaa3e	head-one rows then head-zero rows
