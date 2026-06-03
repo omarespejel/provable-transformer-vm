@@ -206,13 +206,19 @@ def load_source_artifacts() -> tuple[dict[str, Any], dict[str, Any]]:
 
 
 def route_rows_by_profile(route_payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    return {row["profile_id"]: row for row in route_payload["route_rows"]}
+    rows_by_profile: dict[str, dict[str, Any]] = {}
+    for index, row in enumerate(route_payload["route_rows"]):
+        profile_id = require_str(row.get("profile_id"), f"route row {index} profile_id")
+        if profile_id in rows_by_profile:
+            raise StwoAiRouteLayoutPolicyGateError(f"duplicate route matrix profile_id: {profile_id}")
+        rows_by_profile[profile_id] = row
+    return rows_by_profile
 
 
 def row_opening_bytes(row: dict[str, Any], role: str) -> int:
     sections = row["artifacts"][role]["section_bytes"]
-    return require_int(sections["fri_proof"], f"{row['profile_id']} {role} fri") + require_int(
-        sections["decommitments"], f"{row['profile_id']} {role} decommitments"
+    return sum(
+        require_int(sections[key], f"{row['profile_id']} {role} {key}") for key in OPENING_BUCKET_KEYS
     )
 
 

@@ -96,6 +96,10 @@ class StwoAiRouteLayoutPolicyGateTests(unittest.TestCase):
         self.assertEqual(fallback["fused_opening_minus_source_opening_bytes"], -392)
         self.assertEqual(fallback["sidecar_opening_absorption_share"], 1.020258)
 
+    def test_route_rows_reject_duplicate_profile_ids(self):
+        with self.assertRaisesRegex(gate.StwoAiRouteLayoutPolicyGateError, "duplicate route matrix profile_id: x"):
+            gate.route_rows_by_profile({"route_rows": [{"profile_id": "x"}, {"profile_id": "x"}]})
+
     def test_policy_plan_keeps_safe_next_action(self):
         plan = self.payload["policy_plan"]
         self.assertEqual(plan["immediate_target"], "d8_two_head_seq32")
