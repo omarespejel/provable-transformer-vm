@@ -672,8 +672,9 @@ def build_payload() -> dict[str, Any]:
     return payload
 
 
-def to_tsv(payload: dict[str, Any]) -> str:
-    validate_payload(payload)
+def to_tsv(payload: dict[str, Any], *, validated: bool = False) -> str:
+    if not validated:
+        validate_payload(payload)
     rows = []
     for row in payload["variant_rows"]:
         section_delta_row = row["section_delta_vs_baseline_bytes"]
@@ -699,8 +700,9 @@ def to_tsv(payload: dict[str, Any]) -> str:
     return output.getvalue()
 
 
-def to_markdown(payload: dict[str, Any]) -> str:
-    validate_payload(payload)
+def to_markdown(payload: dict[str, Any], *, validated: bool = False) -> str:
+    if not validated:
+        validate_payload(payload)
     aggregate = payload["aggregate"]
     best = find_row(payload["variant_rows"], BEST_SCHEDULE_ID)
     return "\n".join(
@@ -788,8 +790,8 @@ def write_atomic(path: pathlib.Path, content: str, *, docs: bool = False) -> Non
 def write_outputs(payload: dict[str, Any], json_path: pathlib.Path, tsv_path: pathlib.Path, md_path: pathlib.Path) -> None:
     validate_payload(payload)
     write_atomic(json_path, json.dumps(payload, indent=2, sort_keys=True) + "\n")
-    write_atomic(tsv_path, to_tsv(payload))
-    write_atomic(md_path, to_markdown(payload), docs=True)
+    write_atomic(tsv_path, to_tsv(payload, validated=True))
+    write_atomic(md_path, to_markdown(payload, validated=True), docs=True)
 
 
 def main() -> None:
