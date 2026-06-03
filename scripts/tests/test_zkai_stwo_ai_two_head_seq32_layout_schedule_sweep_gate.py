@@ -1,4 +1,5 @@
 import copy
+import json
 import os
 import pathlib
 import tempfile
@@ -125,6 +126,22 @@ class LayoutScheduleSweepGateTests(unittest.TestCase):
         self.assertIn("`329` bytes", md)
         self.assertIn("Proof backend: `stwo`", md)
         self.assertIn("not a Stwo fork", md)
+
+    def test_checked_outputs_match_generator(self):
+        self.assertEqual(
+            json.dumps(self.payload, indent=2, sort_keys=True) + "\n",
+            gate.JSON_OUT.read_text(encoding="utf-8"),
+        )
+        self.assertEqual(gate.to_tsv(self.payload, validated=True), gate.TSV_OUT.read_text(encoding="utf-8"))
+        self.assertEqual(gate.to_markdown(self.payload, validated=True), gate.MD_OUT.read_text(encoding="utf-8"))
+
+    def test_serializers_still_validate_untrusted_payloads(self):
+        payload = self.strip_mutation_summary(self.payload)
+        payload["decision"] = "GO_STWO_AI_FORK_BREAKTHROUGH"
+        with self.assertRaisesRegex(gate.LayoutScheduleSweepGateError, "decision drift"):
+            gate.to_tsv(payload)
+        with self.assertRaisesRegex(gate.LayoutScheduleSweepGateError, "decision drift"):
+            gate.to_markdown(payload)
 
     def test_relative_output_paths_resolve_from_repo_root(self):
         with tempfile.TemporaryDirectory() as tmp:
