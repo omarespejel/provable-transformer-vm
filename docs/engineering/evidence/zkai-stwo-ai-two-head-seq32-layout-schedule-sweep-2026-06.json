@@ -22,6 +22,7 @@
       "query_bucket_bytes": 35546
     },
     "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-fused-softmax-table-proof-2026-05.envelope.json",
+    "proof_backend": "stwo",
     "proof_size_bytes": 66327,
     "section_bytes": {
       "commitments": 452,
@@ -82,6 +83,11 @@
       "rejected": true
     },
     {
+      "error": "proof_backend drift",
+      "name": "proof_backend_drift",
+      "rejected": true
+    },
+    {
       "error": "variant row drift",
       "name": "statement_commitment_smuggling",
       "rejected": true
@@ -107,8 +113,8 @@
       "rejected": true
     }
   ],
-  "mutations_checked": 13,
-  "mutations_rejected": 13,
+  "mutations_checked": 14,
+  "mutations_rejected": 14,
   "non_claims": [
     "not a Stwo fork",
     "not a backend patch",
@@ -120,7 +126,7 @@
     "not exact real-valued Softmax",
     "not full transformer inference"
   ],
-  "payload_commitment": "blake2b-256:3934df7b260f483068ab727d069e84cde3f90f1cbdc93349fba2e50cd1f05fcf",
+  "payload_commitment": "blake2b-256:ed4bfdaba1f7badde5524718552ab4e41fc5c3b2ccf76c2c4454a9183cea628e",
   "promotion_status": "NO_GO_D64_PROMOTION_UNTIL_POLICY_IS_IMPLEMENTED_AND_REPROVED_ON_D64",
   "route_id": "local_stwo_ai_two_head_seq32_layout_schedule_sweep",
   "schedule_ids": [
@@ -136,12 +142,14 @@
   "source_surface_issue": 537,
   "timing_policy": "no_timing_claim_no_public_benchmark",
   "validation_commands": [
+    "just gate-fast",
     "python3.10 scripts/zkai_stwo_ai_two_head_seq32_layout_schedule_sweep_gate.py --write-json docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-schedule-sweep-2026-06.json --write-tsv docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-schedule-sweep-2026-06.tsv --write-md docs/engineering/zkai-stwo-ai-two-head-seq32-layout-schedule-sweep-2026-06-04.md",
     "python3.10 -m py_compile scripts/zkai_stwo_ai_two_head_seq32_layout_schedule_sweep_gate.py scripts/tests/test_zkai_stwo_ai_two_head_seq32_layout_schedule_sweep_gate.py",
     "python3.10 -m unittest scripts.tests.test_zkai_stwo_ai_two_head_seq32_layout_schedule_sweep_gate",
     "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_two_head_seq32_fused_softmax_table_proof -- verify docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-chunk4-fused.envelope.json",
     "for f in docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-*-fused.envelope.json; do cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_two_head_seq32_fused_softmax_table_proof -- verify \"$f\"; done",
-    "git diff --check"
+    "git diff --check",
+    "just gate-no-nightly"
   ],
   "variant_rows": [
     {
@@ -158,6 +166,7 @@
       "file_slug": "reverse-alternating",
       "input_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-reverse-alternating-input.json",
       "input_sha256": "95babd06f046ed12de8cf71957a62de1e438a87a87301b98544873ee2c9ce7eb",
+      "proof_backend": "stwo",
       "proof_delta_vs_baseline_bytes": 3977,
       "proof_size_bytes": 70304,
       "public_instance_commitment": "blake2b-256:f215e5891abb855e3e48b846556d78043e49e58a7ec6100020980dbe2ee6d6cc",
@@ -199,6 +208,7 @@
       "file_slug": "chunk2",
       "input_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-chunk2-input.json",
       "input_sha256": "56b1e486549b61eb7cde2d534d26b383638296f0ea6e9fa6636d213542c8a493",
+      "proof_backend": "stwo",
       "proof_delta_vs_baseline_bytes": -266,
       "proof_size_bytes": 66061,
       "public_instance_commitment": "blake2b-256:59272a83b41ffc9c93939447f595d225d5cdbe81d40db9551f8d42cd3285b289",
@@ -240,6 +250,7 @@
       "file_slug": "chunk4",
       "input_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-chunk4-input.json",
       "input_sha256": "3c68b609318aa8bfe513b709a4ad16aabc63ba2b222fb69d643801dfa4ab5c96",
+      "proof_backend": "stwo",
       "proof_delta_vs_baseline_bytes": -329,
       "proof_size_bytes": 65998,
       "public_instance_commitment": "blake2b-256:47166b34b0e1d8d81f53d6f32719e214ff4611a9b7089c16a1e20042111c8413",
@@ -281,6 +292,7 @@
       "file_slug": "chunk8",
       "input_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-chunk8-input.json",
       "input_sha256": "41d6d3fb1199197d38c65d10a6bc6986dd50f4e6e6d0795266b869e56b056b13",
+      "proof_backend": "stwo",
       "proof_delta_vs_baseline_bytes": 4050,
       "proof_size_bytes": 70377,
       "public_instance_commitment": "blake2b-256:9810162dabff542111945adf3dd9554ddc7478030a6acd7cf22c0da101ea943b",
@@ -322,6 +334,7 @@
       "file_slug": "chunk16",
       "input_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-chunk16-input.json",
       "input_sha256": "7873e319100f81a9d967c7abd062d70c1aeb282b6f3069b01616f2496d8422ca",
+      "proof_backend": "stwo",
       "proof_delta_vs_baseline_bytes": 1225,
       "proof_size_bytes": 67552,
       "public_instance_commitment": "blake2b-256:a650e1d13cf82e657a1157638b40cbfb4c5a895ea9b656ee8b38b86041dce145",
@@ -363,6 +376,7 @@
       "file_slug": "head-blocked",
       "input_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-head-blocked-input.json",
       "input_sha256": "0ad5c6b9b1a4c33461cc29e2c3598510690249a6d56b52c93246c25edfae5819",
+      "proof_backend": "stwo",
       "proof_delta_vs_baseline_bytes": 2544,
       "proof_size_bytes": 68871,
       "public_instance_commitment": "blake2b-256:3d1e99b24e268482553e83be8fe5ec2bff2cc0a04a4ce7cab39c4c4751499462",
@@ -404,6 +418,7 @@
       "file_slug": "head1-blocked",
       "input_path": "docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-head1-blocked-input.json",
       "input_sha256": "5108315dabadc30e2ec8d2f0301b9e79095500ded789de05da1ac2372136148e",
+      "proof_backend": "stwo",
       "proof_delta_vs_baseline_bytes": 4031,
       "proof_size_bytes": 70358,
       "public_instance_commitment": "blake2b-256:f2bcec1c9295c7c02d5d27e39fc5f12efc54c9240ba73d3a68229f3936dabe77",

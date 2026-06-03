@@ -51,6 +51,7 @@ TIMING_POLICY = "no_timing_claim_no_public_benchmark"
 VERIFY_POLICY = "best_chunk4_envelope_native_verify_required"
 BASELINE_POLICY = "checked_existing_alternating_input_step_order"
 BEST_SCHEDULE_ID = "chunk4"
+PROOF_BACKEND = "stwo"
 BASELINE_PROOF_SIZE_BYTES = 66_327
 EXPECTED_BEST_PROOF_SIZE_BYTES = 65_998
 EXPECTED_BEST_SAVING_BYTES = 329
@@ -86,12 +87,14 @@ NATIVE_VERIFY_ALL_COMMAND = (
     "done"
 )
 VALIDATION_COMMANDS = (
+    "just gate-fast",
     "python3.10 scripts/zkai_stwo_ai_two_head_seq32_layout_schedule_sweep_gate.py --write-json docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-schedule-sweep-2026-06.json --write-tsv docs/engineering/evidence/zkai-stwo-ai-two-head-seq32-layout-schedule-sweep-2026-06.tsv --write-md docs/engineering/zkai-stwo-ai-two-head-seq32-layout-schedule-sweep-2026-06-04.md",
     "python3.10 -m py_compile scripts/zkai_stwo_ai_two_head_seq32_layout_schedule_sweep_gate.py scripts/tests/test_zkai_stwo_ai_two_head_seq32_layout_schedule_sweep_gate.py",
     "python3.10 -m unittest scripts.tests.test_zkai_stwo_ai_two_head_seq32_layout_schedule_sweep_gate",
     NATIVE_VERIFY_COMMAND,
     NATIVE_VERIFY_ALL_COMMAND,
     "git diff --check",
+    "just gate-no-nightly",
 )
 NON_CLAIMS = (
     "not a Stwo fork",
@@ -176,6 +179,7 @@ EXPECTED_MUTATION_NAMES = (
     "artifact_digest_drift",
     "best_schedule_relabeling",
     "proof_byte_smuggling",
+    "proof_backend_drift",
     "statement_commitment_smuggling",
     "native_verify_removed",
     "non_claim_removed",
@@ -202,7 +206,13 @@ def blake2b_commitment(value: Any, domain: str) -> str:
 
 
 def sha256_file(path: pathlib.Path, expected_sha256: str | None = None) -> str:
-    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    if not path.is_file():
+        raise LayoutScheduleSweepGateError(f"missing artifact: {path.name}")
+    hasher = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            hasher.update(chunk)
+    digest = hasher.hexdigest()
     if expected_sha256 is not None and digest != expected_sha256:
         raise LayoutScheduleSweepGateError(f"{path.name} sha256 drift")
     return digest
@@ -280,11 +290,15 @@ def load_baseline() -> dict[str, Any]:
     if summary.get("source_statement_commitment") != BASELINE_STATEMENT_COMMITMENT:
         raise LayoutScheduleSweepGateError("baseline statement commitment drift")
     profile = proof_profile(BASELINE_ENVELOPE, MAX_BASELINE_ENVELOPE_BYTES, "baseline envelope")
+    proof_backend = require_str(profile.get("proof_backend"), "baseline proof_backend")
+    if proof_backend != PROOF_BACKEND:
+        raise LayoutScheduleSweepGateError("baseline proof_backend drift")
     if profile["proof_size_bytes"] != BASELINE_PROOF_SIZE_BYTES:
         raise LayoutScheduleSweepGateError("baseline proof size drift")
     return {
         "path": str(BASELINE_ENVELOPE.relative_to(ROOT)),
         "sha256": BASELINE_ENVELOPE_SHA256,
+        "proof_backend": proof_backend,
         "proof_size_bytes": profile["proof_size_bytes"],
         "section_bytes": profile["section_bytes"],
         "bucket_bytes": proof_buckets(profile),
@@ -313,6 +327,9 @@ def build_variant_row(spec: dict[str, str], baseline: dict[str, Any]) -> dict[st
     if statement_commitment != source_input.get("statement_commitment"):
         raise LayoutScheduleSweepGateError(f"{spec['schedule_id']} statement commitment split-brain drift")
     profile = proof_profile(envelope_path, MAX_VARIANT_ENVELOPE_BYTES, f"{spec['schedule_id']} envelope")
+    proof_backend = require_str(profile.get("proof_backend"), f"{spec['schedule_id']} proof_backend")
+    if proof_backend != baseline["proof_backend"] or proof_backend != PROOF_BACKEND:
+        raise LayoutScheduleSweepGateError(f"{spec['schedule_id']} proof_backend drift")
     sections = profile["section_bytes"]
     buckets = proof_buckets(profile)
     baseline_sections = baseline["section_bytes"]
@@ -326,6 +343,7 @@ def build_variant_row(spec: dict[str, str], baseline: dict[str, Any]) -> dict[st
         "input_sha256": input_sha256,
         "envelope_path": str(envelope_path.relative_to(ROOT)),
         "envelope_sha256": envelope_sha256,
+        "proof_backend": proof_backend,
         "proof_size_bytes": profile["proof_size_bytes"],
         "envelope_size_bytes": profile["envelope_size_bytes"],
         "statement_commitment": statement_commitment,
@@ -400,6 +418,7 @@ def validate_variant_row(row: Any) -> None:
         "input_sha256",
         "envelope_path",
         "envelope_sha256",
+        "proof_backend",
         "proof_size_bytes",
         "envelope_size_bytes",
         "statement_commitment",
@@ -414,6 +433,8 @@ def validate_variant_row(row: Any) -> None:
         raise LayoutScheduleSweepGateError("variant row field drift")
     require_str(row["schedule_id"], "schedule_id")
     require_str(row["schedule_policy"], "schedule_policy")
+    if require_str(row["proof_backend"], f"{row['schedule_id']} proof_backend") != PROOF_BACKEND:
+        raise LayoutScheduleSweepGateError("proof_backend drift")
     proof_size = require_int(row["proof_size_bytes"], f"{row['schedule_id']} proof size")
     if proof_size <= 0:
         raise LayoutScheduleSweepGateError("proof size must be positive")
@@ -607,6 +628,7 @@ def mutation_cases_for(payload: dict[str, Any]) -> list[dict[str, Any]]:
     add("artifact_digest_drift", lambda p: find_row(p["variant_rows"], BEST_SCHEDULE_ID).__setitem__("envelope_sha256", "11" * 32))
     add("best_schedule_relabeling", lambda p: p["aggregate"].__setitem__("best_schedule_id", "chunk2"))
     add("proof_byte_smuggling", lambda p: find_row(p["variant_rows"], BEST_SCHEDULE_ID).__setitem__("proof_size_bytes", 1))
+    add("proof_backend_drift", lambda p: find_row(p["variant_rows"], BEST_SCHEDULE_ID).__setitem__("proof_backend", "forked-stwo"))
     add(
         "statement_commitment_smuggling",
         lambda p: find_row(p["variant_rows"], BEST_SCHEDULE_ID).__setitem__("statement_commitment", "blake2b-256:" + "aa" * 32),
@@ -690,6 +712,9 @@ def to_markdown(payload: dict[str, Any]) -> str:
             f"- Fork status: `{FORK_STATUS}`",
             f"- Promotion status: `{PROMOTION_STATUS}`",
             f"- Verify policy: `{VERIFY_POLICY}`",
+            f"- Proof backend: `{PROOF_BACKEND}`",
+            f"- Proof backend version: `{PROOF_BACKEND_VERSION}`",
+            f"- Statement version: `{STATEMENT_VERSION}`",
             "",
             "## Result",
             "",
