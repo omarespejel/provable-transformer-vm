@@ -144,6 +144,7 @@ EXPECTED_MUTATION_NAMES = (
     "post_query_policy_smuggling",
     "source_artifact_digest_drift",
     "route_matrix_digest_drift",
+    "route_matrix_non_section_profile_ids_drift",
     "backend_version_metadata_drift",
     "headline_anchor_relabeling",
     "fast_sequence_target_relabeling",
@@ -324,6 +325,9 @@ def build_policy_metric_rows(
         require_str(row.get("profile_id"), f"section row {index} profile_id")
         for index, row in enumerate(section_payload["profile_rows"])
     ]
+    non_section_overlap = set(section_profile_ids) & set(ROUTE_MATRIX_NON_SECTION_PROFILE_IDS)
+    if non_section_overlap:
+        raise StwoAiRouteLayoutPolicyGateError("route matrix non-section profile overlap")
     expected_route_ids = set(section_profile_ids) | set(ROUTE_MATRIX_NON_SECTION_PROFILE_IDS)
     if set(route_by_id) != expected_route_ids:
         raise StwoAiRouteLayoutPolicyGateError("route matrix profile set drift")
@@ -812,6 +816,10 @@ def mutation_cases_for(payload: dict[str, Any]) -> list[dict[str, Any]]:
     add("post_query_policy_smuggling", lambda p: p.__setitem__("security_policy", "choose_layout_after_query_draw"))
     add("source_artifact_digest_drift", lambda p: p["source_artifacts"].__setitem__("section_delta_sha256", "00" * 32))
     add("route_matrix_digest_drift", lambda p: p["source_artifacts"].__setitem__("route_matrix_sha256", "11" * 32))
+    add(
+        "route_matrix_non_section_profile_ids_drift",
+        lambda p: p["source_artifacts"]["route_matrix_non_section_profile_ids"].pop(),
+    )
     add(
         "backend_version_metadata_drift",
         lambda p: p["backend_version_metadata"].__setitem__("stwo_crate", "forked-stwo 0.0.0"),

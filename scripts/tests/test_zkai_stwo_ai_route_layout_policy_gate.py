@@ -107,6 +107,14 @@ class StwoAiRouteLayoutPolicyGateTests(unittest.TestCase):
                 {"route_rows": [{"profile_id": "x"}, {"profile_id": "y"}]},
             )
 
+    def test_policy_rows_reject_section_non_section_overlap(self):
+        profile_id = gate.ROUTE_MATRIX_NON_SECTION_PROFILE_IDS[0]
+        with self.assertRaisesRegex(gate.StwoAiRouteLayoutPolicyGateError, "route matrix non-section profile overlap"):
+            gate.build_policy_metric_rows(
+                {"profile_rows": [{"profile_id": profile_id}]},
+                {"route_rows": [{"profile_id": profile_id}]},
+            )
+
     def test_policy_plan_keeps_safe_next_action(self):
         plan = self.payload["policy_plan"]
         self.assertEqual(plan["immediate_target"], "d8_two_head_seq32")
