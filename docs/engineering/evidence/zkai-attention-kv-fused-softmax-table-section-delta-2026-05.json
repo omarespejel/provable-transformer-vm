@@ -1374,13 +1374,13 @@
   "proof_object_scope": "matched_serialized_stark_proof_json_sections_for_source_sidecar_and_fused_envelopes",
   "route_id": "local_stwo_attention_kv_fused_softmax_table_section_delta",
   "schema": "zkai-attention-kv-fused-softmax-table-section-delta-v1",
-  "section_delta_commitment": "blake2b-256:cebba20d83321af95c77af424422dcbc8850b0a16543df24cd7ed1ec0a977448",
+  "section_delta_commitment": "blake2b-256:f49ea4f39ae3dca005664b9597cb2181536ef094190cfcd28dfb3b7152c2bf7e",
   "section_delta_status": "GO_MATCHED_SERIALIZED_STARK_PROOF_SECTION_DELTA",
   "source_issue": 505,
   "timing_policy": "proof_bytes_only_not_timing_not_public_benchmark",
   "validation_commands": [
-    "python3 scripts/zkai_attention_kv_fused_softmax_table_section_delta_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-section-delta-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-section-delta-2026-05.tsv",
-    "python3 -m unittest scripts.tests.test_zkai_attention_kv_fused_softmax_table_section_delta_gate",
+    "python3.10 scripts/zkai_attention_kv_fused_softmax_table_section_delta_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-section-delta-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-section-delta-2026-05.tsv",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_fused_softmax_table_section_delta_gate",
     "just gate-fast",
     "just gate"
   ]
