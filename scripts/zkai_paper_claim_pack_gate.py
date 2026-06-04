@@ -54,6 +54,7 @@ NON_CLAIMS = [
     "not production-ready",
     "not Starknet deployed",
     "not a stable upstream Stwo proof wire format",
+    "not a Stwo fork or upstream Stwo optimization",
     "not recursion or PCD",
     "not model accuracy, perplexity, tokenizer, weight-import, or runtime evidence",
 ]
@@ -65,6 +66,7 @@ BLOCKERS = [
     "model-faithful quantized attention is bridged only for the checked d8 fixture trace",
     "production Starknet verifier packaging, calldata/accounting, and deployment gates are not complete",
     "no full transformer runtime, tokenizer/model-weight import, or accuracy/perplexity gate is bound",
+    "Stwo-AI backend specialization remains future work until repeated verifier-bound gains appear on the same surfaces",
 ]
 
 NO_GO_POSTURE = [
@@ -113,6 +115,11 @@ EVIDENCE_REFS = [
         "id": "model_faithful_bridge",
         "path": "docs/engineering/evidence/zkai-attention-kv-model-faithful-quantized-attention-bridge-2026-05.json",
         "supports": "checked equivalence between model-facing integer attention policy and the d8 fixture trace",
+    },
+    {
+        "id": "stwo_ai_layout_diagnostic",
+        "path": "docs/engineering/evidence/zkai-stwo-ai-d64-four-head-seq64-chunk4-policy-gate-2026-06.json",
+        "supports": "verifier-bound route-layout diagnostic showing Stwo-AI remains future backend-specialization work",
     },
 ]
 
@@ -267,9 +274,11 @@ def build_payload() -> dict[str, Any]:
         "thesis_id": THESIS_ID,
         "claim_boundary": CLAIM_BOUNDARY,
         "thesis": (
-            "Checked Stwo evidence supports a paper-facing architecture claim: bounded integer attention "
-            "arithmetic and Softmax-table LogUp membership can be fused into one native STARK proof object, "
-            "sharing proof-system commitment and opening plumbing across the arithmetic and lookup-heavy parts."
+            "Checked proofs generated on the existing Stwo backend support a paper-facing architecture claim: "
+            "bounded integer attention arithmetic and Softmax-table LogUp membership can be fused into one "
+            "native STARK proof object, sharing proof-system commitment and opening plumbing across the "
+            "arithmetic and lookup-heavy parts. The claim is about STARK-native boundary placement, not an "
+            "upstream Stwo optimization."
         ),
         "paper_claims": [
             (
@@ -288,6 +297,10 @@ def build_payload() -> dict[str, Any]:
                 "A model-facing quantized attention policy is checked equivalent to the existing d8 bounded "
                 "Softmax-table fixture trace at the trace boundary."
             ),
+            (
+                "Stwo-AI backend specialization is future work informed by opening, decommitment, table-identity, "
+                "and layout evidence, not a premise of the current proof-size result."
+            ),
         ],
         "evidence_refs": list(EVIDENCE_REFS),
         "go_posture": [
@@ -299,6 +312,7 @@ def build_payload() -> dict[str, Any]:
             "machine-readable gates reject overclaim and evidence-drift mutations",
             "timing evidence is separated from proof-size evidence",
             "model-facing quantized policy is bridge-checked before runtime integration",
+            "Stwo-AI diagnostic evidence is kept out of the headline proof-size claim",
         ],
         "no_go_posture": list(NO_GO_POSTURE),
         "non_claims": list(NON_CLAIMS),

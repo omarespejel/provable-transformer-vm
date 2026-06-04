@@ -12,12 +12,13 @@ The current evidence supports a bounded paper-facing thesis:
 This is a proof-architecture claim over checked bounded integer attention
 fixtures. It is not a claim about exact real-valued Softmax, full model
 inference, public benchmark performance, production readiness, recursion, PCD,
-or Starknet deployment.
+Starknet deployment, or upstream Stwo optimization.
 
 ## Defensible Claims
 
-1. Native Stwo evidence now checks source arithmetic, LogUp sidecar, and fused
-   proof objects for a controlled Softmax-table route family.
+1. Unmodified Stwo-backed evidence now checks source arithmetic, LogUp sidecar,
+   and fused proof objects for a controlled Softmax-table route family. The
+   contribution is the STARK-native boundary, not a Stwo fork.
 2. The checked route matrix has twelve matched rows across width, head-count,
    sequence-length, and combined-axis profiles, with fused proof bytes smaller
    than source-plus-sidecar proof bytes in each row.
@@ -48,6 +49,8 @@ or Starknet deployment.
   `docs/engineering/evidence/zkai-attention-kv-stwo-native-two-head-seq32-fused-softmax-table-gate-2026-05.json`
 - Model-faithful bridge:
   `docs/engineering/evidence/zkai-attention-kv-model-faithful-quantized-attention-bridge-2026-05.json`
+- Stwo-AI layout diagnostic:
+  `docs/engineering/evidence/zkai-stwo-ai-d64-four-head-seq64-chunk4-policy-gate-2026-06.json`
 - Machine-readable claim pack:
   `docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json`
 
@@ -86,6 +89,9 @@ GO:
   plumbing.
 - Say the d8 fixture now has a checked model-facing quantized-attention bridge
   at the trace boundary.
+- Say Stwo-AI remains future backend-specialization work around openings,
+  decommitments, table identity, and layout, not an assumption behind the current
+  result.
 
 NO-GO:
 
@@ -96,6 +102,8 @@ NO-GO:
 - Do not describe the local accounting stream as upstream Stwo proof
   serialization.
 - Do not claim backend-internal source-vs-lookup byte attribution.
+- Do not describe this as a Stwo fork, upstream Stwo patch, SIMD improvement, or
+  custom Stwo-AI prover result.
 
 ## Blockers
 
@@ -110,6 +118,8 @@ NO-GO:
    and adversarial integration hardening remain incomplete.
 6. No tokenizer/model-weight import, full runtime, accuracy, or perplexity gate
    is bound.
+7. Stwo-AI backend specialization remains a future-work agenda until it produces
+   repeated verifier-bound gains on the same surfaces.
 
 ## Validation
 
