@@ -24,7 +24,7 @@
     {
       "id": "section_delta",
       "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-section-delta-2026-05.json",
-      "supports": "opening/decommitment dominated JSON section-delta savings"
+      "supports": "opening-bucket dominated JSON section-delta savings with FRI proof and decommitment sections"
     },
     {
       "id": "typed_size_estimate",
@@ -55,6 +55,11 @@
       "id": "stwo_ai_layout_diagnostic",
       "path": "docs/engineering/evidence/zkai-stwo-ai-d64-four-head-seq64-chunk4-policy-gate-2026-06.json",
       "supports": "verifier-bound route-layout diagnostic showing Stwo-AI remains future backend-specialization work"
+    },
+    {
+      "id": "paper_release_manifest",
+      "path": "docs/paper/evidence/stark-native-transformer-paper-release-manifest-2026-06.json",
+      "supports": "paper release provenance, artifact digests, fixed proof-configuration caveat, and launch-gate commands"
     }
   ],
   "go_criteria_satisfied": [
@@ -125,19 +130,21 @@
   "paper_claims": [
     "One checked proof object can bind attention arithmetic and statement-bound Softmax-table membership for the same bounded fixture family.",
     "Matched source-plus-sidecar controls show proof-object byte savings across checked width, head-count, sequence-length, and combined-axis profiles.",
-    "Section-delta and typed-component evidence both point to shared opening and decommitment structure as the dominant source of savings.",
+    "Section-delta and typed-component evidence both point to shared opening-bucket structure as the dominant source of savings.",
     "A model-facing quantized attention policy is checked equivalent to the existing d8 bounded Softmax-table fixture trace at the trace boundary.",
     "Stwo-AI backend specialization is future work informed by opening, decommitment, table-identity, and layout evidence, not a premise of the current proof-size result."
   ],
-  "payload_commitment": "sha256:1937017bbdcf8eca3bd457f15dfb759e99b6009bf1855cc01a7737d9c2d81a8a",
+  "payload_commitment": "sha256:71f73ffb2ac2d1a8ce4d55ab3e10cdef6c26d02c4495dd417f0138f2f517602f",
   "schema": "stark-native-transformer-paper-claim-pack-v1",
   "thesis": "Checked proofs generated on the existing Stwo backend support a paper-facing architecture claim: bounded integer attention arithmetic and Softmax-table LogUp membership can be fused into one native STARK proof object, sharing proof-system commitment and opening plumbing across the arithmetic and lookup-heavy parts. The claim is about STARK-native boundary placement, not an upstream Stwo optimization.",
   "thesis_id": "stark_native_attention_arithmetic_softmax_table_fusion",
   "validation_commands": [
-    "just gate-fast",
-    "python3 scripts/zkai_paper_claim_pack_gate.py --write-json docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
-    "python3 -m unittest scripts.tests.test_zkai_paper_claim_pack_gate",
+    "python3.10 scripts/zkai_paper_claim_pack_gate.py --write-json docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
+    "python3.10 -m py_compile scripts/zkai_paper_claim_pack_gate.py scripts/tests/test_zkai_paper_claim_pack_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_paper_claim_pack_gate",
+    "python3.10 scripts/paper/paper_preflight.py --repo-root .",
+    "scripts/run_paper_preflight_suite.sh",
     "git diff --check",
-    "just gate"
+    "git diff --exit-code docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md"
   ]
 }

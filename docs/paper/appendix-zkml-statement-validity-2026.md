@@ -113,6 +113,26 @@ surface and its proof artifacts. A full zkML receipt would extend the same
 pattern to the model checkpoint, tokenizer, input provenance, deployment policy,
 and event that downstream software is allowed to act on.
 
+The word "bind" has to be read carefully. A field is cryptographically
+hard-bound only when it is part of the verifier public input or part of a
+commitment that the verifier public input checks. Metadata carried beside the
+proof is useful for audit and replay, but it is advisory unless the verifier
+statement commits to it.
+
+For the checked proof-pressure artifacts, the current binding surface is:
+
+| field | hard-bound verifier input in current artifact? | current binding method | advisory if not hard-bound? |
+|---|---:|---|---:|
+| Model identity | no, not for a full model checkpoint | scoped model-surface identifiers and source handles in the typed envelope | yes |
+| Input identity | yes, for scoped fixture commitments | public-instance and statement commitments for the checked source surface | no for scoped fixture; yes for full prompt provenance |
+| Output identity | yes, for scoped output commitments | public-instance and statement commitments for the checked output surface | no for scoped output; yes for decoded-token claims |
+| Numeric policy | yes, for the implemented bounded integer policy | table identity, range policy, and numeric-policy fields in the checked statement surface | yes for broader deployment semantics |
+| Verifier domain | yes, for the checked proof domain | verifier-domain and proof-backend identifiers in the typed statement surface | no for the scoped proof domain |
+| Deployment claim | no | no production deployment event is hard-bound | yes |
+
+Fields marked advisory should not be described as part of the verified
+application statement in the current artifacts.
+
 ---
 
 ## 4. Example: Verifying the Wrong Claim
@@ -177,6 +197,12 @@ the raw proof verifies. It should accept only when both conditions hold:
 
 This rule is deliberately simple. Its purpose is to prevent a category error:
 using proof verification as if it were a complete application statement.
+
+The proof-size measurements in the companion paper concern boundary placement
+and proof material. They do not by themselves establish an application-level
+inference statement. An application-level statement is hard-bound only to the
+extent that verifier public inputs bind the model identity, input identity,
+output identity, numeric policy, verifier domain, and deployment claim.
 
 ---
 

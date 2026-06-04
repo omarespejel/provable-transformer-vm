@@ -1,4 +1,4 @@
-# Proof-Pressure Boundaries for STARK-Native Transformer Inference
+# Proof-Pressure Boundaries for Scoped STARK-Native Transformer Surfaces
 
 **Omar Espejel**  
 Starknet Foundation
@@ -10,57 +10,26 @@ StarkWare
 
 ## Abstract
 
-A common question in zkML is whether a proof system can handle an entire model,
-or whether one framework has a better headline proof size. This paper studies a
-narrower architectural question: where should the proof boundary be placed
-inside transformer inference?
+Where a proof system draws statement boundaries can dominate proof-size behavior
+for transformer-shaped workloads. We study scoped attention surfaces implemented
+over an unmodified Stwo STARK backend and compare fused against split boundary
+placements under a fixed experimental configuration: proof-of-work `10`, FRI log
+blowup `1`, FRI query count `3`, and fold step `1`.
 
-We evaluate STARK-native attention surfaces built over bounded integer
-transformer fixtures. The core experiment compares one fused proof object for
-attention arithmetic plus Softmax-table membership against a matched split
-frontier consisting of a source arithmetic proof and a LogUp sidecar proof. The
-headline byte columns are serialized Stwo proof-payload bytes recorded inside
-the checked envelopes or checked gate records, not full envelope JSON size and
-not a stable upstream binary wire-format claim.
+Across the checked profiles, fusion reduces proof bytes mainly by sharing
+proof-plumbing material around lookup-heavy work. In the measured sequence-axis
+profiles, lookup and trace work grow much faster than fused proof payload bytes:
+from `seq32` to `seq64`, lookup claims grow `3.729730x` and trace rows grow
+`4.000000x`, while fused proof payload bytes grow only `1.064910x` to
+`1.080697x`. The split frontier is also sublinear, as expected for STARK proofs,
+so the positive result is that the fused boundary remains the lower proof-byte
+frontier against the matched source-plus-sidecar comparator.
 
-On four sequence-axis rows, moving from `seq32` to `seq64` grows lookup claims
-by `3.729730x` and trace rows by `4.000000x`, while fused proof payload bytes
-grow only `1.064910x` to `1.080697x`. The split frontier is also sublinear, as
-expected for STARK proofs. The fusion result is that the fused object keeps the
-lower proof-size frontier against the matched source-plus-sidecar comparator,
-with fused ratios from `0.875605x` to `0.922792x` on those rows. Local
-median-of-five timing on the measured `d64` sequence rows grows near the work
-axis, so the result is proof-size amortization rather than a proving-speed
-result.
-
-The mechanism is visible in artifact accounting. In an eleven-profile attention
-plus LogUp serialized proof-section slice, now including the
-`d64_four_head_seq64` decision-gate row, `93.3903%` of saved serialized proof
-bytes came from the opening bucket, dominated by FRI proof and decommitment
-material. In an attention-derived `d128` MLP-side typed-accounting slice,
-`90.5135%` of saved typed bytes came from opening and decommitment plumbing.
-These are artifact-level accounting results, not backend-internal semantic byte
-labels. They support a bounded thesis: transformer proving should choose
-boundaries around actual proof pressure. STARK-native fusion is useful where it
-shares commitment, opening, and decommitment structure; width-heavy dense
-arithmetic may need different boundaries or side protocols.
-
-The implementation vehicle in these experiments is Stwo, but the result is not
-a Stwo-optimization result. The checked proofs use the existing Stwo backend
-surface; the main intervention is where transformer work is placed inside a
-STARK proof object. This leaves room for later Stwo-AI work on opening layout,
-table grouping, and query planning, while keeping the current claim about
-STARK-native boundary architecture.
-
-The paper also separates proof validity from statement validity. A proof can
-verify while the application misstates the model, input, output, numeric policy,
-verifier domain, or deployment event that the proof is allowed to mean. We
-therefore treat typed statement envelopes, in the Tablero style, as a correctness
-layer around proof artifacts rather than as a performance decoration.
-
-The scope is deliberately limited to proof-boundary behavior on scoped
-transformer surfaces. It is not presented as full LLM inference, an external
-system benchmark, or a proof-family dominance claim.
+The result is not a full transformer inference proof, an exact real-valued
+Softmax proof, a Stwo optimization, a proving-speed claim, or a comparison with
+zkML systems. It is evidence for a narrower design rule: choose STARK-native
+transformer proof boundaries around proof pressure, while treating statement
+validity as a separate typed-boundary problem.
 
 ---
 
@@ -85,6 +54,19 @@ cost rather than by source-code convenience or layer naming. A proof-pressure
 boundary asks where the proof object pays for commitments, openings,
 decommitments, queries, and statement plumbing, then chooses the boundary that
 avoids paying the same expensive structure twice.
+
+We use **proof pressure** to mean the parts of a workload that
+disproportionately contribute to proof material: commitments, openings,
+decommitments, FRI material, lookup arguments, trace growth, and statement
+plumbing. A proof-pressure boundary is a statement boundary chosen to share or
+isolate this material deliberately.
+
+The evaluated surfaces are attention-shaped subcomputations. They do not
+constitute a full transformer inference proof and do not include all model
+components required for an end-to-end deployment claim, such as embeddings,
+layer normalization, MLP blocks, activation policy, residual paths, KV-cache
+policy, tokenizer and input canonicalization, exact output decoding, and
+deployment binding.
 
 The main empirical result is intentionally narrow. In the attention
 experiments, fusing bounded attention arithmetic with Softmax-table membership
@@ -207,9 +189,11 @@ as the same object as the serialized Stwo proof payload.
 
 The split frontier is computed as source proof payload bytes plus sidecar proof
 payload bytes. The sidecar is an actual generated LogUp proof artifact in the
-checked rows, not an estimate. The raw checked envelopes for the smaller
-sequence rows parse to the same proof configuration on source, sidecar, and
-fused routes:
+checked rows, not an estimate. The route-matrix evidence uses the same fixed
+experimental configuration across the checked fused and split rows; the only
+intended experimental variable is boundary placement. The raw checked envelopes
+for the tracked rows parse to the following configuration on source, sidecar,
+and fused routes:
 
 | parameter | value |
 |---|---:|
@@ -222,12 +206,15 @@ fused routes:
 
 This is important for interpretation. A proof-size saving under the same backend
 configuration is evidence about boundary placement and shared STARK plumbing,
-not evidence that a private prover fork made the byte count smaller. Stwo's
-public documentation describes a `StarkProof` as containing commitments,
-openings, and FRI proof material [10], and its polynomial commitment scheme
-requires Merkle decommitments for verifier queries [11]. The mechanism measured
-below is therefore exactly the kind of mechanism a STARK proof object pays for:
-commit, open, decommit, and carry FRI witness material.
+not evidence that a private prover fork made the byte count smaller. The
+measurements use this fixed experimental Stwo configuration to isolate
+boundary-placement effects. They are not presented as a production-security
+parameter recommendation. Stwo's public documentation describes a `StarkProof`
+as containing commitments, openings, and FRI proof material [10], and its
+polynomial commitment scheme requires Merkle decommitments for verifier queries
+[11]. The mechanism measured below is therefore exactly the kind of mechanism a
+STARK proof object pays for: commit, open, decommit, and carry FRI witness
+material.
 
 The large `d128_h4_seq64` row is represented by checked gate and route-matrix
 evidence with proof commitments, exact byte counts, mutation rejection, and
@@ -274,7 +261,7 @@ Figure 1 shows the central result. Across four sequence-axis rows, lookup claims
 and trace rows grow by about four times from `seq32` to `seq64`, while fused
 proof payload bytes grow only about `1.06x` to `1.08x`.
 
-![Figure 1: Growth in lookup claims and trace rows versus growth in fused proof payload bytes.](figures/proof-pressure-growth-factors-2026-05.svg)
+![Figure 1: Sequence-axis profiles only; fixed experimental Stwo configuration; proof bytes only; no proving-time or verifier-time claim.](figures/proof-pressure-growth-factors-2026-05.svg)
 
 This is the proof-size signal. It does not say the prover did four times less
 work. It also does not say the split proof frontier grows linearly with trace
@@ -313,7 +300,7 @@ Figure 2 plots the fused proof payload bytes divided by the matched split fronti
 the slope rows. Values below `1.0` mean the fused boundary is smaller than the
 split comparator on proof bytes.
 
-![Figure 2: Fused proof payload bytes divided by the matched split proof frontier across head, sequence, and width stress rows.](figures/proof-pressure-boundary-selection-2026-05.svg)
+![Figure 2: Fused proof payload bytes divided by the matched split proof frontier under the fixed experimental Stwo configuration; values below 1.0 mean the fused boundary is smaller on proof bytes.](figures/proof-pressure-boundary-selection-2026-05.svg)
 
 The head and sequence rows show the cleanest proof-size amortization. Width
 growth is different. The `d128` to `d256` two-head `seq32` row still saves
@@ -344,7 +331,7 @@ eleven-row attention plus LogUp serialized section-delta analysis, including the
 `d64_four_head_seq64` decision-gate row. The second is an attention-derived
 `d128` MLP-side typed-accounting analysis.
 
-![Figure 3: Saved bytes are dominated by opening and decommitment material in two checked attribution streams.](figures/proof-pressure-opening-mechanism-2026-05.svg)
+![Figure 3: Saved bytes are dominated by opening-bucket material in checked attribution streams; the attention slice separates FRI proof and decommitment sections.](figures/proof-pressure-opening-mechanism-2026-05.svg)
 
 In the attention plus LogUp serialized proof-section slice:
 
@@ -360,6 +347,13 @@ The opening bucket itself splits into `129,316` bytes of FRI proof saving and
 alone saves `39,282` proof payload bytes; `37,827` of those bytes are in the
 opening bucket, split between `27,012` bytes of FRI proof saving and `10,815`
 bytes of decommitment saving.
+
+| attention section-delta category | bytes saved | share of total saving |
+|---|---:|---:|
+| FRI proof material | `129,316` | `57.7412%` |
+| Decommitment material | `79,839` | `35.6491%` |
+| Other proof material | `14,803` | `6.6097%` |
+| Total | `223,958` | `100.0000%` |
 
 In the attention-derived `d128` MLP-side typed-accounting slice:
 
@@ -417,9 +411,33 @@ AI receipts because the receipt may be consumed by a policy engine, market, DAO,
 agent, defense workflow, or compliance process that reads more meaning into the
 artifact than the proof itself binds.
 
+The proof-size measurements in this paper concern boundary placement and proof
+material. They do not by themselves establish an application-level inference
+statement. An application-level statement is hard-bound only to the extent that
+the verifier public inputs bind the model identity, input identity, output
+identity, numeric policy, verifier domain, and deployment claim. Metadata outside
+those public inputs is advisory envelope metadata, not part of the
+cryptographically verified statement.
+
+For the checked artifacts in this paper, the current binding surface is:
+
+| field | hard-bound verifier input in current artifact? | current binding method | advisory if not hard-bound? |
+|---|---:|---|---:|
+| Model identity | no, not for a full model checkpoint | scoped model-surface identifiers and source handles in the typed envelope | yes |
+| Input identity | yes, for scoped fixture commitments | public-instance and statement commitments for the checked source surface | no for scoped fixture; yes for full prompt provenance |
+| Output identity | yes, for scoped output commitments | public-instance and statement commitments for the checked output surface | no for scoped output; yes for decoded-token claims |
+| Numeric policy | yes, for the implemented bounded integer policy | table identity, range policy, and numeric-policy fields in the checked statement surface | yes for broader deployment semantics |
+| Verifier domain | yes, for the checked proof domain | verifier-domain and proof-backend identifiers in the typed statement surface | no for the scoped proof domain |
+| Deployment claim | no | no production deployment event is hard-bound | yes |
+
+Fields marked advisory should not be described as part of the verified
+application statement. They are useful envelope metadata for audit and replay,
+but they are not the same as verifier public input.
+
 We use **Tablero** as the typed statement-boundary layer around proof artifacts.
 In this context, Tablero is not the performance result. It is the correctness
-envelope. It binds proof bytes to the statement they are allowed to mean:
+envelope. It separates hard-bound verifier inputs from advisory envelope
+metadata, so downstream software can tell what the proof is allowed to mean:
 verifier domain, source handles, model surface, input and output commitments,
 numeric policy, table identity, replay dependencies, and scope metadata.
 
@@ -448,13 +466,15 @@ different deployment and proof-system surfaces for verifiable computation
 These systems motivate, rather than settle, the boundary-selection question
 studied here. Their public artifacts do not expose the same scoped object as the
 fused attention plus Softmax-table boundary in this paper, so the paper does not
-rank them by headline proof size. In this draft, NANOZK, Jolt Atlas, and
-zkLLM/zkAttn are treated as paper-reported related work; DeepProve is treated as
-docs-reported related work; and EZKL, RISC Zero, SP1, and Stwo are treated as
-docs or source-reported infrastructure references. The comparison is
-architectural: many zkML systems are already choosing specialized proof
-boundaries, and the evidence here shows one STARK-native boundary where
-lookup-heavy attention work amortizes proof bytes.
+rank them by headline proof size. We do not present a system-level comparison
+against NANOZK, Jolt Atlas, DeepProve, zkLLM, EZKL, RISC Zero, SP1, or other
+zkML systems. The contribution is an intra-backend boundary-placement study. In
+this draft, NANOZK, Jolt Atlas, and zkLLM/zkAttn are treated as paper-reported
+related work; DeepProve is treated as docs-reported related work; and EZKL,
+RISC Zero, SP1, and Stwo are treated as docs or source-reported infrastructure
+references. The comparison is architectural: many zkML systems are already
+choosing specialized proof boundaries, and the evidence here shows one
+STARK-native boundary where lookup-heavy attention work amortizes proof bytes.
 
 The Stwo comparison is different from the NANOZK or Jolt Atlas comparison
 because Stwo is the backend used by the artifacts, not an external zkML system
@@ -472,14 +492,19 @@ for transformer-shaped STARK workloads, not as a premise of the current result.
 The scope of the result is limited in several ways.
 
 1. **Inference scope.** The artifacts are scoped transformer-shaped
-   surfaces, not full autoregressive LLM inference.
+   surfaces, not full autoregressive LLM inference. They do not include
+   embeddings, full layer normalization, full MLP blocks, activation policy for
+   a deployed model, residual-path integration, KV-cache policy, tokenizer or
+   prompt canonicalization, exact output decoding, or deployment binding.
 2. **Transformer-block scope.** The paper does not claim a complete production
    block proof with imported weights, tokenizer behavior, residual policy, and
    standard model semantics.
-3. **Softmax semantics.** The attention surfaces use bounded integer
-   policies and Softmax-table membership.
-4. **Timing.** The strongest positive result is proof-size amortization. Timing
-   rows are included to distinguish size behavior from proving-speed behavior.
+3. **Softmax semantics.** The measurements concern the proof boundaries around
+   scoped attention surfaces under the implemented numeric policy. They do not
+   establish exact real-valued Softmax semantics.
+4. **Timing.** We report proof-byte behavior. We do not claim a proving-time,
+   memory-use, verifier-time, or hardware-efficiency breakthrough. Timing rows
+   are included to distinguish size behavior from proving-speed behavior.
 5. **Proof-family scope.** The result is evidence for a
    STARK-native boundary strategy, not a universal proof-family dominance claim.
 6. **External benchmarks.** NANOZK, DeepProve, Jolt Atlas, zkLLM, EZKL,
@@ -515,6 +540,15 @@ for it.
 Use a Python environment with the paper dependencies installed from
 `scripts/requirements.txt` before running the figure scripts. The evidence gates
 below use `python3.10`.
+
+The release audit packet is
+`docs/paper/PAPER_RELEASE_AUDIT_PACKET_2026_06_04.md`. The machine-readable
+release manifest is
+`docs/paper/evidence/stark-native-transformer-paper-release-manifest-2026-06.json`.
+It records the correct repository namespace, artifact SHA-256 digests, the fixed
+experimental Stwo configuration, and the launch-gate command list. For public
+launch, run the commands below on the final merged release commit and record that
+regeneration produced no diff against the committed paper artifacts.
 
 The figure source is `scripts/paper/generate_proof_pressure_boundaries_figures.py`.
 It reads the checked TSV artifacts listed in Section 3 and writes the paper
@@ -580,6 +614,30 @@ MLP-side attribution:
 python3.10 scripts/zkai_attention_derived_d128_mlp_fusion_attribution_gate.py \
   --write-json docs/engineering/evidence/zkai-attention-derived-d128-mlp-fusion-attribution-2026-05.json \
   --write-tsv docs/engineering/evidence/zkai-attention-derived-d128-mlp-fusion-attribution-2026-05.tsv
+```
+
+Paper claim-pack and no-drift release checks:
+
+```bash
+python3.10 scripts/zkai_paper_claim_pack_gate.py \
+  --write-json docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json
+
+python3.10 -m py_compile \
+  scripts/zkai_paper_claim_pack_gate.py \
+  scripts/tests/test_zkai_paper_claim_pack_gate.py
+
+python3.10 -m unittest scripts.tests.test_zkai_paper_claim_pack_gate
+
+python3.10 scripts/paper/paper_preflight.py --repo-root .
+
+scripts/run_paper_preflight_suite.sh
+
+git diff --check
+
+git diff --exit-code \
+  docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json \
+  docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md \
+  docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md
 ```
 
 ---

@@ -35,6 +35,30 @@ class PaperClaimPackGateTests(unittest.TestCase):
         route_path = gate.ROOT / route_ref["path"]
         return json.loads(route_path.read_text(encoding="utf-8"))
 
+    def release_manifest_payload_with(self, manifest_data):
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=gate.ROOT / "docs" / "paper" / "evidence",
+            prefix="claim-pack-release-manifest-drift-",
+            suffix=".json",
+            delete=False,
+        ) as handle:
+            json.dump(manifest_data, handle, sort_keys=True)
+            handle.flush()
+            path = gate.pathlib.Path(handle.name)
+        mutated = copy.deepcopy(self.payload)
+        next(ref for ref in mutated["evidence_refs"] if ref["id"] == "paper_release_manifest")[
+            "path"
+        ] = path.relative_to(gate.ROOT).as_posix()
+        mutated["payload_commitment"] = gate.payload_commitment(mutated)
+        return mutated, path
+
+    def release_manifest_data(self):
+        manifest_ref = next(ref for ref in self.payload["evidence_refs"] if ref["id"] == "paper_release_manifest")
+        manifest_path = gate.ROOT / manifest_ref["path"]
+        return json.loads(manifest_path.read_text(encoding="utf-8"))
+
     def test_binds_narrow_thesis_and_non_claims(self):
         self.assertEqual(self.payload["decision"], gate.DECISION)
         self.assertIn("STARK-native proof-architecture", self.payload["go_posture"][0])
@@ -132,6 +156,26 @@ class PaperClaimPackGateTests(unittest.TestCase):
         mutated, path = self.route_matrix_payload_with(route_data)
         try:
             with self.assertRaisesRegex(gate.ClaimPackGateError, "must be finite"):
+                gate.validate_payload(mutated)
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_rejects_release_manifest_digest_drift_even_when_commitment_is_refreshed(self):
+        manifest_data = self.release_manifest_data()
+        manifest_data["artifact_digests"][0]["sha256"] = "0" * 64
+        mutated, path = self.release_manifest_payload_with(manifest_data)
+        try:
+            with self.assertRaisesRegex(gate.ClaimPackGateError, "sha256 drift"):
+                gate.validate_payload(mutated)
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_rejects_release_manifest_config_drift_even_when_commitment_is_refreshed(self):
+        manifest_data = self.release_manifest_data()
+        manifest_data["fixed_experimental_stwo_config"]["fri_query_count"] = 4
+        mutated, path = self.release_manifest_payload_with(manifest_data)
+        try:
+            with self.assertRaisesRegex(gate.ClaimPackGateError, "fixed config drift"):
                 gate.validate_payload(mutated)
         finally:
             path.unlink(missing_ok=True)
