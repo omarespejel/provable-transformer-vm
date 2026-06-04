@@ -126,6 +126,16 @@ class PaperClaimPackGateTests(unittest.TestCase):
         finally:
             path.unlink(missing_ok=True)
 
+    def test_rejects_route_matrix_non_finite_ratio_even_when_commitment_is_refreshed(self):
+        route_data = self.route_matrix_data()
+        route_data["route_rows"][0]["fused_to_source_plus_sidecar_ratio"] = float("nan")
+        mutated, path = self.route_matrix_payload_with(route_data)
+        try:
+            with self.assertRaisesRegex(gate.ClaimPackGateError, "must be finite"):
+                gate.validate_payload(mutated)
+        finally:
+            path.unlink(missing_ok=True)
+
     def test_rejects_symlinked_evidence_parent_even_when_commitment_is_refreshed(self):
         with tempfile.TemporaryDirectory() as tmp:
             outside_dir = gate.pathlib.Path(tmp) / "outside"
