@@ -11,53 +11,36 @@ class PaperClaimPackGateTests(unittest.TestCase):
         self.payload = gate.build_payload()
         gate.validate_payload(self.payload)
 
+    def evidence_ref_path(self, ref_id):
+        ref = next(ref for ref in self.payload["evidence_refs"] if ref["id"] == ref_id)
+        return gate.ROOT / ref["path"]
+
+    def replace_evidence_ref_data(self, ref_id, data):
+        path = self.evidence_ref_path(ref_id)
+        original_text = path.read_text(encoding="utf-8")
+        path.write_text(json.dumps(data, sort_keys=True), encoding="utf-8")
+        return path, original_text
+
+    def restore_evidence_ref_data(self, path, original_text):
+        path.write_text(original_text, encoding="utf-8")
+
     def route_matrix_payload_with(self, route_data):
-        with tempfile.NamedTemporaryFile(
-            mode="w",
-            encoding="utf-8",
-            dir=gate.ROOT / "docs" / "engineering" / "evidence",
-            prefix="claim-pack-route-matrix-drift-",
-            suffix=".json",
-            delete=False,
-        ) as handle:
-            json.dump(route_data, handle, sort_keys=True)
-            handle.flush()
-            path = gate.pathlib.Path(handle.name)
         mutated = copy.deepcopy(self.payload)
-        next(ref for ref in mutated["evidence_refs"] if ref["id"] == "route_matrix")["path"] = path.relative_to(
-            gate.ROOT
-        ).as_posix()
         mutated["payload_commitment"] = gate.payload_commitment(mutated)
-        return mutated, path
+        path, original_text = self.replace_evidence_ref_data("route_matrix", route_data)
+        return mutated, path, original_text
 
     def route_matrix_data(self):
-        route_ref = next(ref for ref in self.payload["evidence_refs"] if ref["id"] == "route_matrix")
-        route_path = gate.ROOT / route_ref["path"]
-        return json.loads(route_path.read_text(encoding="utf-8"))
+        return json.loads(self.evidence_ref_path("route_matrix").read_text(encoding="utf-8"))
 
     def release_manifest_payload_with(self, manifest_data):
-        with tempfile.NamedTemporaryFile(
-            mode="w",
-            encoding="utf-8",
-            dir=gate.ROOT / "docs" / "paper" / "evidence",
-            prefix="claim-pack-release-manifest-drift-",
-            suffix=".json",
-            delete=False,
-        ) as handle:
-            json.dump(manifest_data, handle, sort_keys=True)
-            handle.flush()
-            path = gate.pathlib.Path(handle.name)
         mutated = copy.deepcopy(self.payload)
-        next(ref for ref in mutated["evidence_refs"] if ref["id"] == "paper_release_manifest")[
-            "path"
-        ] = path.relative_to(gate.ROOT).as_posix()
         mutated["payload_commitment"] = gate.payload_commitment(mutated)
-        return mutated, path
+        path, original_text = self.replace_evidence_ref_data("paper_release_manifest", manifest_data)
+        return mutated, path, original_text
 
     def release_manifest_data(self):
-        manifest_ref = next(ref for ref in self.payload["evidence_refs"] if ref["id"] == "paper_release_manifest")
-        manifest_path = gate.ROOT / manifest_ref["path"]
-        return json.loads(manifest_path.read_text(encoding="utf-8"))
+        return json.loads(self.evidence_ref_path("paper_release_manifest").read_text(encoding="utf-8"))
 
     def test_binds_narrow_thesis_and_non_claims(self):
         self.assertEqual(self.payload["decision"], gate.DECISION)
@@ -105,105 +88,126 @@ class PaperClaimPackGateTests(unittest.TestCase):
 
     def test_rejects_missing_evidence_even_when_commitment_is_refreshed(self):
         mutated = copy.deepcopy(self.payload)
-        mutated["evidence_refs"][0]["path"] = "docs/engineering/evidence/does-not-exist.json"
         mutated["payload_commitment"] = gate.payload_commitment(mutated)
-        with self.assertRaisesRegex(gate.ClaimPackGateError, "missing evidence path"):
-            gate.validate_payload(mutated)
+        path = self.evidence_ref_path("route_matrix")
+        backup_path = path.with_suffix(path.suffix + ".claim-pack-test-backup")
+        path.rename(backup_path)
+        try:
+            with self.assertRaisesRegex(gate.ClaimPackGateError, "missing evidence path"):
+                gate.validate_payload(mutated)
+        finally:
+            backup_path.rename(path)
 
     def test_rejects_route_matrix_row_count_drift_even_when_commitment_is_refreshed(self):
         route_data = self.route_matrix_data()
         route_data["route_rows"] = route_data["route_rows"][:-1]
-        mutated, path = self.route_matrix_payload_with(route_data)
+        mutated, path, original_text = self.route_matrix_payload_with(route_data)
         try:
             with self.assertRaisesRegex(gate.ClaimPackGateError, "route_matrix row count"):
                 gate.validate_payload(mutated)
         finally:
-            path.unlink(missing_ok=True)
+            self.restore_evidence_ref_data(path, original_text)
 
     def test_rejects_route_matrix_missing_required_field_even_when_commitment_is_refreshed(self):
         route_data = self.route_matrix_data()
         del route_data["route_rows"][0]["fused_proof_size_bytes"]
-        mutated, path = self.route_matrix_payload_with(route_data)
+        mutated, path, original_text = self.route_matrix_payload_with(route_data)
         try:
             with self.assertRaisesRegex(gate.ClaimPackGateError, "fused_proof_size_bytes"):
                 gate.validate_payload(mutated)
         finally:
-            path.unlink(missing_ok=True)
+            self.restore_evidence_ref_data(path, original_text)
 
     def test_rejects_route_matrix_row_arithmetic_drift_even_when_commitment_is_refreshed(self):
         route_data = self.route_matrix_data()
         route_data["route_rows"][0]["fused_saves_vs_source_plus_sidecar_bytes"] += 1
-        mutated, path = self.route_matrix_payload_with(route_data)
+        mutated, path, original_text = self.route_matrix_payload_with(route_data)
         try:
             with self.assertRaisesRegex(gate.ClaimPackGateError, "saving mismatch"):
                 gate.validate_payload(mutated)
         finally:
-            path.unlink(missing_ok=True)
+            self.restore_evidence_ref_data(path, original_text)
 
     def test_rejects_route_matrix_ratio_drift_even_when_commitment_is_refreshed(self):
         route_data = self.route_matrix_data()
         route_data["route_rows"][0]["fused_to_source_plus_sidecar_ratio"] += 0.01
-        mutated, path = self.route_matrix_payload_with(route_data)
+        mutated, path, original_text = self.route_matrix_payload_with(route_data)
         try:
             with self.assertRaisesRegex(gate.ClaimPackGateError, "ratio mismatch"):
                 gate.validate_payload(mutated)
         finally:
-            path.unlink(missing_ok=True)
+            self.restore_evidence_ref_data(path, original_text)
 
     def test_rejects_route_matrix_non_finite_ratio_even_when_commitment_is_refreshed(self):
         route_data = self.route_matrix_data()
         route_data["route_rows"][0]["fused_to_source_plus_sidecar_ratio"] = float("nan")
-        mutated, path = self.route_matrix_payload_with(route_data)
+        mutated, path, original_text = self.route_matrix_payload_with(route_data)
         try:
             with self.assertRaisesRegex(gate.ClaimPackGateError, "must be finite"):
                 gate.validate_payload(mutated)
         finally:
-            path.unlink(missing_ok=True)
+            self.restore_evidence_ref_data(path, original_text)
 
     def test_rejects_release_manifest_digest_drift_even_when_commitment_is_refreshed(self):
         manifest_data = self.release_manifest_data()
         manifest_data["artifact_digests"][0]["sha256"] = "0" * 64
-        mutated, path = self.release_manifest_payload_with(manifest_data)
+        mutated, path, original_text = self.release_manifest_payload_with(manifest_data)
         try:
             with self.assertRaisesRegex(gate.ClaimPackGateError, "sha256 drift"):
                 gate.validate_payload(mutated)
         finally:
-            path.unlink(missing_ok=True)
+            self.restore_evidence_ref_data(path, original_text)
 
     def test_rejects_release_manifest_config_drift_even_when_commitment_is_refreshed(self):
         manifest_data = self.release_manifest_data()
         manifest_data["fixed_experimental_stwo_config"]["fri_query_count"] = 4
-        mutated, path = self.release_manifest_payload_with(manifest_data)
+        mutated, path, original_text = self.release_manifest_payload_with(manifest_data)
         try:
             with self.assertRaisesRegex(gate.ClaimPackGateError, "fixed config drift"):
                 gate.validate_payload(mutated)
         finally:
-            path.unlink(missing_ok=True)
+            self.restore_evidence_ref_data(path, original_text)
+
+    def test_rejects_missing_release_manifest_ref_even_when_commitment_is_refreshed(self):
+        mutated = copy.deepcopy(self.payload)
+        mutated["evidence_refs"] = [
+            ref for ref in mutated["evidence_refs"] if ref["id"] != "paper_release_manifest"
+        ]
+        mutated["payload_commitment"] = gate.payload_commitment(mutated)
+        with self.assertRaisesRegex(gate.ClaimPackGateError, "missing required evidence ref: paper_release_manifest"):
+            gate.validate_payload(mutated)
+
+    def test_accepts_normalized_release_manifest_artifact_paths(self):
+        manifest_data = self.release_manifest_data()
+        for artifact in manifest_data["artifact_digests"]:
+            artifact["path"] = artifact["path"].replace("/", "\\")
+        mutated, path, original_text = self.release_manifest_payload_with(manifest_data)
+        try:
+            gate.validate_payload(mutated)
+        finally:
+            self.restore_evidence_ref_data(path, original_text)
 
     def test_rejects_symlinked_evidence_parent_even_when_commitment_is_refreshed(self):
         with tempfile.TemporaryDirectory() as tmp:
             outside_dir = gate.pathlib.Path(tmp) / "outside"
             outside_dir.mkdir()
             (outside_dir / "ok.json").write_text("{}", encoding="utf-8")
-            with tempfile.NamedTemporaryFile(
-                dir=gate.ROOT / "docs" / "engineering",
-                prefix="claim-pack-evidence-link-",
-                delete=False,
-            ) as handle:
-                link = gate.pathlib.Path(handle.name)
-            link.unlink()
+            path = self.evidence_ref_path("route_matrix")
+            backup_path = path.with_suffix(path.suffix + ".claim-pack-test-backup")
+            path.rename(backup_path)
             try:
-                link.symlink_to(outside_dir, target_is_directory=True)
+                path.symlink_to(outside_dir / "ok.json")
             except OSError as err:
+                backup_path.rename(path)
                 self.skipTest(f"symlink creation is unavailable: {err}")
             try:
                 mutated = copy.deepcopy(self.payload)
-                mutated["evidence_refs"][0]["path"] = (link.relative_to(gate.ROOT) / "ok.json").as_posix()
                 mutated["payload_commitment"] = gate.payload_commitment(mutated)
                 with self.assertRaisesRegex(gate.ClaimPackGateError, "symlink components"):
                     gate.validate_payload(mutated)
             finally:
-                link.unlink(missing_ok=True)
+                path.unlink(missing_ok=True)
+                backup_path.rename(path)
 
     def test_write_json_round_trip(self):
         with tempfile.NamedTemporaryFile(

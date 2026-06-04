@@ -161,6 +161,12 @@ EXPECTED_MUTATION_NAMES = (
 
 ROUTE_MATRIX_REF_ID = "route_matrix"
 PAPER_RELEASE_MANIFEST_REF_ID = "paper_release_manifest"
+EXPECTED_EVIDENCE_REF_IDS_TO_PATHS = {
+    ref["id"]: ref["path"] for ref in EVIDENCE_REFS
+}
+EXPECTED_EVIDENCE_REF_IDS_TO_SUPPORTS = {
+    ref["id"]: ref["supports"] for ref in EVIDENCE_REFS
+}
 EXPECTED_ROUTE_MATRIX_ROW_COUNT = 30
 EXPECTED_ROUTE_MATRIX_FUSED_PROOF_BYTES_TOTAL = 6_397_632
 EXPECTED_ROUTE_MATRIX_SPLIT_PROOF_BYTES_TOTAL = 7_164_515
@@ -297,21 +303,42 @@ def _assert_evidence_paths_exist(payload: dict[str, Any]) -> None:
     refs = payload.get("evidence_refs")
     if not isinstance(refs, list) or not refs:
         raise ClaimPackGateError("evidence_refs must be a non-empty list")
+    seen_ids: set[str] = set()
     for index, ref in enumerate(refs):
         if not isinstance(ref, dict):
             raise ClaimPackGateError(f"evidence_refs[{index}] must be an object")
+        ref_id = ref.get("id")
+        if not isinstance(ref_id, str):
+            raise ClaimPackGateError(f"evidence_refs[{index}].id must be a string")
+        if ref_id in seen_ids:
+            raise ClaimPackGateError(f"duplicate evidence ref: {ref_id}")
+        seen_ids.add(ref_id)
+        expected_path = EXPECTED_EVIDENCE_REF_IDS_TO_PATHS.get(ref_id)
+        if expected_path is None:
+            raise ClaimPackGateError(f"unexpected evidence ref: {ref_id}")
         path = ref.get("path")
         if not isinstance(path, str):
             raise ClaimPackGateError(f"evidence_refs[{index}].path must be repo-relative")
-        full_path = _full_repo_path(_repo_relative_path(path, f"evidence_refs[{index}].path"))
+        relative_path = _repo_relative_path(path, f"evidence_refs[{index}].path")
+        if relative_path.as_posix() != expected_path:
+            raise ClaimPackGateError(f"evidence_refs[{index}].path drift")
+        if ref.get("supports") != EXPECTED_EVIDENCE_REF_IDS_TO_SUPPORTS[ref_id]:
+            raise ClaimPackGateError(f"evidence_refs[{index}].supports drift")
+        full_path = _full_repo_path(relative_path)
         _assert_no_repo_symlink_components(full_path, f"evidence_refs[{index}].path")
         if not full_path.is_file():
             raise ClaimPackGateError(f"missing evidence path: {path}")
         _assert_repo_contained(full_path, f"evidence_refs[{index}].path")
-        if ref.get("id") == ROUTE_MATRIX_REF_ID:
+        if ref_id == ROUTE_MATRIX_REF_ID:
             _assert_route_matrix_integrity(full_path)
-        if ref.get("id") == PAPER_RELEASE_MANIFEST_REF_ID:
+        if ref_id == PAPER_RELEASE_MANIFEST_REF_ID:
             _assert_paper_release_manifest_integrity(full_path)
+    if seen_ids != set(EXPECTED_EVIDENCE_REF_IDS_TO_PATHS):
+        missing = sorted(set(EXPECTED_EVIDENCE_REF_IDS_TO_PATHS) - seen_ids)
+        extra = sorted(seen_ids - set(EXPECTED_EVIDENCE_REF_IDS_TO_PATHS))
+        if missing:
+            raise ClaimPackGateError(f"missing required evidence ref: {missing[0]}")
+        raise ClaimPackGateError(f"unexpected evidence ref: {extra[0]}")
 
 
 def _assert_route_matrix_integrity(full_path: pathlib.Path) -> None:
@@ -424,9 +451,7 @@ def _assert_paper_release_manifest_integrity(full_path: pathlib.Path) -> None:
     artifacts = manifest.get("artifact_digests")
     if not isinstance(artifacts, list):
         raise ClaimPackGateError("paper release manifest artifact_digests must be a list")
-    if [artifact.get("path") for artifact in artifacts if isinstance(artifact, dict)] != list(
-        EXPECTED_RELEASE_ARTIFACT_PATHS
-    ):
+    if len(artifacts) != len(EXPECTED_RELEASE_ARTIFACT_PATHS):
         raise ClaimPackGateError("paper release manifest artifact path drift")
     for index, artifact in enumerate(artifacts):
         if not isinstance(artifact, dict):
