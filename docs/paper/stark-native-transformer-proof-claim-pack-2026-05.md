@@ -56,6 +56,27 @@ Starknet deployment, or upstream Stwo optimization.
 
 ## Quantitative Core
 
+Reproduction context: the route-matrix numbers below are taken from
+`route_rows` in
+`docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json`
+under route id
+`local_stwo_attention_kv_fused_softmax_table_controlled_route_matrix` and
+timing policy `proof_existence_and_byte_accounting_only_not_public_benchmark`.
+They are regenerated with
+`python3.10 scripts/zkai_attention_kv_fused_softmax_table_route_matrix_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.tsv`.
+The section-delta numbers are taken from `profile_rows` in
+`docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-section-delta-2026-05.json`
+under route id `local_stwo_attention_kv_fused_softmax_table_section_delta`,
+proof-object scope
+`matched_serialized_stark_proof_json_sections_for_source_sidecar_and_fused_envelopes`,
+and timing policy `proof_bytes_only_not_timing_not_public_benchmark`. They are
+regenerated with
+`python3.10 scripts/zkai_attention_kv_fused_softmax_table_section_delta_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-section-delta-2026-05.json --write-tsv docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-section-delta-2026-05.tsv`.
+Per-row Stwo backend versions are recorded in the section-delta artifact fields
+`profile_rows[*].artifacts.{source,sidecar,fused}.proof_backend_version`.
+The route rows carry the step counts, lookup claims, trace rows, and serialized
+proof byte columns used below.
+
 The route matrix records thirty checked matched profiles. Across those rows,
 the fused proof bytes total `6,397,632` versus `7,164,515` bytes for the
 matched source-plus-sidecar controls, a `766,883` byte aggregate saving.
