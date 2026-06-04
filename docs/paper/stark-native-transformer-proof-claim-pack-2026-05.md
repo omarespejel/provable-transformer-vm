@@ -19,9 +19,9 @@ Starknet deployment, or upstream Stwo optimization.
 1. Unmodified Stwo-backed evidence now checks source arithmetic, LogUp sidecar,
    and fused proof objects for a controlled Softmax-table route family. The
    contribution is the STARK-native boundary, not a Stwo fork.
-2. The checked route matrix has thirty matched rows across width, head-count,
-   sequence-length, and combined-axis profiles, with fused proof bytes smaller
-   than source-plus-sidecar proof bytes in each row.
+2. The checked route matrix has thirty matched `route_rows` entries across
+   width, head-count, sequence-length, and combined-axis profiles, with fused
+   proof bytes smaller than source-plus-sidecar proof bytes in each entry.
 3. The section-delta and typed-size evidence agree on the mechanism: the fused
    object mostly avoids duplicated opening/decommitment structure.
 4. The local binary typed accounting slice gives deterministic repo-owned
@@ -77,7 +77,8 @@ Per-row Stwo backend versions are recorded in the section-delta artifact fields
 The route rows carry the step counts, lookup claims, trace rows, and serialized
 proof byte columns used below.
 
-The route matrix records thirty checked matched profiles. Across those rows,
+The route matrix records thirty checked matched `route_rows` entries. Across
+those entries,
 the fused proof bytes total `6,397,632` versus `7,164,515` bytes for the
 matched source-plus-sidecar controls, a `766,883` byte aggregate saving.
 Matched fused ratios range from `0.676723` to `0.964602`.
