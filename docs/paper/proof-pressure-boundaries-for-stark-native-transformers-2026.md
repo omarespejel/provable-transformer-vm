@@ -6,7 +6,7 @@ Starknet Foundation
 **Abdelhamid Bakhta**  
 StarkWare
 
-*May 2026 draft*
+*June 2026 draft*
 
 ## Abstract
 
@@ -44,6 +44,13 @@ labels. They support a bounded thesis: transformer proving should choose
 boundaries around actual proof pressure. STARK-native fusion is useful where it
 shares commitment, opening, and decommitment structure; width-heavy dense
 arithmetic may need different boundaries or side protocols.
+
+The implementation vehicle in these experiments is Stwo, but the result is not
+a Stwo-optimization result. The checked proofs use the existing Stwo backend
+surface; the main intervention is where transformer work is placed inside a
+STARK proof object. This leaves room for later Stwo-AI work on opening layout,
+table grouping, and query planning, while keeping the current claim about
+STARK-native boundary architecture.
 
 The paper also separates proof validity from statement validity. A proof can
 verify while the application misstates the model, input, output, numeric policy,
@@ -170,7 +177,11 @@ opening geometry, host memory, or timing measurements.
 ## 3. Experimental Object
 
 The experimental object is a family of native Stwo proof artifacts for bounded
-integer attention fixtures. Each matched row records:
+integer attention fixtures. Stwo is used here as an open Circle STARK
+implementation vehicle. The experiments do not patch Stwo's prover, verifier,
+FRI protocol, hash channels, or security configuration; they change the
+transformer proof boundary and the statement-bound artifact construction built
+on top of that backend. Each matched row records:
 
 - source arithmetic proof payload bytes;
 - LogUp sidecar proof payload bytes;
@@ -208,6 +219,15 @@ fused routes:
 | FRI query count | `3` |
 | FRI fold step | `1` |
 | PCS lifting log size | `None` |
+
+This is important for interpretation. A proof-size saving under the same backend
+configuration is evidence about boundary placement and shared STARK plumbing,
+not evidence that a private prover fork made the byte count smaller. Stwo's
+public documentation describes a `StarkProof` as containing commitments,
+openings, and FRI proof material [10], and its polynomial commitment scheme
+requires Merkle decommitments for verifier queries [11]. The mechanism measured
+below is therefore exactly the kind of mechanism a STARK proof object pays for:
+commit, open, decommit, and carry FRI witness material.
 
 The large `d128_h4_seq64` row is represented by checked gate and route-matrix
 evidence with proof commitments, exact byte counts, mutation rejection, and
@@ -363,6 +383,15 @@ valid proof object. The way to reduce duplicated opening material is to choose a
 larger or better-aligned proof boundary, not to remove witness material that the
 verifier needs.
 
+This is also where a future Stwo-AI agenda becomes concrete. If the savings are
+dominated by opening and decommitment geometry, then a useful backend
+specialization would not be "make a prover for AI" in the abstract. It would
+target specific STARK plumbing: how transformer-shaped columns are grouped,
+which lookup tables share identity, how heterogeneous domains are lifted, how
+openings are batched, and how higher-soundness query settings change the fused
+versus split ratio. The current paper does not require those changes; it shows
+where they would matter.
+
 ---
 
 ## 7. Statement Validity: Why Proof Verification Is Not Enough
@@ -412,7 +441,7 @@ NANOZK studies layerwise proof objects for LLM inference [1]. Jolt Atlas uses
 lookup arguments for ONNX-style tensor operations [2]. zkLLM and zkAttn study
 LLM and attention-specific proving paths [3]. DeepProve reports full-model LLM
 inference proving [4]. EZKL, RISC Zero, SP1, and Stwo expose different
-deployment and proof-system surfaces for verifiable computation [5-9].
+deployment and proof-system surfaces for verifiable computation [5-11].
 
 These systems motivate, rather than settle, the boundary-selection question
 studied here. Their public artifacts do not expose the same scoped object as the
@@ -424,6 +453,15 @@ docs or source-reported infrastructure references. The comparison is
 architectural: many zkML systems are already choosing specialized proof
 boundaries, and the evidence here shows one STARK-native boundary where
 lookup-heavy attention work amortizes proof bytes.
+
+The Stwo comparison is different from the NANOZK or Jolt Atlas comparison
+because Stwo is the backend used by the artifacts, not an external zkML system
+being beaten. Stwo's public repository describes it as a production Circle STARK
+prover and verifier with modular core proof-system, constraint-framework, AIR,
+and lookup components [9]. That modularity is why this paper can study a
+transformer boundary on top of Stwo without claiming to optimize Stwo itself.
+It is also why a future Stwo-AI line should be framed as backend specialization
+for transformer-shaped STARK workloads, not as a premise of the current result.
 
 ---
 
@@ -459,6 +497,10 @@ The scope of the result is limited in several ways.
    query count, blowup factor, or proof-of-work setting can move both absolute
    proof bytes and fused-to-split ratios; this paper does not measure that
    higher-soundness regime.
+10. **Backend optimization scope.** The paper does not claim a Stwo-AI fork,
+    upstream Stwo patch, SIMD change, verifier rewrite, or new PCS. The checked
+    savings come from proof-boundary construction over the existing backend
+    surface. Backend specialization is future work.
 
 These limitations narrow the contribution to a specific systems claim: the
 reported artifacts expose a proof-size scaling pattern and a plausible mechanism
@@ -558,6 +600,16 @@ duplicated, compose through typed boundaries where separate proof objects are
 preferable, and test dense regions with protocols specialized for dense
 arithmetic when appropriate.
 
+It also clarifies what a Stwo-AI project should and should not mean. The
+interesting target is not another round of marginal row-order tuning. Small
+verifier-bound layout experiments after the main proof-pressure work show that
+layout can still move proof bytes inside the current backend, but the gain is
+diagnostic rather than headline-sized. The larger research question is whether
+the backend can expose or improve the parts that the evidence identifies as
+load-bearing: opening layout, decommitment batching, lifted-domain policy,
+lookup-table identity, and higher-soundness proof-size behavior. That is a
+backend research agenda informed by this paper, not the paper's main claim.
+
 ---
 
 ## 12. Future Work
@@ -572,12 +624,18 @@ The next step is to close the remaining comparison and block-surface gaps.
 3. **Binary proof accounting.** Replace or supplement JSON and local typed bytes
    with stable binary or raw serialized accounting when the backend exposes a
    suitable surface.
-4. **GKR or sumcheck side protocol.** Test dense projection and MLP regions with
+4. **Stwo-AI backend specialization.** Use the measured opening and
+   decommitment bottleneck to test backend-facing changes: deterministic
+   transformer column grouping, lookup-table identity reuse, opening batching,
+   lifted-domain layout policy, and higher-soundness query settings. Treat this
+   as future work unless it produces a repeated, verifier-bound reduction on the
+   same surfaces.
+5. **GKR or sumcheck side protocol.** Test dense projection and MLP regions with
    a side protocol rather than assuming one STARK-native monolith is best.
-5. **Median timing policy.** Extend median-of-five timing to the `d128`
+6. **Median timing policy.** Extend median-of-five timing to the `d128`
    sequence rows and any external baseline before making public performance
    claims.
-6. **Statement-relabeling benchmark.** Turn the Tablero correctness layer into a
+7. **Statement-relabeling benchmark.** Turn the Tablero correctness layer into a
    clean benchmark across EZKL, snarkjs, RISC Zero-style receipts, JSTprove or
    Remainder, and Jolt Atlas if suitable public artifacts are available.
 
@@ -606,3 +664,8 @@ how proof artifacts become valid application claims.
 8. StarkWare. *S-two 2.0.0 is a Developer-Friendly, Fully Open-Source Toolkit*.
    Published 2026. <https://starkware.co/blog/s-two-2-0-0-prover-for-developers/>
 9. StarkWare Labs. *stwo Source Repository*. <https://github.com/starkware-libs/stwo>
+10. Starknet Documentation. *S-two STARK Prover*. 2026.
+    <https://docs.starknet.io/learn/S-two-book/how-it-works/stark_proof/prove>
+11. Starknet Documentation. *S-two Polynomial Commitment Scheme Technical
+    Overview*. 2026.
+    <https://docs.starknet.io/learn/S-two-book/how-it-works/pcs/overview>

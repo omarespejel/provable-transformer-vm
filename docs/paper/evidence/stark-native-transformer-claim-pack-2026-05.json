@@ -5,7 +5,8 @@
     "local median-of-5 verifier timing does not support a fused verifier-time win claim",
     "model-faithful quantized attention is bridged only for the checked d8 fixture trace",
     "production Starknet verifier packaging, calldata/accounting, and deployment gates are not complete",
-    "no full transformer runtime, tokenizer/model-weight import, or accuracy/perplexity gate is bound"
+    "no full transformer runtime, tokenizer/model-weight import, or accuracy/perplexity gate is bound",
+    "Stwo-AI backend specialization remains future work until repeated verifier-bound gains appear on the same surfaces"
   ],
   "claim_boundary": "STARK_NATIVE_PROOF_ARCHITECTURE_CLAIM_FOR_BOUNDED_INTEGER_ATTENTION_AND_SOFTMAX_TABLE_LOOKUP_MEMBERSHIP_NOT_EXACT_SOFTMAX_NOT_FULL_INFERENCE_NOT_PUBLIC_BENCHMARK_NOT_PRODUCTION_READY",
   "decision": "GO_PAPER_CLAIM_PACK_NO_GO_PUBLIC_OR_PRODUCTION_CLAIMS",
@@ -49,13 +50,19 @@
       "id": "model_faithful_bridge",
       "path": "docs/engineering/evidence/zkai-attention-kv-model-faithful-quantized-attention-bridge-2026-05.json",
       "supports": "checked equivalence between model-facing integer attention policy and the d8 fixture trace"
+    },
+    {
+      "id": "stwo_ai_layout_diagnostic",
+      "path": "docs/engineering/evidence/zkai-stwo-ai-d64-four-head-seq64-chunk4-policy-gate-2026-06.json",
+      "supports": "verifier-bound route-layout diagnostic showing Stwo-AI remains future backend-specialization work"
     }
   ],
   "go_criteria_satisfied": [
     "checked source, sidecar, and fused proof evidence exists for the cited profiles",
     "machine-readable gates reject overclaim and evidence-drift mutations",
     "timing evidence is separated from proof-size evidence",
-    "model-facing quantized policy is bridge-checked before runtime integration"
+    "model-facing quantized policy is bridge-checked before runtime integration",
+    "Stwo-AI diagnostic evidence is kept out of the headline proof-size claim"
   ],
   "go_posture": [
     "GO to present a bounded STARK-native proof-architecture claim in the paper evidence pack.",
@@ -111,6 +118,7 @@
     "not production-ready",
     "not Starknet deployed",
     "not a stable upstream Stwo proof wire format",
+    "not a Stwo fork or upstream Stwo optimization",
     "not recursion or PCD",
     "not model accuracy, perplexity, tokenizer, weight-import, or runtime evidence"
   ],
@@ -118,11 +126,12 @@
     "One checked proof object can bind attention arithmetic and statement-bound Softmax-table membership for the same bounded fixture family.",
     "Matched source-plus-sidecar controls show proof-object byte savings across checked width, head-count, sequence-length, and combined-axis profiles.",
     "Section-delta and typed-component evidence both point to shared opening and decommitment structure as the dominant source of savings.",
-    "A model-facing quantized attention policy is checked equivalent to the existing d8 bounded Softmax-table fixture trace at the trace boundary."
+    "A model-facing quantized attention policy is checked equivalent to the existing d8 bounded Softmax-table fixture trace at the trace boundary.",
+    "Stwo-AI backend specialization is future work informed by opening, decommitment, table-identity, and layout evidence, not a premise of the current proof-size result."
   ],
-  "payload_commitment": "sha256:4687e28a3bfe6ed5aea2ea0daca408438db0909ad793c8f0b1fcc2cdb6bcf17b",
+  "payload_commitment": "sha256:aa5a8984973b4fe66816715507cfb475c0df263608f17c6d15e5eab625f62773",
   "schema": "stark-native-transformer-paper-claim-pack-v1",
-  "thesis": "Checked Stwo evidence supports a paper-facing architecture claim: bounded integer attention arithmetic and Softmax-table LogUp membership can be fused into one native STARK proof object, sharing proof-system commitment and opening plumbing across the arithmetic and lookup-heavy parts.",
+  "thesis": "Checked proofs generated on the existing Stwo backend support a paper-facing architecture claim: bounded integer attention arithmetic and Softmax-table LogUp membership can be fused into one native STARK proof object, sharing proof-system commitment and opening plumbing across the arithmetic and lookup-heavy parts. The claim is about STARK-native boundary placement, not an upstream Stwo optimization.",
   "thesis_id": "stark_native_attention_arithmetic_softmax_table_fusion",
   "validation_commands": [
     "just gate-fast",
