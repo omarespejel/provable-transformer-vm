@@ -39,6 +39,33 @@ class AttentionKvD64FourHeadSeq64BoundedSoftmaxTableInputTests(unittest.TestCase
         self.assertTrue(cargo_commands)
         self.assertTrue(all(" --locked " in f" {command} " for command in cargo_commands))
 
+    def test_chunk4_layout_policy_is_statement_bound(self):
+        baseline = gate.build_payload()
+        payload = gate.build_payload(layout_policy=gate.LAYOUT_POLICY_CHUNK4)
+        gate.validate_payload(payload)
+
+        self.assertEqual(payload["layout_policy"], gate.LAYOUT_POLICY_CHUNK4)
+        self.assertNotEqual(payload["input_steps_commitment"], baseline["input_steps_commitment"])
+        self.assertNotEqual(payload["statement_commitment"], baseline["statement_commitment"])
+        self.assertEqual([step["head_index"] for step in payload["input_steps"][:16]], [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3])
+        self.assertEqual([step["token_position"] for step in payload["input_steps"][:16]], [2, 3, 4, 5] * gate.HEAD_COUNT)
+
+    def test_rejects_chunk4_policy_relabeling_without_layout(self):
+        payload = gate.build_payload()
+        payload["layout_policy"] = gate.LAYOUT_POLICY_CHUNK4
+        with self.assertRaisesRegex(
+            gate.AttentionKvD64FourHeadSeq64BoundedSoftmaxTableInputError,
+            "input steps drift",
+        ):
+            gate.validate_payload(payload)
+
+    def test_rejects_unknown_layout_policy(self):
+        with self.assertRaisesRegex(
+            gate.AttentionKvD64FourHeadSeq64BoundedSoftmaxTableInputError,
+            "layout_policy drift",
+        ):
+            gate.build_payload(layout_policy="choose-after-queries")
+
     def test_rejects_weight_policy_drift(self):
         payload = gate.build_payload()
         payload["weight_policy"] = "fake-softmax"

@@ -70,6 +70,7 @@ WEIGHT_TABLE = [
     {"gap": 8, "weight": 16},
 ]
 MASKING_POLICY = "causal_prefix_position_lte_query_token"
+LAYOUT_POLICY_CHUNK4 = "chunk4"
 KEY_WIDTH = 64
 VALUE_WIDTH = 64
 HEAD_COUNT = 4
@@ -179,7 +180,7 @@ SOURCE = _load_source_module()
 _SOURCE_PAYLOAD_CACHE: tuple[int, dict[str, Any]] | None = None
 _INITIAL_KV_CACHE: tuple[int, list[dict[str, Any]]] | None = None
 _INPUT_STEPS_CACHE: tuple[int, list[dict[str, Any]]] | None = None
-_DERIVED_CACHE: tuple[int, dict[str, Any]] | None = None
+_DERIVED_CACHE: tuple[tuple[int, str], dict[str, Any]] | None = None
 
 
 def source_cache_key() -> int:
@@ -470,6 +471,46 @@ def outputs_commitment(steps: list[dict[str, Any]], outputs: list[list[int]]) ->
     )
 
 
+def validate_layout_policy_value(layout_policy: str) -> str:
+    if layout_policy not in ("", LAYOUT_POLICY_CHUNK4):
+        raise AttentionKvD64FourHeadSeq64BoundedSoftmaxTableInputError("layout_policy drift")
+    return layout_policy
+
+
+def reorder_steps_in_head_chunks(steps: list[dict[str, Any]], *, chunk_size: int) -> list[dict[str, Any]]:
+    if SEQUENCE_LENGTH % chunk_size != 0:
+        raise AttentionKvD64FourHeadSeq64BoundedSoftmaxTableInputError("layout chunk does not divide sequence length")
+    per_head: dict[int, list[dict[str, Any]]] = {head_index: [] for head_index in range(HEAD_COUNT)}
+    for index, step in enumerate(steps):
+        checked = require_input_step(step, label=f"layout_input_steps[{index}]")
+        per_head[checked["head_index"]].append(checked)
+    for head_index, head_steps in per_head.items():
+        if len(head_steps) != SEQUENCE_LENGTH:
+            raise AttentionKvD64FourHeadSeq64BoundedSoftmaxTableInputError(
+                f"layout policy step count drift for head {head_index}"
+            )
+        for local_index, step in enumerate(head_steps):
+            expected_position = INITIAL_KV_ITEMS_PER_HEAD + local_index
+            if step["token_position"] != expected_position:
+                raise AttentionKvD64FourHeadSeq64BoundedSoftmaxTableInputError(
+                    f"layout policy token position drift for head {head_index}"
+                )
+    reordered: list[dict[str, Any]] = []
+    for chunk_start in range(0, SEQUENCE_LENGTH, chunk_size):
+        for head_index in range(HEAD_COUNT):
+            reordered.extend(copy.deepcopy(per_head[head_index][chunk_start : chunk_start + chunk_size]))
+    return reordered
+
+
+def apply_layout_policy(steps: list[dict[str, Any]], layout_policy: str) -> list[dict[str, Any]]:
+    layout_policy = validate_layout_policy_value(layout_policy)
+    if layout_policy == "":
+        return copy.deepcopy(steps)
+    if layout_policy == LAYOUT_POLICY_CHUNK4:
+        return reorder_steps_in_head_chunks(steps, chunk_size=4)
+    raise AttentionKvD64FourHeadSeq64BoundedSoftmaxTableInputError("layout_policy drift")
+
+
 def proof_native_parameter_commitment() -> str:
     return commitment_from_parts(
         [
@@ -495,14 +536,19 @@ def outputs_material(steps: list[dict[str, Any]], outputs: list[list[int]]) -> l
 
 
 def statement_commitment(payload: dict[str, Any]) -> str:
-    return commitment_from_parts(
-        [
+    parts = [
             ("final_kv_cache_commitment", payload["final_kv_cache_commitment"]),
             ("head_count", payload["head_count"]),
             ("initial_kv_cache_commitment", payload["initial_kv_cache_commitment"]),
             ("input_steps_commitment", payload["input_steps_commitment"]),
             ("key_width", payload["key_width"]),
             ("masking_policy", payload["masking_policy"]),
+    ]
+    layout_policy = payload.get("layout_policy", "")
+    if layout_policy:
+        parts.append(("layout_policy", validate_layout_policy_value(layout_policy)))
+    parts.extend(
+        [
             ("non_claims", payload["non_claims"]),
             ("outputs_commitment", payload["outputs_commitment"]),
             ("proof_native_parameter_commitment", payload["proof_native_parameter_commitment"]),
@@ -517,7 +563,10 @@ def statement_commitment(payload: dict[str, Any]) -> str:
             ("verifier_domain", payload["verifier_domain"]),
             ("weight_table_commitment", payload["weight_table_commitment"]),
             ("weight_policy", payload["weight_policy"]),
-        ],
+        ]
+    )
+    return commitment_from_parts(
+        parts,
         VERIFIER_DOMAIN,
     )
 
@@ -607,13 +656,14 @@ def fixture_input_steps() -> list[dict[str, Any]]:
     return copy.deepcopy(items)
 
 
-def derived_fixture() -> dict[str, Any]:
+def derived_fixture(layout_policy: str = "") -> dict[str, Any]:
     global _DERIVED_CACHE
-    cache_key = source_cache_key()
+    layout_policy = validate_layout_policy_value(layout_policy)
+    cache_key = (source_cache_key(), layout_policy)
     if _DERIVED_CACHE is not None and _DERIVED_CACHE[0] == cache_key:
         return copy.deepcopy(_DERIVED_CACHE[1])
     initial = fixture_initial_kv()
-    steps = fixture_input_steps()
+    steps = apply_layout_policy(fixture_input_steps(), layout_policy)
     rows, final_cache, outputs = build_score_rows(initial, steps)
     derived = {
         "initial": initial,
@@ -845,6 +895,9 @@ def validate_payload(payload: dict[str, Any]) -> None:
         "proof_verifier_hardening",
         "validation_commands",
     }
+    layout_policy = validate_layout_policy_value(payload.get("layout_policy", ""))
+    if layout_policy:
+        allowed_keys.add("layout_policy")
     extra = sorted(set(payload) - allowed_keys)
     if extra:
         raise AttentionKvD64FourHeadSeq64BoundedSoftmaxTableInputError(f"unknown field(s): {extra}")
@@ -859,7 +912,7 @@ def validate_payload(payload: dict[str, Any]) -> None:
         raise AttentionKvD64FourHeadSeq64BoundedSoftmaxTableInputError("validation commands drift")
     if payload.get("weight_table_commitment") != weight_table_commitment():
         raise AttentionKvD64FourHeadSeq64BoundedSoftmaxTableInputError("weight table commitment drift")
-    derived = derived_fixture()
+    derived = derived_fixture(layout_policy)
     initial = derived["initial"]
     steps = derived["steps"]
     rows = derived["rows"]
@@ -902,8 +955,9 @@ def validate_payload(payload: dict[str, Any]) -> None:
         raise AttentionKvD64FourHeadSeq64BoundedSoftmaxTableInputError("public instance commitment drift")
 
 
-def build_payload() -> dict[str, Any]:
-    derived = derived_fixture()
+def build_payload(*, layout_policy: str = "") -> dict[str, Any]:
+    layout_policy = validate_layout_policy_value(layout_policy)
+    derived = derived_fixture(layout_policy)
     initial = derived["initial"]
     steps = derived["steps"]
     rows = derived["rows"]
@@ -957,6 +1011,8 @@ def build_payload() -> dict[str, Any]:
         "next_backend_step": NEXT_BACKEND_STEP,
         "validation_commands": VALIDATION_COMMANDS,
     }
+    if layout_policy:
+        payload["layout_policy"] = layout_policy
     payload["statement_commitment"] = statement_commitment(payload)
     payload["public_instance_commitment"] = public_instance_commitment(payload["statement_commitment"])
     validate_payload(payload)
@@ -1096,8 +1152,9 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--write-json", type=pathlib.Path, default=JSON_OUT)
     parser.add_argument("--write-tsv", type=pathlib.Path, default=TSV_OUT)
+    parser.add_argument("--layout-policy", choices=("", LAYOUT_POLICY_CHUNK4), default="")
     args = parser.parse_args()
-    payload = build_payload()
+    payload = build_payload(layout_policy=args.layout_policy)
     write_json(payload, args.write_json)
     write_tsv(payload, args.write_tsv)
 

@@ -363,6 +363,8 @@ pub struct ZkAiAttentionKvNativeD64FourHeadSeq64FusedSoftmaxTableSummary {
     pub source_final_kv_cache_commitment: String,
     pub source_outputs_commitment: String,
     pub source_weight_table_commitment: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub source_layout_policy: String,
     pub source_head_count: usize,
     pub score_rows: usize,
     pub trace_rows: usize,
@@ -599,6 +601,7 @@ fn fused_summary(
             source_final_kv_cache_commitment: input.final_kv_cache_commitment.clone(),
             source_outputs_commitment: input.outputs_commitment.clone(),
             source_weight_table_commitment: input.weight_table_commitment.clone(),
+            source_layout_policy: input.layout_policy.clone(),
             source_head_count: input.head_count,
             score_rows: input.score_row_count,
             trace_rows: TRACE_ROW_COUNT,
