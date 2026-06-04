@@ -79,7 +79,7 @@ EVIDENCE_REFS = [
     {
         "id": "route_matrix",
         "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
-        "supports": "twelve checked source-sidecar-fused route rows with matched proof-byte ratios",
+        "supports": "thirty checked source-sidecar-fused route rows with matched proof-byte ratios",
     },
     {
         "id": "controlled_component_grid",

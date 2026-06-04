@@ -440,8 +440,10 @@ Several recent systems approach verifiable ML from different proof boundaries.
 NANOZK studies layerwise proof objects for LLM inference [1]. Jolt Atlas uses
 lookup arguments for ONNX-style tensor operations [2]. zkLLM and zkAttn study
 LLM and attention-specific proving paths [3]. DeepProve reports full-model LLM
-inference proving [4]. EZKL, RISC Zero, SP1, and Stwo expose different
-deployment and proof-system surfaces for verifiable computation [5-11].
+inference proving and, in its June 2026 public release, exposes source and
+benchmark-facing documentation [4]. EZKL, RISC Zero, SP1, and Stwo expose
+different deployment and proof-system surfaces for verifiable computation
+[5-11].
 
 These systems motivate, rather than settle, the boundary-selection question
 studied here. Their public artifacts do not expose the same scoped object as the
@@ -656,8 +658,8 @@ how proof artifacts become valid application claims.
 3. Haochen Sun, Jason Li, and Hongyang Zhang. *zkLLM: Zero Knowledge Proofs for
    Large Language Models*. arXiv:2404.16109, 2024.
    <https://arxiv.org/abs/2404.16109>
-4. Lagrange Labs. *DeepProve-1: The First zkML System to Prove a Full LLM
-   Inference*. 2025. <https://lagrange.dev/blog/deepprove-1>
+4. Lagrange Labs. *DeepProve*. Public site and source repository, 2026.
+   <https://lagrange.dev/deepprove>; <https://github.com/Lagrange-Labs/deep-prove>
 5. EZKL Docs. *Products*. <https://docs.ezkl.xyz/products/>
 6. RISC Zero. *risc0 Source Repository*. <https://github.com/risc0/risc0>
 7. Succinct Labs. *SP1 Source Repository*. <https://github.com/succinctlabs/sp1>

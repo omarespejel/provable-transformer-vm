@@ -14,7 +14,7 @@
     {
       "id": "route_matrix",
       "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-route-matrix-2026-05.json",
-      "supports": "twelve checked source-sidecar-fused route rows with matched proof-byte ratios"
+      "supports": "thirty checked source-sidecar-fused route rows with matched proof-byte ratios"
     },
     {
       "id": "controlled_component_grid",
@@ -129,7 +129,7 @@
     "A model-facing quantized attention policy is checked equivalent to the existing d8 bounded Softmax-table fixture trace at the trace boundary.",
     "Stwo-AI backend specialization is future work informed by opening, decommitment, table-identity, and layout evidence, not a premise of the current proof-size result."
   ],
-  "payload_commitment": "sha256:aa5a8984973b4fe66816715507cfb475c0df263608f17c6d15e5eab625f62773",
+  "payload_commitment": "sha256:a0a2548f826fb81c2c89c826e934c35081b162ccfc4f893746a5db974c0c3083",
   "schema": "stark-native-transformer-paper-claim-pack-v1",
   "thesis": "Checked proofs generated on the existing Stwo backend support a paper-facing architecture claim: bounded integer attention arithmetic and Softmax-table LogUp membership can be fused into one native STARK proof object, sharing proof-system commitment and opening plumbing across the arithmetic and lookup-heavy parts. The claim is about STARK-native boundary placement, not an upstream Stwo optimization.",
   "thesis_id": "stark_native_attention_arithmetic_softmax_table_fusion",

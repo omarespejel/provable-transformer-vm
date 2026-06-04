@@ -19,7 +19,7 @@ Starknet deployment, or upstream Stwo optimization.
 1. Unmodified Stwo-backed evidence now checks source arithmetic, LogUp sidecar,
    and fused proof objects for a controlled Softmax-table route family. The
    contribution is the STARK-native boundary, not a Stwo fork.
-2. The checked route matrix has twelve matched rows across width, head-count,
+2. The checked route matrix has thirty matched rows across width, head-count,
    sequence-length, and combined-axis profiles, with fused proof bytes smaller
    than source-plus-sidecar proof bytes in each row.
 3. The section-delta and typed-size evidence agree on the mechanism: the fused
@@ -56,26 +56,40 @@ Starknet deployment, or upstream Stwo optimization.
 
 ## Quantitative Core
 
-The route matrix records twelve checked matched profiles. Across those rows,
-the fused proof bytes total `862,483` versus `1,072,887` bytes for the matched
-source-plus-sidecar controls, a `210,404` byte aggregate saving. Matched fused
-ratios range from `0.676723` to `0.919259`.
+The route matrix records thirty checked matched profiles. Across those rows,
+the fused proof bytes total `6,397,632` versus `7,164,515` bytes for the
+matched source-plus-sidecar controls, a `766,883` byte aggregate saving.
+Matched fused ratios range from `0.676723` to `0.964602`.
+
+The paper headline is narrower than the full route matrix. It focuses on four
+sequence-axis rows where `seq32` to `seq64` grows lookup claims by
+`3.729730x` and trace rows by `4.000000x`, while fused proof payload bytes grow
+only `1.064910x` to `1.080697x`. The split frontier is also sublinear, so the
+claim is not that only fusion has logarithmic STARK behavior. The claim is that
+the fused route keeps the smaller proof-size frontier against the matched split
+comparator.
 
 The controlled component grid records ten checked fine-grained typed-component
 profiles. The source-plus-sidecar typed estimate totals `285,584` bytes and the
 fused typed estimate totals `234,296` bytes, a `51,288` byte (`17.9590%`)
 aggregate saving. Per-profile typed saving ranges from `9.1035%` to `27.7371%`.
 
-The section-delta evidence attributes `92.7722%` of the serialized proof-byte
-saving to the opening bucket, dominated by FRI proof and decommitment material.
-The typed-size evidence similarly shows decommitment-dominated savings, with
-FRI plus trace decommitments accounting for `36,896` of `42,492` typed-estimate
-saved bytes in the checked nine-profile slice.
+The section-delta evidence now checks eleven profiles, including the
+`d64_four_head_seq64` decision-gate row. It records `1,129,927` source-plus-sidecar
+serialized proof bytes, `905,969` fused serialized proof bytes, and `223,958`
+saved bytes. Of that saving, `209,155` bytes, or `93.3903%`, are in the opening
+bucket, dominated by FRI proof and decommitment material.
 
-The seq32 extension is the strongest sequence-axis row in the current route
-matrix: `d8`, two heads, `32` steps per head, `1,184` lookup claims, `2,048`
-trace rows, `66,327` fused proof bytes, and `98,012` source-plus-sidecar proof
-bytes, for a `0.676723` fused ratio.
+The `d64_four_head_seq64` row ties that mechanism to the main headline surface:
+`315,785` split proof bytes versus `276,503` fused proof bytes, saving `39,282`
+bytes at a `0.875605` fused ratio. Its opening bucket accounts for `37,827` of
+those saved bytes.
+
+The attention-derived `d128` MLP-side attribution is a separate typed-accounting
+slice, not the same surface as the attention sequence rows. It still points in
+the same direction: six separate proof objects total `59,344` typed bytes, the
+fused proof is `22,576` typed bytes, and FRI plus trace decommitments account
+for `33,280` of `36,768` saved typed bytes (`90.5135%`).
 
 ## GO / NO-GO Posture
 
