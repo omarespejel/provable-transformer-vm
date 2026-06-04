@@ -13,6 +13,7 @@ import argparse
 import copy
 import hashlib
 import json
+import math
 import pathlib
 import re
 import sys
@@ -360,7 +361,10 @@ def _required_route_matrix_ratio(row: dict[str, Any], index: int) -> float:
     value = row.get(ROUTE_MATRIX_RATIO_FIELD)
     if type(value) not in (int, float):
         raise ClaimPackGateError(f"route_matrix row {index} {ROUTE_MATRIX_RATIO_FIELD} must be numeric")
-    return float(value)
+    ratio = float(value)
+    if not math.isfinite(ratio):
+        raise ClaimPackGateError(f"route_matrix row {index} {ROUTE_MATRIX_RATIO_FIELD} must be finite")
+    return ratio
 
 
 def _assert_exact_list(value: Any, expected: list[str], label: str) -> None:
