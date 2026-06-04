@@ -62,6 +62,30 @@ class PaperClaimPackGateTests(unittest.TestCase):
         with self.assertRaisesRegex(gate.ClaimPackGateError, "missing evidence path"):
             gate.validate_payload(mutated)
 
+    def test_rejects_route_matrix_row_count_drift_even_when_commitment_is_refreshed(self):
+        route_ref = next(ref for ref in self.payload["evidence_refs"] if ref["id"] == "route_matrix")
+        route_path = gate.ROOT / route_ref["path"]
+        route_data = json.loads(route_path.read_text(encoding="utf-8"))
+        route_data["route_rows"] = route_data["route_rows"][:-1]
+        with tempfile.NamedTemporaryFile(
+            dir=gate.ROOT / "docs" / "engineering" / "evidence",
+            prefix="claim-pack-route-matrix-drift-",
+            suffix=".json",
+            delete=False,
+        ) as handle:
+            path = gate.pathlib.Path(handle.name)
+            path.write_text(json.dumps(route_data), encoding="utf-8")
+        try:
+            mutated = copy.deepcopy(self.payload)
+            next(ref for ref in mutated["evidence_refs"] if ref["id"] == "route_matrix")["path"] = path.relative_to(
+                gate.ROOT
+            ).as_posix()
+            mutated["payload_commitment"] = gate.payload_commitment(mutated)
+            with self.assertRaisesRegex(gate.ClaimPackGateError, "route_matrix row count"):
+                gate.validate_payload(mutated)
+        finally:
+            path.unlink(missing_ok=True)
+
     def test_rejects_symlinked_evidence_parent_even_when_commitment_is_refreshed(self):
         with tempfile.TemporaryDirectory() as tmp:
             outside_dir = gate.pathlib.Path(tmp) / "outside"
