@@ -11,6 +11,30 @@ class PaperClaimPackGateTests(unittest.TestCase):
         self.payload = gate.build_payload()
         gate.validate_payload(self.payload)
 
+    def route_matrix_payload_with(self, route_data):
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=gate.ROOT / "docs" / "engineering" / "evidence",
+            prefix="claim-pack-route-matrix-drift-",
+            suffix=".json",
+            delete=False,
+        ) as handle:
+            json.dump(route_data, handle, sort_keys=True)
+            handle.flush()
+            path = gate.pathlib.Path(handle.name)
+        mutated = copy.deepcopy(self.payload)
+        next(ref for ref in mutated["evidence_refs"] if ref["id"] == "route_matrix")["path"] = path.relative_to(
+            gate.ROOT
+        ).as_posix()
+        mutated["payload_commitment"] = gate.payload_commitment(mutated)
+        return mutated, path
+
+    def route_matrix_data(self):
+        route_ref = next(ref for ref in self.payload["evidence_refs"] if ref["id"] == "route_matrix")
+        route_path = gate.ROOT / route_ref["path"]
+        return json.loads(route_path.read_text(encoding="utf-8"))
+
     def test_binds_narrow_thesis_and_non_claims(self):
         self.assertEqual(self.payload["decision"], gate.DECISION)
         self.assertIn("STARK-native proof-architecture", self.payload["go_posture"][0])
@@ -63,25 +87,41 @@ class PaperClaimPackGateTests(unittest.TestCase):
             gate.validate_payload(mutated)
 
     def test_rejects_route_matrix_row_count_drift_even_when_commitment_is_refreshed(self):
-        route_ref = next(ref for ref in self.payload["evidence_refs"] if ref["id"] == "route_matrix")
-        route_path = gate.ROOT / route_ref["path"]
-        route_data = json.loads(route_path.read_text(encoding="utf-8"))
+        route_data = self.route_matrix_data()
         route_data["route_rows"] = route_data["route_rows"][:-1]
-        with tempfile.NamedTemporaryFile(
-            dir=gate.ROOT / "docs" / "engineering" / "evidence",
-            prefix="claim-pack-route-matrix-drift-",
-            suffix=".json",
-            delete=False,
-        ) as handle:
-            path = gate.pathlib.Path(handle.name)
-            path.write_text(json.dumps(route_data), encoding="utf-8")
+        mutated, path = self.route_matrix_payload_with(route_data)
         try:
-            mutated = copy.deepcopy(self.payload)
-            next(ref for ref in mutated["evidence_refs"] if ref["id"] == "route_matrix")["path"] = path.relative_to(
-                gate.ROOT
-            ).as_posix()
-            mutated["payload_commitment"] = gate.payload_commitment(mutated)
             with self.assertRaisesRegex(gate.ClaimPackGateError, "route_matrix row count"):
+                gate.validate_payload(mutated)
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_rejects_route_matrix_missing_required_field_even_when_commitment_is_refreshed(self):
+        route_data = self.route_matrix_data()
+        del route_data["route_rows"][0]["fused_proof_size_bytes"]
+        mutated, path = self.route_matrix_payload_with(route_data)
+        try:
+            with self.assertRaisesRegex(gate.ClaimPackGateError, "fused_proof_size_bytes"):
+                gate.validate_payload(mutated)
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_rejects_route_matrix_row_arithmetic_drift_even_when_commitment_is_refreshed(self):
+        route_data = self.route_matrix_data()
+        route_data["route_rows"][0]["fused_saves_vs_source_plus_sidecar_bytes"] += 1
+        mutated, path = self.route_matrix_payload_with(route_data)
+        try:
+            with self.assertRaisesRegex(gate.ClaimPackGateError, "saving mismatch"):
+                gate.validate_payload(mutated)
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_rejects_route_matrix_ratio_drift_even_when_commitment_is_refreshed(self):
+        route_data = self.route_matrix_data()
+        route_data["route_rows"][0]["fused_to_source_plus_sidecar_ratio"] += 0.01
+        mutated, path = self.route_matrix_payload_with(route_data)
+        try:
+            with self.assertRaisesRegex(gate.ClaimPackGateError, "ratio mismatch"):
                 gate.validate_payload(mutated)
         finally:
             path.unlink(missing_ok=True)

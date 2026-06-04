@@ -160,6 +160,40 @@ EXPECTED_ROUTE_MATRIX_SPLIT_PROOF_BYTES_TOTAL = 7_164_515
 EXPECTED_ROUTE_MATRIX_SAVING_BYTES_TOTAL = 766_883
 EXPECTED_ROUTE_MATRIX_MIN_RATIO = 0.676723
 EXPECTED_ROUTE_MATRIX_MAX_RATIO = 0.964602
+EXPECTED_ROUTE_MATRIX_PROFILE_IDS = (
+    "d8_single_head_seq8",
+    "d16_single_head_seq8",
+    "d32_single_head_seq8",
+    "d8_two_head_seq8",
+    "d8_four_head_seq8",
+    "d8_eight_head_seq8",
+    "d8_sixteen_head_seq8",
+    "d8_two_head_seq16",
+    "d8_two_head_seq32",
+    "d16_two_head_seq8",
+    "d32_two_head_seq8",
+    "d16_two_head_seq16",
+    "d16_two_head_seq32",
+    "d32_two_head_seq16",
+    "d32_four_head_seq16",
+    "d32_two_head_seq32",
+    "d32_four_head_seq32",
+    "d64_single_head_seq16",
+    "d64_two_head_seq16",
+    "d64_four_head_seq16",
+    "d64_two_head_seq32",
+    "d64_two_head_seq64",
+    "d64_four_head_seq32",
+    "d64_four_head_seq64",
+    "d128_single_head_seq16",
+    "d128_two_head_seq32",
+    "d128_two_head_seq64",
+    "d128_four_head_seq32",
+    "d128_four_head_seq64",
+    "d256_two_head_seq32",
+)
+ROUTE_MATRIX_RATIO_FIELD = "fused_to_source_plus_sidecar_ratio"
+ROUTE_MATRIX_RATIO_TOLERANCE = 0.000001
 
 
 class ClaimPackGateError(ValueError):
@@ -249,15 +283,52 @@ def _assert_evidence_paths_exist(payload: dict[str, Any]) -> None:
 def _assert_route_matrix_integrity(full_path: pathlib.Path) -> None:
     with full_path.open(encoding="utf-8") as handle:
         route_data = json.load(handle)
+    profiles_checked = route_data.get("profiles_checked")
+    if profiles_checked != EXPECTED_ROUTE_MATRIX_ROW_COUNT:
+        raise ClaimPackGateError(
+            f"route_matrix profiles_checked {profiles_checked} != {EXPECTED_ROUTE_MATRIX_ROW_COUNT}"
+        )
+    profile_ids = route_data.get("profile_ids")
+    if profile_ids != list(EXPECTED_ROUTE_MATRIX_PROFILE_IDS):
+        raise ClaimPackGateError("route_matrix profile_ids drift")
     rows = route_data.get("route_rows")
     if not isinstance(rows, list):
         raise ClaimPackGateError("route_matrix route_rows must be a list")
     row_count = len(rows)
     if row_count != EXPECTED_ROUTE_MATRIX_ROW_COUNT:
         raise ClaimPackGateError(f"route_matrix row count {row_count} != {EXPECTED_ROUTE_MATRIX_ROW_COUNT}")
-    fused_total = sum(int(row.get("fused_proof_size_bytes", 0)) for row in rows)
-    split_total = sum(int(row.get("source_plus_sidecar_raw_proof_bytes", 0)) for row in rows)
-    saving_total = sum(int(row.get("fused_saves_vs_source_plus_sidecar_bytes", 0)) for row in rows)
+    fused_total = 0
+    split_total = 0
+    saving_total = 0
+    ratios = []
+    for index, row in enumerate(rows):
+        if not isinstance(row, dict):
+            raise ClaimPackGateError(f"route_matrix row {index} must be an object")
+        profile_id = row.get("profile_id")
+        expected_profile_id = EXPECTED_ROUTE_MATRIX_PROFILE_IDS[index]
+        if profile_id != expected_profile_id:
+            raise ClaimPackGateError(
+                f"route_matrix row {index} profile_id {profile_id!r} != {expected_profile_id!r}"
+            )
+        fused = _required_route_matrix_int(row, index, "fused_proof_size_bytes")
+        split = _required_route_matrix_int(row, index, "source_plus_sidecar_raw_proof_bytes")
+        saving = _required_route_matrix_int(row, index, "fused_saves_vs_source_plus_sidecar_bytes")
+        ratio = _required_route_matrix_ratio(row, index)
+        if split <= 0:
+            raise ClaimPackGateError(f"route_matrix row {index} split proof bytes must be > 0")
+        if fused <= 0:
+            raise ClaimPackGateError(f"route_matrix row {index} fused proof bytes must be > 0")
+        if fused >= split:
+            raise ClaimPackGateError(f"route_matrix row {index} must satisfy fused < split")
+        if saving != split - fused:
+            raise ClaimPackGateError(f"route_matrix row {index} saving mismatch")
+        expected_ratio = fused / split
+        if abs(expected_ratio - ratio) > ROUTE_MATRIX_RATIO_TOLERANCE:
+            raise ClaimPackGateError(f"route_matrix row {index} ratio mismatch")
+        fused_total += fused
+        split_total += split
+        saving_total += saving
+        ratios.append(ratio)
     if fused_total != EXPECTED_ROUTE_MATRIX_FUSED_PROOF_BYTES_TOTAL:
         raise ClaimPackGateError(
             f"route_matrix fused proof bytes {fused_total} != {EXPECTED_ROUTE_MATRIX_FUSED_PROOF_BYTES_TOTAL}"
@@ -270,13 +341,26 @@ def _assert_route_matrix_integrity(full_path: pathlib.Path) -> None:
         raise ClaimPackGateError(
             f"route_matrix saving bytes {saving_total} != {EXPECTED_ROUTE_MATRIX_SAVING_BYTES_TOTAL}"
         )
-    ratios = [float(row["fused_to_source_plus_sidecar_ratio"]) for row in rows]
     min_ratio = min(ratios)
     max_ratio = max(ratios)
-    if abs(min_ratio - EXPECTED_ROUTE_MATRIX_MIN_RATIO) > 0.000001:
+    if abs(min_ratio - EXPECTED_ROUTE_MATRIX_MIN_RATIO) > ROUTE_MATRIX_RATIO_TOLERANCE:
         raise ClaimPackGateError(f"route_matrix min ratio {min_ratio:.6f} != {EXPECTED_ROUTE_MATRIX_MIN_RATIO}")
-    if abs(max_ratio - EXPECTED_ROUTE_MATRIX_MAX_RATIO) > 0.000001:
+    if abs(max_ratio - EXPECTED_ROUTE_MATRIX_MAX_RATIO) > ROUTE_MATRIX_RATIO_TOLERANCE:
         raise ClaimPackGateError(f"route_matrix max ratio {max_ratio:.6f} != {EXPECTED_ROUTE_MATRIX_MAX_RATIO}")
+
+
+def _required_route_matrix_int(row: dict[str, Any], index: int, field: str) -> int:
+    value = row.get(field)
+    if type(value) is not int:
+        raise ClaimPackGateError(f"route_matrix row {index} {field} must be an integer")
+    return value
+
+
+def _required_route_matrix_ratio(row: dict[str, Any], index: int) -> float:
+    value = row.get(ROUTE_MATRIX_RATIO_FIELD)
+    if type(value) not in (int, float):
+        raise ClaimPackGateError(f"route_matrix row {index} {ROUTE_MATRIX_RATIO_FIELD} must be numeric")
+    return float(value)
 
 
 def _assert_exact_list(value: Any, expected: list[str], label: str) -> None:
