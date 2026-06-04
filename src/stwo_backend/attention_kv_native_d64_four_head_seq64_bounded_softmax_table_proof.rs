@@ -50,6 +50,7 @@ const ISSUE: usize = 715;
 const SOURCE_ISSUE: usize = 715;
 const SEMANTICS: &str = "bounded_table_softmax_approx_attention";
 const WEIGHT_POLICY: &str = "exp2_half_gap_table_clipped_8_floor_division";
+const LAYOUT_POLICY_CHUNK4: &str = "chunk4";
 const SCORE_SCALE: usize = 1;
 const SCORE_GAP_CLIP: usize = 8;
 const WEIGHT_TABLE: &[(usize, i64)] = &[
@@ -435,6 +436,8 @@ pub struct ZkAiAttentionKvNativeD64FourHeadSeq64BoundedSoftmaxTableProofInput {
     pub score_gap_clip: usize,
     pub weight_table: Vec<AttentionKvD64FourHeadSeq64BoundedSoftmaxTableWeightEntry>,
     pub masking_policy: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub layout_policy: String,
     pub key_width: usize,
     pub value_width: usize,
     pub head_count: usize,
@@ -643,6 +646,7 @@ fn validate_input(
     expect_usize(input.score_gap_clip, SCORE_GAP_CLIP, "score gap clip")?;
     validate_weight_table(&input.weight_table)?;
     expect_eq(&input.masking_policy, MASKING_POLICY, "masking policy")?;
+    validate_layout_policy(input)?;
     expect_usize(input.key_width, KEY_WIDTH, "key width")?;
     expect_usize(input.value_width, VALUE_WIDTH, "value width")?;
     expect_usize(input.head_count, HEAD_COUNT, "head count")?;
@@ -885,6 +889,50 @@ fn validate_sequence(
     }
     for (index, row) in input.score_rows.iter().enumerate() {
         validate_score_row(row, index)?;
+    }
+    Ok(())
+}
+
+fn validate_layout_policy(
+    input: &ZkAiAttentionKvNativeD64FourHeadSeq64BoundedSoftmaxTableProofInput,
+) -> Result<()> {
+    match input.layout_policy.as_str() {
+        "" => Ok(()),
+        LAYOUT_POLICY_CHUNK4 => validate_chunked_step_layout(input, 4),
+        _ => Err(weighted_error("layout policy drift")),
+    }
+}
+
+fn validate_chunked_step_layout(
+    input: &ZkAiAttentionKvNativeD64FourHeadSeq64BoundedSoftmaxTableProofInput,
+    chunk_size: usize,
+) -> Result<()> {
+    if SEQUENCE_LENGTH % chunk_size != 0 {
+        return Err(weighted_error(
+            "layout chunk does not divide sequence length",
+        ));
+    }
+    if input.input_steps.len() != HEAD_COUNT * SEQUENCE_LENGTH {
+        return Err(weighted_error("layout policy input step count drift"));
+    }
+    let mut index = 0usize;
+    for chunk_start in (0..SEQUENCE_LENGTH).step_by(chunk_size) {
+        for head_index in 0..HEAD_COUNT {
+            for local_offset in 0..chunk_size {
+                let Some(step) = input.input_steps.get(index) else {
+                    return Err(weighted_error("layout policy input step count drift"));
+                };
+                expect_usize(step.head_index, head_index, "layout policy head index")?;
+                expect_usize(
+                    step.token_position,
+                    INITIAL_KV_ITEMS_PER_HEAD + chunk_start + local_offset,
+                    "layout policy token position",
+                )?;
+                index = index
+                    .checked_add(1)
+                    .ok_or_else(|| weighted_error("layout policy index overflow"))?;
+            }
+        }
     }
     Ok(())
 }
@@ -1709,55 +1757,58 @@ fn proof_native_parameter_commitment(
 fn statement_commitment(
     input: &ZkAiAttentionKvNativeD64FourHeadSeq64BoundedSoftmaxTableProofInput,
 ) -> Result<String> {
-    commitment_from_parts(
-        &[
-            (
-                "final_kv_cache_commitment",
-                json_string(&input.final_kv_cache_commitment)?,
-            ),
-            ("head_count", input.head_count.to_string()),
-            (
-                "initial_kv_cache_commitment",
-                json_string(&input.initial_kv_cache_commitment)?,
-            ),
-            (
-                "input_steps_commitment",
-                json_string(&input.input_steps_commitment)?,
-            ),
-            ("key_width", input.key_width.to_string()),
-            ("masking_policy", json_string(&input.masking_policy)?),
-            ("non_claims", canonical_json_string(&input.non_claims)?),
-            (
-                "outputs_commitment",
-                json_string(&input.outputs_commitment)?,
-            ),
-            (
-                "proof_native_parameter_commitment",
-                json_string(&input.proof_native_parameter_commitment)?,
-            ),
-            (
-                "required_backend_version",
-                json_string(&input.required_backend_version)?,
-            ),
-            ("score_gap_clip", input.score_gap_clip.to_string()),
-            (
-                "score_row_commitment",
-                json_string(&input.score_row_commitment)?,
-            ),
-            ("score_scale", input.score_scale.to_string()),
-            ("semantics", json_string(&input.semantics)?),
-            ("sequence_length", input.sequence_length.to_string()),
-            ("target_id", json_string(&input.target_id)?),
-            ("value_width", input.value_width.to_string()),
-            ("verifier_domain", json_string(&input.verifier_domain)?),
-            (
-                "weight_table_commitment",
-                json_string(&input.weight_table_commitment)?,
-            ),
-            ("weight_policy", json_string(&input.weight_policy)?),
-        ],
-        &input.verifier_domain,
-    )
+    let mut parts = vec![
+        (
+            "final_kv_cache_commitment",
+            json_string(&input.final_kv_cache_commitment)?,
+        ),
+        ("head_count", input.head_count.to_string()),
+        (
+            "initial_kv_cache_commitment",
+            json_string(&input.initial_kv_cache_commitment)?,
+        ),
+        (
+            "input_steps_commitment",
+            json_string(&input.input_steps_commitment)?,
+        ),
+        ("key_width", input.key_width.to_string()),
+        ("masking_policy", json_string(&input.masking_policy)?),
+    ];
+    if !input.layout_policy.is_empty() {
+        parts.push(("layout_policy", json_string(&input.layout_policy)?));
+    }
+    parts.extend([
+        ("non_claims", canonical_json_string(&input.non_claims)?),
+        (
+            "outputs_commitment",
+            json_string(&input.outputs_commitment)?,
+        ),
+        (
+            "proof_native_parameter_commitment",
+            json_string(&input.proof_native_parameter_commitment)?,
+        ),
+        (
+            "required_backend_version",
+            json_string(&input.required_backend_version)?,
+        ),
+        ("score_gap_clip", input.score_gap_clip.to_string()),
+        (
+            "score_row_commitment",
+            json_string(&input.score_row_commitment)?,
+        ),
+        ("score_scale", input.score_scale.to_string()),
+        ("semantics", json_string(&input.semantics)?),
+        ("sequence_length", input.sequence_length.to_string()),
+        ("target_id", json_string(&input.target_id)?),
+        ("value_width", input.value_width.to_string()),
+        ("verifier_domain", json_string(&input.verifier_domain)?),
+        (
+            "weight_table_commitment",
+            json_string(&input.weight_table_commitment)?,
+        ),
+        ("weight_policy", json_string(&input.weight_policy)?),
+    ]);
+    commitment_from_parts(&parts, &input.verifier_domain)
 }
 
 fn public_instance_commitment(
@@ -1980,6 +2031,32 @@ mod tests {
                 || message.contains("token position")
                 || message.contains("final KV cache append order drift")
         );
+    }
+
+    #[test]
+    fn attention_kv_native_d64_four_head_seq64_bounded_softmax_table_rejects_layout_policy_relabeling(
+    ) {
+        let mut value: Value = serde_json::from_str(INPUT_JSON).expect("json");
+        value["layout_policy"] = Value::String(LAYOUT_POLICY_CHUNK4.to_string());
+        let error =
+            zkai_attention_kv_native_d64_four_head_seq64_bounded_softmax_table_input_from_json_str(
+                &serde_json::to_string(&value).expect("json"),
+            )
+            .unwrap_err();
+        assert!(error.to_string().contains("layout policy"));
+    }
+
+    #[test]
+    fn attention_kv_native_d64_four_head_seq64_bounded_softmax_table_rejects_unknown_layout_policy()
+    {
+        let mut value: Value = serde_json::from_str(INPUT_JSON).expect("json");
+        value["layout_policy"] = Value::String("choose-after-queries".to_string());
+        let error =
+            zkai_attention_kv_native_d64_four_head_seq64_bounded_softmax_table_input_from_json_str(
+                &serde_json::to_string(&value).expect("json"),
+            )
+            .unwrap_err();
+        assert!(error.to_string().contains("layout policy drift"));
     }
 
     #[test]

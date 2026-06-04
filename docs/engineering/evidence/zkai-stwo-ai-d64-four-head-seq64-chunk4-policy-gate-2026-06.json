@@ -1,0 +1,150 @@
+{
+  "all_mutations_rejected": true,
+  "decision": "GO_D64_CHUNK4_VERIFIER_BOUND_LAYOUT_POLICY_REDUCES_FUSED_PROOF_BYTES",
+  "fork_status": "NO_GO_FORK_STWO_ROUTE_POLICY_LAYER_STILL_MOVES_PROOF_BYTES",
+  "issue": 757,
+  "mutation_cases": [
+    {
+      "error": "decision drift",
+      "name": "decision_overclaim",
+      "rejected": true
+    },
+    {
+      "error": "fork_status drift",
+      "name": "fork_status_promotion",
+      "rejected": true
+    },
+    {
+      "error": "result row drift",
+      "name": "layout_policy_relabeling",
+      "rejected": true
+    },
+    {
+      "error": "result row drift",
+      "name": "post_query_policy_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "result row drift",
+      "name": "baseline_digest_drift",
+      "rejected": true
+    },
+    {
+      "error": "result row drift",
+      "name": "chunk4_digest_drift",
+      "rejected": true
+    },
+    {
+      "error": "result row drift",
+      "name": "proof_byte_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "result row drift",
+      "name": "split_saving_smuggling",
+      "rejected": true
+    },
+    {
+      "error": "validation_commands drift",
+      "name": "native_verify_removed",
+      "rejected": true
+    },
+    {
+      "error": "non_claims drift",
+      "name": "non_claim_removed",
+      "rejected": true
+    },
+    {
+      "error": "payload commitment drift",
+      "name": "payload_commitment_drift",
+      "rejected": true
+    },
+    {
+      "error": "payload field drift",
+      "name": "unknown_field_injection",
+      "rejected": true
+    }
+  ],
+  "mutations_checked": 12,
+  "mutations_rejected": 12,
+  "non_claims": [
+    "not a Stwo fork",
+    "not a backend patch",
+    "not transcript grinding",
+    "not post-query layout selection",
+    "not a proving-speed claim",
+    "not production-security parameters",
+    "not exact real-valued Softmax",
+    "not full transformer inference",
+    "not a NANOZK comparison"
+  ],
+  "payload_commitment": "blake2b-256:76724041cbe4e427f822db17084e8dbaa1056042b3453a8e1b692d00cbc983f1",
+  "result": {
+    "baseline_envelope_path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-four-head-seq64-fused-softmax-table-proof-2026-05.envelope.json",
+    "baseline_envelope_sha256": "641bcd4c8b29ad8098b47a4ec293b6972913ad0ceee9548229a219bd3bea7000",
+    "baseline_policy": "legacy_implicit_source_step_order",
+    "baseline_proof_size_bytes": 276503,
+    "bucket_delta_vs_baseline_bytes": {
+      "commitment_bucket_bytes": 2,
+      "config_and_pow_bytes": 0,
+      "json_wrapper_bytes": 0,
+      "opening_bucket_bytes": -1866,
+      "query_bucket_bytes": 53
+    },
+    "chunk4_envelope_path": "docs/engineering/evidence/zkai-stwo-ai-d64-four-head-seq64-layout-chunk4-fused.envelope.json",
+    "chunk4_envelope_sha256": "91f01d0d487010b79ba62b6dc5d92abde16d7b57618114cf739db5b65cd2091e",
+    "chunk4_proof_size_bytes": 274692,
+    "chunk4_vs_baseline_ratio": "0.993450",
+    "chunk4_vs_split_ratio": "0.869870",
+    "layout_policy": "chunk4",
+    "profile_id": "d64_four_head_seq64",
+    "proof_backend": "stwo",
+    "proof_backend_version": "stwo-attention-kv-d64-four-head-seq64-fused-bounded-softmax-table-logup-v1",
+    "saving_vs_baseline_bytes": 1811,
+    "saving_vs_split_bytes": 41093,
+    "section_delta_vs_baseline_bytes": {
+      "commitments": 2,
+      "config": 0,
+      "decommitments": -492,
+      "fri_proof": -1374,
+      "proof_of_work": 0,
+      "queried_values": 4,
+      "sampled_values": 49
+    },
+    "source_input_path": "docs/engineering/evidence/zkai-stwo-ai-d64-four-head-seq64-layout-chunk4-input.json",
+    "source_input_sha256": "8e3b59bc8d77deef5917bdd252d5ea55724d86ed746cb09ad8bf9f0e88bfb5ce",
+    "source_plus_sidecar_raw_proof_bytes": 315785,
+    "source_statement_commitment": "blake2b-256:319ee48ad99dc3aa596380c1ddd82b7f3a67f5ce8d81aa85aebd4c955402fc46",
+    "statement_version": "zkai-attention-kv-stwo-native-d64-four-head-seq64-fused-softmax-table-logup-statement-v1",
+    "workload": {
+      "head_count": 4,
+      "lookup_claims": 8832,
+      "sequence_length": 64,
+      "table_rows": 9,
+      "trace_rows": 16384
+    }
+  },
+  "route_id": "local_stwo_ai_d64_four_head_seq64_chunk4_layout_policy",
+  "schema": "zkai-stwo-ai-d64-four-head-seq64-chunk4-policy-gate-v1",
+  "security_config": {
+    "fold_step": 1,
+    "fri_log_blowup": 1,
+    "fri_query_count": 3,
+    "pow_bits": 10
+  },
+  "source_surface_issue": 715,
+  "timing_policy": "no_timing_claim_no_public_benchmark",
+  "validation_commands": [
+    "just gate-fast",
+    "python3.10 scripts/zkai_attention_kv_stwo_native_d64_four_head_seq64_bounded_softmax_table_proof_input.py --layout-policy chunk4 --write-json docs/engineering/evidence/zkai-stwo-ai-d64-four-head-seq64-layout-chunk4-input.json --write-tsv docs/engineering/evidence/zkai-stwo-ai-d64-four-head-seq64-layout-chunk4-input.tsv",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d64_four_head_seq64_fused_softmax_table_proof -- prove docs/engineering/evidence/zkai-stwo-ai-d64-four-head-seq64-layout-chunk4-input.json docs/engineering/evidence/zkai-stwo-ai-d64-four-head-seq64-layout-chunk4-fused.envelope.json",
+    "cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d64_four_head_seq64_fused_softmax_table_proof -- verify docs/engineering/evidence/zkai-stwo-ai-d64-four-head-seq64-layout-chunk4-fused.envelope.json",
+    "python3.10 scripts/zkai_stwo_ai_d64_four_head_seq64_chunk4_policy_gate.py --write-json docs/engineering/evidence/zkai-stwo-ai-d64-four-head-seq64-chunk4-policy-gate-2026-06.json --write-tsv docs/engineering/evidence/zkai-stwo-ai-d64-four-head-seq64-chunk4-policy-gate-2026-06.tsv --write-md docs/engineering/zkai-stwo-ai-d64-four-head-seq64-chunk4-policy-gate-2026-06-04.md",
+    "python3.10 -m py_compile scripts/zkai_stwo_ai_d64_four_head_seq64_chunk4_policy_gate.py scripts/tests/test_zkai_stwo_ai_d64_four_head_seq64_chunk4_policy_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_stwo_ai_d64_four_head_seq64_chunk4_policy_gate",
+    "cargo +nightly-2025-07-14 test --locked attention_kv_native_d64_four_head_seq64_bounded_softmax_table_rejects_layout_policy --lib --features stwo-backend",
+    "cargo +nightly-2025-07-14 test --locked attention_kv_native_d64_four_head_seq64_bounded_softmax_table_rejects_unknown_layout_policy --lib --features stwo-backend",
+    "git diff --check",
+    "just gate-no-nightly"
+  ]
+}
