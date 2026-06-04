@@ -23,7 +23,8 @@ Starknet deployment, or upstream Stwo optimization.
    width, head-count, sequence-length, and combined-axis profiles, with fused
    proof bytes smaller than source-plus-sidecar proof bytes in each entry.
 3. The section-delta and typed-size evidence agree on the mechanism: the fused
-   object mostly avoids duplicated opening/decommitment structure.
+   object mostly avoids duplicated opening-bucket structure, with the attention
+   section-delta split explicitly into FRI proof and decommitment material.
 4. The local binary typed accounting slice gives deterministic repo-owned
    accounting over typed Stwo proof fields, while explicitly keeping upstream
    stable proof serialization as a non-claim.
@@ -53,6 +54,8 @@ Starknet deployment, or upstream Stwo optimization.
   `docs/engineering/evidence/zkai-stwo-ai-d64-four-head-seq64-chunk4-policy-gate-2026-06.json`
 - Machine-readable claim pack:
   `docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json`
+- Paper release audit manifest:
+  `docs/paper/evidence/stark-native-transformer-paper-release-manifest-2026-06.json`
 
 ## Quantitative Core
 
@@ -76,6 +79,12 @@ Per-row Stwo backend versions are recorded in the section-delta artifact fields
 `profile_rows[*].artifacts.{source,sidecar,fused}.proof_backend_version`.
 The route rows carry the step counts, lookup claims, trace rows, and serialized
 proof byte columns used below.
+
+All fused/split rows in the paper-facing route matrix use the same fixed
+experimental Stwo configuration: proof-of-work `10` bits, FRI log blowup `1`
+(blowup factor `2`), FRI query count `3`, and FRI fold step `1`. The
+measurements are proof-byte measurements under that fixed configuration, not
+production-security constants and not timing claims.
 
 The route matrix records thirty checked matched `route_rows` entries. Across
 those entries,
@@ -102,6 +111,13 @@ serialized proof bytes, `905,969` fused serialized proof bytes, and `223,958`
 saved bytes. Of that saving, `209,155` bytes, or `93.3903%`, are in the opening
 bucket, dominated by FRI proof and decommitment material.
 
+| attention section-delta category | bytes saved | share of total saving |
+|---|---:|---:|
+| FRI proof material | `129,316` | `57.7412%` |
+| Decommitment material | `79,839` | `35.6491%` |
+| Other proof material | `14,803` | `6.6097%` |
+| Total | `223,958` | `100.0000%` |
+
 The `d64_four_head_seq64` row ties that mechanism to the main headline surface:
 `315,785` split proof bytes versus `276,503` fused proof bytes, saving `39,282`
 bytes at a `0.875605` fused ratio. Its opening bucket accounts for `37,827` of
@@ -121,8 +137,9 @@ GO:
   can be fused into one native Stwo proof object.
 - Use matched proof-byte, typed-size, section-delta, and component-grid evidence
   as proof-architecture support.
-- Say the observed savings are dominated by shared opening/decommitment
-  plumbing.
+- Say the observed savings are dominated by shared opening-bucket plumbing,
+  specifically FRI proof and decommitment material in the checked attention
+  section-delta artifact.
 - Say the d8 fixture now has a checked model-facing quantized-attention bridge
   at the trace boundary.
 - Say Stwo-AI remains future backend-specialization work around openings,
@@ -160,14 +177,23 @@ NO-GO:
 ## Validation
 
 ```bash
-just gate-fast
-
-python3 scripts/zkai_paper_claim_pack_gate.py \
+python3.10 scripts/zkai_paper_claim_pack_gate.py \
   --write-json docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json
 
-python3 -m unittest scripts.tests.test_zkai_paper_claim_pack_gate
+python3.10 -m py_compile \
+  scripts/zkai_paper_claim_pack_gate.py \
+  scripts/tests/test_zkai_paper_claim_pack_gate.py
+
+python3.10 -m unittest scripts.tests.test_zkai_paper_claim_pack_gate
+
+python3.10 scripts/paper/paper_preflight.py --repo-root .
+
+scripts/run_paper_preflight_suite.sh
 
 git diff --check
 
-just gate
+git diff --exit-code \
+  docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json \
+  docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md \
+  docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md
 ```

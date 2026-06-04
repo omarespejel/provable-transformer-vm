@@ -90,7 +90,7 @@ EVIDENCE_REFS = [
     {
         "id": "section_delta",
         "path": "docs/engineering/evidence/zkai-attention-kv-fused-softmax-table-section-delta-2026-05.json",
-        "supports": "opening/decommitment dominated JSON section-delta savings",
+        "supports": "opening-bucket dominated JSON section-delta savings with FRI proof and decommitment sections",
     },
     {
         "id": "typed_size_estimate",
@@ -121,6 +121,11 @@ EVIDENCE_REFS = [
         "id": "stwo_ai_layout_diagnostic",
         "path": "docs/engineering/evidence/zkai-stwo-ai-d64-four-head-seq64-chunk4-policy-gate-2026-06.json",
         "supports": "verifier-bound route-layout diagnostic showing Stwo-AI remains future backend-specialization work",
+    },
+    {
+        "id": "paper_release_manifest",
+        "path": "docs/paper/evidence/stark-native-transformer-paper-release-manifest-2026-06.json",
+        "supports": "paper release provenance, artifact digests, fixed proof-configuration caveat, and launch-gate commands",
     },
 ]
 
@@ -155,6 +160,7 @@ EXPECTED_MUTATION_NAMES = (
 )
 
 ROUTE_MATRIX_REF_ID = "route_matrix"
+PAPER_RELEASE_MANIFEST_REF_ID = "paper_release_manifest"
 EXPECTED_ROUTE_MATRIX_ROW_COUNT = 30
 EXPECTED_ROUTE_MATRIX_FUSED_PROOF_BYTES_TOTAL = 6_397_632
 EXPECTED_ROUTE_MATRIX_SPLIT_PROOF_BYTES_TOTAL = 7_164_515
@@ -195,6 +201,31 @@ EXPECTED_ROUTE_MATRIX_PROFILE_IDS = (
 )
 ROUTE_MATRIX_RATIO_FIELD = "fused_to_source_plus_sidecar_ratio"
 ROUTE_MATRIX_RATIO_TOLERANCE = 0.000001
+EXPECTED_RELEASE_MANIFEST_SCHEMA = "stark-native-transformer-paper-release-manifest-v1"
+EXPECTED_RELEASE_MANIFEST_REPOSITORY = "omarespejel/provable-transformer-vm"
+EXPECTED_RELEASE_ARTIFACT_PATHS = (
+    "docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md",
+    "docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md",
+    "docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
+)
+EXPECTED_RELEASE_FIXED_CONFIG = {
+    "backend": "unmodified Stwo backend surface",
+    "fri_blowup_factor": 2,
+    "fri_fold_step": 1,
+    "fri_log_blowup": 1,
+    "fri_query_count": 3,
+    "proof_of_work_bits": 10,
+    "security_status": "fixed experimental configuration, not production-security parameter recommendation",
+}
+EXPECTED_RELEASE_VALIDATION_COMMANDS = [
+    "python3.10 scripts/zkai_paper_claim_pack_gate.py --write-json docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
+    "python3.10 -m py_compile scripts/zkai_paper_claim_pack_gate.py scripts/tests/test_zkai_paper_claim_pack_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_paper_claim_pack_gate",
+    "python3.10 scripts/paper/paper_preflight.py --repo-root .",
+    "scripts/run_paper_preflight_suite.sh",
+    "git diff --check",
+    "git diff --exit-code docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md",
+]
 
 
 class ClaimPackGateError(ValueError):
@@ -279,6 +310,8 @@ def _assert_evidence_paths_exist(payload: dict[str, Any]) -> None:
         _assert_repo_contained(full_path, f"evidence_refs[{index}].path")
         if ref.get("id") == ROUTE_MATRIX_REF_ID:
             _assert_route_matrix_integrity(full_path)
+        if ref.get("id") == PAPER_RELEASE_MANIFEST_REF_ID:
+            _assert_paper_release_manifest_integrity(full_path)
 
 
 def _assert_route_matrix_integrity(full_path: pathlib.Path) -> None:
@@ -367,6 +400,55 @@ def _required_route_matrix_ratio(row: dict[str, Any], index: int) -> float:
     return ratio
 
 
+def _sha256_file(full_path: pathlib.Path) -> str:
+    digest = hashlib.sha256()
+    with full_path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _assert_paper_release_manifest_integrity(full_path: pathlib.Path) -> None:
+    with full_path.open(encoding="utf-8") as handle:
+        manifest = json.load(handle)
+    if not isinstance(manifest, dict):
+        raise ClaimPackGateError("paper release manifest must be an object")
+    if manifest.get("schema") != EXPECTED_RELEASE_MANIFEST_SCHEMA:
+        raise ClaimPackGateError("paper release manifest schema drift")
+    if manifest.get("repository") != EXPECTED_RELEASE_MANIFEST_REPOSITORY:
+        raise ClaimPackGateError("paper release manifest repository drift")
+    if manifest.get("fixed_experimental_stwo_config") != EXPECTED_RELEASE_FIXED_CONFIG:
+        raise ClaimPackGateError("paper release manifest fixed config drift")
+    if manifest.get("validation_commands") != EXPECTED_RELEASE_VALIDATION_COMMANDS:
+        raise ClaimPackGateError("paper release manifest validation command drift")
+    artifacts = manifest.get("artifact_digests")
+    if not isinstance(artifacts, list):
+        raise ClaimPackGateError("paper release manifest artifact_digests must be a list")
+    if [artifact.get("path") for artifact in artifacts if isinstance(artifact, dict)] != list(
+        EXPECTED_RELEASE_ARTIFACT_PATHS
+    ):
+        raise ClaimPackGateError("paper release manifest artifact path drift")
+    for index, artifact in enumerate(artifacts):
+        if not isinstance(artifact, dict):
+            raise ClaimPackGateError(f"paper release manifest artifact {index} must be an object")
+        path_value = artifact.get("path")
+        if not isinstance(path_value, str):
+            raise ClaimPackGateError(f"paper release manifest artifact {index} path must be repo-relative")
+        relative_path = _repo_relative_path(path_value, f"paper release manifest artifact {index} path")
+        if relative_path.as_posix() != EXPECTED_RELEASE_ARTIFACT_PATHS[index]:
+            raise ClaimPackGateError(f"paper release manifest artifact {index} path drift")
+        artifact_path = _full_repo_path(relative_path)
+        _assert_no_repo_symlink_components(artifact_path, f"paper release manifest artifact {index} path")
+        if not artifact_path.is_file():
+            raise ClaimPackGateError(f"paper release manifest missing artifact: {path_value}")
+        _assert_repo_contained(artifact_path, f"paper release manifest artifact {index} path")
+        actual_sha = _sha256_file(artifact_path)
+        if artifact.get("sha256") != actual_sha:
+            raise ClaimPackGateError(f"paper release manifest artifact {index} sha256 drift")
+        if artifact.get("size_bytes") != artifact_path.stat().st_size:
+            raise ClaimPackGateError(f"paper release manifest artifact {index} size drift")
+
+
 def _assert_exact_list(value: Any, expected: list[str], label: str) -> None:
     if value != expected:
         raise ClaimPackGateError(f"{label} drift")
@@ -421,8 +503,8 @@ def build_payload() -> dict[str, Any]:
                 "head-count, sequence-length, and combined-axis profiles."
             ),
             (
-                "Section-delta and typed-component evidence both point to shared opening and decommitment "
-                "structure as the dominant source of savings."
+                "Section-delta and typed-component evidence both point to shared opening-bucket structure "
+                "as the dominant source of savings."
             ),
             (
                 "A model-facing quantized attention policy is checked equivalent to the existing d8 bounded "
@@ -448,13 +530,7 @@ def build_payload() -> dict[str, Any]:
         "no_go_posture": list(NO_GO_POSTURE),
         "non_claims": list(NON_CLAIMS),
         "blockers": list(BLOCKERS),
-        "validation_commands": [
-            "just gate-fast",
-            "python3 scripts/zkai_paper_claim_pack_gate.py --write-json docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
-            "python3 -m unittest scripts.tests.test_zkai_paper_claim_pack_gate",
-            "git diff --check",
-            "just gate",
-        ],
+        "validation_commands": list(EXPECTED_RELEASE_VALIDATION_COMMANDS),
         "mutation_cases": [{"name": name, "rejected": True} for name in EXPECTED_MUTATION_NAMES],
     }
     payload["payload_commitment"] = payload_commitment(payload)
