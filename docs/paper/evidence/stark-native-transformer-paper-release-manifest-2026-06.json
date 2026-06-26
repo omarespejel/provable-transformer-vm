@@ -2,8 +2,8 @@
   "artifact_digests": [
     {
       "path": "docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md",
-      "sha256": "fbe43618f5078bde340547e0025e981c74159778425c1443288f5392bde97b68",
-      "size_bytes": 38904
+      "sha256": "724703cf2aa9bddc26942aa19027dc5bef662888f5e6850a5b30bbf5359f7287",
+      "size_bytes": 43798
     },
     {
       "path": "docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md",
@@ -12,8 +12,8 @@
     },
     {
       "path": "docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
-      "sha256": "9a0d8c09ce0b37d6d14330ac9f1a214a12c2b70d9eb5b40f55f83a9fc04d3166",
-      "size_bytes": 7855
+      "sha256": "905237629e3ffcd9f35fed55d3b86a31fc52a6d481143db1c2b513576951c419",
+      "size_bytes": 9081
     }
   ],
   "fixed_experimental_stwo_config": {
@@ -48,18 +48,22 @@
     "not a Stwo optimization or Stwo-AI fork result"
   ],
   "provenance_warning": "Do not use same-number PRs from other repositories as paper provenance. The starknet-innovation/mezcal PR namespace is unrelated to this paper package.",
-  "release_candidate_base_commit": "9d16c0bad1b9c2584f92b33b9958b66340ad1eb3",
-  "release_candidate_branch": "codex/paper-release-hardening-2026-06-04",
+  "release_candidate_base_commit": "e7e28a896c079dc4bd4eb66570dbe0127646eb70",
+  "release_candidate_branch": "codex/proof-pressure-top-paper-hardening-765",
   "release_commit_rule": "For public launch, use the final merged commit containing these paper artifacts and rerun every validation command on that exact commit. Rebase-merge PRs cannot know their final commit SHA before merge.",
   "repository": "omarespejel/provable-transformer-vm",
   "schema": "stark-native-transformer-paper-release-manifest-v1",
   "validation_commands": [
+    "scripts/run_proof_pressure_release_gate.sh",
     "python3.10 scripts/zkai_paper_claim_pack_gate.py --write-json docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
-    "python3.10 -m py_compile scripts/zkai_paper_claim_pack_gate.py scripts/tests/test_zkai_paper_claim_pack_gate.py",
+    "python3.10 -m py_compile scripts/zkai_paper_claim_pack_gate.py scripts/zkai_attention_kv_high_query_sensitivity_gate.py scripts/tests/test_zkai_paper_claim_pack_gate.py scripts/tests/test_zkai_attention_kv_high_query_sensitivity_gate.py",
     "python3.10 -m unittest scripts.tests.test_zkai_paper_claim_pack_gate",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_high_query_sensitivity_gate",
+    "python3.10 scripts/paper/generate_proof_pressure_boundaries_figures.py",
+    "python3.10 scripts/zkai_attention_kv_high_query_sensitivity_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json --write-tsv docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv --write-md docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md",
     "python3.10 scripts/paper/paper_preflight.py --repo-root .",
     "scripts/run_paper_preflight_suite.sh",
     "git diff --check",
-    "git diff --exit-code docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md"
+    "git diff --exit-code docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md docs/paper/appendix-zkml-statement-validity-2026.md docs/paper/README.md docs/paper/REPRODUCE.md docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md docs/paper/figures/proof-pressure-growth-factors-2026-05.tsv docs/paper/figures/proof-pressure-boundary-selection-2026-05.tsv docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv"
   ]
 }

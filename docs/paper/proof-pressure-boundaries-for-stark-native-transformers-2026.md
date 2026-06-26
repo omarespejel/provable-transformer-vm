@@ -1,4 +1,4 @@
-# Proof-Pressure Boundaries for Scoped STARK-Native Transformer Surfaces
+# Proof-Pressure Boundaries for STARK-Native Bounded Attention
 
 **Omar Espejel**  
 Starknet Foundation
@@ -10,26 +10,26 @@ StarkWare
 
 ## Abstract
 
-Where a proof system draws statement boundaries can dominate proof-size behavior
-for transformer-shaped workloads. We study scoped attention surfaces implemented
-over an unmodified Stwo STARK backend and compare fused against split boundary
-placements under a fixed experimental configuration: proof-of-work `10`, FRI log
-blowup `1`, FRI query count `3`, and fold step `1`.
+We study how proof-boundary placement affects serialized proof payload size for
+bounded integer attention fixtures over an unmodified Stwo backend. The split
+design proves bounded attention arithmetic and bounded Softmax-table membership
+as a source proof plus a LogUp sidecar proof. The fused design places both
+relations in one STARK proof object.
 
-Across the checked profiles, fusion reduces proof bytes mainly by sharing
-proof-plumbing material around lookup-heavy work. In the measured sequence-axis
-profiles, lookup and trace work grow much faster than fused proof payload bytes:
-from `seq32` to `seq64`, lookup claims grow `3.729730x` and trace rows grow
-`4.000000x`, while fused proof payload bytes grow only `1.064910x` to
-`1.080697x`. The split frontier is also sublinear, as expected for STARK proofs,
-so the positive result is that the fused boundary remains the lower proof-byte
-frontier against the matched source-plus-sidecar comparator.
+Under a fixed experimental configuration, proof-of-work `10`, FRI log blowup
+`1`, FRI query count `3`, and fold step `1`, four `seq32` to `seq64` rows show
+lookup claims growing by about `3.73x` and trace rows by `4.0x`, while fused
+proof payload bytes grow only about `1.06x` to `1.08x` and remain below matched
+split payloads. Section-level accounting attributes `93.3903%` of the checked
+attention-slice saving to opening-bucket material, mainly FRI proof and
+decommitment bytes.
 
-The result is not a full transformer inference proof, an exact real-valued
-Softmax proof, a Stwo optimization, a proving-speed claim, or a comparison with
-zkML systems. It is evidence for a narrower design rule: choose STARK-native
-transformer proof boundaries around proof pressure, while treating statement
-validity as a separate typed-boundary problem.
+These measurements do not claim production security, exact real-valued Softmax,
+full transformer inference, proving-speed improvement, a Stwo optimization, or
+system-level superiority over zkML frameworks. They support a narrower design
+rule: for STARK-native bounded attention, fuse proof regions when doing so
+amortizes duplicated opening material, and preserve application meaning with
+typed statement boundaries.
 
 ---
 
@@ -48,12 +48,12 @@ not automatically the right research object. The useful question becomes:
 > Which transformer work should share one proof object, and which work should be
 > split or composed through a typed boundary?
 
-This paper studies that question in a STARK-native setting. We introduce the
-term **proof-pressure boundary** for a proof boundary selected by measured proof
-cost rather than by source-code convenience or layer naming. A proof-pressure
-boundary asks where the proof object pays for commitments, openings,
-decommitments, queries, and statement plumbing, then chooses the boundary that
-avoids paying the same expensive structure twice.
+This paper studies that question in a STARK-native bounded-attention setting.
+We introduce the term **proof-pressure boundary** for a proof boundary selected
+by measured proof cost rather than by source-code convenience or layer naming.
+A proof-pressure boundary asks where the proof object pays for commitments,
+openings, decommitments, queries, and statement fields, then chooses the
+boundary that avoids paying the same expensive structure twice.
 
 We use **proof pressure** to mean the parts of a workload that
 disproportionately contribute to proof material: commitments, openings,
@@ -72,12 +72,13 @@ The main empirical result is intentionally narrow. In the attention
 experiments, fusing bounded attention arithmetic with Softmax-table membership
 keeps serialized proof payload bytes almost flat under a sequence-axis stress
 that multiplies lookup claims and trace rows. The measured sequence rows are not
-small toy deltas: `seq32` to `seq64` multiplies lookup claims by `3.729730x` and
-trace rows by `4.000000x`. Yet fused proof payload bytes grow only about eight
+small toy deltas: `seq32` to `seq64` multiplies lookup claims by about `3.73x`
+and trace rows by `4.0x`. Yet fused proof payload bytes grow only about eight
 percent, and in one row about six and a half percent. The split frontier also
 grows slowly. The relevant shape is therefore not that only one route has
 sublinear growth. It is: the STARK proof payload grows sublinearly on both
-routes, and fusion keeps a lower frontier by avoiding duplicated proof plumbing.
+routes, and fusion keeps a lower frontier by avoiding duplicated opening and
+decommitment material.
 
 The measured timing rows do not show that fused proving is faster. At `d64`,
 prove and verify timings grow near the work axis. The d256 width-stress row
@@ -97,8 +98,8 @@ The paper makes four contributions.
    practical method for placing transformer proof boundaries around duplicated
    proof-system plumbing.
 2. **Sequence-axis evidence.** We report four sequence-axis rows
-   in which lookup claims grow `3.729730x` and trace rows grow `4.000000x`, while
-   fused proof payload bytes grow only `1.064910x` to `1.080697x`.
+   in which lookup claims grow about `3.73x` and trace rows grow `4.0x`, while
+   fused proof payload bytes grow only about `1.06x` to `1.08x`.
 3. **Mechanism evidence.** We connect the proof-size result to opening and
    decommitment accounting, showing that saved bytes are dominated by shared
    opening material rather than by vague serialization effects.
@@ -117,7 +118,7 @@ locally reproduced, paper-reported, docs-reported, or unavailable.
 A STARK proof object does not only pay for arithmetic constraints. It also pays
 for commitments, query answers, FRI material, openings, decommitments, proof
 configuration, proof-of-work, and wrapper metadata. Two proof objects can be
-semantically adjacent while still paying two mostly separate proof-plumbing
+semantically adjacent while still paying two mostly separate fixed per-proof
 costs.
 
 That matters for transformer workloads because the same layer often contains
@@ -178,6 +179,22 @@ Softmax. They do not claim tokenization, imported model weights, accuracy,
 perplexity, or full autoregressive decoding. They are proof-system experiments
 over transformer-shaped attention surfaces.
 
+The experimental object and comparator are:
+
+| item | exact scope in this paper |
+|---|---|
+| Workload | bounded integer causal-attention fixture |
+| Numeric policy | clipped score-gap bounded Softmax table with integer floor-division outputs |
+| Fused relation | bounded attention arithmetic plus bounded Softmax-table membership |
+| Split comparator | source arithmetic proof plus LogUp table-membership sidecar proof |
+| Counted bytes | serialized Stwo proof payload stored in each envelope's `proof` byte array |
+| Excluded bytes | full envelope JSON, source input JSON, generated fixture data, and project-local typed-accounting stream |
+| Fixed config | proof-of-work `10`, FRI log blowup `1`, FRI query count `3`, FRI fold step `1` |
+| Security interpretation | fixed experimental configuration, not a production-security recommendation |
+| Timing interpretation | proof-byte result only; no proving-speed or verifier-speed claim |
+| Full inference? | no |
+| Exact real-valued Softmax? | no |
+
 The byte accounting used for the main table is deliberately narrow. The
 headline `proof bytes` are the length of the serialized Stwo proof payload stored
 in each envelope's `proof` byte array, after decoding the payload as a
@@ -194,6 +211,15 @@ experimental configuration across the checked fused and split rows; the only
 intended experimental variable is boundary placement. The raw checked envelopes
 for the tracked rows parse to the following configuration on source, sidecar,
 and fused routes:
+
+This split frontier is not claimed to be the best possible composed proof
+system. It is the matched source-plus-LogUp-sidecar object produced by this
+repository under the same backend configuration. It does not include recursive
+aggregation, a shared Fiat-Shamir channel across two separate proof objects, or
+a future shared-channel split design. Those are important follow-up baselines.
+The comparison here asks a narrower question: against the actual independent
+source-plus-sidecar frontier used by the artifact, does a fused native boundary
+avoid duplicated proof material while preserving the checked statement surface?
 
 | parameter | value |
 |---|---:|
@@ -215,6 +241,11 @@ polynomial commitment scheme requires Merkle decommitments for verifier queries
 [11]. The mechanism measured below is therefore exactly the kind of mechanism a
 STARK proof object pays for: commit, open, decommit, and carry FRI witness
 material.
+
+The checked repository build pins the implementation crates `stwo = "2.2.0"`
+and `stwo-constraint-framework = "2.2.0"` in `Cargo.toml`. Public S-two
+documentation is cited for proof-object structure, not as a substitute for the
+exact crate-version statement.
 
 The large `d128_h4_seq64` row is represented by checked gate and route-matrix
 evidence with proof commitments, exact byte counts, mutation rejection, and
@@ -258,16 +289,22 @@ speed claim.
 ## 4. Main Result: Work Grows Faster Than Fused Proof Bytes
 
 Figure 1 shows the central result. Across four sequence-axis rows, lookup claims
-and trace rows grow by about four times from `seq32` to `seq64`, while fused
-proof payload bytes grow only about `1.06x` to `1.08x`.
+and trace rows grow by about four times from `seq32` to `seq64`, while both the
+split frontier and fused proof payload grow much more slowly. The positive
+result is not that only fusion has sublinear proof-size growth. The positive
+result is that the fused route remains the lower matched proof-byte frontier.
 
-![Figure 1: Sequence-axis profiles only; fixed experimental Stwo configuration; proof bytes only; no proving-time or verifier-time claim.](figures/proof-pressure-growth-factors-2026-05.svg)
+![Figure 1: Sequence-axis profiles only; fixed experimental Stwo configuration; proof bytes only; no proving-time or verifier-time claim. Both split and fused proof payloads grow sublinearly relative to lookup claims and trace rows; fused remains the lower matched proof-byte frontier.](figures/proof-pressure-growth-factors-2026-05.svg)
 
 This is the proof-size signal. It does not say the prover did four times less
 work. It also does not say the split proof frontier grows linearly with trace
 rows; it does not. It says the emitted fused proof object did not grow in
 proportion to the lookup and trace work represented by the artifact, and that it
 remained below the matched split frontier at each measured endpoint.
+
+All proof-byte rows in this section use the fixed experimental Stwo
+configuration in Section 3. These are boundary-placement measurements, not
+production-security parameters.
 
 For the `d64` four-head row, the full sequence read is:
 
@@ -386,6 +423,37 @@ openings are batched, and how higher-soundness query settings change the fused
 versus split ratio. The current paper does not require those changes; it shows
 where they would matter.
 
+A simple cost model explains the observed boundary rule:
+
+```text
+proof payload bytes ~= fixed per-proof material
+                    + FRI material
+                    + decommitment material
+                    + relation-specific payload
+                    + wrapper/accounting material
+```
+
+In the matched split route, the source proof and sidecar proof each carry their
+own fixed per-proof material, FRI material, and decommitment surface. In the
+fused route, the attention arithmetic and table-membership relation share one
+proof object, so the duplicated opening surface is partly collapsed. This model
+predicts the measured sequence and head-axis behavior: when lookup-heavy work
+increases but the opening surface can still be shared, proof payload bytes grow
+much more slowly than lookup claims and trace rows. It also predicts the width
+caveat: when dense relation-specific payload grows, fusion can still save bytes
+against split proofs, but the fused-to-split ratio weakens because less of the
+new work is duplicated opening material.
+
+This model is descriptive for the checked artifacts, not a general STARK lower
+bound. A small higher-query sensitivity slice supports the mechanism without
+promoting it into the headline: on the `d8_single_head_seq8` surface, raising
+FRI query count from `3` to `6` and `12` preserved the fused proof-size win. The
+absolute saving grew from `11,739` bytes at `q=3` to `19,226` at `q=6` and
+`25,530` at `q=12`. The caveat is important: the `q=12` source proof exceeded
+the current d8 source-proof byte ceiling and verified only after a scratch
+resource-limit retune. Treat this as a bounded sensitivity check, not as a
+production-security profile or a headline d64/d128 rerun.
+
 ---
 
 ## 7. Statement Validity: Why Proof Verification Is Not Enough
@@ -457,9 +525,9 @@ states this boundary discipline in a self-contained form.
 Several recent systems approach verifiable ML from different proof boundaries.
 NANOZK studies layerwise proof objects for LLM inference [1]. Jolt Atlas uses
 lookup arguments for ONNX-style tensor operations [2]. zkLLM and zkAttn study
-LLM and attention-specific proving paths [3]. DeepProve reports full-model LLM
-inference proving and, in its June 2026 public release, exposes source and
-benchmark-facing documentation [4]. EZKL, RISC Zero, SP1, and Stwo expose
+LLM and attention-specific proving paths [3]. DeepProve reports GPT-2-scale
+full-model LLM inference proving and, in its June 2026 public release, exposes
+source and benchmark-facing documentation [4]. EZKL, RISC Zero, SP1, and Stwo expose
 different deployment and proof-system surfaces for verifiable computation
 [5-11].
 
@@ -475,6 +543,16 @@ RISC Zero, SP1, and Stwo are treated as docs or source-reported infrastructure
 references. The comparison is architectural: many zkML systems are already
 choosing specialized proof boundaries, and the evidence here shows one
 STARK-native boundary where lookup-heavy attention work amortizes proof bytes.
+
+| system | public object | boundary style | same surface? | used as baseline? |
+|---|---|---|---:|---:|
+| NANOZK | layerwise LLM proof paper | layer proof boundary | no | no |
+| Jolt Atlas | ONNX/lookup zkML paper | lookup-heavy tensor operations | no | no |
+| zkLLM/zkAttn | LLM and attention proving papers | attention-specialized proving | no | no |
+| DeepProve | public source and docs | GPT-2-scale full-model proving stack | no | no |
+| EZKL | public infrastructure | ONNX-oriented proving stack | no | future |
+| RISC Zero/SP1 | public infrastructure | zkVM receipts | no | future |
+| Stwo | backend used here | Circle STARK backend | yes, as backend | not external |
 
 The Stwo comparison is different from the NANOZK or Jolt Atlas comparison
 because Stwo is the backend used by the artifacts, not an external zkML system
@@ -522,8 +600,9 @@ The scope of the result is limited in several ways.
    bytes and fused-to-split ratios are measurements under that fixed
    experimental configuration, not production-security constants. Changing the
    query count, blowup factor, or proof-of-work setting can move both absolute
-   proof bytes and fused-to-split ratios; this paper does not measure that
-   higher-soundness regime.
+   proof bytes and fused-to-split ratios. A small d8 sensitivity slice at FRI
+   query counts `6` and `12` is included as engineering evidence, but it is not
+   a production-security profile and not a headline d64/d128 high-query result.
 10. **Backend optimization scope.** The paper does not claim a Stwo-AI fork,
     upstream Stwo patch, SIMD change, verifier rewrite, or new PCS. The checked
     savings come from proof-boundary construction over the existing backend
@@ -574,8 +653,10 @@ This command writes:
 - `docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv`.
 
 The evidence rows use the native Stwo bounded-integer Softmax-table fixture
-family with the route-matrix claim boundary
-`ENGINEERING_PROOF_BYTE_ACCOUNTING_FOR_NATIVE_STWO_FUSED_BOUNDED_SOFTMAX_TABLE_FIXTURE_FAMILY_NOT_REAL_VALUED_SOFTMAX_NOT_FULL_INFERENCE_NOT_TIMING_NOT_RECURSION_OR_PCD_NOT_A_PUBLIC_BENCHMARK_WITH_MATCHED_SOURCE_PLUS_SIDECAR_COMPARATORS_FOR_ALL_PROFILE_ROWS`.
+family. The route-matrix claim boundary is engineering proof-byte accounting for
+matched source-plus-sidecar and fused bounded Softmax-table artifacts. It
+explicitly excludes real-valued Softmax, full inference, timing claims,
+recursion or PCD, and public benchmark claims.
 The main timing mode is
 `median_of_5_in_process_release_timing_for_d64_and_d256_engineering_only`.
 The four paper sequence rows are `seq32` to `seq64` transitions with `32` and
@@ -687,9 +768,9 @@ The next step is to close the remaining comparison and block-surface gaps.
 4. **Stwo-AI backend specialization.** Use the measured opening and
    decommitment bottleneck to test backend-facing changes: deterministic
    transformer column grouping, lookup-table identity reuse, opening batching,
-   lifted-domain layout policy, and higher-soundness query settings. Treat this
-   as future work unless it produces a repeated, verifier-bound reduction on the
-   same surfaces.
+   lifted-domain layout policy, and higher-soundness query settings. The small
+   d8 high-query slice says this direction is worth pursuing; it does not yet
+   replace a repeated high-query grid on the d64 and d128 headline surfaces.
 5. **GKR or sumcheck side protocol.** Test dense projection and MLP regions with
    a side protocol rather than assuming one STARK-native monolith is best.
 6. **Median timing policy.** Extend median-of-five timing to the `d128`
@@ -710,7 +791,7 @@ how proof artifacts become valid application claims.
 1. Zhaohui Geoffrey Wang. *NANOZK: Layerwise Zero-Knowledge Proofs for
    Verifiable Large Language Model Inference*. arXiv:2603.18046, 2026.
    <https://arxiv.org/abs/2603.18046>
-2. Wyatt Benno, Alberto Centelles, Antoine Douchet, and Khalil Gibran.
+2. Wyatt Benno, Alberto Centelles, Antoine Douchet, and K. Gibran.
    *Jolt Atlas: Verifiable Inference via Lookup Arguments in Zero Knowledge*.
    arXiv:2602.17452, 2026. <https://arxiv.org/abs/2602.17452>
 3. Haochen Sun, Jason Li, and Hongyang Zhang. *zkLLM: Zero Knowledge Proofs for
