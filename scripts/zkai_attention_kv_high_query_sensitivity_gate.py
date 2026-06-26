@@ -139,6 +139,13 @@ VALIDATION_COMMANDS = (
     "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_high_query_sensitivity_gate",
     "git diff --check",
 )
+HIGH_QUERY_SOURCE_INPUT = "docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json"
+HIGH_QUERY_CARGO_RUN = "cargo +nightly-2025-07-14 run --locked --features stwo-backend"
+HIGH_QUERY_ROLE_BINS = {
+    "source": "zkai_attention_kv_native_d8_bounded_softmax_table_proof",
+    "sidecar": "zkai_attention_kv_native_d8_softmax_table_lookup_proof",
+    "fused": "zkai_attention_kv_native_d8_fused_softmax_table_proof",
+}
 NON_CLAIMS = (
     "not a headline d64 or d128 high-query rerun",
     "not production-security parameter evidence",
@@ -274,6 +281,18 @@ def build_row(query_count: int, q3_split: int, q3_fused: int) -> dict[str, Any]:
         "fused_growth_vs_q3": round(fused / q3_fused, 6),
         "resource_limit_status": EXPECTED_ROWS[query_count]["resource_limit_status"],
     }
+
+
+def high_query_reproduction_commands(query_count: int) -> list[str]:
+    commands = []
+    for role in ROLES:
+        envelope_path = EXPECTED_ROWS[query_count]["paths"][role].relative_to(ROOT).as_posix()
+        bin_name = HIGH_QUERY_ROLE_BINS[role]
+        commands.append(
+            f"{HIGH_QUERY_CARGO_RUN} --bin {bin_name} -- prove {HIGH_QUERY_SOURCE_INPUT} {envelope_path}"
+        )
+        commands.append(f"{HIGH_QUERY_CARGO_RUN} --bin {bin_name} -- verify {envelope_path}")
+    return commands
 
 
 def expected_rows_and_aggregate() -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -497,7 +516,19 @@ def write_md(path: pathlib.Path, payload: dict[str, Any]) -> None:
             "ZKAI_ATTENTION_KV_NATIVE_D8_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES = 262_144",
             "```",
             "",
-            "Then run source, sidecar, and fused prove plus verify commands for the d8 bounded Softmax-table input. The checked envelopes are stored under `docs/engineering/evidence/high-query/` and this gate parses their proof configs, byte sizes, and hashes.",
+            "After applying the q6 patch, run:",
+            "",
+            "```bash",
+            *high_query_reproduction_commands(6),
+            "```",
+            "",
+            "After applying the q12 patch, run:",
+            "",
+            "```bash",
+            *high_query_reproduction_commands(12),
+            "```",
+            "",
+            "The checked envelopes are stored under `docs/engineering/evidence/high-query/` and this gate parses their proof configs, byte sizes, and hashes.",
             "",
             "## Non-Claims",
             "",

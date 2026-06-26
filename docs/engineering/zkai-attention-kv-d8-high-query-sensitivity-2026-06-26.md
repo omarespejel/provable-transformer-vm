@@ -44,7 +44,29 @@ ZKAI_ATTENTION_KV_NATIVE_D8_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES = 65_536
 ZKAI_ATTENTION_KV_NATIVE_D8_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES = 262_144
 ```
 
-Then run source, sidecar, and fused prove plus verify commands for the d8 bounded Softmax-table input. The checked envelopes are stored under `docs/engineering/evidence/high-query/` and this gate parses their proof configs, byte sizes, and hashes.
+After applying the q6 patch, run:
+
+```bash
+cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d8_bounded_softmax_table_proof -- prove docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/high-query/zkai-attention-kv-d8-q6-source-proof-2026-06.envelope.json
+cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d8_bounded_softmax_table_proof -- verify docs/engineering/evidence/high-query/zkai-attention-kv-d8-q6-source-proof-2026-06.envelope.json
+cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d8_softmax_table_lookup_proof -- prove docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/high-query/zkai-attention-kv-d8-q6-sidecar-proof-2026-06.envelope.json
+cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d8_softmax_table_lookup_proof -- verify docs/engineering/evidence/high-query/zkai-attention-kv-d8-q6-sidecar-proof-2026-06.envelope.json
+cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d8_fused_softmax_table_proof -- prove docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/high-query/zkai-attention-kv-d8-q6-fused-proof-2026-06.envelope.json
+cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d8_fused_softmax_table_proof -- verify docs/engineering/evidence/high-query/zkai-attention-kv-d8-q6-fused-proof-2026-06.envelope.json
+```
+
+After applying the q12 patch, run:
+
+```bash
+cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d8_bounded_softmax_table_proof -- prove docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/high-query/zkai-attention-kv-d8-q12-source-proof-2026-06.envelope.json
+cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d8_bounded_softmax_table_proof -- verify docs/engineering/evidence/high-query/zkai-attention-kv-d8-q12-source-proof-2026-06.envelope.json
+cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d8_softmax_table_lookup_proof -- prove docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/high-query/zkai-attention-kv-d8-q12-sidecar-proof-2026-06.envelope.json
+cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d8_softmax_table_lookup_proof -- verify docs/engineering/evidence/high-query/zkai-attention-kv-d8-q12-sidecar-proof-2026-06.envelope.json
+cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d8_fused_softmax_table_proof -- prove docs/engineering/evidence/zkai-attention-kv-stwo-native-d8-bounded-softmax-table-proof-2026-05.json docs/engineering/evidence/high-query/zkai-attention-kv-d8-q12-fused-proof-2026-06.envelope.json
+cargo +nightly-2025-07-14 run --locked --features stwo-backend --bin zkai_attention_kv_native_d8_fused_softmax_table_proof -- verify docs/engineering/evidence/high-query/zkai-attention-kv-d8-q12-fused-proof-2026-06.envelope.json
+```
+
+The checked envelopes are stored under `docs/engineering/evidence/high-query/` and this gate parses their proof configs, byte sizes, and hashes.
 
 ## Non-Claims
 
