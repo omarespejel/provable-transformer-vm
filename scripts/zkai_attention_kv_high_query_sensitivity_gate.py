@@ -3,8 +3,8 @@
 
 The paper headline stays on the fixed q=3 Stwo configuration. This gate records
 one deliberately small sensitivity slice on the same d8 single-head bounded
-attention surface, with q=6 and q=12 scratch reruns. It is engineering evidence,
-not a production-security claim and not a headline d64/d128 rerun.
+attention surface, with q=6 and q=12 query-count reruns. It is engineering
+evidence, not a production-security claim and not a headline d64/d128 rerun.
 """
 
 from __future__ import annotations
@@ -33,13 +33,13 @@ MD_OUT = ROOT / "docs" / "engineering" / "zkai-attention-kv-d8-high-query-sensit
 SCHEMA = "zkai-attention-kv-d8-high-query-sensitivity-v1"
 ISSUE = 765
 DATE = "2026-06-26"
-DECISION = "GO_SMALL_SURFACE_HIGH_QUERY_SENSITIVITY_WITH_RESOURCE_LIMIT_CAVEAT"
+DECISION = "GO_SMALL_SURFACE_HIGH_QUERY_SENSITIVITY_QUERY_COUNT_ONLY"
 CLAIM_BOUNDARY = (
     "SMALL_D8_SINGLE_HEAD_SEQ8_HIGHER_FRI_QUERY_SENSITIVITY_FOR_SPLIT_VS_FUSED_PROOF_BYTES;"
     "NOT_HEADLINE_D64_D128_MEASUREMENT;NOT_PRODUCTION_SECURITY;NOT_TIMING;NOT_SYSTEM_COMPARISON"
 )
 SURFACE = "d8_single_head_seq8_bounded_softmax_table_attention"
-BACKEND = "unmodified_stwo_2_2_0_with_scratch_pcs_config_patch"
+BACKEND = "unmodified_stwo_2_2_0_with_explicit_query_count_patch"
 TOOLCHAIN = "cargo +nightly-2025-07-14 --locked --features stwo-backend"
 PAYLOAD_DOMAIN = "ptvm:zkai:attention-kv-d8-high-query-sensitivity:v1"
 
@@ -106,7 +106,7 @@ EXPECTED_ROWS = {
             "fused": "6d449b33979369cfd6f6970fa5baa940d21753c8112610c77aa4158fd31887ea",
         },
         "proof_size_bytes": {"source": 84_266, "sidecar": 27_164, "fused": 85_900},
-        "resource_limit_status": "verified_after_scratch_source_proof_limit_raise",
+        "resource_limit_status": "verified_with_query_count_patch_only",
     },
 }
 PATCHES = {
@@ -124,13 +124,7 @@ PATCHES = {
             "from": "FriConfig::new(0, 1, 3, 1)",
             "to": "FriConfig::new(0, 1, 12, 1)",
             "reason": "raise FRI query count while keeping blowup, fold step, and PoW fixed",
-        },
-        {
-            "path": "src/stwo_backend/attention_kv_native_d8_bounded_softmax_table_proof.rs",
-            "from": "ZKAI_ATTENTION_KV_NATIVE_D8_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES = 65_536",
-            "to": "ZKAI_ATTENTION_KV_NATIVE_D8_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES = 262_144",
-            "reason": "q12 source proof is 84266 bytes, above the default d8 source proof ceiling",
-        },
+        }
     ],
 }
 VALIDATION_COMMANDS = (
@@ -160,9 +154,10 @@ MUTATION_NAMES = (
     "decision_overclaim",
     "claim_boundary_overclaim",
     "missing_non_claim",
+    "query_count_patch_drift",
     "q6_size_drift",
     "q12_size_drift",
-    "q12_limit_caveat_removed",
+    "q12_resource_status_drift",
     "q6_query_count_drift",
     "q12_query_count_drift",
     "payload_commitment_drift",
@@ -311,7 +306,7 @@ def expected_rows_and_aggregate() -> tuple[list[dict[str, Any]], dict[str, Any]]
         "q12_saving_bytes": rows[2]["fused_saves_vs_source_plus_sidecar_bytes"],
         "q12_split_growth_vs_q3": rows[2]["split_growth_vs_q3"],
         "q12_fused_growth_vs_q3": rows[2]["fused_growth_vs_q3"],
-        "q12_requires_resource_limit_retune": True,
+        "q12_requires_resource_limit_retune": False,
     }
     return rows, aggregate
 
@@ -334,14 +329,14 @@ def build_payload() -> dict[str, Any]:
             "fri_fold_step": 1,
             "fri_log_last_layer_degree_bound": 0,
         },
-        "scratch_patches": PATCHES,
+        "query_count_patches": PATCHES,
         "rows": rows,
         "aggregate": aggregate,
         "interpretation": (
             "On this small d8 surface, q6 and q12 preserve the fused proof-size win. "
             "The absolute saving grows from 11739 bytes at q3 to 19226 at q6 and 25530 at q12. "
-            "The q12 source proof also exceeds the current default d8 source proof byte ceiling, so "
-            "higher-query experiments need explicit resource-limit retuning before promotion."
+            "Both higher-query rows now require only an explicit FRI-query-count patch; the "
+            "publication profile remains the default q3 configuration."
         ),
         "validation_commands": list(VALIDATION_COMMANDS),
         "non_claims": list(NON_CLAIMS),
@@ -370,6 +365,8 @@ def validate_payload(
         raise HighQuerySensitivityGateError("claim boundary drift")
     if tuple(payload.get("non_claims", ())) != NON_CLAIMS:
         raise HighQuerySensitivityGateError("non-claims drift")
+    if payload.get("query_count_patches") != PATCHES:
+        raise HighQuerySensitivityGateError("query-count patch drift")
     rows = payload.get("rows")
     if not isinstance(rows, list) or [row.get("fri_query_count") for row in rows] != [3, 6, 12]:
         raise HighQuerySensitivityGateError("query row drift")
@@ -417,9 +414,10 @@ def run_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
     add("decision_overclaim", lambda p: p.__setitem__("decision", "GO_PRODUCTION_SECURITY_HIGH_QUERY_RESULT"))
     add("claim_boundary_overclaim", lambda p: p.__setitem__("claim_boundary", "HEADLINE_D64_D128_HIGH_QUERY_PROOF_SIZE_WIN"))
     add("missing_non_claim", lambda p: p["non_claims"].remove("not production-security parameter evidence"))
+    add("query_count_patch_drift", lambda p: p["query_count_patches"]["q12"][0].__setitem__("to", "FriConfig::new(0, 1, 16, 1)"))
     add("q6_size_drift", lambda p: p["rows"][1].__setitem__("fused_proof_size_bytes", p["rows"][1]["fused_proof_size_bytes"] - 1))
     add("q12_size_drift", lambda p: p["rows"][2].__setitem__("source_plus_sidecar_raw_proof_bytes", p["rows"][2]["source_plus_sidecar_raw_proof_bytes"] - 1))
-    add("q12_limit_caveat_removed", lambda p: p["rows"][2].__setitem__("resource_limit_status", "verified_with_query_count_patch_only"))
+    add("q12_resource_status_drift", lambda p: p["rows"][2].__setitem__("resource_limit_status", "verified_after_scratch_source_proof_limit_raise"))
     add("q6_query_count_drift", lambda p: p["rows"][1]["proof_config"]["fri_config"].__setitem__("n_queries", 7))
     add("q12_query_count_drift", lambda p: p["rows"][2]["proof_config"]["fri_config"].__setitem__("n_queries", 11))
     add("payload_commitment_drift", lambda p: p.__setitem__("payload_commitment", "blake2b-256:" + "00" * 32))
@@ -493,7 +491,7 @@ def write_md(path: pathlib.Path, payload: dict[str, Any]) -> None:
             "",
             payload["interpretation"],
             "",
-            "The q12 run is useful but should stay engineering-scoped: the source proof exceeded the current default d8 source proof byte ceiling and verified only after a scratch resource-limit retune.",
+            "The q12 run is useful but should stay engineering-scoped: it is a small d8 sensitivity rerun under an explicit query-count patch, not a headline d64/d128 row or a production-security profile.",
             "",
             "## Reproduction",
             "",
@@ -511,11 +509,6 @@ def write_md(path: pathlib.Path, payload: dict[str, Any]) -> None:
             "```text",
             "src/stwo_backend/mod.rs:",
             "FriConfig::new(0, 1, 3, 1) -> FriConfig::new(0, 1, 12, 1)",
-            "",
-            "src/stwo_backend/attention_kv_native_d8_bounded_softmax_table_proof.rs:",
-            "ZKAI_ATTENTION_KV_NATIVE_D8_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES = 65_536",
-            "->",
-            "ZKAI_ATTENTION_KV_NATIVE_D8_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES = 262_144",
             "```",
             "",
             "After applying the q6 patch, run:",

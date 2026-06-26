@@ -58,22 +58,19 @@ class HighQuerySensitivityGateTests(unittest.TestCase):
         self.assertEqual(q12["fused_proof_size_bytes"], 85_900)
         self.assertEqual(q12["fused_saves_vs_source_plus_sidecar_bytes"], 25_530)
         self.assertEqual(q12["fused_to_split_ratio"], 0.770888)
-        self.assertEqual(q12["resource_limit_status"], "verified_after_scratch_source_proof_limit_raise")
+        self.assertEqual(q12["resource_limit_status"], "verified_with_query_count_patch_only")
 
-    def test_growth_metrics_and_resource_limit_caveat_are_explicit(self):
+    def test_growth_metrics_and_query_count_patches_are_explicit(self):
         aggregate = self.payload["aggregate"]
         self.assertEqual(aggregate["query_counts_checked"], [3, 6, 12])
         self.assertEqual(aggregate["q12_saving_bytes"], 25_530)
         self.assertEqual(aggregate["q12_fused_growth_vs_q3"], 1.800914)
         self.assertEqual(aggregate["q12_split_growth_vs_q3"], 1.874758)
-        self.assertTrue(aggregate["q12_requires_resource_limit_retune"])
+        self.assertFalse(aggregate["q12_requires_resource_limit_retune"])
 
-        patches = self.payload["scratch_patches"]
+        patches = self.payload["query_count_patches"]
         self.assertEqual(patches["q12"][0]["to"], "FriConfig::new(0, 1, 12, 1)")
-        self.assertEqual(
-            patches["q12"][1]["to"],
-            "ZKAI_ATTENTION_KV_NATIVE_D8_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES = 262_144",
-        )
+        self.assertEqual(len(patches["q12"]), 1)
 
     def test_declared_mutations_reject(self):
         self.assertEqual([item["name"] for item in self.payload["mutation_cases"]], list(gate.MUTATION_NAMES))
@@ -92,8 +89,13 @@ class HighQuerySensitivityGateTests(unittest.TestCase):
         self.assert_rejects(payload, "claim boundary drift")
 
         payload = self.strip_mutation_summary(self.payload)
-        payload["rows"][2]["resource_limit_status"] = "verified_with_query_count_patch_only"
+        payload["rows"][2]["resource_limit_status"] = "verified_after_scratch_source_proof_limit_raise"
         self.assert_rejects(payload, "q12 resource_limit_status drift")
+
+        payload = self.strip_mutation_summary(self.payload)
+        payload["query_count_patches"]["q12"][0]["to"] = "FriConfig::new(0, 1, 16, 1)"
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        self.assert_rejects(payload, "query-count patch drift")
 
         payload = self.strip_mutation_summary(self.payload)
         payload["rows"][1]["proof_config"]["fri_config"]["n_queries"] = 7

@@ -84,8 +84,10 @@ pub const ZKAI_ATTENTION_KV_NATIVE_D8_BOUNDED_SOFTMAX_TABLE_MAX_ENVELOPE_JSON_BY
     1_048_576;
 // The checked artifact path transports proof bytes as a pretty JSON array
 // inside a 1MiB envelope, so the raw proof cap must stay below the transport
-// ceiling rather than advertising a binary-envelope-sized limit.
-pub const ZKAI_ATTENTION_KV_NATIVE_D8_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES: usize = 65_536;
+// ceiling rather than advertising a binary-envelope-sized limit. Keep this in
+// the same 128KiB class as the neighboring d8 fused and d16 source surfaces so
+// small higher-query sensitivity reruns do not need ad hoc verifier cap edits.
+pub const ZKAI_ATTENTION_KV_NATIVE_D8_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES: usize = 131_072;
 
 const ROW_DOMAIN: &str =
     "ptvm:zkai:attention-kv-stwo-native-d8-bounded-softmax-table-score-rows:v1";
@@ -1776,6 +1778,20 @@ mod tests {
         assert!(
             verify_zkai_attention_kv_native_d8_bounded_softmax_table_envelope(&envelope).is_err()
         );
+    }
+
+    #[test]
+    fn attention_kv_native_d8_bounded_softmax_table_rejects_oversized_proof_bytes() {
+        let input = input();
+        let mut envelope = prove_zkai_attention_kv_native_d8_bounded_softmax_table_envelope(&input)
+            .expect("d8 bounded Softmax-table attention proof");
+        envelope.proof = vec![0; ZKAI_ATTENTION_KV_NATIVE_D8_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES + 1];
+        let error =
+            verify_zkai_attention_kv_native_d8_bounded_softmax_table_envelope(&envelope)
+                .unwrap_err();
+        assert!(error
+            .to_string()
+            .contains("proof bytes exceed bounded verifier limit"));
     }
 
     #[test]
