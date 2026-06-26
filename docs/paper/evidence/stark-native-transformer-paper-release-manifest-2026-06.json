@@ -2,8 +2,8 @@
   "artifact_digests": [
     {
       "path": "docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md",
-      "sha256": "bdd331de61c01c8d19cf4343711d46c6e595983b9cc59647880a59f984517730",
-      "size_bytes": 45833
+      "sha256": "7b50d2f4ded277319acd1f078349e8ecb1663ae82114819bd4615e46da659ea3",
+      "size_bytes": 46029
     },
     {
       "path": "docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md",

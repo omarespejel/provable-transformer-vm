@@ -58,8 +58,10 @@ boundary that avoids paying the same expensive structure twice.
 We use **proof pressure** to mean the parts of a workload that
 disproportionately contribute to proof material: commitments, openings,
 decommitments, FRI material, lookup arguments, trace growth, and statement
-plumbing. A proof-pressure boundary is a statement boundary chosen to share or
-isolate this material deliberately.
+plumbing. A proof-pressure boundary is a proof-object boundary chosen to share
+or isolate this material deliberately. It is related to, but distinct from, the
+typed statement boundary discussed in Section 7: one chooses where proof bytes
+are paid, the other says what the resulting artifact is allowed to mean.
 
 The evaluated surfaces are attention-shaped subcomputations. They do not
 constitute a full transformer inference proof and do not include all model

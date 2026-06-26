@@ -1,7 +1,7 @@
 # Proof Validity Is Not Statement Validity: Typed Boundaries for zkML Proof Artifacts
 
 **Companion note for**  
-`Proof-Pressure Boundaries for Scoped STARK-Native Transformer Surfaces`
+`Proof-Pressure Boundaries for STARK-Native Bounded Attention`
 
 *June 2026 draft*
 

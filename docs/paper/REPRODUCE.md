@@ -73,23 +73,35 @@ The gate regenerates the machine-readable claim pack and figures, runs the
 paper preflight, checks Python syntax and unit tests for the claim-pack gate,
 and fails if committed paper artifacts drift.
 
+If the default `python3.10` binary is not available, point the gate at an
+equivalent Python 3.10+ interpreter:
+
+```bash
+PYTHON_BIN=.venv/bin/python scripts/run_proof_pressure_release_gate.sh
+```
+
+For launch or external audit, run this command on the exact release commit and
+record that regeneration produced no diff against the committed paper artifacts.
+
 ## Individual Commands
 
 The release gate expands to the commands pinned in
 `docs/paper/PAPER_RELEASE_AUDIT_PACKET_2026_06_04.md`, including:
 
 ```bash
-python3.10 scripts/zkai_paper_claim_pack_gate.py \
+PYTHON_BIN="${PYTHON_BIN:-python3.10}"
+
+"$PYTHON_BIN" scripts/zkai_paper_claim_pack_gate.py \
   --write-json docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json
 
-python3.10 scripts/paper/generate_proof_pressure_boundaries_figures.py
+"$PYTHON_BIN" scripts/paper/generate_proof_pressure_boundaries_figures.py
 
-python3.10 scripts/zkai_attention_kv_high_query_sensitivity_gate.py \
+"$PYTHON_BIN" scripts/zkai_attention_kv_high_query_sensitivity_gate.py \
   --write-json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json \
   --write-tsv docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv \
   --write-md docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md
 
-python3.10 scripts/paper/paper_preflight.py --repo-root .
+"$PYTHON_BIN" scripts/paper/paper_preflight.py --repo-root .
 
 scripts/run_paper_preflight_suite.sh
 
