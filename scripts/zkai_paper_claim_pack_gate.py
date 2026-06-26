@@ -238,6 +238,7 @@ EXPECTED_RELEASE_NO_DRIFT_PATHS = (
     "docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md",
     "docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md",
     "docs/paper/appendix-zkml-statement-validity-2026.md",
+    "docs/paper/PAPER_NEXT_REVIEW_PACKET_2026_06_27.md",
     "docs/paper/PAPER_D64_HIGH_QUERY_AUDIT_PACKET_2026_06_27.md",
     "docs/paper/README.md",
     "docs/paper/REPRODUCE.md",

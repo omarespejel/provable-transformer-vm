@@ -20,13 +20,14 @@ and should not be read as a new proving protocol.
 
 Proof-pressure reviewer path:
 
-1. `proof-pressure-boundaries-for-stark-native-transformers-2026.md`
-2. `appendix-zkml-statement-validity-2026.md`
-3. `stark-native-transformer-proof-claim-pack-2026-05.md`
-4. `PAPER_RELEASE_AUDIT_PACKET_2026_06_04.md`
-5. `PAPER_D64_HIGH_QUERY_AUDIT_PACKET_2026_06_27.md`
-6. `REPRODUCE.md`
-7. `scripts/run_proof_pressure_release_gate.sh` from the repository root
+1. `PAPER_NEXT_REVIEW_PACKET_2026_06_27.md`
+2. `proof-pressure-boundaries-for-stark-native-transformers-2026.md`
+3. `appendix-zkml-statement-validity-2026.md`
+4. `stark-native-transformer-proof-claim-pack-2026-05.md`
+5. `REPRODUCE.md`
+6. `PAPER_D64_HIGH_QUERY_AUDIT_PACKET_2026_06_27.md`
+7. `PAPER_RELEASE_AUDIT_PACKET_2026_06_04.md`
+8. `scripts/run_proof_pressure_release_gate.sh` from the repository root
 
 The proof-pressure paper does not claim full transformer inference, exact
 real-valued Softmax, production-security parameters, proving-speed improvement,
