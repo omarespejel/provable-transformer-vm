@@ -1,0 +1,4 @@
+fri_query_count	source_proof_size_bytes	sidecar_proof_size_bytes	source_plus_sidecar_raw_proof_bytes	fused_proof_size_bytes	fused_saves_vs_source_plus_sidecar_bytes	fused_to_split_ratio	fused_growth_vs_q3	split_growth_vs_q3	resource_limit_status
+3	44692	14745	59437	47698	11739	0.802497	1.0	1.0	checked_default_artifact
+6	60828	21287	82115	62889	19226	0.765865	1.318483	1.381547	verified_with_query_count_patch_only
+12	84266	27164	111430	85900	25530	0.770888	1.800914	1.874758	verified_after_scratch_source_proof_limit_raise

@@ -70,6 +70,18 @@ Current paper-facing zkML architecture drafts:
 - [`docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md`](docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md)
 - [`docs/paper/appendix-zkml-statement-validity-2026.md`](docs/paper/appendix-zkml-statement-validity-2026.md)
 
+Paper reviewers should start with:
+
+- [`docs/paper/REPRODUCE.md`](docs/paper/REPRODUCE.md)
+- [`docs/paper/PAPER_RELEASE_AUDIT_PACKET_2026_06_04.md`](docs/paper/PAPER_RELEASE_AUDIT_PACKET_2026_06_04.md)
+- `scripts/run_proof_pressure_release_gate.sh`
+
+That path is intentionally narrower than the full research tree. The
+proof-pressure paper is a scoped bounded-attention boundary-placement result
+under a fixed experimental Stwo configuration, not a claim of full transformer
+inference, exact real-valued Softmax, production security, proving-speed
+improvement, or a system-level zkML benchmark.
+
 Current public proof surfaces:
 
 - native-ISA `statement-v1` arithmetic proofs

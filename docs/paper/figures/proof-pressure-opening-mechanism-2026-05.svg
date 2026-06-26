@@ -10,7 +10,7 @@
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.9.4, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.10.9, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -82,8 +82,8 @@ L 0 3.5
       </g>
      </g>
      <g id="text_1">
-      <text style="font: 8px 'DejaVu Serif', serif" transform="translate(119.362325 235.148668)">Attention + LogUp</text>
-      <text style="font: 8px 'DejaVu Serif', serif" transform="translate(110.79795 244.220668)">serialized section delta</text>
+      <text style="font-size: 8px; font-family: 'DejaVu Serif', serif" transform="translate(119.362325 235.148668)">Attention + LogUp</text>
+      <text style="font-size: 8px; font-family: 'DejaVu Serif', serif" transform="translate(110.79795 244.220668)">serialized section delta</text>
      </g>
     </g>
     <g id="xtick_2">
@@ -93,8 +93,8 @@ L 0 3.5
       </g>
      </g>
      <g id="text_2">
-      <text style="font: 8px 'DejaVu Serif', serif" transform="translate(331.613601 235.262418)">d128 MLP-side</text>
-      <text style="font: 8px 'DejaVu Serif', serif" transform="translate(315.975476 244.220668)">local typed accounting</text>
+      <text style="font-size: 8px; font-family: 'DejaVu Serif', serif" transform="translate(331.613601 235.262418)">d128 MLP-side</text>
+      <text style="font-size: 8px; font-family: 'DejaVu Serif', serif" transform="translate(315.975476 244.220668)">local typed accounting</text>
      </g>
     </g>
    </g>
@@ -116,7 +116,7 @@ L -3.5 0
       </g>
      </g>
      <g id="text_3">
-      <text style="font: 8px 'DejaVu Serif', serif; text-anchor: end" x="50.578281" y="225.223043" transform="rotate(-0 50.578281 225.223043)">0</text>
+      <text style="font-size: 8px; font-family: 'DejaVu Serif', serif; text-anchor: end" x="50.578281" y="225.223043" transform="rotate(-0 50.578281 225.223043)">0</text>
      </g>
     </g>
     <g id="ytick_2">
@@ -131,7 +131,7 @@ L 461.99952 181.695511
       </g>
      </g>
      <g id="text_4">
-      <text style="font: 8px 'DejaVu Serif', serif; text-anchor: end" x="50.578281" y="184.734886" transform="rotate(-0 50.578281 184.734886)">50000</text>
+      <text style="font-size: 8px; font-family: 'DejaVu Serif', serif; text-anchor: end" x="50.578281" y="184.734886" transform="rotate(-0 50.578281 184.734886)">50000</text>
      </g>
     </g>
     <g id="ytick_3">
@@ -146,7 +146,7 @@ L 461.99952 141.207354
       </g>
      </g>
      <g id="text_5">
-      <text style="font: 8px 'DejaVu Serif', serif; text-anchor: end" x="50.578281" y="144.246729" transform="rotate(-0 50.578281 144.246729)">100000</text>
+      <text style="font-size: 8px; font-family: 'DejaVu Serif', serif; text-anchor: end" x="50.578281" y="144.246729" transform="rotate(-0 50.578281 144.246729)">100000</text>
      </g>
     </g>
     <g id="ytick_4">
@@ -161,7 +161,7 @@ L 461.99952 100.719196
       </g>
      </g>
      <g id="text_6">
-      <text style="font: 8px 'DejaVu Serif', serif; text-anchor: end" x="50.578281" y="103.758571" transform="rotate(-0 50.578281 103.758571)">150000</text>
+      <text style="font-size: 8px; font-family: 'DejaVu Serif', serif; text-anchor: end" x="50.578281" y="103.758571" transform="rotate(-0 50.578281 103.758571)">150000</text>
      </g>
     </g>
     <g id="ytick_5">
@@ -176,11 +176,11 @@ L 461.99952 60.231039
       </g>
      </g>
      <g id="text_7">
-      <text style="font: 8px 'DejaVu Serif', serif; text-anchor: end" x="50.578281" y="63.270414" transform="rotate(-0 50.578281 63.270414)">200000</text>
+      <text style="font-size: 8px; font-family: 'DejaVu Serif', serif; text-anchor: end" x="50.578281" y="63.270414" transform="rotate(-0 50.578281 63.270414)">200000</text>
      </g>
     </g>
     <g id="text_8">
-     <text style="font: 9px 'DejaVu Serif', serif; text-anchor: middle" x="14.038594" y="126.973378" transform="rotate(-90 14.038594 126.973378)">Saved bytes</text>
+     <text style="font-size: 9px; font-family: 'DejaVu Serif', serif; text-anchor: middle" x="14.038594" y="126.973378" transform="rotate(-90 14.038594 126.973378)">Saved bytes</text>
     </g>
    </g>
    <g id="patch_7">
@@ -194,16 +194,16 @@ L 461.99952 222.183668
 " style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
    <g id="text_9">
-    <text style="fill: #333333; font: 8px 'DejaVu Serif', serif; text-anchor: middle" x="157.662325" y="32.705881" transform="rotate(-0 157.662325 32.705881)">93.4% opening</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Serif', serif; text-anchor: middle; fill: #333333" x="157.662325" y="32.705881" transform="rotate(-0 157.662325 32.705881)">93.4% opening</text>
    </g>
    <g id="text_10">
-    <text style="fill: #ffffff; font: 8px 'DejaVu Serif', serif; text-anchor: middle" x="157.662325" y="139.708163" transform="rotate(-0 157.662325 139.708163)">209,155</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Serif', serif; text-anchor: middle; fill: #ffffff" x="157.662325" y="139.708163" transform="rotate(-0 157.662325 139.708163)">209,155</text>
    </g>
    <g id="text_11">
-    <text style="fill: #333333; font: 8px 'DejaVu Serif', serif; text-anchor: middle" x="361.915476" y="184.285444" transform="rotate(-0 361.915476 184.285444)">90.5% opening</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Serif', serif; text-anchor: middle; fill: #333333" x="361.915476" y="184.285444" transform="rotate(-0 361.915476 184.285444)">90.5% opening</text>
    </g>
    <g id="text_12">
-    <text style="fill: #ffffff; font: 8px 'DejaVu Serif', serif; text-anchor: middle" x="361.915476" y="210.916709" transform="rotate(-0 361.915476 210.916709)">33,280</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Serif', serif; text-anchor: middle; fill: #ffffff" x="361.915476" y="210.916709" transform="rotate(-0 361.915476 210.916709)">33,280</text>
    </g>
    <g id="legend_1">
     <g id="patch_9">
@@ -215,7 +215,7 @@ z
 " style="fill: #117733"/>
     </g>
     <g id="text_13">
-     <text style="font: 8px 'DejaVu Serif', serif; text-anchor: start" x="139.092026" y="16.47875" transform="rotate(-0 139.092026 16.47875)">Opening and decommitment material</text>
+     <text style="font-size: 8px; font-family: 'DejaVu Serif', serif; text-anchor: start" x="139.092026" y="16.47875" transform="rotate(-0 139.092026 16.47875)">Opening and decommitment material</text>
     </g>
     <g id="patch_10">
      <path d="M 306.968276 16.47875
@@ -226,7 +226,7 @@ z
 " style="fill: #88ccee"/>
     </g>
     <g id="text_14">
-     <text style="font: 8px 'DejaVu Serif', serif; text-anchor: start" x="329.368276" y="16.47875" transform="rotate(-0 329.368276 16.47875)">Other saved bytes</text>
+     <text style="font-size: 8px; font-family: 'DejaVu Serif', serif; text-anchor: start" x="329.368276" y="16.47875" transform="rotate(-0 329.368276 16.47875)">Other saved bytes</text>
     </g>
    </g>
   </g>

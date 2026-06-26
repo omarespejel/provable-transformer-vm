@@ -187,14 +187,16 @@ def render_growth_factor_figure() -> None:
     lookup = [float_field(row, "lookup_growth") for row in rows]
     trace = [float_field(row, "trace_growth") for row in rows]
     fused = [float_field(row, "fused_proof_growth") for row in rows]
+    split = [float_field(row, "split_proof_growth") for row in rows]
 
     x = list(range(len(rows)))
-    width = 0.24
+    width = 0.19
     fig, ax = plt.subplots(figsize=(7.2, 3.4), constrained_layout=True)
     bars = [
-        ax.bar([i - width for i in x], lookup, width, label="Lookup claims", color=COLORS["lookup"]),
-        ax.bar(x, trace, width, label="Trace rows", color=COLORS["trace"]),
-        ax.bar([i + width for i in x], fused, width, label="Fused proof payload bytes", color=COLORS["fused"]),
+        ax.bar([i - 1.5 * width for i in x], lookup, width, label="Lookup claims", color=COLORS["lookup"]),
+        ax.bar([i - 0.5 * width for i in x], trace, width, label="Trace rows", color=COLORS["trace"]),
+        ax.bar([i + 0.5 * width for i in x], split, width, label="Split proof frontier bytes", color=COLORS["split"]),
+        ax.bar([i + 1.5 * width for i in x], fused, width, label="Fused proof payload bytes", color=COLORS["fused"]),
     ]
 
     ax.axhline(1.0, color="#555555", linewidth=0.8, linestyle=":")
@@ -206,21 +208,22 @@ def render_growth_factor_figure() -> None:
     ax.grid(axis="y", color="#BBBBBB", linewidth=0.6, alpha=0.35)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.legend(frameon=False, ncols=3, loc="upper center", bbox_to_anchor=(0.5, 1.18))
+    ax.legend(frameon=False, ncols=2, loc="upper center", bbox_to_anchor=(0.5, 1.24))
 
     write_tsv(
         "proof-pressure-growth-factors-2026-05",
-        ["row_id", "label", "lookup_growth", "trace_growth", "fused_proof_growth"],
+        ["row_id", "label", "lookup_growth", "trace_growth", "split_proof_growth", "fused_proof_growth"],
         [
             {
                 "row_id": row["row_id"],
                 "label": label,
                 "lookup_growth": f"{lookup_growth:.6f}",
                 "trace_growth": f"{trace_growth:.6f}",
+                "split_proof_growth": f"{split_growth:.6f}",
                 "fused_proof_growth": f"{fused_growth:.6f}",
             }
-            for row, label, lookup_growth, trace_growth, fused_growth in zip(
-                rows, labels, lookup, trace, fused
+            for row, label, lookup_growth, trace_growth, split_growth, fused_growth in zip(
+                rows, labels, lookup, trace, split, fused
             )
         ],
     )

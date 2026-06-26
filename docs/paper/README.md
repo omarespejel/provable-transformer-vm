@@ -8,17 +8,35 @@ It also contains a newer proof-boundary draft:
 
 - `proof-pressure-boundaries-for-stark-native-transformers-2026.md`
 - `appendix-zkml-statement-validity-2026.md`
+- `REPRODUCE.md`
 
 The repository root README links these two zkML architecture drafts for
 top-level discoverability.
 
-That draft is the current home for the May 2026 STARK-native transformer
+That draft is the current home for the June 2026 STARK-native bounded-attention
 proof-pressure result: lookup and trace work grow quickly on checked sequence
-rows while fused proof bytes grow slowly. It should be read as a scoped
-proof-architecture paper, not as a replacement for the Tablero statement-validity
-paper. The statement-validity appendix is a short companion note that explains
-how proof artifacts are bound to model, input, output, policy, verifier-domain,
-and application-claim meaning.
+rows while fused proof payload bytes remain below the matched split frontier. It
+should be read as a scoped proof-architecture paper, not as a replacement for the
+Tablero statement-validity paper. The statement-validity appendix is a short
+companion note that explains how proof artifacts are bound to model, input,
+output, policy, verifier-domain, and application-claim meaning.
+
+Proof-pressure reviewer path:
+
+1. `proof-pressure-boundaries-for-stark-native-transformers-2026.md`
+2. `appendix-zkml-statement-validity-2026.md`
+3. `stark-native-transformer-proof-claim-pack-2026-05.md`
+4. `PAPER_RELEASE_AUDIT_PACKET_2026_06_04.md`
+5. `REPRODUCE.md`
+6. `scripts/run_proof_pressure_release_gate.sh` from the repository root
+
+The proof-pressure paper does not claim full transformer inference, exact
+real-valued Softmax, production-security parameters, proving-speed improvement,
+or a system-level comparison against other zkML systems.
+
+The small high-query sensitivity slice lives in
+`../engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md` and
+is engineering evidence only, not a headline production-security result.
 
 Primary presentation files:
 
