@@ -52,6 +52,8 @@ Starknet deployment, or upstream Stwo optimization.
   `docs/engineering/evidence/zkai-attention-kv-model-faithful-quantized-attention-bridge-2026-05.json`
 - Stwo-AI layout diagnostic:
   `docs/engineering/evidence/zkai-stwo-ai-d64-four-head-seq64-chunk4-policy-gate-2026-06.json`
+- D64 high-query sensitivity:
+  `docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json`
 - Machine-readable claim pack:
   `docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json`
 - Paper release audit manifest:
@@ -123,6 +125,14 @@ The `d64_four_head_seq64` row ties that mechanism to the main headline surface:
 bytes at a `0.875605` fused ratio. Its opening bucket accounts for `37,827` of
 those saved bytes.
 
+The same `d64_four_head_seq64` surface now has a higher-query sensitivity slice
+under an explicit FRI-query-count patch. Holding proof-of-work, blowup, and fold
+step fixed, q6 records `453,733` split proof bytes versus `390,437` fused proof
+bytes, saving `63,296` bytes at a `0.860499` ratio. q12 records `727,747`
+split proof bytes versus `612,237` fused proof bytes, saving `115,510` bytes at
+a `0.841277` ratio. This is engineering sensitivity evidence, not a
+production-security parameter claim and not a d128 high-query row.
+
 The attention-derived `d128` MLP-side attribution is a separate typed-accounting
 slice, not the same surface as the attention sequence rows. It still points in
 the same direction: six separate proof objects total `59,344` typed bytes, the
@@ -183,8 +193,10 @@ python3.10 scripts/zkai_paper_claim_pack_gate.py \
 python3.10 -m py_compile \
   scripts/zkai_paper_claim_pack_gate.py \
   scripts/zkai_attention_kv_high_query_sensitivity_gate.py \
+  scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py \
   scripts/tests/test_zkai_paper_claim_pack_gate.py \
   scripts/tests/test_zkai_attention_kv_high_query_sensitivity_gate.py \
+  scripts/tests/test_zkai_attention_kv_d64_high_query_sensitivity_gate.py \
   scripts/paper/generate_proof_pressure_boundaries_figures.py \
   scripts/paper/paper_preflight.py
 
@@ -192,12 +204,19 @@ python3.10 -m unittest scripts.tests.test_zkai_paper_claim_pack_gate
 
 python3.10 -m unittest scripts.tests.test_zkai_attention_kv_high_query_sensitivity_gate
 
+python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d64_high_query_sensitivity_gate
+
 python3.10 scripts/paper/generate_proof_pressure_boundaries_figures.py
 
 python3.10 scripts/zkai_attention_kv_high_query_sensitivity_gate.py \
   --write-json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json \
   --write-tsv docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv \
   --write-md docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md
+
+python3.10 scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py \
+  --write-json docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json \
+  --write-tsv docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv \
+  --write-md docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md
 
 python3.10 scripts/paper/paper_preflight.py --repo-root .
 
@@ -211,11 +230,15 @@ git diff --exit-code \
   docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md \
   docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md \
   docs/paper/appendix-zkml-statement-validity-2026.md \
+  docs/paper/PAPER_D64_HIGH_QUERY_AUDIT_PACKET_2026_06_27.md \
   docs/paper/README.md \
   docs/paper/REPRODUCE.md \
   docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json \
   docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv \
   docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md \
+  docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json \
+  docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv \
+  docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md \
   docs/paper/figures/proof-pressure-growth-factors-2026-05.pdf \
   docs/paper/figures/proof-pressure-growth-factors-2026-05.png \
   docs/paper/figures/proof-pressure-growth-factors-2026-05.svg \
@@ -227,5 +250,9 @@ git diff --exit-code \
   docs/paper/figures/proof-pressure-opening-mechanism-2026-05.pdf \
   docs/paper/figures/proof-pressure-opening-mechanism-2026-05.png \
   docs/paper/figures/proof-pressure-opening-mechanism-2026-05.svg \
-  docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv
+  docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv \
+  docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.pdf \
+  docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.png \
+  docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.svg \
+  docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.tsv
 ```
