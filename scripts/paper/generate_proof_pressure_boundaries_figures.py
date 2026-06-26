@@ -400,14 +400,17 @@ def render_d64_high_query_figure() -> None:
     fused = [int(float_field(row, "fused_proof_size_bytes")) for row in rows]
     reported_savings = [int(float_field(row, "fused_saves_vs_source_plus_sidecar_bytes")) for row in rows]
     reported_ratios = [float_field(row, "fused_to_split_ratio") for row in rows]
-    savings = [split_bytes - fused_bytes for split_bytes, fused_bytes in zip(split, fused)]
-    ratios = [fused_bytes / split_bytes for fused_bytes, split_bytes in zip(fused, split)]
     if queries != [3, 6, 12]:
         raise SystemExit(f"unexpected d64 high-query x-axis: {queries}")
-    if any(fused_bytes >= split_bytes for fused_bytes, split_bytes in zip(fused, split)):
+    for query_count, split_bytes in zip(queries, split, strict=True):
+        if split_bytes <= 0:
+            raise SystemExit(f"d64 high-query q{query_count} split proof bytes must be positive")
+    if any(fused_bytes >= split_bytes for fused_bytes, split_bytes in zip(fused, split, strict=True)):
         raise SystemExit("d64 high-query fused proof must stay below split frontier")
+    savings = [split_bytes - fused_bytes for split_bytes, fused_bytes in zip(split, fused, strict=True)]
+    ratios = [fused_bytes / split_bytes for fused_bytes, split_bytes in zip(fused, split, strict=True)]
     for query_count, saving, reported_saving, ratio, reported_ratio in zip(
-        queries, savings, reported_savings, ratios, reported_ratios
+        queries, savings, reported_savings, ratios, reported_ratios, strict=True
     ):
         if saving != reported_saving:
             raise SystemExit(
@@ -432,7 +435,7 @@ def render_d64_high_query_figure() -> None:
     ax.legend(frameon=False, loc="upper left")
 
     for index, (query_count, split_bytes, fused_bytes, saving, ratio) in enumerate(
-        zip(queries, split, fused, savings, ratios)
+        zip(queries, split, fused, savings, ratios, strict=True)
     ):
         midpoint = fused_bytes + (split_bytes - fused_bytes) / 2
         if index == 0:
@@ -472,7 +475,9 @@ def render_d64_high_query_figure() -> None:
                 "saving_bytes": saving,
                 "fused_to_split_ratio": f"{ratio:.6f}",
             }
-            for query_count, split_bytes, fused_bytes, saving, ratio in zip(queries, split, fused, savings, ratios)
+            for query_count, split_bytes, fused_bytes, saving, ratio in zip(
+                queries, split, fused, savings, ratios, strict=True
+            )
         ],
     )
     write_figure(fig, "proof-pressure-d64-high-query-sensitivity-2026-06")
