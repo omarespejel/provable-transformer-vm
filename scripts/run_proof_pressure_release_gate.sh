@@ -56,6 +56,15 @@ git diff --exit-code \
   docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json \
   docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv \
   docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md \
+  docs/paper/figures/proof-pressure-growth-factors-2026-05.pdf \
+  docs/paper/figures/proof-pressure-growth-factors-2026-05.png \
+  docs/paper/figures/proof-pressure-growth-factors-2026-05.svg \
   docs/paper/figures/proof-pressure-growth-factors-2026-05.tsv \
+  docs/paper/figures/proof-pressure-boundary-selection-2026-05.pdf \
+  docs/paper/figures/proof-pressure-boundary-selection-2026-05.png \
+  docs/paper/figures/proof-pressure-boundary-selection-2026-05.svg \
   docs/paper/figures/proof-pressure-boundary-selection-2026-05.tsv \
+  docs/paper/figures/proof-pressure-opening-mechanism-2026-05.pdf \
+  docs/paper/figures/proof-pressure-opening-mechanism-2026-05.png \
+  docs/paper/figures/proof-pressure-opening-mechanism-2026-05.svg \
   docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv

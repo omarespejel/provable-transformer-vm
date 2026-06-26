@@ -223,6 +223,29 @@ EXPECTED_RELEASE_FIXED_CONFIG = {
     "proof_of_work_bits": 10,
     "security_status": "fixed experimental configuration, not production-security parameter recommendation",
 }
+EXPECTED_RELEASE_NO_DRIFT_PATHS = (
+    "docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
+    "docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md",
+    "docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md",
+    "docs/paper/appendix-zkml-statement-validity-2026.md",
+    "docs/paper/README.md",
+    "docs/paper/REPRODUCE.md",
+    "docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json",
+    "docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv",
+    "docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md",
+    "docs/paper/figures/proof-pressure-growth-factors-2026-05.pdf",
+    "docs/paper/figures/proof-pressure-growth-factors-2026-05.png",
+    "docs/paper/figures/proof-pressure-growth-factors-2026-05.svg",
+    "docs/paper/figures/proof-pressure-growth-factors-2026-05.tsv",
+    "docs/paper/figures/proof-pressure-boundary-selection-2026-05.pdf",
+    "docs/paper/figures/proof-pressure-boundary-selection-2026-05.png",
+    "docs/paper/figures/proof-pressure-boundary-selection-2026-05.svg",
+    "docs/paper/figures/proof-pressure-boundary-selection-2026-05.tsv",
+    "docs/paper/figures/proof-pressure-opening-mechanism-2026-05.pdf",
+    "docs/paper/figures/proof-pressure-opening-mechanism-2026-05.png",
+    "docs/paper/figures/proof-pressure-opening-mechanism-2026-05.svg",
+    "docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv",
+)
 EXPECTED_RELEASE_VALIDATION_COMMANDS = [
     "scripts/run_proof_pressure_release_gate.sh",
     "python3.10 scripts/zkai_paper_claim_pack_gate.py --write-json docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
@@ -234,7 +257,7 @@ EXPECTED_RELEASE_VALIDATION_COMMANDS = [
     "python3.10 scripts/paper/paper_preflight.py --repo-root .",
     "scripts/run_paper_preflight_suite.sh",
     "git diff --check",
-    "git diff --exit-code docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md docs/paper/appendix-zkml-statement-validity-2026.md docs/paper/README.md docs/paper/REPRODUCE.md docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md docs/paper/figures/proof-pressure-growth-factors-2026-05.tsv docs/paper/figures/proof-pressure-boundary-selection-2026-05.tsv docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv",
+    "git diff --exit-code " + " ".join(EXPECTED_RELEASE_NO_DRIFT_PATHS),
 ]
 
 
