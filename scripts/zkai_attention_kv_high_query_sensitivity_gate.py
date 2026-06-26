@@ -394,6 +394,8 @@ def validate_payload(
                 raise HighQuerySensitivityGateError(f"q{expected['fri_query_count']} {field} drift")
         if actual.get("proof_config") != expected["proof_config"]:
             raise HighQuerySensitivityGateError(f"q{expected['fri_query_count']} proof config drift")
+        if actual.get("artifacts") != expected["artifacts"]:
+            raise HighQuerySensitivityGateError(f"q{expected['fri_query_count']} artifact block drift")
     aggregate = payload.get("aggregate")
     if not isinstance(aggregate, dict) or aggregate != expected_aggregate:
         raise HighQuerySensitivityGateError("aggregate drift")

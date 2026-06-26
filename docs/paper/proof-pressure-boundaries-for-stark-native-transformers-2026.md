@@ -705,9 +705,22 @@ python3.10 scripts/zkai_paper_claim_pack_gate.py \
 
 python3.10 -m py_compile \
   scripts/zkai_paper_claim_pack_gate.py \
-  scripts/tests/test_zkai_paper_claim_pack_gate.py
+  scripts/zkai_attention_kv_high_query_sensitivity_gate.py \
+  scripts/tests/test_zkai_paper_claim_pack_gate.py \
+  scripts/tests/test_zkai_attention_kv_high_query_sensitivity_gate.py \
+  scripts/paper/generate_proof_pressure_boundaries_figures.py \
+  scripts/paper/paper_preflight.py
 
 python3.10 -m unittest scripts.tests.test_zkai_paper_claim_pack_gate
+
+python3.10 -m unittest scripts.tests.test_zkai_attention_kv_high_query_sensitivity_gate
+
+python3.10 scripts/paper/generate_proof_pressure_boundaries_figures.py
+
+python3.10 scripts/zkai_attention_kv_high_query_sensitivity_gate.py \
+  --write-json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json \
+  --write-tsv docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv \
+  --write-md docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md
 
 python3.10 scripts/paper/paper_preflight.py --repo-root .
 
@@ -717,6 +730,7 @@ git diff --check
 
 git diff --exit-code \
   docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json \
+  docs/paper/evidence/stark-native-transformer-paper-release-manifest-2026-06.json \
   docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md \
   docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md \
   docs/paper/appendix-zkml-statement-validity-2026.md \
