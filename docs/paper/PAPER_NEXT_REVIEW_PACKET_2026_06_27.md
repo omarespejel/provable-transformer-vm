@@ -46,9 +46,11 @@ around lookup-heavy work.
    row.
 3. The paper explicitly says the `q=3` Stwo PCS setting is a fixed experimental
    measurement profile, not production security.
-4. The legacy helper `publication_v1_pcs_config()` is distinguished from the
-   older Vanilla STARK `publication_v1_stark_options()` path with its `96`-bit
-   conjectured floor.
+4. The fixed Stwo measurement PCS profile is named
+   `fixed_stwo_measurement_pcs_config()` in new code. The older
+   `publication_v1_pcs_config()` helper remains only as a compatibility alias
+   and is distinguished from the Vanilla STARK `publication_v1_stark_options()`
+   path with its `96`-bit conjectured floor.
 5. The claim pack, reproduction note, release packets, README, and release
    manifest all carry the same profile boundary.
 
@@ -145,9 +147,11 @@ Please answer these before launch:
 
 ## Known Follow-Ups
 
-- Issue #773 tracks a later rename or deprecation of the legacy
-  `publication_v1_pcs_config()` helper. Do not block the paper on this unless a
-  reviewer thinks the current documentation is still too confusing.
+- Issue #773 tracks the helper-name cleanup for the fixed Stwo measurement PCS
+  profile. After that cleanup, reviewers should see
+  `fixed_stwo_measurement_pcs_config()` as the canonical helper name and
+  `publication_v1_pcs_config()` only as a compatibility alias for older
+  generated modules.
 - d128 high-query sensitivity is future work. A cheap probe crossed the current
   bounded verifier cap, so it should not be folded into this launch package.
 - Full transformer-block proving and external apples-to-apples baselines remain

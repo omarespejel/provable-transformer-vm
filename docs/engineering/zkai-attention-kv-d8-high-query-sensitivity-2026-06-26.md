@@ -23,7 +23,7 @@ The q12 run is useful but should stay engineering-scoped: it is a small d8 sensi
 
 ## Reproduction
 
-Use a throwaway worktree. Do not change the publication branch's default `publication_v1_pcs_config`.
+Use a throwaway worktree. Do not change the publication branch's default `fixed_stwo_measurement_pcs_config` settings.
 
 For q6, patch:
 

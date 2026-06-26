@@ -267,10 +267,11 @@ use stwo::core::pcs::PcsConfig;
 #[cfg(feature = "stwo-backend")]
 /// Fixed Stwo PCS measurement profile used by the bounded-attention artifacts.
 ///
-/// The name is legacy internal shorthand. It does not refer to the
-/// `publication_v1_stark_options()` Vanilla STARK policy in `src/proof.rs`, and
-/// it is not a production-security parameter recommendation.
-pub(crate) fn publication_v1_pcs_config() -> PcsConfig {
+/// This is the q=3 engineering measurement profile used to isolate
+/// boundary-placement effects. It is not the `publication_v1_stark_options()`
+/// Vanilla STARK policy in `src/proof.rs`, and it is not a
+/// production-security parameter recommendation.
+pub(crate) fn fixed_stwo_measurement_pcs_config() -> PcsConfig {
     PcsConfig {
         pow_bits: 10,
         fri_config: FriConfig::new(0, 1, 3, 1),
@@ -279,8 +280,18 @@ pub(crate) fn publication_v1_pcs_config() -> PcsConfig {
 }
 
 #[cfg(feature = "stwo-backend")]
-pub(crate) fn publication_v1_pcs_config_matches(actual: &PcsConfig) -> bool {
-    let expected = publication_v1_pcs_config();
+/// Compatibility alias for older generated modules and artifact notes.
+///
+/// New code should call `fixed_stwo_measurement_pcs_config()` so the helper name
+/// reads as an experimental measurement profile, not a publication-security
+/// claim.
+pub(crate) fn publication_v1_pcs_config() -> PcsConfig {
+    fixed_stwo_measurement_pcs_config()
+}
+
+#[cfg(feature = "stwo-backend")]
+pub(crate) fn fixed_stwo_measurement_pcs_config_matches(actual: &PcsConfig) -> bool {
+    let expected = fixed_stwo_measurement_pcs_config();
     actual.pow_bits == expected.pow_bits
         && actual.fri_config.log_blowup_factor == expected.fri_config.log_blowup_factor
         && actual.fri_config.n_queries == expected.fri_config.n_queries
@@ -288,6 +299,46 @@ pub(crate) fn publication_v1_pcs_config_matches(actual: &PcsConfig) -> bool {
             == expected.fri_config.log_last_layer_degree_bound
         && actual.fri_config.fold_step == expected.fri_config.fold_step
         && actual.lifting_log_size == expected.lifting_log_size
+}
+
+#[cfg(feature = "stwo-backend")]
+pub(crate) fn publication_v1_pcs_config_matches(actual: &PcsConfig) -> bool {
+    fixed_stwo_measurement_pcs_config_matches(actual)
+}
+
+#[cfg(all(feature = "stwo-backend", test))]
+mod fixed_stwo_measurement_pcs_config_tests {
+    use super::{
+        fixed_stwo_measurement_pcs_config, fixed_stwo_measurement_pcs_config_matches,
+        publication_v1_pcs_config, publication_v1_pcs_config_matches,
+    };
+
+    #[test]
+    fn legacy_publication_v1_alias_matches_fixed_measurement_profile() {
+        let canonical = fixed_stwo_measurement_pcs_config();
+        let legacy = publication_v1_pcs_config();
+
+        assert_eq!(canonical.pow_bits, 10);
+        assert_eq!(canonical.fri_config.log_blowup_factor, 1);
+        assert_eq!(canonical.fri_config.n_queries, 3);
+        assert_eq!(canonical.fri_config.fold_step, 1);
+        assert_eq!(canonical.lifting_log_size, None);
+
+        assert_eq!(legacy.pow_bits, canonical.pow_bits);
+        assert_eq!(
+            legacy.fri_config.log_blowup_factor,
+            canonical.fri_config.log_blowup_factor
+        );
+        assert_eq!(legacy.fri_config.n_queries, canonical.fri_config.n_queries);
+        assert_eq!(
+            legacy.fri_config.log_last_layer_degree_bound,
+            canonical.fri_config.log_last_layer_degree_bound
+        );
+        assert_eq!(legacy.fri_config.fold_step, canonical.fri_config.fold_step);
+        assert_eq!(legacy.lifting_log_size, canonical.lifting_log_size);
+        assert!(fixed_stwo_measurement_pcs_config_matches(&legacy));
+        assert!(publication_v1_pcs_config_matches(&canonical));
+    }
 }
 
 pub use adapter::{
