@@ -48,6 +48,7 @@ git diff --check
 
 git diff --exit-code \
   docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json \
+  docs/paper/evidence/stark-native-transformer-paper-release-manifest-2026-06.json \
   docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md \
   docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md \
   docs/paper/appendix-zkml-statement-validity-2026.md \

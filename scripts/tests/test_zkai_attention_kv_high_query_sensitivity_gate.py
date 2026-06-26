@@ -100,6 +100,11 @@ class HighQuerySensitivityGateTests(unittest.TestCase):
         self.assert_rejects(payload, "q6 proof config drift")
 
         payload = self.strip_mutation_summary(self.payload)
+        payload["rows"][1]["artifacts"]["source"]["sha256"] = "0" * 64
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        self.assert_rejects(payload, "q6 artifact block drift")
+
+        payload = self.strip_mutation_summary(self.payload)
         payload["payload_commitment"] = "blake2b-256:" + "00" * 32
         self.assert_rejects(payload, "payload commitment drift")
 
