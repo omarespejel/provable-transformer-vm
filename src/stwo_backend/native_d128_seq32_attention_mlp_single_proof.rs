@@ -262,7 +262,7 @@ const EXPECTED_PROOF_VERIFIER_HARDENING: &[&str] = &[
     "combined preprocessed trace column count checked before committing",
     "combined base trace binds attention rows and six MLP component traces",
     "statement/public-instance/native-parameter commitments recomputed before proof verification",
-    "fixed Stwo measurement PCS profile before commitment-root recomputation",
+    "fixed publication-v1 PCS verifier profile before commitment-root recomputation",
     "commitment-vector length check before commitment indexing",
     "bounded proof bytes before JSON deserialization",
 ];
@@ -280,7 +280,7 @@ const EXPECTED_D128_ATTENTION_DERIVED_PROOF_VERIFIER_HARDENING: &[&str] = &[
     "combined preprocessed trace column count checked before committing",
     "combined base trace binds attention rows and six MLP component traces",
     "statement/public-instance/native-parameter commitments recomputed before proof verification",
-    "fixed Stwo measurement PCS profile before commitment-root recomputation",
+    "fixed publication-v1 PCS verifier profile before commitment-root recomputation",
     "commitment-vector length check before commitment indexing",
     "bounded proof bytes before JSON deserialization",
 ];

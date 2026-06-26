@@ -150,7 +150,7 @@ const EXPECTED_PROOF_VERIFIER_HARDENING: &[&str] = &[
     "native Stwo AIR binds selected candidate values to the emitted attention output row",
     "verifier recomputes append-only KV carry and lowest-position tie-break before proof verification",
     "score-row, initial-KV, input-step, final-KV, output, public-instance, and statement commitments are recomputed before proof verification",
-    "fixed Stwo measurement PCS profile before commitment-root recomputation",
+    "fixed publication-v1 PCS verifier profile before commitment-root recomputation",
     "bounded envelope JSON before deserialization and bounded proof bytes before proof parsing",
     "commitment-vector length check before commitment indexing",
 ];
