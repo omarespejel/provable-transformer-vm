@@ -72,6 +72,15 @@ class HighQuerySensitivityGateTests(unittest.TestCase):
         self.assertEqual(patches["q12"][0]["to"], "FriConfig::new(0, 1, 12, 1)")
         self.assertEqual(len(patches["q12"]), 1)
 
+    def test_query_count_patches_are_detached_from_validator_baseline(self):
+        payload = gate.build_payload()
+        payload = self.strip_mutation_summary(payload)
+        payload["query_count_patches"]["q12"][0]["to"] = "FriConfig::new(0, 1, 16, 1)"
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+
+        self.assertEqual(gate.PATCHES["q12"][0]["to"], "FriConfig::new(0, 1, 12, 1)")
+        self.assert_rejects(payload, "query-count patch drift")
+
     def test_declared_mutations_reject(self):
         self.assertEqual([item["name"] for item in self.payload["mutation_cases"]], list(gate.MUTATION_NAMES))
         self.assertEqual(self.payload["mutations_checked"], len(gate.MUTATION_NAMES))
@@ -96,6 +105,11 @@ class HighQuerySensitivityGateTests(unittest.TestCase):
         payload["query_count_patches"]["q12"][0]["to"] = "FriConfig::new(0, 1, 16, 1)"
         payload["payload_commitment"] = gate.payload_commitment(payload)
         self.assert_rejects(payload, "query-count patch drift")
+
+        payload = self.strip_mutation_summary(self.payload)
+        payload["scratch_patches"] = copy.deepcopy(gate.PATCHES)
+        payload["payload_commitment"] = gate.payload_commitment(payload)
+        self.assert_rejects(payload, "legacy scratch_patches field")
 
         payload = self.strip_mutation_summary(self.payload)
         payload["rows"][1]["proof_config"]["fri_config"]["n_queries"] = 7

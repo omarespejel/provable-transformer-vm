@@ -155,12 +155,41 @@ MUTATION_NAMES = (
     "claim_boundary_overclaim",
     "missing_non_claim",
     "query_count_patch_drift",
+    "legacy_scratch_patches_field",
     "q6_size_drift",
     "q12_size_drift",
     "q12_resource_status_drift",
     "q6_query_count_drift",
     "q12_query_count_drift",
     "payload_commitment_drift",
+)
+PAYLOAD_CORE_KEYS = frozenset(
+    {
+        "schema",
+        "date",
+        "issue",
+        "decision",
+        "claim_boundary",
+        "surface",
+        "backend",
+        "toolchain",
+        "fixed_fields",
+        "query_count_patches",
+        "rows",
+        "aggregate",
+        "interpretation",
+        "validation_commands",
+        "non_claims",
+        "payload_commitment",
+    }
+)
+PAYLOAD_MUTATION_SUMMARY_KEYS = frozenset(
+    {
+        "mutation_cases",
+        "mutations_checked",
+        "mutations_rejected",
+        "all_mutations_rejected",
+    }
 )
 
 
@@ -329,14 +358,17 @@ def build_payload() -> dict[str, Any]:
             "fri_fold_step": 1,
             "fri_log_last_layer_degree_bound": 0,
         },
-        "query_count_patches": PATCHES,
+        "query_count_patches": copy.deepcopy(PATCHES),
         "rows": rows,
         "aggregate": aggregate,
         "interpretation": (
             "On this small d8 surface, q6 and q12 preserve the fused proof-size win. "
             "The absolute saving grows from 11739 bytes at q3 to 19226 at q6 and 25530 at q12. "
             "Both higher-query rows now require only an explicit FRI-query-count patch; the "
-            "publication profile remains the default q3 configuration."
+            "publication profile remains the default q3 configuration. The d8 source verifier "
+            "cap is 98304 raw proof bytes: above the 84266-byte q12 source proof, but checked "
+            "by a Rust regression to stay below the 1MiB pretty-JSON envelope cap even with "
+            "worst-case proof-byte formatting."
         ),
         "validation_commands": list(VALIDATION_COMMANDS),
         "non_claims": list(NON_CLAIMS),
@@ -357,6 +389,14 @@ def validate_payload(
     expected_rows: list[dict[str, Any]] | None = None,
     expected_aggregate: dict[str, Any] | None = None,
 ) -> None:
+    actual_keys = set(payload)
+    allowed_keys = PAYLOAD_CORE_KEYS | PAYLOAD_MUTATION_SUMMARY_KEYS
+    if "scratch_patches" in payload:
+        raise HighQuerySensitivityGateError("legacy scratch_patches field")
+    if not actual_keys <= allowed_keys or not PAYLOAD_CORE_KEYS <= actual_keys:
+        raise HighQuerySensitivityGateError("top-level key drift")
+    if not allow_missing_mutation_summary and not PAYLOAD_MUTATION_SUMMARY_KEYS <= actual_keys:
+        raise HighQuerySensitivityGateError("mutation summary drift")
     if payload.get("schema") != SCHEMA:
         raise HighQuerySensitivityGateError("schema drift")
     if payload.get("decision") != DECISION:
@@ -415,6 +455,7 @@ def run_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
     add("claim_boundary_overclaim", lambda p: p.__setitem__("claim_boundary", "HEADLINE_D64_D128_HIGH_QUERY_PROOF_SIZE_WIN"))
     add("missing_non_claim", lambda p: p["non_claims"].remove("not production-security parameter evidence"))
     add("query_count_patch_drift", lambda p: p["query_count_patches"]["q12"][0].__setitem__("to", "FriConfig::new(0, 1, 16, 1)"))
+    add("legacy_scratch_patches_field", lambda p: p.__setitem__("scratch_patches", copy.deepcopy(PATCHES)))
     add("q6_size_drift", lambda p: p["rows"][1].__setitem__("fused_proof_size_bytes", p["rows"][1]["fused_proof_size_bytes"] - 1))
     add("q12_size_drift", lambda p: p["rows"][2].__setitem__("source_plus_sidecar_raw_proof_bytes", p["rows"][2]["source_plus_sidecar_raw_proof_bytes"] - 1))
     add("q12_resource_status_drift", lambda p: p["rows"][2].__setitem__("resource_limit_status", "verified_after_scratch_source_proof_limit_raise"))
