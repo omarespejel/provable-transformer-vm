@@ -1,25 +1,22 @@
 # Paper Package
 
-This directory contains the technical-review paper package for:
+This directory contains the current reviewer-facing package for the June 2026
+proof-pressure boundary paper:
 
-`Tablero: Typed Verifier Boundaries for Layered STARK Systems, with Evidence from STARK-zkML`
+`Proof-Pressure Boundaries for STARK-Native Bounded Attention`
 
-It also contains a newer proof-boundary draft:
+The paper studies a scoped bounded-attention artifact class over an unmodified
+Stwo backend. Its core result is proof-architecture evidence: on checked
+sequence-axis rows, lookup and trace work grow quickly while fused proof payload
+bytes remain below the matched source-plus-sidecar split frontier. It is not a
+claim of full transformer inference, production security, exact real-valued
+Softmax, proving-speed improvement, or system-level superiority over zkML
+systems.
 
-- `proof-pressure-boundaries-for-stark-native-transformers-2026.md`
-- `appendix-zkml-statement-validity-2026.md`
-- `REPRODUCE.md`
-
-The repository root README links these two zkML architecture drafts for
-top-level discoverability.
-
-That draft is the current home for the June 2026 STARK-native bounded-attention
-proof-pressure result: lookup and trace work grow quickly on checked sequence
-rows while fused proof payload bytes remain below the matched split frontier. It
-should be read as a scoped proof-architecture paper, not as a replacement for the
-Tablero statement-validity paper. The statement-validity appendix is a short
-companion note that explains how proof artifacts are bound to model, input,
-output, policy, verifier-domain, and application-claim meaning.
+The statement-validity appendix is a companion note. It explains how proof
+artifacts are bound to model surface, input, output, numeric policy,
+verifier-domain, and application-claim meaning. It is not the proof-size result
+and should not be read as a new proving protocol.
 
 Proof-pressure reviewer path:
 
@@ -38,7 +35,7 @@ The small high-query sensitivity slice lives in
 `../engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md` and
 is engineering evidence only, not a headline production-security result.
 
-Primary presentation files:
+Tablero presentation files:
 
 - `tablero-typed-verifier-boundaries-2026.md`
 - `abstract-tablero-2026.md`

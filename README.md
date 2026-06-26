@@ -99,7 +99,8 @@ Current public proof surfaces:
 | Inspect a full trace             | `cargo run --bin tvm -- run programs/fibonacci.tvm --trace`                                                                             | Emits the full machine-state trace               |
 | Prove execution                  | `cargo +nightly-2025-07-14 run --features stwo-backend --bin tvm -- prove-stark programs/fibonacci.tvm -o fib.proof.json`              | Active proof path                                |
 | Verify a proof                   | `cargo +nightly-2025-07-14 run --features stwo-backend --bin tvm -- verify-stark fib.proof.json`                                                                                    | CLI default uses `production-v1` / `ProductionV1`, including lockstep semantic checks |
-| Regenerate paper artifacts       | `./scripts/generate_repro_bundle.sh`                                                                                                    | Publication-facing bundle                        |
+| Validate proof-pressure paper    | `scripts/run_proof_pressure_release_gate.sh`                                                                                            | Current paper release gate; set `PYTHON_BIN` if needed |
+| Regenerate older paper bundle    | `./scripts/generate_repro_bundle.sh`                                                                                                    | Legacy publication bundle                        |
 
 ## Toolchains
 
