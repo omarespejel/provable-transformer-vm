@@ -258,11 +258,12 @@ and `stwo-constraint-framework = "2.2.0"` in `Cargo.toml`. Public S-two
 documentation is cited for proof-object structure, not as a substitute for the
 exact crate-version statement.
 
-One implementation naming note matters for audit. Some generated Stwo modules
-call the `q=3` PCS setting `publication_v1_pcs_config()`. That is a legacy
-internal name for the fixed Stwo measurement profile above. It is not the same
-object as `publication_v1_stark_options()` in `src/proof.rs`, which belongs to
-an older Vanilla STARK path with a `96`-bit conjectured-security floor. In this
+One implementation naming note matters for audit. New code names the `q=3` PCS
+setting `fixed_stwo_measurement_pcs_config()`. Older generated modules may
+still call the compatibility alias `publication_v1_pcs_config()`. Both names
+refer to the fixed Stwo measurement profile above. They are not the same object
+as `publication_v1_stark_options()` in `src/proof.rs`, which belongs to an
+older Vanilla STARK path with a `96`-bit conjectured-security floor. In this
 paper, `q=3` means the fixed experimental Stwo PCS measurement profile in the
 table above, not a production-security profile.
 

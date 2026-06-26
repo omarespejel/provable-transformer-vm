@@ -88,8 +88,10 @@ experimental Stwo configuration: proof-of-work `10` bits, FRI log blowup `1`
 measurements are proof-byte measurements under that fixed configuration, not
 production-security constants and not timing claims.
 
-The `q=3` Stwo PCS setting is a measurement profile. The legacy code helper
-named `publication_v1_pcs_config()` should not be confused with the separate
+The `q=3` Stwo PCS setting is a measurement profile. New code names this helper
+`fixed_stwo_measurement_pcs_config()`. The older
+`publication_v1_pcs_config()` name remains as a compatibility alias for older
+generated modules and should not be confused with the separate
 `publication_v1_stark_options()` Vanilla STARK path in `src/proof.rs`, which
 records a `96`-bit conjectured-security floor. The bounded-attention paper does
 not use the `q=3` Stwo PCS setting as a production-security claim.
