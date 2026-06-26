@@ -100,7 +100,7 @@ const EXPECTED_PROOF_VERIFIER_HARDENING: &[&str] = &[
     "native Stwo AIR proves output quotient/remainder rows against the verifier-recomputed weighted numerator and denominator",
     "verifier recomputes append-only KV carry, max score, bounded weights, weighted numerators, denominators, and outputs before proof verification",
     "score-row, initial-KV, input-step, final-KV, output, public-instance, and statement commitments are recomputed before proof verification",
-    "fixed Stwo measurement PCS profile before commitment-root recomputation",
+    "fixed publication-v1 PCS verifier profile before commitment-root recomputation",
     "bounded envelope JSON before deserialization and bounded proof bytes before proof parsing",
     "commitment-vector length check before commitment indexing",
 ];
