@@ -1,0 +1,432 @@
+{
+  "aggregate": {
+    "q12_fused_growth_vs_q3": 2.214215,
+    "q12_fused_to_split_ratio": 0.841277,
+    "q12_requires_resource_limit_retune": false,
+    "q12_saving_bytes": 115510,
+    "q12_saving_growth_vs_q3": 2.940533,
+    "q12_split_growth_vs_q3": 2.304565,
+    "q3_fused_to_split_ratio": 0.875605,
+    "q3_saving_bytes": 39282,
+    "q6_fused_growth_vs_q3": 1.412053,
+    "q6_fused_to_split_ratio": 0.860499,
+    "q6_saving_bytes": 63296,
+    "q6_split_growth_vs_q3": 1.436842,
+    "query_counts_checked": [
+      3,
+      6,
+      12
+    ],
+    "surface": "d64_four_head_seq64_bounded_softmax_table_attention"
+  },
+  "all_mutations_rejected": true,
+  "backend": "unmodified_stwo_2_2_0_with_explicit_query_count_patch",
+  "build_environment": {
+    "cargo_incremental": "0",
+    "reason": "reduce local build output on a disk-constrained machine; proof config is still decoded from artifacts",
+    "rustflags": "-C debuginfo=0"
+  },
+  "claim_boundary": "D64_FOUR_HEAD_SEQ64_HIGHER_FRI_QUERY_SENSITIVITY_FOR_SPLIT_VS_FUSED_PROOF_BYTES;ENGINEERING_EVIDENCE;NOT_PRODUCTION_SECURITY;NOT_TIMING;NOT_SYSTEM_COMPARISON",
+  "date": "2026-06-26",
+  "decision": "GO_D64_H4_SEQ64_HIGH_QUERY_SENSITIVITY_Q6_Q12",
+  "fixed_fields": {
+    "fri_blowup_factor": 2,
+    "fri_fold_step": 1,
+    "fri_log_blowup": 1,
+    "fri_log_last_layer_degree_bound": 0,
+    "pow_bits": 10
+  },
+  "interpretation": "On the d64 four-head seq64 surface, q6 and q12 preserve the fused proof-size win. The absolute saving grows from 39282 bytes at q3 to 63296 bytes at q6 and 115510 bytes at q12. The q12 fused/split ratio is 0.841277x under the same fixed PoW, blowup, fold-step, and query-count-only patch discipline. This is engineering evidence for boundary-selection robustness under higher FRI query count, not a production-security or timing claim.",
+  "issue": 769,
+  "mutation_cases": [
+    {
+      "error": "decision drift",
+      "name": "decision_overclaim",
+      "rejected": true
+    },
+    {
+      "error": "claim boundary drift",
+      "name": "claim_boundary_overclaim",
+      "rejected": true
+    },
+    {
+      "error": "non-claims drift",
+      "name": "missing_non_claim",
+      "rejected": true
+    },
+    {
+      "error": "query-count patch drift",
+      "name": "query_count_patch_drift",
+      "rejected": true
+    },
+    {
+      "error": "q6 fused_proof_size_bytes drift",
+      "name": "q6_fused_size_drift",
+      "rejected": true
+    },
+    {
+      "error": "q12 source_plus_sidecar_raw_proof_bytes drift",
+      "name": "q12_split_size_drift",
+      "rejected": true
+    },
+    {
+      "error": "q12 proof config drift",
+      "name": "q12_config_query_drift",
+      "rejected": true
+    },
+    {
+      "error": "q12 artifact block drift",
+      "name": "q12_artifact_hash_drift",
+      "rejected": true
+    },
+    {
+      "error": "q12 artifact block drift",
+      "name": "stale_artifact_relabel",
+      "rejected": true
+    },
+    {
+      "error": "payload commitment drift",
+      "name": "payload_commitment_drift",
+      "rejected": true
+    }
+  ],
+  "mutations_checked": 10,
+  "mutations_rejected": 10,
+  "non_claims": [
+    "not production-security parameter evidence",
+    "not a proving-time or verifier-time claim",
+    "not exact real-valued Softmax",
+    "not full transformer inference",
+    "not a comparison with external zkML systems",
+    "not evidence that higher query count always improves fused-to-split ratio",
+    "not a permanent Stwo-AI backend change",
+    "not a change to the publication/default q3 backend configuration"
+  ],
+  "payload_commitment": "blake2b-256:cc78f6ab678f7a60fb48402b371fd1dbe8ad94fd1a312a782807a1587f5f459e",
+  "query_count_patches": {
+    "q12": [
+      {
+        "from": "FriConfig::new(0, 1, 3, 1)",
+        "path": "src/stwo_backend/mod.rs",
+        "reason": "raise FRI query count while keeping blowup, fold step, and PoW fixed",
+        "to": "FriConfig::new(0, 1, 12, 1)"
+      }
+    ],
+    "q6": [
+      {
+        "from": "FriConfig::new(0, 1, 3, 1)",
+        "path": "src/stwo_backend/mod.rs",
+        "reason": "raise FRI query count while keeping blowup, fold step, and PoW fixed",
+        "to": "FriConfig::new(0, 1, 6, 1)"
+      }
+    ]
+  },
+  "rows": [
+    {
+      "artifacts": {
+        "fused": {
+          "envelope_size_bytes": 73647778,
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-four-head-seq64-fused-softmax-table-proof-2026-05.envelope.json",
+          "proof_config": {
+            "fri_config": {
+              "fold_step": 1,
+              "log_blowup_factor": 1,
+              "log_last_layer_degree_bound": 0,
+              "n_queries": 3
+            },
+            "lifting_log_size": null,
+            "pow_bits": 10
+          },
+          "proof_size_bytes": 276503,
+          "section_bytes": {
+            "commitments": 453,
+            "config": 136,
+            "decommitments": 17722,
+            "fri_proof": 31068,
+            "proof_of_work": 4,
+            "queried_values": 89868,
+            "sampled_values": 137127
+          },
+          "sha256": "641bcd4c8b29ad8098b47a4ec293b6972913ad0ceee9548229a219bd3bea7000"
+        },
+        "sidecar": {
+          "envelope_size_bytes": 71779632,
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-four-head-seq64-softmax-table-logup-sidecar-proof-2026-05.envelope.json",
+          "proof_config": {
+            "fri_config": {
+              "fold_step": 1,
+              "log_blowup_factor": 1,
+              "log_last_layer_degree_bound": 0,
+              "n_queries": 3
+            },
+            "lifting_log_size": null,
+            "pow_bits": 10
+          },
+          "proof_size_bytes": 43147,
+          "section_bytes": {
+            "commitments": 455,
+            "config": 136,
+            "decommitments": 15000,
+            "fri_proof": 25721,
+            "proof_of_work": 4,
+            "queried_values": 604,
+            "sampled_values": 1102
+          },
+          "sha256": "64cb8b285340eed5e5dcb059fcdb2adb5f1952a2ddea999b8065899c98f1a835"
+        },
+        "source": {
+          "envelope_size_bytes": 73613598,
+          "path": "docs/engineering/evidence/zkai-attention-kv-stwo-native-d64-four-head-seq64-bounded-softmax-table-proof-2026-05.envelope.json",
+          "proof_config": {
+            "fri_config": {
+              "fold_step": 1,
+              "log_blowup_factor": 1,
+              "log_last_layer_degree_bound": 0,
+              "n_queries": 3
+            },
+            "lifting_log_size": null,
+            "pow_bits": 10
+          },
+          "proof_size_bytes": 272638,
+          "section_bytes": {
+            "commitments": 339,
+            "config": 136,
+            "decommitments": 13537,
+            "fri_proof": 32359,
+            "proof_of_work": 3,
+            "queried_values": 89655,
+            "sampled_values": 136484
+          },
+          "sha256": "955de60217be05dd5bf61d51990f6f553050feb87c9051be22cc53869071fcca"
+        }
+      },
+      "fri_query_count": 3,
+      "fused_growth_vs_q3": 1.0,
+      "fused_proof_size_bytes": 276503,
+      "fused_saves_vs_source_plus_sidecar_bytes": 39282,
+      "fused_to_split_ratio": 0.875605,
+      "proof_config": {
+        "fri_config": {
+          "fold_step": 1,
+          "log_blowup_factor": 1,
+          "log_last_layer_degree_bound": 0,
+          "n_queries": 3
+        },
+        "lifting_log_size": null,
+        "pow_bits": 10
+      },
+      "resource_limit_status": "checked_default_artifact",
+      "sidecar_proof_size_bytes": 43147,
+      "source_plus_sidecar_raw_proof_bytes": 315785,
+      "source_proof_size_bytes": 272638,
+      "split_growth_vs_q3": 1.0
+    },
+    {
+      "artifacts": {
+        "fused": {
+          "envelope_size_bytes": 74559250,
+          "path": "docs/engineering/evidence/high-query/zkai-attention-kv-d64-four-head-seq64-q6-fused-proof-2026-06.envelope.json",
+          "proof_config": {
+            "fri_config": {
+              "fold_step": 1,
+              "log_blowup_factor": 1,
+              "log_last_layer_degree_bound": 0,
+              "n_queries": 6
+            },
+            "lifting_log_size": null,
+            "pow_bits": 10
+          },
+          "proof_size_bytes": 390437,
+          "section_bytes": {
+            "commitments": 453,
+            "config": 136,
+            "decommitments": 31289,
+            "fri_proof": 47777,
+            "proof_of_work": 4,
+            "queried_values": 173526,
+            "sampled_values": 137127
+          },
+          "sha256": "7eb2c70fcae2bfe5d449498b3a62ddd637473a0a6b1176d4cbabd7ff0e1ad3d5"
+        },
+        "sidecar": {
+          "envelope_size_bytes": 71967696,
+          "path": "docs/engineering/evidence/high-query/zkai-attention-kv-d64-four-head-seq64-q6-sidecar-proof-2026-06.envelope.json",
+          "proof_config": {
+            "fri_config": {
+              "fold_step": 1,
+              "log_blowup_factor": 1,
+              "log_last_layer_degree_bound": 0,
+              "n_queries": 6
+            },
+            "lifting_log_size": null,
+            "pow_bits": 10
+          },
+          "proof_size_bytes": 66655,
+          "section_bytes": {
+            "commitments": 455,
+            "config": 136,
+            "decommitments": 25800,
+            "fri_proof": 37861,
+            "proof_of_work": 4,
+            "queried_values": 1172,
+            "sampled_values": 1102
+          },
+          "sha256": "260b849e2aa7bd9e907b75c8988fad3fb3af2cd203d9dc9a52159deb3a5918cb"
+        },
+        "source": {
+          "envelope_size_bytes": 74529118,
+          "path": "docs/engineering/evidence/high-query/zkai-attention-kv-d64-four-head-seq64-q6-source-proof-2026-06.envelope.json",
+          "proof_config": {
+            "fri_config": {
+              "fold_step": 1,
+              "log_blowup_factor": 1,
+              "log_last_layer_degree_bound": 0,
+              "n_queries": 6
+            },
+            "lifting_log_size": null,
+            "pow_bits": 10
+          },
+          "proof_size_bytes": 387078,
+          "section_bytes": {
+            "commitments": 339,
+            "config": 136,
+            "decommitments": 24709,
+            "fri_proof": 52361,
+            "proof_of_work": 3,
+            "queried_values": 172921,
+            "sampled_values": 136484
+          },
+          "sha256": "4ce332c04eca0e8749e32e2ff1318deb2f4f520a219cc937e23feb76843c3e60"
+        }
+      },
+      "fri_query_count": 6,
+      "fused_growth_vs_q3": 1.412053,
+      "fused_proof_size_bytes": 390437,
+      "fused_saves_vs_source_plus_sidecar_bytes": 63296,
+      "fused_to_split_ratio": 0.860499,
+      "proof_config": {
+        "fri_config": {
+          "fold_step": 1,
+          "log_blowup_factor": 1,
+          "log_last_layer_degree_bound": 0,
+          "n_queries": 6
+        },
+        "lifting_log_size": null,
+        "pow_bits": 10
+      },
+      "resource_limit_status": "verified_with_query_count_patch_and_reduced_build_output",
+      "sidecar_proof_size_bytes": 66655,
+      "source_plus_sidecar_raw_proof_bytes": 453733,
+      "source_proof_size_bytes": 387078,
+      "split_growth_vs_q3": 1.436842
+    },
+    {
+      "artifacts": {
+        "fused": {
+          "envelope_size_bytes": 76333650,
+          "path": "docs/engineering/evidence/high-query/zkai-attention-kv-d64-four-head-seq64-q12-fused-proof-2026-06.envelope.json",
+          "proof_config": {
+            "fri_config": {
+              "fold_step": 1,
+              "log_blowup_factor": 1,
+              "log_last_layer_degree_bound": 0,
+              "n_queries": 12
+            },
+            "lifting_log_size": null,
+            "pow_bits": 10
+          },
+          "proof_size_bytes": 612237,
+          "section_bytes": {
+            "commitments": 453,
+            "config": 137,
+            "decommitments": 56616,
+            "fri_proof": 77168,
+            "proof_of_work": 4,
+            "queried_values": 340607,
+            "sampled_values": 137127
+          },
+          "sha256": "d8b6cc7d993011948f1e532e9c11db6b8ebb52f425287c8ddb92008673f41a2e"
+        },
+        "sidecar": {
+          "envelope_size_bytes": 72443504,
+          "path": "docs/engineering/evidence/high-query/zkai-attention-kv-d64-four-head-seq64-q12-sidecar-proof-2026-06.envelope.json",
+          "proof_config": {
+            "fri_config": {
+              "fold_step": 1,
+              "log_blowup_factor": 1,
+              "log_last_layer_degree_bound": 0,
+              "n_queries": 12
+            },
+            "lifting_log_size": null,
+            "pow_bits": 10
+          },
+          "proof_size_bytes": 126131,
+          "section_bytes": {
+            "commitments": 455,
+            "config": 137,
+            "decommitments": 51987,
+            "fri_proof": 70018,
+            "proof_of_work": 4,
+            "queried_values": 2303,
+            "sampled_values": 1102
+          },
+          "sha256": "741bc1ffbb527ddcc5c62f4d6a797f6a9ae0c622a637dbdd9c0069d8663b2113"
+        },
+        "source": {
+          "envelope_size_bytes": 76245422,
+          "path": "docs/engineering/evidence/high-query/zkai-attention-kv-d64-four-head-seq64-q12-source-proof-2026-06.envelope.json",
+          "proof_config": {
+            "fri_config": {
+              "fold_step": 1,
+              "log_blowup_factor": 1,
+              "log_last_layer_degree_bound": 0,
+              "n_queries": 12
+            },
+            "lifting_log_size": null,
+            "pow_bits": 10
+          },
+          "proof_size_bytes": 601616,
+          "section_bytes": {
+            "commitments": 339,
+            "config": 137,
+            "decommitments": 43551,
+            "fri_proof": 81447,
+            "proof_of_work": 3,
+            "queried_values": 339530,
+            "sampled_values": 136484
+          },
+          "sha256": "cd7a2ec0257fe717684ab5965121db9c02c7c9cf1e9ee659af50a8a7eef740da"
+        }
+      },
+      "fri_query_count": 12,
+      "fused_growth_vs_q3": 2.214215,
+      "fused_proof_size_bytes": 612237,
+      "fused_saves_vs_source_plus_sidecar_bytes": 115510,
+      "fused_to_split_ratio": 0.841277,
+      "proof_config": {
+        "fri_config": {
+          "fold_step": 1,
+          "log_blowup_factor": 1,
+          "log_last_layer_degree_bound": 0,
+          "n_queries": 12
+        },
+        "lifting_log_size": null,
+        "pow_bits": 10
+      },
+      "resource_limit_status": "verified_with_query_count_patch_and_reduced_build_output",
+      "sidecar_proof_size_bytes": 126131,
+      "source_plus_sidecar_raw_proof_bytes": 727747,
+      "source_proof_size_bytes": 601616,
+      "split_growth_vs_q3": 2.304565
+    }
+  ],
+  "schema": "zkai-attention-kv-d64-high-query-sensitivity-v1",
+  "surface": "d64_four_head_seq64_bounded_softmax_table_attention",
+  "toolchain": "cargo +nightly-2025-07-14 --locked --features stwo-backend",
+  "validation_commands": [
+    "python3.10 scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json --write-tsv docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv --write-md docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md",
+    "python3.10 -m py_compile scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py scripts/tests/test_zkai_attention_kv_d64_high_query_sensitivity_gate.py",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d64_high_query_sensitivity_gate",
+    "git diff --check"
+  ]
+}
