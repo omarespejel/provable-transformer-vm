@@ -206,8 +206,6 @@ python3.10 -m unittest scripts.tests.test_zkai_attention_kv_high_query_sensitivi
 
 python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d64_high_query_sensitivity_gate
 
-python3.10 scripts/paper/generate_proof_pressure_boundaries_figures.py
-
 python3.10 scripts/zkai_attention_kv_high_query_sensitivity_gate.py \
   --write-json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json \
   --write-tsv docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv \
@@ -217,6 +215,8 @@ python3.10 scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py \
   --write-json docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json \
   --write-tsv docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv \
   --write-md docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md
+
+python3.10 scripts/paper/generate_proof_pressure_boundaries_figures.py
 
 python3.10 scripts/paper/paper_preflight.py --repo-root .
 
