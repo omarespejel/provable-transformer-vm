@@ -2,17 +2,17 @@
   "artifact_digests": [
     {
       "path": "docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md",
-      "sha256": "b1161a068a94547a3eb0d139d143cf43e87a0cb6ac7930f42bc90d183a3a092b",
+      "sha256": "fbe5eac037c9fc4c2c4cfa3cb805a593f6aec3b83909a55844d03dd504d6f790",
       "size_bytes": 48489
     },
     {
       "path": "docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md",
-      "sha256": "8c114a45e3c8d2ebced5174a7ebcfc22be0100a5fb653f4904ed77ff04369a29",
+      "sha256": "2081152a10be09ed16396d8b3a582a4b11d13b60f84d8aafc9df25dc0ab61fd5",
       "size_bytes": 14081
     },
     {
       "path": "docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
-      "sha256": "1435e1c79201c15ca71249c9952c1ebade96353480e672962dd3f6cb0b99c06e",
+      "sha256": "064dc481f265ce1a055ab120ccd877c78c01d4b8d8c88bdde3f20e35d21e68c3",
       "size_bytes": 11317
     }
   ],
@@ -60,9 +60,9 @@
     "python3.10 -m unittest scripts.tests.test_zkai_paper_claim_pack_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_high_query_sensitivity_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d64_high_query_sensitivity_gate",
-    "python3.10 scripts/paper/generate_proof_pressure_boundaries_figures.py",
     "python3.10 scripts/zkai_attention_kv_high_query_sensitivity_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json --write-tsv docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv --write-md docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md",
     "python3.10 scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json --write-tsv docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv --write-md docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md",
+    "python3.10 scripts/paper/generate_proof_pressure_boundaries_figures.py",
     "python3.10 scripts/paper/paper_preflight.py --repo-root .",
     "scripts/run_paper_preflight_suite.sh",
     "git diff --check",

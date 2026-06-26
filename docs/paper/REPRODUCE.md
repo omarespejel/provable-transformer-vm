@@ -96,8 +96,6 @@ PYTHON_BIN="${PYTHON_BIN:-python3.10}"
 "$PYTHON_BIN" scripts/zkai_paper_claim_pack_gate.py \
   --write-json docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json
 
-"$PYTHON_BIN" scripts/paper/generate_proof_pressure_boundaries_figures.py
-
 "$PYTHON_BIN" scripts/zkai_attention_kv_high_query_sensitivity_gate.py \
   --write-json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json \
   --write-tsv docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv \
@@ -107,6 +105,8 @@ PYTHON_BIN="${PYTHON_BIN:-python3.10}"
   --write-json docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json \
   --write-tsv docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv \
   --write-md docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md
+
+"$PYTHON_BIN" scripts/paper/generate_proof_pressure_boundaries_figures.py
 
 "$PYTHON_BIN" scripts/paper/paper_preflight.py --repo-root .
 
