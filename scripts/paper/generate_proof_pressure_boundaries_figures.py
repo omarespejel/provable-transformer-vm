@@ -398,12 +398,25 @@ def render_d64_high_query_figure() -> None:
     queries = [int(float_field(row, "fri_query_count")) for row in rows]
     split = [int(float_field(row, "source_plus_sidecar_raw_proof_bytes")) for row in rows]
     fused = [int(float_field(row, "fused_proof_size_bytes")) for row in rows]
-    savings = [int(float_field(row, "fused_saves_vs_source_plus_sidecar_bytes")) for row in rows]
-    ratios = [float_field(row, "fused_to_split_ratio") for row in rows]
+    reported_savings = [int(float_field(row, "fused_saves_vs_source_plus_sidecar_bytes")) for row in rows]
+    reported_ratios = [float_field(row, "fused_to_split_ratio") for row in rows]
+    savings = [split_bytes - fused_bytes for split_bytes, fused_bytes in zip(split, fused)]
+    ratios = [fused_bytes / split_bytes for fused_bytes, split_bytes in zip(fused, split)]
     if queries != [3, 6, 12]:
         raise SystemExit(f"unexpected d64 high-query x-axis: {queries}")
     if any(fused_bytes >= split_bytes for fused_bytes, split_bytes in zip(fused, split)):
         raise SystemExit("d64 high-query fused proof must stay below split frontier")
+    for query_count, saving, reported_saving, ratio, reported_ratio in zip(
+        queries, savings, reported_savings, ratios, reported_ratios
+    ):
+        if saving != reported_saving:
+            raise SystemExit(
+                f"d64 high-query q{query_count} saving mismatch: computed {saving}, TSV {reported_saving}"
+            )
+        if abs(ratio - reported_ratio) > 0.0000005:
+            raise SystemExit(
+                f"d64 high-query q{query_count} ratio mismatch: computed {ratio:.9f}, TSV {reported_ratio:.9f}"
+            )
 
     fig, ax = plt.subplots(figsize=(6.8, 3.5), constrained_layout=True)
     ax.plot(queries, split, marker="o", linewidth=1.8, color=COLORS["split"], label="Split proof frontier")
