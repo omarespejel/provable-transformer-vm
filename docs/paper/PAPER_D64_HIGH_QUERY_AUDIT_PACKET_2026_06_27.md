@@ -60,12 +60,16 @@ Payload commitment:
 
 ## Reproduction Commands
 
-The default checked backend remains q3:
+The checked paper measurement profile for this row remains q3:
 
 ```text
 src/stwo_backend/mod.rs:
 FriConfig::new(0, 1, 3, 1)
 ```
+
+This is the fixed experimental Stwo PCS measurement profile for the
+bounded-attention paper, not a production-security profile and not the older
+Vanilla STARK `publication_v1_stark_options()` path in `src/proof.rs`.
 
 For q6, patch only the FRI query count:
 

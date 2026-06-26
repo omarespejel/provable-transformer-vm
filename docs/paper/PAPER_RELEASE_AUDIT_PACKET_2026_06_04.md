@@ -97,7 +97,9 @@ configuration:
 | backend | unmodified Stwo backend surface |
 
 These are experimental measurement settings, not production-security parameter
-recommendations.
+recommendations. The legacy code helper `publication_v1_pcs_config()` names this
+fixed Stwo measurement profile; it is separate from the older Vanilla STARK
+`publication_v1_stark_options()` helper in `src/proof.rs`.
 
 ## Mechanism Accounting
 

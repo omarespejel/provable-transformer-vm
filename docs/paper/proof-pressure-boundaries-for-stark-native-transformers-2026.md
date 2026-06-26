@@ -258,6 +258,14 @@ and `stwo-constraint-framework = "2.2.0"` in `Cargo.toml`. Public S-two
 documentation is cited for proof-object structure, not as a substitute for the
 exact crate-version statement.
 
+One implementation naming note matters for audit. Some generated Stwo modules
+call the `q=3` PCS setting `publication_v1_pcs_config()`. That is a legacy
+internal name for the fixed Stwo measurement profile above. It is not the same
+object as `publication_v1_stark_options()` in `src/proof.rs`, which belongs to
+an older Vanilla STARK path with a `96`-bit conjectured-security floor. In this
+paper, `q=3` means the fixed experimental Stwo PCS measurement profile in the
+table above, not a production-security profile.
+
 The large `d128_h4_seq64` row is represented by checked gate and route-matrix
 evidence with proof commitments, exact byte counts, mutation rejection, and
 regeneration commands. Its source input plus source, sidecar, and fused
@@ -455,6 +463,13 @@ caveat: when dense relation-specific payload grows, fusion can still save bytes
 against split proofs, but the fused-to-split ratio weakens because less of the
 new work is duplicated opening material.
 
+The model makes the query-count check useful. If the fused boundary is really
+saving shared opening and decommitment plumbing, then increasing only the FRI
+query count should raise absolute savings on the same semantic workload. That is
+what the d64 higher-query slice tests. It is still an engineering sensitivity
+slice, not a production-security sweep, because proof-of-work, blowup, fold
+step, and verifier resource caps are held fixed.
+
 This model is descriptive for the checked artifacts, not a general STARK lower
 bound. A higher-query sensitivity slice supports the mechanism without turning
 it into a production-security claim. On the `d64_four_head_seq64` surface,
@@ -467,12 +482,12 @@ win:
 | `6` | `453,733` | `390,437` | `63,296` | `0.860499x` |
 | `12` | `727,747` | `612,237` | `115,510` | `0.841277x` |
 
-Figure 4 plots the same row. The publication profile remains the default `q=3`
-configuration. The q6 and q12 rows are engineering reruns under an explicit
-FRI-query-count patch with proof-of-work, blowup, and fold step held fixed.
-They show that the fused advantage survives a larger query count on a real d64
-headline surface; they do not recommend production parameters or claim that the
-same pattern has been measured on d128.
+Figure 4 plots the same row. The main checked measurement profile remains the
+fixed `q=3` Stwo PCS configuration. The q6 and q12 rows are engineering reruns
+under an explicit FRI-query-count patch with proof-of-work, blowup, and fold
+step held fixed. They show that the fused advantage survives a larger query
+count on a real d64 headline surface; they do not recommend production
+parameters or claim that the same pattern has been measured on d128.
 
 ![Figure 4: D64 four-head seq64 higher-query sensitivity. FRI query count is changed under an explicit patch while proof-of-work, blowup, and fold step stay fixed. This is proof-byte engineering evidence only, not a production-security or timing claim.](figures/proof-pressure-d64-high-query-sensitivity-2026-06.svg)
 
@@ -625,7 +640,8 @@ The scope of the result is limited in several ways.
    proof bytes and fused-to-split ratios. A d64 four-head seq64 sensitivity
    slice at FRI query counts `6` and `12` is included as engineering evidence,
    but it is not a production-security profile, not a timing claim, and not a
-   d128 high-query result.
+   d128 high-query result. Width-axis high-query sensitivity remains future work
+   for a separate artifact package.
 10. **Backend optimization scope.** The paper does not claim a Stwo-AI fork,
     upstream Stwo patch, SIMD change, verifier rewrite, or new PCS. The checked
     savings come from proof-boundary construction over the existing backend

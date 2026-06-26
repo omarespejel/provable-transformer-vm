@@ -36,6 +36,11 @@ The d64 high-query sensitivity slice lives in
 `../engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md` and
 is engineering evidence only, not a production-security result.
 
+The fixed `q=3` Stwo PCS setting used by the bounded-attention paper is a
+measurement profile. It is separate from the older Vanilla STARK
+`publication_v1_stark_options()` helper in `src/proof.rs` and should not be read
+as a production-security profile.
+
 Tablero presentation files:
 
 - `tablero-typed-verifier-boundaries-2026.md`

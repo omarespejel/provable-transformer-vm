@@ -88,6 +88,12 @@ experimental Stwo configuration: proof-of-work `10` bits, FRI log blowup `1`
 measurements are proof-byte measurements under that fixed configuration, not
 production-security constants and not timing claims.
 
+The `q=3` Stwo PCS setting is a measurement profile. The legacy code helper
+named `publication_v1_pcs_config()` should not be confused with the separate
+`publication_v1_stark_options()` Vanilla STARK path in `src/proof.rs`, which
+records a `96`-bit conjectured-security floor. The bounded-attention paper does
+not use the `q=3` Stwo PCS setting as a production-security claim.
+
 The route matrix records thirty checked matched `route_rows` entries. Across
 those entries,
 the fused proof bytes total `6,397,632` versus `7,164,515` bytes for the
