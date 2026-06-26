@@ -24,6 +24,12 @@ split payloads. Section-level accounting attributes `93.3903%` of the checked
 attention-slice saving to opening-bucket material, mainly FRI proof and
 decommitment bytes.
 
+A higher-query sensitivity rerun on the `d64_four_head_seq64` surface preserves
+the fused proof-size win when FRI query count is raised from `3` to `6` and
+`12`: the fused saving grows from `39,282` bytes at `q=3` to `115,510` bytes at
+`q=12`. This is engineering sensitivity evidence under an explicit
+query-count-only patch, not a production-security parameter claim.
+
 These measurements do not claim production security, exact real-valued Softmax,
 full transformer inference, proving-speed improvement, a Stwo optimization, or
 system-level superiority over zkML frameworks. They support a narrower design
@@ -94,7 +100,7 @@ monolithic-fusion claim:
 > sequence and head pressure in proof bytes, while width-heavy pressure points
 > may require narrower or composed boundaries.
 
-The paper makes four contributions.
+The paper makes five contributions.
 
 1. **Boundary formulation.** We formulate proof-pressure boundaries as a
    practical method for placing transformer proof boundaries around duplicated
@@ -105,7 +111,10 @@ The paper makes four contributions.
 3. **Mechanism evidence.** We connect the proof-size result to opening and
    decommitment accounting, showing that saved bytes are dominated by shared
    opening material rather than by vague serialization effects.
-4. **Statement-validity boundary.** We make explicit that proof verification is
+4. **Query-count sensitivity.** We add a checked `d64_four_head_seq64`
+   sensitivity slice showing that the fused proof-size advantage survives FRI
+   query counts `6` and `12` under a query-count-only patch.
+5. **Statement-validity boundary.** We make explicit that proof verification is
    not application statement validity. Typed statement envelopes are necessary
    when proof artifacts become zkML application receipts.
 
@@ -447,15 +456,25 @@ against split proofs, but the fused-to-split ratio weakens because less of the
 new work is duplicated opening material.
 
 This model is descriptive for the checked artifacts, not a general STARK lower
-bound. A small higher-query sensitivity slice supports the mechanism without
-promoting it into the headline: on the `d8_single_head_seq8` surface, raising
-FRI query count from `3` to `6` and `12` preserved the fused proof-size win. The
-absolute saving grew from `11,739` bytes at `q=3` to `19,226` at `q=6` and
-`25,530` at `q=12`. The caveat is important: these rows are small-surface
-sensitivity reruns under an explicit FRI-query-count patch, while the
-publication profile remains the default `q=3` configuration. Treat this as a
-bounded sensitivity check, not as a production-security profile or a headline
-d64/d128 rerun.
+bound. A higher-query sensitivity slice supports the mechanism without turning
+it into a production-security claim. On the `d64_four_head_seq64` surface,
+raising FRI query count from `3` to `6` and `12` preserved the fused proof-size
+win:
+
+| FRI queries | split proof bytes | fused proof bytes | saving | fused ratio |
+|---:|---:|---:|---:|---:|
+| `3` | `315,785` | `276,503` | `39,282` | `0.875605x` |
+| `6` | `453,733` | `390,437` | `63,296` | `0.860499x` |
+| `12` | `727,747` | `612,237` | `115,510` | `0.841277x` |
+
+Figure 4 plots the same row. The publication profile remains the default `q=3`
+configuration. The q6 and q12 rows are engineering reruns under an explicit
+FRI-query-count patch with proof-of-work, blowup, and fold step held fixed.
+They show that the fused advantage survives a larger query count on a real d64
+headline surface; they do not recommend production parameters or claim that the
+same pattern has been measured on d128.
+
+![Figure 4: D64 four-head seq64 higher-query sensitivity. FRI query count is changed under an explicit patch while proof-of-work, blowup, and fold step stay fixed. This is proof-byte engineering evidence only, not a production-security or timing claim.](figures/proof-pressure-d64-high-query-sensitivity-2026-06.svg)
 
 ---
 
@@ -603,9 +622,10 @@ The scope of the result is limited in several ways.
    bytes and fused-to-split ratios are measurements under that fixed
    experimental configuration, not production-security constants. Changing the
    query count, blowup factor, or proof-of-work setting can move both absolute
-   proof bytes and fused-to-split ratios. A small d8 sensitivity slice at FRI
-   query counts `6` and `12` is included as engineering evidence, but it is not
-   a production-security profile and not a headline d64/d128 high-query result.
+   proof bytes and fused-to-split ratios. A d64 four-head seq64 sensitivity
+   slice at FRI query counts `6` and `12` is included as engineering evidence,
+   but it is not a production-security profile, not a timing claim, and not a
+   d128 high-query result.
 10. **Backend optimization scope.** The paper does not claim a Stwo-AI fork,
     upstream Stwo patch, SIMD change, verifier rewrite, or new PCS. The checked
     savings come from proof-boundary construction over the existing backend
@@ -709,8 +729,10 @@ python3.10 scripts/zkai_paper_claim_pack_gate.py \
 python3.10 -m py_compile \
   scripts/zkai_paper_claim_pack_gate.py \
   scripts/zkai_attention_kv_high_query_sensitivity_gate.py \
+  scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py \
   scripts/tests/test_zkai_paper_claim_pack_gate.py \
   scripts/tests/test_zkai_attention_kv_high_query_sensitivity_gate.py \
+  scripts/tests/test_zkai_attention_kv_d64_high_query_sensitivity_gate.py \
   scripts/paper/generate_proof_pressure_boundaries_figures.py \
   scripts/paper/paper_preflight.py
 
@@ -718,12 +740,19 @@ python3.10 -m unittest scripts.tests.test_zkai_paper_claim_pack_gate
 
 python3.10 -m unittest scripts.tests.test_zkai_attention_kv_high_query_sensitivity_gate
 
+python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d64_high_query_sensitivity_gate
+
 python3.10 scripts/paper/generate_proof_pressure_boundaries_figures.py
 
 python3.10 scripts/zkai_attention_kv_high_query_sensitivity_gate.py \
   --write-json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json \
   --write-tsv docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv \
   --write-md docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md
+
+python3.10 scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py \
+  --write-json docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json \
+  --write-tsv docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv \
+  --write-md docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md
 
 python3.10 scripts/paper/paper_preflight.py --repo-root .
 
@@ -737,11 +766,15 @@ git diff --exit-code \
   docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md \
   docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md \
   docs/paper/appendix-zkml-statement-validity-2026.md \
+  docs/paper/PAPER_D64_HIGH_QUERY_AUDIT_PACKET_2026_06_27.md \
   docs/paper/README.md \
   docs/paper/REPRODUCE.md \
   docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json \
   docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv \
   docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md \
+  docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json \
+  docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv \
+  docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md \
   docs/paper/figures/proof-pressure-growth-factors-2026-05.pdf \
   docs/paper/figures/proof-pressure-growth-factors-2026-05.png \
   docs/paper/figures/proof-pressure-growth-factors-2026-05.svg \
@@ -753,7 +786,11 @@ git diff --exit-code \
   docs/paper/figures/proof-pressure-opening-mechanism-2026-05.pdf \
   docs/paper/figures/proof-pressure-opening-mechanism-2026-05.png \
   docs/paper/figures/proof-pressure-opening-mechanism-2026-05.svg \
-  docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv
+  docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv \
+  docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.pdf \
+  docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.png \
+  docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.svg \
+  docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.tsv
 ```
 
 ---
@@ -803,9 +840,9 @@ The next step is to close the remaining comparison and block-surface gaps.
 4. **Stwo-AI backend specialization.** Use the measured opening and
    decommitment bottleneck to test backend-facing changes: deterministic
    transformer column grouping, lookup-table identity reuse, opening batching,
-   lifted-domain layout policy, and higher-soundness query settings. The small
-   d8 high-query slice says this direction is worth pursuing; it does not yet
-   replace a repeated high-query grid on the d64 and d128 headline surfaces.
+   lifted-domain layout policy, and higher-soundness query settings. The bounded
+   d64 high-query slice says this direction is worth pursuing; it does not yet
+   replace a repeated high-query grid on d128 or width-heavy surfaces.
 5. **GKR or sumcheck side protocol.** Test dense projection and MLP regions with
    a side protocol rather than assuming one STARK-native monolith is best.
 6. **Median timing policy.** Extend median-of-five timing to the `d128`

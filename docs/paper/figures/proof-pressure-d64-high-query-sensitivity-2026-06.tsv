@@ -1,0 +1,4 @@
+fri_query_count	split_proof_bytes	fused_proof_bytes	saving_bytes	fused_to_split_ratio
+3	315785	276503	39282	0.875605
+6	453733	390437	63296	0.860499
+12	727747	612237	115510	0.841277

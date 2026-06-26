@@ -60,6 +60,11 @@
       "id": "paper_release_manifest",
       "path": "docs/paper/evidence/stark-native-transformer-paper-release-manifest-2026-06.json",
       "supports": "paper release provenance, artifact digests, fixed proof-configuration caveat, and launch-gate commands"
+    },
+    {
+      "id": "d64_high_query_sensitivity",
+      "path": "docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json",
+      "supports": "d64 four-head seq64 q3/q6/q12 sensitivity showing fused proof bytes remain below matched split proof bytes under a query-count-only patch"
     }
   ],
   "go_criteria_satisfied": [
@@ -134,21 +139,23 @@
     "A model-facing quantized attention policy is checked equivalent to the existing d8 bounded Softmax-table fixture trace at the trace boundary.",
     "Stwo-AI backend specialization is future work informed by opening, decommitment, table-identity, and layout evidence, not a premise of the current proof-size result."
   ],
-  "payload_commitment": "sha256:7cba4313e2dbe89b7eaa3f6202bde1ea61d7afb8435a35d1f27314f78f7adef3",
+  "payload_commitment": "sha256:67f5e8dc34a6e1c2257f51590478848836666604c88f7393e3e1d774d5e479bf",
   "schema": "stark-native-transformer-paper-claim-pack-v1",
   "thesis": "Checked proofs generated on the existing Stwo backend support a paper-facing architecture claim: bounded integer attention arithmetic and Softmax-table LogUp membership can be fused into one native STARK proof object, sharing proof-system commitment and opening plumbing across the arithmetic and lookup-heavy parts. The claim is about STARK-native boundary placement, not an upstream Stwo optimization.",
   "thesis_id": "stark_native_attention_arithmetic_softmax_table_fusion",
   "validation_commands": [
     "scripts/run_proof_pressure_release_gate.sh",
     "python3.10 scripts/zkai_paper_claim_pack_gate.py --write-json docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
-    "python3.10 -m py_compile scripts/zkai_paper_claim_pack_gate.py scripts/zkai_attention_kv_high_query_sensitivity_gate.py scripts/tests/test_zkai_paper_claim_pack_gate.py scripts/tests/test_zkai_attention_kv_high_query_sensitivity_gate.py scripts/paper/generate_proof_pressure_boundaries_figures.py scripts/paper/paper_preflight.py",
+    "python3.10 -m py_compile scripts/zkai_paper_claim_pack_gate.py scripts/zkai_attention_kv_high_query_sensitivity_gate.py scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py scripts/tests/test_zkai_paper_claim_pack_gate.py scripts/tests/test_zkai_attention_kv_high_query_sensitivity_gate.py scripts/tests/test_zkai_attention_kv_d64_high_query_sensitivity_gate.py scripts/paper/generate_proof_pressure_boundaries_figures.py scripts/paper/paper_preflight.py",
     "python3.10 -m unittest scripts.tests.test_zkai_paper_claim_pack_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_high_query_sensitivity_gate",
+    "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d64_high_query_sensitivity_gate",
     "python3.10 scripts/paper/generate_proof_pressure_boundaries_figures.py",
     "python3.10 scripts/zkai_attention_kv_high_query_sensitivity_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json --write-tsv docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv --write-md docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md",
+    "python3.10 scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json --write-tsv docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv --write-md docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md",
     "python3.10 scripts/paper/paper_preflight.py --repo-root .",
     "scripts/run_paper_preflight_suite.sh",
     "git diff --check",
-    "git diff --exit-code docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json docs/paper/evidence/stark-native-transformer-paper-release-manifest-2026-06.json docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md docs/paper/appendix-zkml-statement-validity-2026.md docs/paper/README.md docs/paper/REPRODUCE.md docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md docs/paper/figures/proof-pressure-growth-factors-2026-05.pdf docs/paper/figures/proof-pressure-growth-factors-2026-05.png docs/paper/figures/proof-pressure-growth-factors-2026-05.svg docs/paper/figures/proof-pressure-growth-factors-2026-05.tsv docs/paper/figures/proof-pressure-boundary-selection-2026-05.pdf docs/paper/figures/proof-pressure-boundary-selection-2026-05.png docs/paper/figures/proof-pressure-boundary-selection-2026-05.svg docs/paper/figures/proof-pressure-boundary-selection-2026-05.tsv docs/paper/figures/proof-pressure-opening-mechanism-2026-05.pdf docs/paper/figures/proof-pressure-opening-mechanism-2026-05.png docs/paper/figures/proof-pressure-opening-mechanism-2026-05.svg docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv"
+    "git diff --exit-code docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json docs/paper/evidence/stark-native-transformer-paper-release-manifest-2026-06.json docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md docs/paper/appendix-zkml-statement-validity-2026.md docs/paper/PAPER_D64_HIGH_QUERY_AUDIT_PACKET_2026_06_27.md docs/paper/README.md docs/paper/REPRODUCE.md docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md docs/paper/figures/proof-pressure-growth-factors-2026-05.pdf docs/paper/figures/proof-pressure-growth-factors-2026-05.png docs/paper/figures/proof-pressure-growth-factors-2026-05.svg docs/paper/figures/proof-pressure-growth-factors-2026-05.tsv docs/paper/figures/proof-pressure-boundary-selection-2026-05.pdf docs/paper/figures/proof-pressure-boundary-selection-2026-05.png docs/paper/figures/proof-pressure-boundary-selection-2026-05.svg docs/paper/figures/proof-pressure-boundary-selection-2026-05.tsv docs/paper/figures/proof-pressure-opening-mechanism-2026-05.pdf docs/paper/figures/proof-pressure-opening-mechanism-2026-05.png docs/paper/figures/proof-pressure-opening-mechanism-2026-05.svg docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.pdf docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.png docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.svg docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.tsv"
   ]
 }

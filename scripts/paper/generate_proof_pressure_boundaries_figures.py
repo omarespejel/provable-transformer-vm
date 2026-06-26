@@ -53,6 +53,13 @@ MLP_ATTRIBUTION_TSV = (
     / "evidence"
     / "zkai-attention-derived-d128-mlp-fusion-attribution-2026-05.tsv"
 )
+D64_HIGH_QUERY_TSV = (
+    ROOT
+    / "docs"
+    / "engineering"
+    / "evidence"
+    / "zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv"
+)
 
 SEQUENCE_ROW_ORDER = (
     "d64_h2_seq32_to_seq64",
@@ -383,10 +390,86 @@ def render_mechanism_figure() -> None:
     write_figure(fig, "proof-pressure-opening-mechanism-2026-05")
 
 
+def render_d64_high_query_figure() -> None:
+    rows = read_tsv(D64_HIGH_QUERY_TSV)
+    if not rows:
+        raise SystemExit(f"D64_HIGH_QUERY_TSV is empty: {D64_HIGH_QUERY_TSV}")
+
+    queries = [int(float_field(row, "fri_query_count")) for row in rows]
+    split = [int(float_field(row, "source_plus_sidecar_raw_proof_bytes")) for row in rows]
+    fused = [int(float_field(row, "fused_proof_size_bytes")) for row in rows]
+    savings = [int(float_field(row, "fused_saves_vs_source_plus_sidecar_bytes")) for row in rows]
+    ratios = [float_field(row, "fused_to_split_ratio") for row in rows]
+    if queries != [3, 6, 12]:
+        raise SystemExit(f"unexpected d64 high-query x-axis: {queries}")
+    if any(fused_bytes >= split_bytes for fused_bytes, split_bytes in zip(fused, split)):
+        raise SystemExit("d64 high-query fused proof must stay below split frontier")
+
+    fig, ax = plt.subplots(figsize=(6.8, 3.5), constrained_layout=True)
+    ax.plot(queries, split, marker="o", linewidth=1.8, color=COLORS["split"], label="Split proof frontier")
+    ax.plot(queries, fused, marker="o", linewidth=1.8, color=COLORS["fused"], label="Fused proof payload")
+    ax.fill_between(queries, fused, split, color=COLORS["opening"], alpha=0.16, label="Saved bytes")
+    ax.set_xlabel("FRI query count")
+    ax.set_ylabel("Proof payload bytes")
+    ax.set_xticks(queries)
+    ax.set_ylim(min(fused) - 45_000, max(split) + 45_000)
+    ax.grid(axis="y", color="#BBBBBB", linewidth=0.6, alpha=0.35)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.legend(frameon=False, loc="upper left")
+
+    for index, (query_count, split_bytes, fused_bytes, saving, ratio) in enumerate(
+        zip(queries, split, fused, savings, ratios)
+    ):
+        midpoint = fused_bytes + (split_bytes - fused_bytes) / 2
+        if index == 0:
+            ha = "left"
+            xytext = (10, 0)
+        elif index == len(queries) - 1:
+            ha = "right"
+            xytext = (-10, 0)
+        else:
+            ha = "center"
+            xytext = (0, 0)
+        ax.annotate(
+            f"save {saving:,} B\n{ratio:.6f}x",
+            xy=(query_count, midpoint),
+            xytext=xytext,
+            textcoords="offset points",
+            ha=ha,
+            va="center",
+            fontsize=8,
+            color="#222222",
+        )
+
+    write_tsv(
+        "proof-pressure-d64-high-query-sensitivity-2026-06",
+        [
+            "fri_query_count",
+            "split_proof_bytes",
+            "fused_proof_bytes",
+            "saving_bytes",
+            "fused_to_split_ratio",
+        ],
+        [
+            {
+                "fri_query_count": query_count,
+                "split_proof_bytes": split_bytes,
+                "fused_proof_bytes": fused_bytes,
+                "saving_bytes": saving,
+                "fused_to_split_ratio": f"{ratio:.6f}",
+            }
+            for query_count, split_bytes, fused_bytes, saving, ratio in zip(queries, split, fused, savings, ratios)
+        ],
+    )
+    write_figure(fig, "proof-pressure-d64-high-query-sensitivity-2026-06")
+
+
 def main() -> None:
     render_growth_factor_figure()
     render_boundary_selection_figure()
     render_mechanism_figure()
+    render_d64_high_query_figure()
 
 
 if __name__ == "__main__":

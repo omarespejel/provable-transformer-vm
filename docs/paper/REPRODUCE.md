@@ -39,11 +39,13 @@ the paper:
 - `docs/engineering/evidence/zkai-attention-kv-model-faithful-quantized-attention-bridge-2026-05.json`
 - `docs/engineering/evidence/zkai-stwo-ai-d64-four-head-seq64-chunk4-policy-gate-2026-06.json`
 - `docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json`
+- `docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json`
 
-The high-query sensitivity gate also checks six proof envelopes under
-`docs/engineering/evidence/high-query/`. Those envelopes are explicit
-query-count reruns for the d8 single-head surface at FRI query counts `6` and
-`12`; they are engineering evidence, not headline d64/d128 rows.
+The d64 high-query sensitivity gate also checks six proof envelopes under
+`docs/engineering/evidence/high-query/`. Together with the q3 default
+envelopes, those artifacts form the `d64_four_head_seq64` q3/q6/q12 table in
+the paper. They are engineering evidence, not production-security parameters or
+d128 high-query rows.
 
 ## Fixed Experimental Configuration
 
@@ -100,6 +102,11 @@ PYTHON_BIN="${PYTHON_BIN:-python3.10}"
   --write-json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json \
   --write-tsv docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv \
   --write-md docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md
+
+"$PYTHON_BIN" scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py \
+  --write-json docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json \
+  --write-tsv docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv \
+  --write-md docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md
 
 "$PYTHON_BIN" scripts/paper/paper_preflight.py --repo-root .
 
