@@ -1,9 +1,9 @@
 # d8 High-Query Sensitivity
 
 - Issue: `#765`
-- Decision: `GO_SMALL_SURFACE_HIGH_QUERY_SENSITIVITY_WITH_RESOURCE_LIMIT_CAVEAT`
+- Decision: `GO_SMALL_SURFACE_HIGH_QUERY_SENSITIVITY_QUERY_COUNT_ONLY`
 - Surface: `d8_single_head_seq8_bounded_softmax_table_attention`
-- Backend: `unmodified_stwo_2_2_0_with_scratch_pcs_config_patch`
+- Backend: `unmodified_stwo_2_2_0_with_explicit_query_count_patch`
 
 ## Result
 
@@ -17,9 +17,9 @@ This is a small higher-query sensitivity slice, not a new headline row. It rerun
 
 ## Interpretation
 
-On this small d8 surface, q6 and q12 preserve the fused proof-size win. The absolute saving grows from 11739 bytes at q3 to 19226 at q6 and 25530 at q12. The q12 source proof also exceeds the current default d8 source proof byte ceiling, so higher-query experiments need explicit resource-limit retuning before promotion.
+On this small d8 surface, q6 and q12 preserve the fused proof-size win. The absolute saving grows from 11739 bytes at q3 to 19226 at q6 and 25530 at q12. Both higher-query rows now require only an explicit FRI-query-count patch; the publication profile remains the default q3 configuration.
 
-The q12 run is useful but should stay engineering-scoped: the source proof exceeded the current default d8 source proof byte ceiling and verified only after a scratch resource-limit retune.
+The q12 run is useful but should stay engineering-scoped: it is a small d8 sensitivity rerun under an explicit query-count patch, not a headline d64/d128 row or a production-security profile.
 
 ## Reproduction
 
@@ -37,11 +37,6 @@ For q12, patch:
 ```text
 src/stwo_backend/mod.rs:
 FriConfig::new(0, 1, 3, 1) -> FriConfig::new(0, 1, 12, 1)
-
-src/stwo_backend/attention_kv_native_d8_bounded_softmax_table_proof.rs:
-ZKAI_ATTENTION_KV_NATIVE_D8_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES = 65_536
-->
-ZKAI_ATTENTION_KV_NATIVE_D8_BOUNDED_SOFTMAX_TABLE_MAX_PROOF_BYTES = 262_144
 ```
 
 After applying the q6 patch, run:

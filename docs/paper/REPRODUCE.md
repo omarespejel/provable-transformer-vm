@@ -41,9 +41,9 @@ the paper:
 - `docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json`
 
 The high-query sensitivity gate also checks six proof envelopes under
-`docs/engineering/evidence/high-query/`. Those envelopes are scratch reruns for
-the d8 single-head surface at FRI query counts `6` and `12`; they are
-engineering evidence, not headline d64/d128 rows.
+`docs/engineering/evidence/high-query/`. Those envelopes are explicit
+query-count reruns for the d8 single-head surface at FRI query counts `6` and
+`12`; they are engineering evidence, not headline d64/d128 rows.
 
 ## Fixed Experimental Configuration
 

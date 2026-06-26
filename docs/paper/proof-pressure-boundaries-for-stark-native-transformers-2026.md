@@ -449,10 +449,11 @@ bound. A small higher-query sensitivity slice supports the mechanism without
 promoting it into the headline: on the `d8_single_head_seq8` surface, raising
 FRI query count from `3` to `6` and `12` preserved the fused proof-size win. The
 absolute saving grew from `11,739` bytes at `q=3` to `19,226` at `q=6` and
-`25,530` at `q=12`. The caveat is important: the `q=12` source proof exceeded
-the current d8 source-proof byte ceiling and verified only after a scratch
-resource-limit retune. Treat this as a bounded sensitivity check, not as a
-production-security profile or a headline d64/d128 rerun.
+`25,530` at `q=12`. The caveat is important: these rows are small-surface
+sensitivity reruns under an explicit FRI-query-count patch, while the
+publication profile remains the default `q=3` configuration. Treat this as a
+bounded sensitivity check, not as a production-security profile or a headline
+d64/d128 rerun.
 
 ---
 
