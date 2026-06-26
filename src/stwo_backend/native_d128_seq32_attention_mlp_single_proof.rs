@@ -262,7 +262,7 @@ const EXPECTED_PROOF_VERIFIER_HARDENING: &[&str] = &[
     "combined preprocessed trace column count checked before committing",
     "combined base trace binds attention rows and six MLP component traces",
     "statement/public-instance/native-parameter commitments recomputed before proof verification",
-    "fixed publication-v1 PCS verifier profile before commitment-root recomputation",
+    "fixed Stwo measurement PCS profile before commitment-root recomputation",
     "commitment-vector length check before commitment indexing",
     "bounded proof bytes before JSON deserialization",
 ];
@@ -280,7 +280,7 @@ const EXPECTED_D128_ATTENTION_DERIVED_PROOF_VERIFIER_HARDENING: &[&str] = &[
     "combined preprocessed trace column count checked before committing",
     "combined base trace binds attention rows and six MLP component traces",
     "statement/public-instance/native-parameter commitments recomputed before proof verification",
-    "fixed publication-v1 PCS verifier profile before commitment-root recomputation",
+    "fixed Stwo measurement PCS profile before commitment-root recomputation",
     "commitment-vector length check before commitment indexing",
     "bounded proof bytes before JSON deserialization",
 ];
@@ -2537,7 +2537,7 @@ fn validate_pcs_config(
         || actual.lifting_log_size != expected.lifting_log_size
     {
         return Err(single_error(
-            "PCS config does not match publication-v1 profile with route-specific explicit lifting log size",
+            "PCS config does not match fixed Stwo measurement PCS profile with route-specific explicit lifting log size",
         ));
     }
     Ok(expected)
@@ -2560,7 +2560,7 @@ fn single_pcs_config(
     config.lifting_log_size = Some(SINGLE_PCS_LIFTING_LOG_SIZE);
     if publication_v1_pcs_config_matches(&config) {
         return Err(single_error(
-            "single proof PCS config unexpectedly matches publication-v1 default",
+            "single proof PCS config unexpectedly matches fixed Stwo measurement default",
         ));
     }
     Ok(config)
