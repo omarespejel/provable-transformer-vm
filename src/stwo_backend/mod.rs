@@ -265,6 +265,11 @@ use stwo::core::fri::FriConfig;
 use stwo::core::pcs::PcsConfig;
 
 #[cfg(feature = "stwo-backend")]
+/// Fixed Stwo PCS measurement profile used by the bounded-attention artifacts.
+///
+/// The name is legacy internal shorthand. It does not refer to the
+/// `publication_v1_stark_options()` Vanilla STARK policy in `src/proof.rs`, and
+/// it is not a production-security parameter recommendation.
 pub(crate) fn publication_v1_pcs_config() -> PcsConfig {
     PcsConfig {
         pow_bits: 10,

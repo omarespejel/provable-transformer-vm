@@ -226,7 +226,11 @@ EXPECTED_RELEASE_FIXED_CONFIG = {
     "fri_log_blowup": 1,
     "fri_query_count": 3,
     "proof_of_work_bits": 10,
-    "security_status": "fixed experimental configuration, not production-security parameter recommendation",
+    "security_status": (
+        "fixed experimental Stwo PCS measurement profile; not the 96-bit "
+        "Vanilla STARK publication-v1 policy and not a production-security "
+        "parameter recommendation"
+    ),
 }
 EXPECTED_RELEASE_NO_DRIFT_PATHS = (
     "docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",

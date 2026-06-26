@@ -2,13 +2,13 @@
   "artifact_digests": [
     {
       "path": "docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md",
-      "sha256": "fbe5eac037c9fc4c2c4cfa3cb805a593f6aec3b83909a55844d03dd504d6f790",
-      "size_bytes": 48489
+      "sha256": "20a211f894fdcaf154ce3c3586ed6ed6d203e36536d553991bfc83419d21f265",
+      "size_bytes": 49558
     },
     {
       "path": "docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md",
-      "sha256": "2081152a10be09ed16396d8b3a582a4b11d13b60f84d8aafc9df25dc0ab61fd5",
-      "size_bytes": 14081
+      "sha256": "1a17737b15883751ada825e51795fd8d45ce48778a4bca96400efeb7edc36789",
+      "size_bytes": 14459
     },
     {
       "path": "docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
@@ -23,7 +23,7 @@
     "fri_log_blowup": 1,
     "fri_query_count": 3,
     "proof_of_work_bits": 10,
-    "security_status": "fixed experimental configuration, not production-security parameter recommendation"
+    "security_status": "fixed experimental Stwo PCS measurement profile; not the 96-bit Vanilla STARK publication-v1 policy and not a production-security parameter recommendation"
   },
   "generated_by": "python3.10 scripts/zkai_paper_claim_pack_gate.py --write-json docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
   "last_merged_paper_sync_pr": {

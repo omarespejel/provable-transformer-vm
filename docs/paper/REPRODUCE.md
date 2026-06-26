@@ -63,6 +63,12 @@ release manifest:
 These are measurement settings for boundary-placement experiments, not
 production-security parameter recommendations.
 
+Profile naming note: the repository still contains a legacy helper named
+`publication_v1_pcs_config()` for this `q=3` Stwo PCS measurement profile. That
+helper is not the `publication_v1_stark_options()` Vanilla STARK profile in
+`src/proof.rs` and should not be read as a production-security or `96`-bit
+security setting for the bounded-attention paper.
+
 ## Canonical Release Gate
 
 Run the paper release gate from the repository root:
