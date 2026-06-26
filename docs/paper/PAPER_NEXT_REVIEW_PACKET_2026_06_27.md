@@ -67,7 +67,7 @@ Mechanism claim:
 | FRI proof material | `129,316` | about `57.7%` |
 | Decommitment material | `79,839` | about `35.6%` |
 | Other proof material | `14,803` | about `6.6%` |
-| Total | `223,958` | `100%` |
+| Total | `223,958` | about `100%` (shares rounded) |
 
 The combined opening bucket is:
 
