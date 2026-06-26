@@ -58,30 +58,30 @@ Main sequence-axis claim:
 
 | checked axis | work growth | fused proof-byte growth |
 |---|---:|---:|
-| `seq32 -> seq64` | lookup claims about `3.729730x`; trace rows `4.000000x` | `1.064910x` to `1.080697x` |
+| `seq32 -> seq64` | lookup claims about `3.73x`; trace rows `4.0x` | about `1.06x` to `1.08x` |
 
 Mechanism claim:
 
 | category | bytes saved | share |
 |---|---:|---:|
-| FRI proof material | `129,316` | `57.7412%` |
-| Decommitment material | `79,839` | `35.6491%` |
-| Other proof material | `14,803` | `6.6097%` |
-| Total | `223,958` | `100.0000%` |
+| FRI proof material | `129,316` | about `57.7%` |
+| Decommitment material | `79,839` | about `35.6%` |
+| Other proof material | `14,803` | about `6.6%` |
+| Total | `223,958` | `100%` |
 
 The combined opening bucket is:
 
 ```text
-(129,316 + 79,839) / 223,958 = 93.3903%
+(129,316 + 79,839) / 223,958 = about 93.4%
 ```
 
 d64 four-head seq64 high-query sensitivity:
 
 | FRI queries | split proof bytes | fused proof bytes | saving | fused ratio |
 |---:|---:|---:|---:|---:|
-| `3` | `315,785` | `276,503` | `39,282` | `0.875605x` |
-| `6` | `453,733` | `390,437` | `63,296` | `0.860499x` |
-| `12` | `727,747` | `612,237` | `115,510` | `0.841277x` |
+| `3` | `315,785` | `276,503` | `39,282` | about `0.876x` |
+| `6` | `453,733` | `390,437` | `63,296` | about `0.860x` |
+| `12` | `727,747` | `612,237` | `115,510` | about `0.841x` |
 
 ## Reproduction Gate
 
