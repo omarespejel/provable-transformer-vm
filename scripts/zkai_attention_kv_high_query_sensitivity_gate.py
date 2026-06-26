@@ -242,7 +242,7 @@ def proof_artifact(query_count: int, role: str) -> dict[str, Any]:
         raise HighQuerySensitivityGateError(f"q{query_count} {role} FRI config drift")
     section_bytes = {key: len(canonical_json_bytes(stark_proof[key])) for key in PROOF_SECTION_KEYS}
     return {
-        "path": str(path.relative_to(ROOT)),
+        "path": path.relative_to(ROOT).as_posix(),
         "sha256": actual_sha,
         "proof_size_bytes": proof_size,
         "envelope_size_bytes": envelope_size,
@@ -276,7 +276,7 @@ def build_row(query_count: int, q3_split: int, q3_fused: int) -> dict[str, Any]:
     }
 
 
-def build_payload() -> dict[str, Any]:
+def expected_rows_and_aggregate() -> tuple[list[dict[str, Any]], dict[str, Any]]:
     q3_expected = EXPECTED_ROWS[3]["proof_size_bytes"]
     q3_split = q3_expected["source"] + q3_expected["sidecar"]
     q3_fused = q3_expected["fused"]
@@ -294,6 +294,11 @@ def build_payload() -> dict[str, Any]:
         "q12_fused_growth_vs_q3": rows[2]["fused_growth_vs_q3"],
         "q12_requires_resource_limit_retune": True,
     }
+    return rows, aggregate
+
+
+def build_payload() -> dict[str, Any]:
+    rows, aggregate = expected_rows_and_aggregate()
     payload = {
         "schema": SCHEMA,
         "date": DATE,
@@ -331,7 +336,13 @@ def build_payload() -> dict[str, Any]:
     return payload
 
 
-def validate_payload(payload: dict[str, Any], *, allow_missing_mutation_summary: bool = False) -> None:
+def validate_payload(
+    payload: dict[str, Any],
+    *,
+    allow_missing_mutation_summary: bool = False,
+    expected_rows: list[dict[str, Any]] | None = None,
+    expected_aggregate: dict[str, Any] | None = None,
+) -> None:
     if payload.get("schema") != SCHEMA:
         raise HighQuerySensitivityGateError("schema drift")
     if payload.get("decision") != DECISION:
@@ -343,10 +354,10 @@ def validate_payload(payload: dict[str, Any], *, allow_missing_mutation_summary:
     rows = payload.get("rows")
     if not isinstance(rows, list) or [row.get("fri_query_count") for row in rows] != [3, 6, 12]:
         raise HighQuerySensitivityGateError("query row drift")
-    q3_expected = EXPECTED_ROWS[3]["proof_size_bytes"]
-    q3_split = q3_expected["source"] + q3_expected["sidecar"]
-    q3_fused = q3_expected["fused"]
-    expected_rows = [build_row(query_count, q3_split, q3_fused) for query_count in (3, 6, 12)]
+    if (expected_rows is None) != (expected_aggregate is None):
+        raise HighQuerySensitivityGateError("expected row cache drift")
+    if expected_rows is None or expected_aggregate is None:
+        expected_rows, expected_aggregate = expected_rows_and_aggregate()
     for actual, expected in zip(rows, expected_rows):
         fields = (
             "source_proof_size_bytes",
@@ -364,19 +375,6 @@ def validate_payload(payload: dict[str, Any], *, allow_missing_mutation_summary:
                 raise HighQuerySensitivityGateError(f"q{expected['fri_query_count']} {field} drift")
         if actual.get("proof_config") != expected["proof_config"]:
             raise HighQuerySensitivityGateError(f"q{expected['fri_query_count']} proof config drift")
-    expected_aggregate = {
-        "surface": SURFACE,
-        "query_counts_checked": [row["fri_query_count"] for row in expected_rows],
-        "q3_fused_to_split_ratio": expected_rows[0]["fused_to_split_ratio"],
-        "q6_fused_to_split_ratio": expected_rows[1]["fused_to_split_ratio"],
-        "q12_fused_to_split_ratio": expected_rows[2]["fused_to_split_ratio"],
-        "q3_saving_bytes": expected_rows[0]["fused_saves_vs_source_plus_sidecar_bytes"],
-        "q6_saving_bytes": expected_rows[1]["fused_saves_vs_source_plus_sidecar_bytes"],
-        "q12_saving_bytes": expected_rows[2]["fused_saves_vs_source_plus_sidecar_bytes"],
-        "q12_split_growth_vs_q3": expected_rows[2]["split_growth_vs_q3"],
-        "q12_fused_growth_vs_q3": expected_rows[2]["fused_growth_vs_q3"],
-        "q12_requires_resource_limit_retune": True,
-    }
     aggregate = payload.get("aggregate")
     if not isinstance(aggregate, dict) or aggregate != expected_aggregate:
         raise HighQuerySensitivityGateError("aggregate drift")
@@ -407,6 +405,7 @@ def run_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
 
     if tuple(name for name, _ in mutations) != MUTATION_NAMES:
         raise HighQuerySensitivityGateError("mutation name drift")
+    expected_rows, expected_aggregate = expected_rows_and_aggregate()
     results = []
     for name, mutator in mutations:
         candidate = copy.deepcopy(payload)
@@ -416,7 +415,12 @@ def run_mutations(payload: dict[str, Any]) -> list[dict[str, Any]]:
         error = ""
         try:
             mutator(candidate)
-            validate_payload(candidate, allow_missing_mutation_summary=True)
+            validate_payload(
+                candidate,
+                allow_missing_mutation_summary=True,
+                expected_rows=expected_rows,
+                expected_aggregate=expected_aggregate,
+            )
         except HighQuerySensitivityGateError as err:
             rejected = True
             error = str(err)
