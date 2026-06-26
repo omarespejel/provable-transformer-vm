@@ -28,7 +28,7 @@
     "fri_log_last_layer_degree_bound": 0,
     "pow_bits": 10
   },
-  "interpretation": "On this small d8 surface, q6 and q12 preserve the fused proof-size win. The absolute saving grows from 11739 bytes at q3 to 19226 at q6 and 25530 at q12. Both higher-query rows now require only an explicit FRI-query-count patch; the publication profile remains the default q3 configuration.",
+  "interpretation": "On this small d8 surface, q6 and q12 preserve the fused proof-size win. The absolute saving grows from 11739 bytes at q3 to 19226 at q6 and 25530 at q12. Both higher-query rows now require only an explicit FRI-query-count patch; the publication profile remains the default q3 configuration. The d8 source verifier cap is 98304 raw proof bytes: above the 84266-byte q12 source proof, but checked by a Rust regression to stay below the 1MiB pretty-JSON envelope cap even with worst-case proof-byte formatting.",
   "issue": 765,
   "mutation_cases": [
     {
@@ -49,6 +49,11 @@
     {
       "error": "query-count patch drift",
       "name": "query_count_patch_drift",
+      "rejected": true
+    },
+    {
+      "error": "legacy scratch_patches field",
+      "name": "legacy_scratch_patches_field",
       "rejected": true
     },
     {
@@ -82,8 +87,8 @@
       "rejected": true
     }
   ],
-  "mutations_checked": 10,
-  "mutations_rejected": 10,
+  "mutations_checked": 11,
+  "mutations_rejected": 11,
   "non_claims": [
     "not a headline d64 or d128 high-query rerun",
     "not production-security parameter evidence",
@@ -94,7 +99,7 @@
     "not evidence that higher query count always improves fused-to-split ratio",
     "not a permanent Stwo-AI backend change"
   ],
-  "payload_commitment": "blake2b-256:bb045863ede90efc033c3d0a2446bcbc8fb647601f542bacd258482321f6c626",
+  "payload_commitment": "blake2b-256:c020d1ddc976c88482c90a062cd7f33ce3be01c4e57b71037f5f0634df71c17f",
   "query_count_patches": {
     "q12": [
       {

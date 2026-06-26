@@ -17,7 +17,7 @@ This is a small higher-query sensitivity slice, not a new headline row. It rerun
 
 ## Interpretation
 
-On this small d8 surface, q6 and q12 preserve the fused proof-size win. The absolute saving grows from 11739 bytes at q3 to 19226 at q6 and 25530 at q12. Both higher-query rows now require only an explicit FRI-query-count patch; the publication profile remains the default q3 configuration.
+On this small d8 surface, q6 and q12 preserve the fused proof-size win. The absolute saving grows from 11739 bytes at q3 to 19226 at q6 and 25530 at q12. Both higher-query rows now require only an explicit FRI-query-count patch; the publication profile remains the default q3 configuration. The d8 source verifier cap is 98304 raw proof bytes: above the 84266-byte q12 source proof, but checked by a Rust regression to stay below the 1MiB pretty-JSON envelope cap even with worst-case proof-byte formatting.
 
 The q12 run is useful but should stay engineering-scoped: it is a small d8 sensitivity rerun under an explicit query-count patch, not a headline d64/d128 row or a production-security profile.
 
