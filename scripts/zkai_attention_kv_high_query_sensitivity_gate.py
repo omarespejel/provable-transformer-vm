@@ -383,12 +383,14 @@ def build_payload() -> dict[str, Any]:
 
 
 def validate_payload(
-    payload: dict[str, Any],
+    payload: Any,
     *,
     allow_missing_mutation_summary: bool = False,
     expected_rows: list[dict[str, Any]] | None = None,
     expected_aggregate: dict[str, Any] | None = None,
 ) -> None:
+    if not isinstance(payload, dict):
+        raise HighQuerySensitivityGateError("payload must be a JSON object")
     actual_keys = set(payload)
     allowed_keys = PAYLOAD_CORE_KEYS | PAYLOAD_MUTATION_SUMMARY_KEYS
     if "scratch_patches" in payload:

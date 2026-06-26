@@ -39,6 +39,9 @@ class HighQuerySensitivityGateTests(unittest.TestCase):
         self.assertIn("not a headline d64 or d128 high-query rerun", self.payload["non_claims"])
         self.assertIn("not production-security parameter evidence", self.payload["non_claims"])
 
+    def test_rejects_non_object_payload(self):
+        self.assert_rejects([{"schema": gate.SCHEMA}], "payload must be a JSON object")
+
     def test_q3_q6_q12_rows_keep_fused_smaller_than_split(self):
         q3 = self.row(3)
         self.assertEqual(q3["source_plus_sidecar_raw_proof_bytes"], 59_437)
