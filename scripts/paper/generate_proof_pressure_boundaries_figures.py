@@ -402,11 +402,13 @@ def render_d64_high_query_figure() -> None:
     reported_ratios = [float_field(row, "fused_to_split_ratio") for row in rows]
     if queries != [3, 6, 12]:
         raise SystemExit(f"unexpected d64 high-query x-axis: {queries}")
-    for query_count, split_bytes in zip(queries, split, strict=True):
+    for query_count, split_bytes, fused_bytes in zip(queries, split, fused, strict=True):
         if split_bytes <= 0:
             raise SystemExit(f"d64 high-query q{query_count} split proof bytes must be positive")
-    if any(fused_bytes >= split_bytes for fused_bytes, split_bytes in zip(fused, split, strict=True)):
-        raise SystemExit("d64 high-query fused proof must stay below split frontier")
+        if fused_bytes <= 0:
+            raise SystemExit(f"d64 high-query q{query_count} fused proof bytes must be positive")
+        if fused_bytes >= split_bytes:
+            raise SystemExit(f"d64 high-query q{query_count} fused proof must stay below split frontier")
     savings = [split_bytes - fused_bytes for split_bytes, fused_bytes in zip(split, fused, strict=True)]
     ratios = [fused_bytes / split_bytes for fused_bytes, split_bytes in zip(fused, split, strict=True)]
     for query_count, saving, reported_saving, ratio, reported_ratio in zip(
