@@ -339,6 +339,20 @@ mod fixed_stwo_measurement_pcs_config_tests {
         assert!(fixed_stwo_measurement_pcs_config_matches(&legacy));
         assert!(publication_v1_pcs_config_matches(&canonical));
     }
+
+    #[test]
+    fn fixed_measurement_profile_matchers_reject_mismatched_config() {
+        let mut mutated = fixed_stwo_measurement_pcs_config();
+
+        mutated.pow_bits += 1;
+        assert!(!fixed_stwo_measurement_pcs_config_matches(&mutated));
+        assert!(!publication_v1_pcs_config_matches(&mutated));
+
+        let mut mutated = fixed_stwo_measurement_pcs_config();
+        mutated.fri_config.n_queries += 1;
+        assert!(!fixed_stwo_measurement_pcs_config_matches(&mutated));
+        assert!(!publication_v1_pcs_config_matches(&mutated));
+    }
 }
 
 pub use adapter::{

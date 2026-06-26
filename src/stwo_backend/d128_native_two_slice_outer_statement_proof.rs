@@ -660,7 +660,7 @@ fn verify_outer_statement_rows(
 fn validate_outer_pcs_config(actual: PcsConfig) -> Result<PcsConfig> {
     if !super::publication_v1_pcs_config_matches(&actual) {
         return Err(outer_error(
-            "PCS config does not match publication-v1 verifier profile",
+            "PCS config does not match fixed Stwo measurement PCS profile",
         ));
     }
     Ok(outer_pcs_config())

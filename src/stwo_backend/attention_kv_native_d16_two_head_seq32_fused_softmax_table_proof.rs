@@ -1027,7 +1027,7 @@ fn mix_fused_summary(
 fn validate_pcs_config(actual: PcsConfig) -> Result<PcsConfig> {
     if !super::publication_v1_pcs_config_matches(&actual) {
         return Err(fused_error(
-            "PCS config does not match publication-v1 verifier profile",
+            "PCS config does not match fixed Stwo measurement PCS profile",
         ));
     }
     Ok(fused_pcs_config())

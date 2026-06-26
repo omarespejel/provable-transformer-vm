@@ -591,7 +591,7 @@ fn verify_vector_block_rows(input: &ZkAiVectorBlockProofInput, proof: &[u8]) -> 
 fn validate_vector_block_pcs_config(actual: PcsConfig) -> Result<PcsConfig> {
     if !super::publication_v1_pcs_config_matches(&actual) {
         return Err(vector_block_error(
-            "PCS config does not match publication-v1 verifier profile",
+            "PCS config does not match fixed Stwo measurement PCS profile",
         ));
     }
     Ok(vector_block_pcs_config())

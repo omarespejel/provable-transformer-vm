@@ -958,7 +958,7 @@ fn verify_activation_swiglu_rows(
 fn validate_activation_swiglu_pcs_config(actual: PcsConfig) -> Result<PcsConfig> {
     if !super::publication_v1_pcs_config_matches(&actual) {
         return Err(activation_swiglu_error(
-            "PCS config does not match publication-v1 verifier profile",
+            "PCS config does not match fixed Stwo measurement PCS profile",
         ));
     }
     Ok(activation_swiglu_pcs_config())
