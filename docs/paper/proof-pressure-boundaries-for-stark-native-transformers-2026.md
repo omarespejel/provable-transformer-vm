@@ -483,6 +483,21 @@ win:
 | `6` | `453,733` | `390,437` | `63,296` | `0.860499x` |
 | `12` | `727,747` | `612,237` | `115,510` | `0.841277x` |
 
+The section-level accounting for the same q3/q6/q12 row gives the mechanism
+check. Opening-bucket saving here means FRI proof material plus decommitment
+material. Query-value saving means sampled and queried value bytes; it stays
+small compared with opening-bucket saving.
+
+| FRI queries | total saving | opening-bucket saving | opening-bucket share | query-value saving |
+|---:|---:|---:|---:|---:|
+| `3` | `39,282` | `37,827` | `96.3%` | `850` |
+| `6` | `63,296` | `61,665` | `97.4%` | `1,026` |
+| `12` | `115,510` | `113,219` | `98.0%` | `1,685` |
+
+This is why the higher-query slice matters: as the query count rises on the same
+semantic workload, the extra fused saving is still overwhelmingly in shared
+opening material rather than in the relation-specific values themselves.
+
 Figure 4 plots the same row. The main checked measurement profile remains the
 fixed `q=3` Stwo PCS configuration. The q6 and q12 rows are engineering reruns
 under an explicit FRI-query-count patch with proof-of-work, blowup, and fold
@@ -657,8 +672,9 @@ for it.
 ## 10. Artifact Availability and Reproduction
 
 Use a Python environment with the paper dependencies installed from
-`scripts/requirements.txt` before running the figure scripts. The evidence gates
-below use `python3.10`.
+`scripts/requirements.txt` before running the figure scripts. The paper package
+pins the matplotlib and numpy versions used for byte-exact figure regeneration.
+The evidence gates below use `python3.10`.
 
 The release audit packet is
 `docs/paper/PAPER_RELEASE_AUDIT_PACKET_2026_06_04.md`. The machine-readable
@@ -668,6 +684,13 @@ It records the correct repository namespace, artifact SHA-256 digests, the fixed
 experimental Stwo configuration, and the launch-gate command list. For public
 launch, run the commands below on the final merged release commit and record that
 regeneration produced no diff against the committed paper artifacts.
+
+The release gate is a paper-artifact no-drift gate. It regenerates claim packs,
+summaries, figures, and release packets from committed or digest-pinned
+evidence, then fails if the checked paper package drifts. It is not the default
+heavy proof-regeneration path for every large proof envelope. Large envelopes
+are pinned by digest manifests and carry separate regenerate and native-verify
+commands.
 
 The figure source is `scripts/paper/generate_proof_pressure_boundaries_figures.py`.
 It reads the checked TSV artifacts listed in Section 3 and writes the paper
@@ -783,9 +806,12 @@ git diff --exit-code \
   docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md \
   docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md \
   docs/paper/appendix-zkml-statement-validity-2026.md \
+  docs/paper/PAPER_NEXT_REVIEW_PACKET_2026_06_27.md \
   docs/paper/PAPER_D64_HIGH_QUERY_AUDIT_PACKET_2026_06_27.md \
+  docs/paper/PAPER_RELEASE_AUDIT_PACKET_2026_06_04.md \
   docs/paper/README.md \
   docs/paper/REPRODUCE.md \
+  scripts/requirements.txt \
   docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json \
   docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv \
   docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md \

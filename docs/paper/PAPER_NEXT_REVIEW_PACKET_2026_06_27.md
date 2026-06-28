@@ -10,17 +10,18 @@ Repository:
 omarespejel/provable-transformer-vm
 ```
 
-Current launch-candidate commit after PR #775:
+Current reviewed release-hygiene base commit:
 
 ```text
-ee2e4eaaecd9bc8586ca239db0599004a4238b62
+1a7f85c225a52a7cadf660146136a5c522016769
 ```
 
-If this handoff packet is moved by a later release-hygiene PR, review the latest
-`main` commit and re-run the release gate on that exact commit. PR #772 is the
-last PR that materially changed the paper's evidence argument; PR #775 completed
-the fixed Stwo measurement-profile naming cleanup and preserved legacy hardening
-artifact strings.
+If this handoff packet is moved by a later release-hygiene PR, the public
+release commit is the latest merged `main` commit after that PR lands. Review
+that exact commit and re-run the release gate there. PR #772 is the last PR that
+materially changed the paper's evidence argument; PR #775 completed the fixed
+Stwo measurement-profile naming cleanup; PR #776 refreshed the release
+provenance packet and gate interpreter contract.
 
 Primary paper:
 

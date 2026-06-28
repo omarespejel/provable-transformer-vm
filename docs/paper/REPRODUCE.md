@@ -82,6 +82,12 @@ The gate regenerates the machine-readable claim pack and figures, runs the
 paper preflight, checks Python syntax and unit tests for the claim-pack gate,
 and fails if committed paper artifacts drift.
 
+This is a paper-artifact no-drift gate. It regenerates paper summaries, figures,
+and release packets from committed or digest-pinned evidence. It is not the
+default heavy proof-regeneration path for every large proof envelope. Large
+envelopes are covered by digest manifests and separate regenerate/verify
+commands.
+
 The gate defaults to `python3.10`. To use the repository venv or another Python
 `3.10+` environment with the paper dependencies installed, set `PYTHON_BIN`
 explicitly:
