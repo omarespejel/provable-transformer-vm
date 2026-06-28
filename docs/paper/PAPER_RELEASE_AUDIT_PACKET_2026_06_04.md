@@ -57,14 +57,19 @@ sha256: 9b6787c7a361f8847e9a7034b4aaeb8710d0ee3ec611c114399269a843c16e86
 Run the canonical release gate on the final public release commit:
 
 ```bash
+scripts/run_proof_pressure_release_gate.sh
+```
+
+If the default `python3.10` binary is unavailable, use any Python `3.10+`
+interpreter via `PYTHON_BIN`, for example:
+
+```bash
 PYTHON_BIN=.venv/bin/python scripts/run_proof_pressure_release_gate.sh
 ```
 
-If `.venv/bin/python` is unavailable, use any Python `3.10+` interpreter via
-`PYTHON_BIN`. The gate regenerates the claim pack, high-query evidence,
-figures, paper preflight outputs, and the full no-drift set pinned in the
-release manifest. Do not replace it with a shortened `git diff --exit-code`
-artifact list.
+The gate regenerates the claim pack, high-query evidence, figures, paper
+preflight outputs, and the full no-drift set pinned in the release manifest. Do
+not replace it with a shortened `git diff --exit-code` artifact list.
 
 The launch statement should include:
 
