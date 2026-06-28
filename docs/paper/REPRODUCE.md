@@ -82,8 +82,9 @@ The gate regenerates the machine-readable claim pack and figures, runs the
 paper preflight, checks Python syntax and unit tests for the claim-pack gate,
 and fails if committed paper artifacts drift.
 
-If the default `python3.10` binary is not available, point the gate at an
-equivalent Python 3.10+ interpreter:
+The gate uses `.venv/bin/python` when the repository venv exists, otherwise it
+falls back to `python3.10`. To force a specific Python `3.10+` interpreter, set
+`PYTHON_BIN`:
 
 ```bash
 PYTHON_BIN=.venv/bin/python scripts/run_proof_pressure_release_gate.sh
