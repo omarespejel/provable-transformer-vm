@@ -66,6 +66,7 @@ git diff --exit-code \
   docs/paper/PAPER_RELEASE_AUDIT_PACKET_2026_06_04.md \
   docs/paper/README.md \
   docs/paper/REPRODUCE.md \
+  scripts/requirements.txt \
   docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json \
   docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv \
   docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md \

@@ -18,18 +18,19 @@ repository as paper provenance. That repository has an unrelated PR namespace.
 The latest merged release-hardening PR before this packet refresh was:
 
 ```text
-PR: #775
-Title: Clarify fixed Stwo measurement PCS profile
-Merge commit: ee2e4eaaecd9bc8586ca239db0599004a4238b62
+PR: #776
+Title: Refresh proof-pressure release provenance
+Merge commit: 1a7f85c225a52a7cadf660146136a5c522016769
 ```
 
 PR #772 is the last PR that materially changed the paper's evidence argument.
 PR #775 completed the fixed Stwo measurement-profile naming cleanup and
 preserved legacy proof-verifier hardening strings where checked evidence expects
-exact text. Because this repository uses rebase merge for PRs, the final public
-release commit must be read from GitHub after the last launch-hygiene PR lands.
-Do not launch from a stale PR number or from a same-number PR in another
-repository.
+exact text. PR #776 refreshed the release provenance packet and made the release
+gate interpreter selection explicit. Because this repository uses rebase merge
+for PRs, the final public release commit must be read from GitHub after the last
+launch-hygiene PR lands. Do not launch from a stale PR number or from a
+same-number PR in another repository.
 
 ## Release Manifest
 
@@ -43,13 +44,13 @@ Pinned launch artifacts in that manifest:
 
 ```text
 docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md
-sha256: 44bc0ee184be8cbf95535be240bd34609a491e03dc0bda048c82585f0a54f4c5
+sha256: 2ca42a0cac960ab4a67b7e9320a7eb97d026a477f663e83f37c8d3c1b984329a
 
 docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md
-sha256: 5070c18b2903a01f00fded7f91017d96510f4048fa000b90d38710874ea89982
+sha256: 7cf52471c1c5e53afbea6f478ecd5f8ad219a96cc97f7937d82d25b5e1a85067
 
 docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json
-sha256: 9b6787c7a361f8847e9a7034b4aaeb8710d0ee3ec611c114399269a843c16e86
+sha256: 54feffcf81c511691e549dd57f29ec7f5d522034c9b1788530cfbf2fbb47ff98
 ```
 
 ## Required Launch Commands
@@ -70,6 +71,12 @@ PYTHON_BIN=.venv/bin/python scripts/run_proof_pressure_release_gate.sh
 The gate regenerates the claim pack, high-query evidence, figures, paper
 preflight outputs, and the full no-drift set pinned in the release manifest. Do
 not replace it with a shortened `git diff --exit-code` artifact list.
+
+This is a paper-artifact no-drift gate. It checks regenerated paper summaries,
+figures, and release packets against committed or digest-pinned evidence. It is
+not the default heavy proof-regeneration path for every large proof envelope.
+Large envelopes remain covered by their digest manifests and separate
+regenerate/verify commands.
 
 The launch statement should include:
 
