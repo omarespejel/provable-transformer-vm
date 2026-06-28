@@ -5,7 +5,11 @@ export PYTHONDONTWRITEBYTECODE=1
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-PYTHON_BIN="${PYTHON_BIN:-python3.10}"
+if [[ -z "${PYTHON_BIN:-}" && -x ".venv/bin/python" ]]; then
+  PYTHON_BIN=".venv/bin/python"
+else
+  PYTHON_BIN="${PYTHON_BIN:-python3.10}"
+fi
 
 if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
   echo "Requires Python >= 3.10; set PYTHON_BIN to a compatible interpreter" >&2

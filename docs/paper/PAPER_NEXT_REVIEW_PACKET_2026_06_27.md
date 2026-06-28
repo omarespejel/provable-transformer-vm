@@ -95,13 +95,15 @@ d64 four-head seq64 high-query sensitivity:
 Run from the repository root:
 
 ```bash
-PYTHON_BIN=.venv/bin/python scripts/run_proof_pressure_release_gate.sh
+scripts/run_proof_pressure_release_gate.sh
 ```
 
-If `.venv/bin/python` is unavailable, use any Python `3.10+` interpreter:
+The gate uses `.venv/bin/python` when the repository venv exists, otherwise it
+falls back to `python3.10`. To force a specific Python `3.10+` interpreter, set
+`PYTHON_BIN`:
 
 ```bash
-PYTHON_BIN=python3.10 scripts/run_proof_pressure_release_gate.sh
+PYTHON_BIN=.venv/bin/python scripts/run_proof_pressure_release_gate.sh
 ```
 
 Expected result:
