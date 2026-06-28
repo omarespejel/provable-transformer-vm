@@ -39,6 +39,7 @@ PUBLICATION_METADATA_FILES = [
 
 PAPER_FILES = [
     "docs/paper/PAPER_NEXT_REVIEW_PACKET_2026_06_27.md",
+    "docs/paper/PAPER_RELEASE_AUDIT_PACKET_2026_06_04.md",
     "docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md",
     "docs/paper/appendix-zkml-statement-validity-2026.md",
     "docs/paper/stark-transformer-alignment-2026.md",
