@@ -54,29 +54,17 @@ sha256: 9b6787c7a361f8847e9a7034b4aaeb8710d0ee3ec611c114399269a843c16e86
 
 ## Required Launch Commands
 
-Run these on the final public release commit:
+Run the canonical release gate on the final public release commit:
 
 ```bash
-python3.10 scripts/zkai_paper_claim_pack_gate.py \
-  --write-json docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json
-
-python3.10 -m py_compile \
-  scripts/zkai_paper_claim_pack_gate.py \
-  scripts/tests/test_zkai_paper_claim_pack_gate.py
-
-python3.10 -m unittest scripts.tests.test_zkai_paper_claim_pack_gate
-
-python3.10 scripts/paper/paper_preflight.py --repo-root .
-
-scripts/run_paper_preflight_suite.sh
-
-git diff --check
-
-git diff --exit-code \
-  docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json \
-  docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md \
-  docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md
+PYTHON_BIN=.venv/bin/python scripts/run_proof_pressure_release_gate.sh
 ```
+
+If `.venv/bin/python` is unavailable, use any Python `3.10+` interpreter via
+`PYTHON_BIN`. The gate regenerates the claim pack, high-query evidence,
+figures, paper preflight outputs, and the full no-drift set pinned in the
+release manifest. Do not replace it with a shortened `git diff --exit-code`
+artifact list.
 
 The launch statement should include:
 
