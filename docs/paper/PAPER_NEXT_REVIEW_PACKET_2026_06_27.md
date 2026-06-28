@@ -98,9 +98,9 @@ Run from the repository root:
 scripts/run_proof_pressure_release_gate.sh
 ```
 
-The gate uses `.venv/bin/python` when the repository venv exists, otherwise it
-falls back to `python3.10`. To force a specific Python `3.10+` interpreter, set
-`PYTHON_BIN`:
+The gate defaults to `python3.10`. To use the repository venv or another Python
+`3.10+` environment with the paper dependencies installed, set `PYTHON_BIN`
+explicitly:
 
 ```bash
 PYTHON_BIN=.venv/bin/python scripts/run_proof_pressure_release_gate.sh
