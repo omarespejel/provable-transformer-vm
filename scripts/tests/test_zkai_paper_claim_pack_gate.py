@@ -168,6 +168,16 @@ class PaperClaimPackGateTests(unittest.TestCase):
         finally:
             self.restore_evidence_ref_data(path, original_text)
 
+    def test_rejects_release_manifest_query_blowup_bits_drift_even_when_commitment_is_refreshed(self):
+        manifest_data = self.release_manifest_data()
+        manifest_data["fixed_experimental_stwo_config"]["fri_query_blowup_bits_without_pow"] = 4
+        mutated, path, original_text = self.release_manifest_payload_with(manifest_data)
+        try:
+            with self.assertRaisesRegex(gate.ClaimPackGateError, "fixed config drift"):
+                gate.validate_payload(mutated)
+        finally:
+            self.restore_evidence_ref_data(path, original_text)
+
     def test_rejects_missing_release_manifest_ref_even_when_commitment_is_refreshed(self):
         mutated = copy.deepcopy(self.payload)
         mutated["evidence_refs"] = [
