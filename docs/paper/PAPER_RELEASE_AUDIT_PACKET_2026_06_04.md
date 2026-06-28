@@ -44,7 +44,7 @@ Pinned launch artifacts in that manifest:
 
 ```text
 docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md
-sha256: 2ca42a0cac960ab4a67b7e9320a7eb97d026a477f663e83f37c8d3c1b984329a
+sha256: 4a27f05abaafa921ef7ffddc9fb987dd301886f767ac075c54e64be07d346799
 
 docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md
 sha256: 7cf52471c1c5e53afbea6f478ecd5f8ad219a96cc97f7937d82d25b5e1a85067
