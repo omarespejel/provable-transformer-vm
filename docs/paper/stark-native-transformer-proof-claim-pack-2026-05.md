@@ -91,10 +91,12 @@ production-security constants and not timing claims.
 The `q=3` Stwo PCS setting is a measurement profile. New code names this helper
 `fixed_stwo_measurement_pcs_config()`. The older
 `publication_v1_pcs_config()` name remains as a compatibility alias for older
-generated modules and should not be confused with the separate
+non-paper generated modules and should not be confused with the separate
 `publication_v1_stark_options()` Vanilla STARK path in `src/proof.rs`, which
 records a `96`-bit conjectured-security floor. The bounded-attention paper does
-not use the `q=3` Stwo PCS setting as a production-security claim.
+not use the `q=3` Stwo PCS setting as a production-security claim; under the
+repository's simple query-blowup floor label, q3 has `3` query-blowup bits
+before proof-of-work.
 
 The route matrix records thirty checked matched `route_rows` entries. Across
 those entries,
@@ -206,6 +208,7 @@ python3.10 -m py_compile \
   scripts/tests/test_zkai_attention_kv_high_query_sensitivity_gate.py \
   scripts/tests/test_zkai_attention_kv_d64_high_query_sensitivity_gate.py \
   scripts/paper/generate_proof_pressure_boundaries_figures.py \
+  scripts/paper/generate_zkml_statement_validity_figure.py \
   scripts/paper/paper_preflight.py
 
 python3.10 -m unittest scripts.tests.test_zkai_paper_claim_pack_gate
@@ -224,7 +227,9 @@ python3.10 scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py \
   --write-tsv docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv \
   --write-md docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md
 
-python3.10 scripts/paper/generate_proof_pressure_boundaries_figures.py
+python3.10 scripts/paper/generate_proof_pressure_boundaries_figures.py --data-only
+
+python3.10 scripts/paper/generate_zkml_statement_validity_figure.py --data-only
 
 python3.10 scripts/paper/paper_preflight.py --repo-root .
 
@@ -250,20 +255,9 @@ git diff --exit-code \
   docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json \
   docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv \
   docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md \
-  docs/paper/figures/proof-pressure-growth-factors-2026-05.pdf \
-  docs/paper/figures/proof-pressure-growth-factors-2026-05.png \
-  docs/paper/figures/proof-pressure-growth-factors-2026-05.svg \
   docs/paper/figures/proof-pressure-growth-factors-2026-05.tsv \
-  docs/paper/figures/proof-pressure-boundary-selection-2026-05.pdf \
-  docs/paper/figures/proof-pressure-boundary-selection-2026-05.png \
-  docs/paper/figures/proof-pressure-boundary-selection-2026-05.svg \
   docs/paper/figures/proof-pressure-boundary-selection-2026-05.tsv \
-  docs/paper/figures/proof-pressure-opening-mechanism-2026-05.pdf \
-  docs/paper/figures/proof-pressure-opening-mechanism-2026-05.png \
-  docs/paper/figures/proof-pressure-opening-mechanism-2026-05.svg \
   docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv \
-  docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.pdf \
-  docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.png \
-  docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.svg \
-  docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.tsv
+  docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.tsv \
+  docs/paper/figures/zkml-statement-validity-boundary-2026-05.tsv
 ```

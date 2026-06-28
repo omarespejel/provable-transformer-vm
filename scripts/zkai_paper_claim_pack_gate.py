@@ -225,11 +225,13 @@ EXPECTED_RELEASE_FIXED_CONFIG = {
     "fri_fold_step": 1,
     "fri_log_blowup": 1,
     "fri_query_count": 3,
+    "fri_query_blowup_bits_without_pow": 3,
     "proof_of_work_bits": 10,
     "security_status": (
-        "fixed experimental Stwo PCS measurement profile; not the 96-bit "
-        "Vanilla STARK publication-v1 policy and not a production-security "
-        "parameter recommendation"
+        "fixed experimental Stwo PCS measurement profile; q3 has 3 "
+        "query-blowup bits before proof-of-work and is not the 96-bit Vanilla "
+        "STARK publication-v1 policy or a production-security parameter "
+        "recommendation"
     ),
 }
 EXPECTED_RELEASE_NO_DRIFT_PATHS = (
@@ -250,33 +252,23 @@ EXPECTED_RELEASE_NO_DRIFT_PATHS = (
     "docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json",
     "docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv",
     "docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md",
-    "docs/paper/figures/proof-pressure-growth-factors-2026-05.pdf",
-    "docs/paper/figures/proof-pressure-growth-factors-2026-05.png",
-    "docs/paper/figures/proof-pressure-growth-factors-2026-05.svg",
     "docs/paper/figures/proof-pressure-growth-factors-2026-05.tsv",
-    "docs/paper/figures/proof-pressure-boundary-selection-2026-05.pdf",
-    "docs/paper/figures/proof-pressure-boundary-selection-2026-05.png",
-    "docs/paper/figures/proof-pressure-boundary-selection-2026-05.svg",
     "docs/paper/figures/proof-pressure-boundary-selection-2026-05.tsv",
-    "docs/paper/figures/proof-pressure-opening-mechanism-2026-05.pdf",
-    "docs/paper/figures/proof-pressure-opening-mechanism-2026-05.png",
-    "docs/paper/figures/proof-pressure-opening-mechanism-2026-05.svg",
     "docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv",
-    "docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.pdf",
-    "docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.png",
-    "docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.svg",
     "docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.tsv",
+    "docs/paper/figures/zkml-statement-validity-boundary-2026-05.tsv",
 )
 EXPECTED_RELEASE_VALIDATION_COMMANDS = [
     "scripts/run_proof_pressure_release_gate.sh",
     "python3.10 scripts/zkai_paper_claim_pack_gate.py --write-json docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
-    "python3.10 -m py_compile scripts/zkai_paper_claim_pack_gate.py scripts/zkai_attention_kv_high_query_sensitivity_gate.py scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py scripts/tests/test_zkai_paper_claim_pack_gate.py scripts/tests/test_zkai_attention_kv_high_query_sensitivity_gate.py scripts/tests/test_zkai_attention_kv_d64_high_query_sensitivity_gate.py scripts/paper/generate_proof_pressure_boundaries_figures.py scripts/paper/paper_preflight.py",
+    "python3.10 -m py_compile scripts/zkai_paper_claim_pack_gate.py scripts/zkai_attention_kv_high_query_sensitivity_gate.py scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py scripts/tests/test_zkai_paper_claim_pack_gate.py scripts/tests/test_zkai_attention_kv_high_query_sensitivity_gate.py scripts/tests/test_zkai_attention_kv_d64_high_query_sensitivity_gate.py scripts/paper/generate_proof_pressure_boundaries_figures.py scripts/paper/generate_zkml_statement_validity_figure.py scripts/paper/paper_preflight.py",
     "python3.10 -m unittest scripts.tests.test_zkai_paper_claim_pack_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_high_query_sensitivity_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d64_high_query_sensitivity_gate",
     "python3.10 scripts/zkai_attention_kv_high_query_sensitivity_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json --write-tsv docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv --write-md docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md",
     "python3.10 scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json --write-tsv docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv --write-md docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md",
-    "python3.10 scripts/paper/generate_proof_pressure_boundaries_figures.py",
+    "python3.10 scripts/paper/generate_proof_pressure_boundaries_figures.py --data-only",
+    "python3.10 scripts/paper/generate_zkml_statement_validity_figure.py --data-only",
     "python3.10 scripts/paper/paper_preflight.py --repo-root .",
     "scripts/run_paper_preflight_suite.sh",
     "git diff --check",

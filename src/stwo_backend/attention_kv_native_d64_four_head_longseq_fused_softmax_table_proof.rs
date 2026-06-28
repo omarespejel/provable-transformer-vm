@@ -1050,7 +1050,7 @@ fn mix_fused_summary(
 }
 
 fn validate_pcs_config(actual: PcsConfig) -> Result<PcsConfig> {
-    if !super::publication_v1_pcs_config_matches(&actual) {
+    if !super::fixed_stwo_measurement_pcs_config_matches(&actual) {
         return Err(fused_error(
             "PCS config does not match fixed Stwo measurement PCS profile",
         ));
@@ -1059,7 +1059,7 @@ fn validate_pcs_config(actual: PcsConfig) -> Result<PcsConfig> {
 }
 
 fn fused_pcs_config() -> PcsConfig {
-    super::publication_v1_pcs_config()
+    super::fixed_stwo_measurement_pcs_config()
 }
 
 fn fused_row_column_ids() -> Vec<String> {

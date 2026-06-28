@@ -1150,7 +1150,7 @@ fn verify_rows(
 }
 
 fn validate_pcs_config(actual: PcsConfig) -> Result<PcsConfig> {
-    if !super::publication_v1_pcs_config_matches(&actual) {
+    if !super::fixed_stwo_measurement_pcs_config_matches(&actual) {
         return Err(weighted_error(
             "PCS config does not match fixed Stwo measurement PCS profile",
         ));
@@ -1159,7 +1159,7 @@ fn validate_pcs_config(actual: PcsConfig) -> Result<PcsConfig> {
 }
 
 fn attention_pcs_config() -> PcsConfig {
-    super::publication_v1_pcs_config()
+    super::fixed_stwo_measurement_pcs_config()
 }
 
 fn attention_commitment_roots(

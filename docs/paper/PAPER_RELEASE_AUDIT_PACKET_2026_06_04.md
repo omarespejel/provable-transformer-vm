@@ -15,21 +15,35 @@ repository as paper provenance. That repository has an unrelated PR namespace.
 
 ## Current Release Hardening
 
+Current reviewed release commit before this packet refresh:
+
+```text
+d5ae50378d615075ebad24ef64a776cb48ee763b
+```
+
+Validation command reported passing on that commit:
+
+```bash
+PYTHON_BIN=.venv/bin/python scripts/run_proof_pressure_release_gate.sh
+```
+
 The latest merged release-hardening PR before this packet refresh was:
 
 ```text
-PR: #776
-Title: Refresh proof-pressure release provenance
-Merge commit: 1a7f85c225a52a7cadf660146136a5c522016769
+PR: #777
+Title: Harden proof-pressure reviewer release packet
+Merge commit: d5ae50378d615075ebad24ef64a776cb48ee763b
 ```
 
 PR #772 is the last PR that materially changed the paper's evidence argument.
 PR #775 completed the fixed Stwo measurement-profile naming cleanup and
 preserved legacy proof-verifier hardening strings where checked evidence expects
 exact text. PR #776 refreshed the release provenance packet and made the release
-gate interpreter selection explicit. Because this repository uses rebase merge
-for PRs, the final public release commit must be read from GitHub after the last
-launch-hygiene PR lands. Do not launch from a stale PR number or from a
+gate interpreter selection explicit. PR #777 reconciled the high-query mechanism
+table, pinned the release no-drift dependency file, and passed the canonical
+release gate on the merge commit above. Because this repository uses rebase
+merge for PRs, the final public release commit must be read from GitHub after
+the last launch-hygiene PR lands. Do not launch from a stale PR number or from a
 same-number PR in another repository.
 
 ## Release Manifest
@@ -44,13 +58,13 @@ Pinned launch artifacts in that manifest:
 
 ```text
 docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md
-sha256: 4a27f05abaafa921ef7ffddc9fb987dd301886f767ac075c54e64be07d346799
+sha256: 857067ac25d469c8a243b22c4fe388205772bc8967b9b2a8115322b59173d05e
 
 docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md
-sha256: 7cf52471c1c5e53afbea6f478ecd5f8ad219a96cc97f7937d82d25b5e1a85067
+sha256: 7b4bb9d5b2a6e081c0448ec9cf1d993ac25fbde838a68bebee4f49d8e5a46f7d
 
 docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json
-sha256: 54feffcf81c511691e549dd57f29ec7f5d522034c9b1788530cfbf2fbb47ff98
+sha256: 9c9177e80b103fb69dc2785df8682c20f5f764867c8b8d3626f44da0d2c533ac
 ```
 
 ## Required Launch Commands
@@ -68,15 +82,18 @@ interpreter via `PYTHON_BIN`, for example:
 PYTHON_BIN=.venv/bin/python scripts/run_proof_pressure_release_gate.sh
 ```
 
-The gate regenerates the claim pack, high-query evidence, figures, paper
-preflight outputs, and the full no-drift set pinned in the release manifest. Do
-not replace it with a shortened `git diff --exit-code` artifact list.
+The gate regenerates the claim pack, high-query evidence, deterministic figure
+TSV companions, paper preflight outputs, and the full no-drift set pinned in the
+release manifest. Do not replace it with a shortened `git diff --exit-code`
+artifact list.
 
 This is a paper-artifact no-drift gate. It checks regenerated paper summaries,
-figures, and release packets against committed or digest-pinned evidence. It is
-not the default heavy proof-regeneration path for every large proof envelope.
-Large envelopes remain covered by their digest manifests and separate
-regenerate/verify commands.
+deterministic figure TSVs, and release packets against committed or
+digest-pinned evidence. Rendered PDF, PNG, and SVG figures are preview artifacts
+and are not byte-diffed by the portable release gate. It is not the default
+heavy proof-regeneration path for every large proof envelope. Large envelopes
+remain covered by their digest manifests and separate regenerate/verify
+commands.
 
 The launch statement should include:
 
@@ -95,6 +112,7 @@ configuration:
 | FRI log blowup | `1` |
 | FRI blowup factor | `2` |
 | FRI query count | `3` |
+| query-blowup bits before proof-of-work | `3` |
 | FRI fold step | `1` |
 | backend | unmodified Stwo backend surface |
 
@@ -102,8 +120,8 @@ These are experimental measurement settings, not production-security parameter
 recommendations. The canonical helper
 `fixed_stwo_measurement_pcs_config()` names this fixed Stwo measurement profile.
 The older `publication_v1_pcs_config()` helper remains only as a compatibility
-alias for older generated modules; both are separate from the older Vanilla
-STARK `publication_v1_stark_options()` helper in `src/proof.rs`.
+alias for older non-paper generated modules; both are separate from the older
+Vanilla STARK `publication_v1_stark_options()` helper in `src/proof.rs`.
 
 ## Mechanism Accounting
 

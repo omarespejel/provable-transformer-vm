@@ -2,34 +2,37 @@
   "artifact_digests": [
     {
       "path": "docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md",
-      "sha256": "4a27f05abaafa921ef7ffddc9fb987dd301886f767ac075c54e64be07d346799",
-      "size_bytes": 51179
+      "sha256": "857067ac25d469c8a243b22c4fe388205772bc8967b9b2a8115322b59173d05e",
+      "size_bytes": 52365
     },
     {
       "path": "docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md",
-      "sha256": "7cf52471c1c5e53afbea6f478ecd5f8ad219a96cc97f7937d82d25b5e1a85067",
-      "size_bytes": 14715
+      "sha256": "7b4bb9d5b2a6e081c0448ec9cf1d993ac25fbde838a68bebee4f49d8e5a46f7d",
+      "size_bytes": 14217
     },
     {
       "path": "docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
-      "sha256": "54feffcf81c511691e549dd57f29ec7f5d522034c9b1788530cfbf2fbb47ff98",
-      "size_bytes": 11444
+      "sha256": "9c9177e80b103fb69dc2785df8682c20f5f764867c8b8d3626f44da0d2c533ac",
+      "size_bytes": 10875
     }
   ],
+  "current_reviewed_release_commit": "d5ae50378d615075ebad24ef64a776cb48ee763b",
+  "current_reviewed_release_validation_command_reported_passed": "PYTHON_BIN=.venv/bin/python scripts/run_proof_pressure_release_gate.sh",
   "fixed_experimental_stwo_config": {
     "backend": "unmodified Stwo backend surface",
     "fri_blowup_factor": 2,
     "fri_fold_step": 1,
     "fri_log_blowup": 1,
+    "fri_query_blowup_bits_without_pow": 3,
     "fri_query_count": 3,
     "proof_of_work_bits": 10,
-    "security_status": "fixed experimental Stwo PCS measurement profile; not the 96-bit Vanilla STARK publication-v1 policy and not a production-security parameter recommendation"
+    "security_status": "fixed experimental Stwo PCS measurement profile; q3 has 3 query-blowup bits before proof-of-work and is not the 96-bit Vanilla STARK publication-v1 policy or a production-security parameter recommendation"
   },
   "generated_by": "python3.10 scripts/zkai_paper_claim_pack_gate.py --write-json docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
   "last_merged_release_hardening_pr": {
-    "merge_commit": "1a7f85c225a52a7cadf660146136a5c522016769",
-    "number": 776,
-    "title": "Refresh proof-pressure release provenance"
+    "merge_commit": "d5ae50378d615075ebad24ef64a776cb48ee763b",
+    "number": 777,
+    "title": "Harden proof-pressure reviewer release packet"
   },
   "mechanism_accounting": {
     "attention_section_delta_total_saving_bytes": 223958,
@@ -48,7 +51,7 @@
     "not a Stwo optimization or Stwo-AI fork result"
   ],
   "provenance_warning": "Do not use same-number PRs from other repositories as paper provenance. The starknet-innovation/mezcal PR namespace is unrelated to this paper package.",
-  "release_candidate_base_commit": "1a7f85c225a52a7cadf660146136a5c522016769",
+  "release_candidate_base_commit": "d5ae50378d615075ebad24ef64a776cb48ee763b",
   "release_candidate_branch": "main",
   "release_commit_rule": "For public launch, use the final merged commit containing these paper artifacts and rerun every validation command on that exact commit. If this manifest moves in another release-hygiene PR, read the new final commit from GitHub after merge before launching.",
   "repository": "omarespejel/provable-transformer-vm",
@@ -56,16 +59,17 @@
   "validation_commands": [
     "scripts/run_proof_pressure_release_gate.sh",
     "python3.10 scripts/zkai_paper_claim_pack_gate.py --write-json docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
-    "python3.10 -m py_compile scripts/zkai_paper_claim_pack_gate.py scripts/zkai_attention_kv_high_query_sensitivity_gate.py scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py scripts/tests/test_zkai_paper_claim_pack_gate.py scripts/tests/test_zkai_attention_kv_high_query_sensitivity_gate.py scripts/tests/test_zkai_attention_kv_d64_high_query_sensitivity_gate.py scripts/paper/generate_proof_pressure_boundaries_figures.py scripts/paper/paper_preflight.py",
+    "python3.10 -m py_compile scripts/zkai_paper_claim_pack_gate.py scripts/zkai_attention_kv_high_query_sensitivity_gate.py scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py scripts/tests/test_zkai_paper_claim_pack_gate.py scripts/tests/test_zkai_attention_kv_high_query_sensitivity_gate.py scripts/tests/test_zkai_attention_kv_d64_high_query_sensitivity_gate.py scripts/paper/generate_proof_pressure_boundaries_figures.py scripts/paper/generate_zkml_statement_validity_figure.py scripts/paper/paper_preflight.py",
     "python3.10 -m unittest scripts.tests.test_zkai_paper_claim_pack_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_high_query_sensitivity_gate",
     "python3.10 -m unittest scripts.tests.test_zkai_attention_kv_d64_high_query_sensitivity_gate",
     "python3.10 scripts/zkai_attention_kv_high_query_sensitivity_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json --write-tsv docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv --write-md docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md",
     "python3.10 scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py --write-json docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json --write-tsv docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv --write-md docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md",
-    "python3.10 scripts/paper/generate_proof_pressure_boundaries_figures.py",
+    "python3.10 scripts/paper/generate_proof_pressure_boundaries_figures.py --data-only",
+    "python3.10 scripts/paper/generate_zkml_statement_validity_figure.py --data-only",
     "python3.10 scripts/paper/paper_preflight.py --repo-root .",
     "scripts/run_paper_preflight_suite.sh",
     "git diff --check",
-    "git diff --exit-code docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json docs/paper/evidence/stark-native-transformer-paper-release-manifest-2026-06.json docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md docs/paper/appendix-zkml-statement-validity-2026.md docs/paper/PAPER_NEXT_REVIEW_PACKET_2026_06_27.md docs/paper/PAPER_D64_HIGH_QUERY_AUDIT_PACKET_2026_06_27.md docs/paper/PAPER_RELEASE_AUDIT_PACKET_2026_06_04.md docs/paper/README.md docs/paper/REPRODUCE.md scripts/requirements.txt docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md docs/paper/figures/proof-pressure-growth-factors-2026-05.pdf docs/paper/figures/proof-pressure-growth-factors-2026-05.png docs/paper/figures/proof-pressure-growth-factors-2026-05.svg docs/paper/figures/proof-pressure-growth-factors-2026-05.tsv docs/paper/figures/proof-pressure-boundary-selection-2026-05.pdf docs/paper/figures/proof-pressure-boundary-selection-2026-05.png docs/paper/figures/proof-pressure-boundary-selection-2026-05.svg docs/paper/figures/proof-pressure-boundary-selection-2026-05.tsv docs/paper/figures/proof-pressure-opening-mechanism-2026-05.pdf docs/paper/figures/proof-pressure-opening-mechanism-2026-05.png docs/paper/figures/proof-pressure-opening-mechanism-2026-05.svg docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.pdf docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.png docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.svg docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.tsv"
+    "git diff --exit-code docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json docs/paper/evidence/stark-native-transformer-paper-release-manifest-2026-06.json docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md docs/paper/appendix-zkml-statement-validity-2026.md docs/paper/PAPER_NEXT_REVIEW_PACKET_2026_06_27.md docs/paper/PAPER_D64_HIGH_QUERY_AUDIT_PACKET_2026_06_27.md docs/paper/PAPER_RELEASE_AUDIT_PACKET_2026_06_04.md docs/paper/README.md docs/paper/REPRODUCE.md scripts/requirements.txt docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md docs/paper/figures/proof-pressure-growth-factors-2026-05.tsv docs/paper/figures/proof-pressure-boundary-selection-2026-05.tsv docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.tsv docs/paper/figures/zkml-statement-validity-boundary-2026-05.tsv"
   ]
 }
