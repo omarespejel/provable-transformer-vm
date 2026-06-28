@@ -709,6 +709,7 @@ fn lookup_error(message: impl Into<String>) -> VmError {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::Value;
 
     fn source_input() -> ZkAiAttentionKvNativeD128TwoHeadSeq32BoundedSoftmaxTableProofInput {
         let raw = include_str!(
@@ -887,5 +888,27 @@ mod tests {
             )
             .expect_err("proof tamper must reject");
         assert!(!error.to_string().is_empty());
+    }
+
+    #[test]
+    fn attention_kv_d128_two_head_seq32_softmax_table_lookup_rejects_pcs_config_drift() {
+        let input = source_input();
+        let mut envelope =
+            prove_zkai_attention_kv_native_d128_two_head_seq32_softmax_table_lookup_envelope(
+                &input,
+            )
+            .expect("prove lookup sidecar");
+        let mut payload: Value = serde_json::from_slice(&envelope.proof).expect("proof payload");
+        let pow_bits = payload["stark_proof"]["config"]["pow_bits"]
+            .as_u64()
+            .expect("pow bits");
+        payload["stark_proof"]["config"]["pow_bits"] = Value::from(pow_bits + 1);
+        envelope.proof = serde_json::to_vec(&payload).expect("proof json");
+        let error =
+            verify_zkai_attention_kv_native_d128_two_head_seq32_softmax_table_lookup_envelope(
+                &envelope,
+            )
+            .expect_err("PCS config drift must reject");
+        assert!(error.to_string().contains("PCS config"));
     }
 }

@@ -2131,6 +2131,29 @@ mod tests {
 
     #[test]
     #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
+    fn attention_kv_native_d128_four_head_seq64_bounded_softmax_table_rejects_pcs_config_drift() {
+        let input = require_input!();
+        let mut envelope =
+            prove_zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_envelope(
+                &input,
+            )
+            .expect("d128-four-head bounded Softmax-table attention proof");
+        let mut payload: Value = serde_json::from_slice(&envelope.proof).expect("proof payload");
+        let pow_bits = payload["stark_proof"]["config"]["pow_bits"]
+            .as_u64()
+            .expect("pow bits");
+        payload["stark_proof"]["config"]["pow_bits"] = Value::from(pow_bits + 1);
+        envelope.proof = serde_json::to_vec(&payload).expect("proof json");
+        let error =
+            verify_zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_envelope(
+                &envelope,
+            )
+            .expect_err("PCS config drift must reject");
+        assert!(error.to_string().contains("PCS config"));
+    }
+
+    #[test]
+    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
     fn attention_kv_native_d128_four_head_seq64_bounded_softmax_table_rejects_unknown_envelope_field(
     ) {
         let input = require_input!();
