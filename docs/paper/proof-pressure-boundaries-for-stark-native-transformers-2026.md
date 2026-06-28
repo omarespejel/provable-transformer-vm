@@ -485,14 +485,15 @@ win:
 
 The section-level accounting for the same q3/q6/q12 row gives the mechanism
 check. Opening-bucket saving here means FRI proof material plus decommitment
-material. Query-value saving means sampled and queried value bytes; it stays
-small compared with opening-bucket saving.
+material. Query-value saving means sampled and queried value bytes. The
+remaining column is the small residual from other serialized proof sections, so
+each row reconciles exactly to the total saving.
 
-| FRI queries | total saving | opening-bucket saving | opening-bucket share | query-value saving |
-|---:|---:|---:|---:|---:|
-| `3` | `39,282` | `37,827` | `96.3%` | `850` |
-| `6` | `63,296` | `61,665` | `97.4%` | `1,026` |
-| `12` | `115,510` | `113,219` | `98.0%` | `1,685` |
+| FRI queries | total saving | opening-bucket saving | opening-bucket share | query-value saving | remaining saving |
+|---:|---:|---:|---:|---:|---:|
+| `3` | `39,282` | `37,827` | `96.3%` | `850` | `605` |
+| `6` | `63,296` | `61,665` | `97.4%` | `1,026` | `605` |
+| `12` | `115,510` | `113,219` | `98.0%` | `1,685` | `606` |
 
 This is why the higher-query slice matters: as the query count rises on the same
 semantic workload, the extra fused saving is still overwhelmingly in shared
