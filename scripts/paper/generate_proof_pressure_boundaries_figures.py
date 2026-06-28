@@ -9,6 +9,7 @@ or imply a proving-speed win.
 
 from __future__ import annotations
 
+import argparse
 import csv
 import os
 from pathlib import Path
@@ -24,6 +25,7 @@ import matplotlib.pyplot as plt
 ROOT = Path(__file__).resolve().parents[2]
 FIGURE_DIR = ROOT / "docs" / "paper" / "figures"
 FIGURE_DIR.mkdir(parents=True, exist_ok=True)
+WRITE_RENDERED_FIGURES = True
 
 MAIN_EVIDENCE_TSV = (
     ROOT
@@ -142,6 +144,9 @@ def float_field(row: dict[str, str], key: str) -> float:
 
 
 def write_figure(fig: plt.Figure, stem: str) -> None:
+    if not WRITE_RENDERED_FIGURES:
+        plt.close(fig)
+        return
     pdf_path = FIGURE_DIR / f"{stem}.pdf"
     svg_path = FIGURE_DIR / f"{stem}.svg"
     png_path = FIGURE_DIR / f"{stem}.png"
@@ -486,6 +491,15 @@ def render_d64_high_query_figure() -> None:
 
 
 def main() -> None:
+    global WRITE_RENDERED_FIGURES
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--data-only",
+        action="store_true",
+        help="write deterministic TSV companions without rewriting rendered PDF/SVG/PNG previews",
+    )
+    args = parser.parse_args()
+    WRITE_RENDERED_FIGURES = not args.data_only
     render_growth_factor_figure()
     render_boundary_selection_figure()
     render_mechanism_figure()

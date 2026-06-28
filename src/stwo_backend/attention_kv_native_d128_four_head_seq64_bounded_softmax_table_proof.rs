@@ -1155,7 +1155,7 @@ fn verify_rows(
 }
 
 fn validate_pcs_config(actual: PcsConfig) -> Result<PcsConfig> {
-    if !super::publication_v1_pcs_config_matches(&actual) {
+    if !super::fixed_stwo_measurement_pcs_config_matches(&actual) {
         return Err(weighted_error(
             "PCS config does not match fixed Stwo measurement PCS profile",
         ));
@@ -1164,7 +1164,7 @@ fn validate_pcs_config(actual: PcsConfig) -> Result<PcsConfig> {
 }
 
 fn attention_pcs_config() -> PcsConfig {
-    super::publication_v1_pcs_config()
+    super::fixed_stwo_measurement_pcs_config()
 }
 
 fn attention_commitment_roots(
@@ -2127,6 +2127,29 @@ mod tests {
             )
             .is_err()
         );
+    }
+
+    #[test]
+    #[ignore = "requires local-only d128 four-head seq64 source input artifact"]
+    fn attention_kv_native_d128_four_head_seq64_bounded_softmax_table_rejects_pcs_config_drift() {
+        let input = require_input!();
+        let mut envelope =
+            prove_zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_envelope(
+                &input,
+            )
+            .expect("d128-four-head bounded Softmax-table attention proof");
+        let mut payload: Value = serde_json::from_slice(&envelope.proof).expect("proof payload");
+        let pow_bits = payload["stark_proof"]["config"]["pow_bits"]
+            .as_u64()
+            .expect("pow bits");
+        payload["stark_proof"]["config"]["pow_bits"] = Value::from(pow_bits + 1);
+        envelope.proof = serde_json::to_vec(&payload).expect("proof json");
+        let error =
+            verify_zkai_attention_kv_native_d128_four_head_seq64_bounded_softmax_table_envelope(
+                &envelope,
+            )
+            .expect_err("PCS config drift must reject");
+        assert!(error.to_string().contains("PCS config"));
     }
 
     #[test]

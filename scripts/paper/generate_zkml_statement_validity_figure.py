@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import csv
 import os
 from pathlib import Path
@@ -83,7 +84,12 @@ def write_tsv() -> None:
     ]
     tsv_path = FIGURE_DIR / f"{STEM}.tsv"
     with tsv_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["layer", "question", "examples"], delimiter="\t")
+        writer = csv.DictWriter(
+            f,
+            fieldnames=["layer", "question", "examples"],
+            delimiter="\t",
+            lineterminator="\n",
+        )
         writer.writeheader()
         writer.writerows(rows)
     print(f"wrote {tsv_path}")
@@ -95,6 +101,18 @@ def normalize_svg(path: Path) -> None:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--data-only",
+        action="store_true",
+        help="write deterministic TSV companion without rewriting rendered PDF/SVG/PNG previews",
+    )
+    args = parser.parse_args()
+
+    if args.data_only:
+        write_tsv()
+        return
+
     fig, ax = plt.subplots(figsize=(8.4, 2.9), constrained_layout=True)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)

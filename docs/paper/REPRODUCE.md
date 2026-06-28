@@ -58,17 +58,21 @@ release manifest:
 | FRI log blowup | `1` |
 | FRI blowup factor | `2` |
 | FRI query count | `3` |
+| query-blowup bits before proof-of-work | `3` |
 | FRI fold step | `1` |
 
 These are measurement settings for boundary-placement experiments, not
-production-security parameter recommendations.
+production-security parameter recommendations. The q3 setting has only `3`
+query-blowup bits before proof-of-work under the repository's simple
+query-blowup floor label.
 
 Profile naming note: the canonical helper for this `q=3` Stwo PCS measurement
 profile is `fixed_stwo_measurement_pcs_config()`. The repository still contains
-`publication_v1_pcs_config()` as a compatibility alias for older generated
-modules. Neither name is the `publication_v1_stark_options()` Vanilla STARK
-profile in `src/proof.rs`, and neither should be read as a production-security
-or `96`-bit security setting for the bounded-attention paper.
+`publication_v1_pcs_config()` as a compatibility alias for older non-paper
+generated modules. Neither name is the `publication_v1_stark_options()` Vanilla
+STARK profile in `src/proof.rs`, and neither should be read as a
+production-security or `96`-bit security setting for the bounded-attention
+paper.
 
 ## Canonical Release Gate
 
@@ -82,11 +86,12 @@ The gate regenerates the machine-readable claim pack and figures, runs the
 paper preflight, checks Python syntax and unit tests for the claim-pack gate,
 and fails if committed paper artifacts drift.
 
-This is a paper-artifact no-drift gate. It regenerates paper summaries, figures,
-and release packets from committed or digest-pinned evidence. It is not the
-default heavy proof-regeneration path for every large proof envelope. Large
-envelopes are covered by digest manifests and separate regenerate/verify
-commands.
+This is a paper-artifact no-drift gate. It regenerates paper summaries,
+deterministic figure TSVs, and release packets from committed or digest-pinned
+evidence. Rendered PDF, PNG, and SVG figures are preview artifacts and are not
+the portable byte-exact boundary. The gate is not the default heavy
+proof-regeneration path for every large proof envelope. Large envelopes are
+covered by digest manifests and separate regenerate/verify commands.
 
 The gate defaults to `python3.10`. To use the repository venv or another Python
 `3.10+` environment with the paper dependencies installed, set `PYTHON_BIN`
@@ -120,7 +125,9 @@ PYTHON_BIN="${PYTHON_BIN:-python3.10}"
   --write-tsv docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv \
   --write-md docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md
 
-"$PYTHON_BIN" scripts/paper/generate_proof_pressure_boundaries_figures.py
+"$PYTHON_BIN" scripts/paper/generate_proof_pressure_boundaries_figures.py --data-only
+
+"$PYTHON_BIN" scripts/paper/generate_zkml_statement_validity_figure.py --data-only
 
 "$PYTHON_BIN" scripts/paper/paper_preflight.py --repo-root .
 

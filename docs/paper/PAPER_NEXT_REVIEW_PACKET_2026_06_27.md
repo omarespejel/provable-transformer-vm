@@ -10,10 +10,16 @@ Repository:
 omarespejel/provable-transformer-vm
 ```
 
-Current reviewed release-hygiene base commit:
+Current reviewed release commit before this packet refresh:
 
 ```text
-1a7f85c225a52a7cadf660146136a5c522016769
+d5ae50378d615075ebad24ef64a776cb48ee763b
+```
+
+Validation command reported passing on that commit:
+
+```bash
+PYTHON_BIN=.venv/bin/python scripts/run_proof_pressure_release_gate.sh
 ```
 
 If this handoff packet is moved by a later release-hygiene PR, the public
@@ -21,7 +27,9 @@ release commit is the latest merged `main` commit after that PR lands. Review
 that exact commit and re-run the release gate there. PR #772 is the last PR that
 materially changed the paper's evidence argument; PR #775 completed the fixed
 Stwo measurement-profile naming cleanup; PR #776 refreshed the release
-provenance packet and gate interpreter contract.
+provenance packet and gate interpreter contract; PR #777 reconciled the
+high-query mechanism table and passed the release gate on the merge commit
+above.
 
 Primary paper:
 
@@ -50,15 +58,18 @@ around lookup-heavy work.
 3. The paper explicitly says the `q=3` Stwo PCS setting is a fixed experimental
    measurement profile, not production security.
 4. The fixed Stwo measurement PCS profile is named
-   `fixed_stwo_measurement_pcs_config()` in new code. The older
-   `publication_v1_pcs_config()` helper remains only as a compatibility alias
-   and is distinguished from the Vanilla STARK `publication_v1_stark_options()`
-   path with its `96`-bit conjectured floor.
+   `fixed_stwo_measurement_pcs_config()` in bounded-attention proof code. The
+   older `publication_v1_pcs_config()` helper remains only as a compatibility
+   alias for older non-paper generated modules and is distinguished from the
+   Vanilla STARK `publication_v1_stark_options()` path with its `96`-bit
+   conjectured floor.
 5. The claim pack, reproduction note, release packets, README, and release
    manifest all carry the same profile boundary.
 6. PR #775 preserved legacy proof-verifier hardening strings where checked
    evidence expects exact text, so the naming cleanup does not rewrite prior
    evidence claims.
+7. The q3 measurement profile is labeled as `3` query-blowup bits before
+   proof-of-work, not as a production-security profile.
 
 ## Numbers To Check First
 
@@ -113,8 +124,10 @@ Expected result:
 Regeneration produced no diff against the committed paper artifacts.
 ```
 
-The gate regenerates the claim pack, high-query summaries, paper figures, and
-preflight outputs, then fails if the committed paper package drifts.
+The gate regenerates the claim pack, high-query summaries, deterministic figure
+TSVs, and preflight outputs, then fails if the committed paper package drifts.
+Rendered PDF, PNG, and SVG figures are preview artifacts, not the portable
+byte-exact boundary.
 
 ## Files To Read In Order
 

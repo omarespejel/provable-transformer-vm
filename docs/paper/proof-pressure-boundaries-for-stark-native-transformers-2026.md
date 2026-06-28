@@ -258,14 +258,26 @@ and `stwo-constraint-framework = "2.2.0"` in `Cargo.toml`. Public S-two
 documentation is cited for proof-object structure, not as a substitute for the
 exact crate-version statement.
 
-One implementation naming note matters for audit. New code names the `q=3` PCS
-setting `fixed_stwo_measurement_pcs_config()`. Older generated modules may
-still call the compatibility alias `publication_v1_pcs_config()`. Both names
-refer to the fixed Stwo measurement profile above. They are not the same object
-as `publication_v1_stark_options()` in `src/proof.rs`, which belongs to an
-older Vanilla STARK path with a `96`-bit conjectured-security floor. In this
-paper, `q=3` means the fixed experimental Stwo PCS measurement profile in the
-table above, not a production-security profile.
+One implementation naming note matters for audit. The measured bounded-attention
+PCS profile is intentionally separate from the older Vanilla STARK publication
+profile:
+
+| profile name | code path | parameters | status in this paper |
+|---|---|---|---|
+| fixed Stwo measurement profile | bounded-attention Stwo evidence | PoW `10`, log blowup `1`, q `3`, fold `1` | main proof-byte measurement profile; no production-security claim |
+| d64 query-sensitivity profile | bounded-attention Stwo evidence with explicit q patch | PoW `10`, log blowup `1`, q in `{6, 12}`, fold `1` | engineering sensitivity only; not production security |
+| Vanilla publication-v1 helper | `src/proof.rs` VM profile helper | expansion `16`, colinearity checks `24`, conjectured floor `96` bits | not used for the paper's Stwo PCS proof-byte rows |
+
+By the repository's simple query-blowup floor formula, the measured q3, q6, and
+q12 Stwo PCS rows correspond to `3`, `6`, and `12` query-blowup bits before
+proof-of-work. This is not a formal Stwo soundness calculation; it is an audit
+label that makes the scope impossible to confuse with the Vanilla
+`publication_v1_stark_options()` path. In this paper, `q=3` means the fixed
+experimental Stwo PCS measurement profile in the table above, not a
+production-security profile. The cited bounded-attention proof surfaces call
+`fixed_stwo_measurement_pcs_config()` directly; the legacy
+`publication_v1_pcs_config()` alias remains only for older non-paper generated
+modules.
 
 The large `d128_h4_seq64` row is represented by checked gate and route-matrix
 evidence with proof commitments, exact byte counts, mutation rejection, and
@@ -495,6 +507,21 @@ each row reconciles exactly to the total saving.
 | `6` | `63,296` | `61,665` | `97.4%` | `1,026` | `605` |
 | `12` | `115,510` | `113,219` | `98.0%` | `1,685` | `606` |
 
+The q3-to-q12 marginal slope makes the mechanism sharper:
+
+| q3 to q12 quantity | marginal bytes per extra FRI query |
+|---|---:|
+| split proof frontier | about `45,774` |
+| fused proof payload | about `37,304` |
+| total saving | about `8,470` |
+| opening-bucket saving | about `8,377` |
+| query-value saving | about `93` |
+| remaining saving | about `0` |
+
+Almost all of the marginal saving per extra query comes from the opening bucket.
+That is the quantitative version of the mechanism claim: the fused boundary
+shares proof plumbing; it does not remove the relation-specific queried values.
+
 This is why the higher-query slice matters: as the query count rises on the same
 semantic workload, the extra fused saving is still overwhelmingly in shared
 opening material rather than in the relation-specific values themselves.
@@ -674,8 +701,12 @@ for it.
 
 Use a Python environment with the paper dependencies installed from
 `scripts/requirements.txt` before running the figure scripts. The paper package
-pins the matplotlib and numpy versions used for byte-exact figure regeneration.
-The evidence gates below use `python3.10`.
+pins matplotlib and numpy for local figure preview consistency, but rendered
+PDF, PNG, and SVG bytes can still depend on system freetype, libpng, and fonts.
+The release gate therefore byte-diffs deterministic TSV companions, JSON, and
+Markdown artifacts. Rendered figures are regenerated preview artifacts, not the
+portable byte-exact reproducibility boundary. The evidence gates below use
+`python3.10`.
 
 The release audit packet is
 `docs/paper/PAPER_RELEASE_AUDIT_PACKET_2026_06_04.md`. The machine-readable
@@ -687,11 +718,11 @@ launch, run the commands below on the final merged release commit and record tha
 regeneration produced no diff against the committed paper artifacts.
 
 The release gate is a paper-artifact no-drift gate. It regenerates claim packs,
-summaries, figures, and release packets from committed or digest-pinned
-evidence, then fails if the checked paper package drifts. It is not the default
-heavy proof-regeneration path for every large proof envelope. Large envelopes
-are pinned by digest manifests and carry separate regenerate and native-verify
-commands.
+summaries, deterministic figure TSVs, and release packets from committed or
+digest-pinned evidence, then fails if the checked paper package drifts. It is
+not the default heavy proof-regeneration path for every large proof envelope.
+Large envelopes are pinned by digest manifests and carry separate regenerate and
+native-verify commands.
 
 The figure source is `scripts/paper/generate_proof_pressure_boundaries_figures.py`.
 It reads the checked TSV artifacts listed in Section 3 and writes the paper
@@ -775,6 +806,7 @@ python3.10 -m py_compile \
   scripts/tests/test_zkai_attention_kv_high_query_sensitivity_gate.py \
   scripts/tests/test_zkai_attention_kv_d64_high_query_sensitivity_gate.py \
   scripts/paper/generate_proof_pressure_boundaries_figures.py \
+  scripts/paper/generate_zkml_statement_validity_figure.py \
   scripts/paper/paper_preflight.py
 
 python3.10 -m unittest scripts.tests.test_zkai_paper_claim_pack_gate
@@ -793,7 +825,9 @@ python3.10 scripts/zkai_attention_kv_d64_high_query_sensitivity_gate.py \
   --write-tsv docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv \
   --write-md docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md
 
-python3.10 scripts/paper/generate_proof_pressure_boundaries_figures.py
+python3.10 scripts/paper/generate_proof_pressure_boundaries_figures.py --data-only
+
+python3.10 scripts/paper/generate_zkml_statement_validity_figure.py --data-only
 
 python3.10 scripts/paper/paper_preflight.py --repo-root .
 
@@ -819,22 +853,11 @@ git diff --exit-code \
   docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json \
   docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv \
   docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md \
-  docs/paper/figures/proof-pressure-growth-factors-2026-05.pdf \
-  docs/paper/figures/proof-pressure-growth-factors-2026-05.png \
-  docs/paper/figures/proof-pressure-growth-factors-2026-05.svg \
   docs/paper/figures/proof-pressure-growth-factors-2026-05.tsv \
-  docs/paper/figures/proof-pressure-boundary-selection-2026-05.pdf \
-  docs/paper/figures/proof-pressure-boundary-selection-2026-05.png \
-  docs/paper/figures/proof-pressure-boundary-selection-2026-05.svg \
   docs/paper/figures/proof-pressure-boundary-selection-2026-05.tsv \
-  docs/paper/figures/proof-pressure-opening-mechanism-2026-05.pdf \
-  docs/paper/figures/proof-pressure-opening-mechanism-2026-05.png \
-  docs/paper/figures/proof-pressure-opening-mechanism-2026-05.svg \
   docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv \
-  docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.pdf \
-  docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.png \
-  docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.svg \
-  docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.tsv
+  docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.tsv \
+  docs/paper/figures/zkml-statement-validity-boundary-2026-05.tsv
 ```
 
 ---
