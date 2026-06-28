@@ -7,13 +7,13 @@
     },
     {
       "path": "docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md",
-      "sha256": "89ed6c8328193f0282386d8e6099060b9b45e7d0fffabb96a134d1ab06774005",
-      "size_bytes": 14576
+      "sha256": "5070c18b2903a01f00fded7f91017d96510f4048fa000b90d38710874ea89982",
+      "size_bytes": 14686
     },
     {
       "path": "docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
-      "sha256": "0b3f788a8cd713b35e0264241938a12090e761b69db5c342dc4b952917644642",
-      "size_bytes": 11367
+      "sha256": "9b6787c7a361f8847e9a7034b4aaeb8710d0ee3ec611c114399269a843c16e86",
+      "size_bytes": 11419
     }
   ],
   "fixed_experimental_stwo_config": {
@@ -26,10 +26,10 @@
     "security_status": "fixed experimental Stwo PCS measurement profile; not the 96-bit Vanilla STARK publication-v1 policy and not a production-security parameter recommendation"
   },
   "generated_by": "python3.10 scripts/zkai_paper_claim_pack_gate.py --write-json docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json",
-  "last_merged_paper_sync_pr": {
-    "merge_commit": "9d16c0bad1b9c2584f92b33b9958b66340ad1eb3",
-    "number": 763,
-    "title": "Sync proof-pressure claim pack with current evidence"
+  "last_merged_release_hardening_pr": {
+    "merge_commit": "ee2e4eaaecd9bc8586ca239db0599004a4238b62",
+    "number": 775,
+    "title": "Clarify fixed Stwo measurement PCS profile"
   },
   "mechanism_accounting": {
     "attention_section_delta_total_saving_bytes": 223958,
@@ -48,8 +48,8 @@
     "not a Stwo optimization or Stwo-AI fork result"
   ],
   "provenance_warning": "Do not use same-number PRs from other repositories as paper provenance. The starknet-innovation/mezcal PR namespace is unrelated to this paper package.",
-  "release_candidate_base_commit": "e7e28a896c079dc4bd4eb66570dbe0127646eb70",
-  "release_candidate_branch": "codex/proof-pressure-top-paper-hardening-765",
+  "release_candidate_base_commit": "ee2e4eaaecd9bc8586ca239db0599004a4238b62",
+  "release_candidate_branch": "main",
   "release_commit_rule": "For public launch, use the final merged commit containing these paper artifacts and rerun every validation command on that exact commit. Rebase-merge PRs cannot know their final commit SHA before merge.",
   "repository": "omarespejel/provable-transformer-vm",
   "schema": "stark-native-transformer-paper-release-manifest-v1",
@@ -66,6 +66,6 @@
     "python3.10 scripts/paper/paper_preflight.py --repo-root .",
     "scripts/run_paper_preflight_suite.sh",
     "git diff --check",
-    "git diff --exit-code docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json docs/paper/evidence/stark-native-transformer-paper-release-manifest-2026-06.json docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md docs/paper/appendix-zkml-statement-validity-2026.md docs/paper/PAPER_NEXT_REVIEW_PACKET_2026_06_27.md docs/paper/PAPER_D64_HIGH_QUERY_AUDIT_PACKET_2026_06_27.md docs/paper/README.md docs/paper/REPRODUCE.md docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md docs/paper/figures/proof-pressure-growth-factors-2026-05.pdf docs/paper/figures/proof-pressure-growth-factors-2026-05.png docs/paper/figures/proof-pressure-growth-factors-2026-05.svg docs/paper/figures/proof-pressure-growth-factors-2026-05.tsv docs/paper/figures/proof-pressure-boundary-selection-2026-05.pdf docs/paper/figures/proof-pressure-boundary-selection-2026-05.png docs/paper/figures/proof-pressure-boundary-selection-2026-05.svg docs/paper/figures/proof-pressure-boundary-selection-2026-05.tsv docs/paper/figures/proof-pressure-opening-mechanism-2026-05.pdf docs/paper/figures/proof-pressure-opening-mechanism-2026-05.png docs/paper/figures/proof-pressure-opening-mechanism-2026-05.svg docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.pdf docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.png docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.svg docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.tsv"
+    "git diff --exit-code docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json docs/paper/evidence/stark-native-transformer-paper-release-manifest-2026-06.json docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md docs/paper/appendix-zkml-statement-validity-2026.md docs/paper/PAPER_NEXT_REVIEW_PACKET_2026_06_27.md docs/paper/PAPER_D64_HIGH_QUERY_AUDIT_PACKET_2026_06_27.md docs/paper/PAPER_RELEASE_AUDIT_PACKET_2026_06_04.md docs/paper/README.md docs/paper/REPRODUCE.md docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.tsv docs/engineering/zkai-attention-kv-d8-high-query-sensitivity-2026-06-26.md docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.json docs/engineering/evidence/zkai-attention-kv-d64-high-query-sensitivity-2026-06.tsv docs/engineering/zkai-attention-kv-d64-high-query-sensitivity-2026-06.md docs/paper/figures/proof-pressure-growth-factors-2026-05.pdf docs/paper/figures/proof-pressure-growth-factors-2026-05.png docs/paper/figures/proof-pressure-growth-factors-2026-05.svg docs/paper/figures/proof-pressure-growth-factors-2026-05.tsv docs/paper/figures/proof-pressure-boundary-selection-2026-05.pdf docs/paper/figures/proof-pressure-boundary-selection-2026-05.png docs/paper/figures/proof-pressure-boundary-selection-2026-05.svg docs/paper/figures/proof-pressure-boundary-selection-2026-05.tsv docs/paper/figures/proof-pressure-opening-mechanism-2026-05.pdf docs/paper/figures/proof-pressure-opening-mechanism-2026-05.png docs/paper/figures/proof-pressure-opening-mechanism-2026-05.svg docs/paper/figures/proof-pressure-opening-mechanism-2026-05.tsv docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.pdf docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.png docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.svg docs/paper/figures/proof-pressure-d64-high-query-sensitivity-2026-06.tsv"
   ]
 }

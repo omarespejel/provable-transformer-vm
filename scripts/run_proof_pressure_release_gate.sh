@@ -62,6 +62,7 @@ git diff --exit-code \
   docs/paper/appendix-zkml-statement-validity-2026.md \
   docs/paper/PAPER_NEXT_REVIEW_PACKET_2026_06_27.md \
   docs/paper/PAPER_D64_HIGH_QUERY_AUDIT_PACKET_2026_06_27.md \
+  docs/paper/PAPER_RELEASE_AUDIT_PACKET_2026_06_04.md \
   docs/paper/README.md \
   docs/paper/REPRODUCE.md \
   docs/engineering/evidence/zkai-attention-kv-d8-high-query-sensitivity-2026-06.json \

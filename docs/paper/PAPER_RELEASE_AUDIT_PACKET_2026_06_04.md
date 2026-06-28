@@ -13,20 +13,22 @@ omarespejel/provable-transformer-vm
 Do not use same-number PRs from `starknet-innovation/mezcal` or any other
 repository as paper provenance. That repository has an unrelated PR namespace.
 
-## Current Paper Sync
+## Current Release Hardening
 
-The last merged paper-sync PR before this hardening packet was:
+The latest merged release-hardening PR before this packet refresh was:
 
 ```text
-PR: #763
-Title: Sync proof-pressure claim pack with current evidence
-Merge commit: 9d16c0bad1b9c2584f92b33b9958b66340ad1eb3
+PR: #775
+Title: Clarify fixed Stwo measurement PCS profile
+Merge commit: ee2e4eaaecd9bc8586ca239db0599004a4238b62
 ```
 
-This hardening packet adds reviewer-facing provenance and wording fixes on top
-of that merged state. Because this repository uses rebase merge for PRs, the
-final public release commit must be read from GitHub after this hardening PR
-lands. Do not launch from a stale PR number or from a same-number PR in another
+PR #772 is the last PR that materially changed the paper's evidence argument.
+PR #775 completed the fixed Stwo measurement-profile naming cleanup and
+preserved legacy proof-verifier hardening strings where checked evidence expects
+exact text. Because this repository uses rebase merge for PRs, the final public
+release commit must be read from GitHub after the last launch-hygiene PR lands.
+Do not launch from a stale PR number or from a same-number PR in another
 repository.
 
 ## Release Manifest
@@ -41,13 +43,13 @@ Pinned launch artifacts in that manifest:
 
 ```text
 docs/paper/proof-pressure-boundaries-for-stark-native-transformers-2026.md
-sha256: fbe43618f5078bde340547e0025e981c74159778425c1443288f5392bde97b68
+sha256: 44bc0ee184be8cbf95535be240bd34609a491e03dc0bda048c82585f0a54f4c5
 
 docs/paper/stark-native-transformer-proof-claim-pack-2026-05.md
-sha256: ffcba356c93b84a831009141d7523bb05d610db01bae93f942296ce6ed00e64d
+sha256: 5070c18b2903a01f00fded7f91017d96510f4048fa000b90d38710874ea89982
 
 docs/paper/evidence/stark-native-transformer-claim-pack-2026-05.json
-sha256: 9a0d8c09ce0b37d6d14330ac9f1a214a12c2b70d9eb5b40f55f83a9fc04d3166
+sha256: 9b6787c7a361f8847e9a7034b4aaeb8710d0ee3ec611c114399269a843c16e86
 ```
 
 ## Required Launch Commands

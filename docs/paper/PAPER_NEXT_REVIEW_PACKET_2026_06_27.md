@@ -10,15 +10,17 @@ Repository:
 omarespejel/provable-transformer-vm
 ```
 
-Core paper package commit after PR #772:
+Current launch-candidate commit after PR #775:
 
 ```text
-a242ea209f2f842fc9e93bb37e16f4287b6c4455
+ee2e4eaaecd9bc8586ca239db0599004a4238b62
 ```
 
-If this handoff packet is merged after that commit, review the latest `main`
-commit, but treat PR #772 as the last commit that changed the core paper
-argument. Re-run the release gate on the exact commit under review.
+If this handoff packet is moved by a later release-hygiene PR, review the latest
+`main` commit and re-run the release gate on that exact commit. PR #772 is the
+last PR that materially changed the paper's evidence argument; PR #775 completed
+the fixed Stwo measurement-profile naming cleanup and preserved legacy hardening
+artifact strings.
 
 Primary paper:
 
@@ -53,6 +55,9 @@ around lookup-heavy work.
    path with its `96`-bit conjectured floor.
 5. The claim pack, reproduction note, release packets, README, and release
    manifest all carry the same profile boundary.
+6. PR #775 preserved legacy proof-verifier hardening strings where checked
+   evidence expects exact text, so the naming cleanup does not rewrite prior
+   evidence claims.
 
 ## Numbers To Check First
 
@@ -147,11 +152,6 @@ Please answer these before launch:
 
 ## Known Follow-Ups
 
-- Issue #773 tracks the helper-name cleanup for the fixed Stwo measurement PCS
-  profile. After that cleanup, reviewers should see
-  `fixed_stwo_measurement_pcs_config()` as the canonical helper name and
-  `publication_v1_pcs_config()` only as a compatibility alias for older
-  generated modules.
 - d128 high-query sensitivity is future work. A cheap probe crossed the current
   bounded verifier cap, so it should not be folded into this launch package.
 - Full transformer-block proving and external apples-to-apples baselines remain
